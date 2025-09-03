@@ -169,6 +169,10 @@ class LLM_Agentflow implements INode {
                     {
                         label: 'Assistant Message',
                         name: 'assistantMessage'
+                    },
+                    {
+                        label: 'Do not append to chat history',
+                        name: 'ignore'
                     }
                 ],
                 default: 'userMessage'
@@ -591,6 +595,9 @@ class LLM_Agentflow implements INode {
             if (returnResponseAs === 'assistantMessage') {
                 returnRole = 'assistant'
             }
+            if (returnResponseAs === 'ignore') {
+                returnRole = 'ignore';
+            }
 
             // Prepare and return the final output
             return {
@@ -606,11 +613,13 @@ class LLM_Agentflow implements INode {
                     ...inputMessages,
 
                     // LLM response
-                    {
-                        role: returnRole,
-                        content: finalResponse,
-                        name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id
-                    }
+                    ...(returnResponseAs === 'ignore' ? [] :
+                        [{
+                            role: returnRole,
+                            content: finalResponse,
+                            name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id
+                        }]
+                    )
                 ]
             }
         } catch (error) {
