@@ -57,6 +57,15 @@ class Text_DocumentLoaders implements INode {
                 placeholder: 'key1, key2, key3.nestedKey1',
                 optional: true,
                 additionalParams: true
+            },
+            {
+                label: 'Metadata source (filename) key',
+                name: 'sourceKey',
+                type: 'string',
+                description:
+                    'Each chunk is taken from a particular file. Save the filename to this specified key in the chunk\'s metadata.',
+                placeholder: 'source',
+                optional: true
             }
         ]
         this.outputs = [
@@ -81,6 +90,7 @@ class Text_DocumentLoaders implements INode {
         const metadata = nodeData.inputs?.metadata
         const output = nodeData.outputs?.output as string
         const _omitMetadataKeys = nodeData.inputs?.omitMetadataKeys as string
+        const sourceKey = nodeData.inputs?.sourceKey as string
 
         let omitMetadataKeys: string[] = []
         if (_omitMetadataKeys) {
@@ -107,13 +117,11 @@ class Text_DocumentLoaders implements INode {
                 const blob = new Blob([fileData])
                 const loader = new TextLoader(blob)
 
+                let splittedDocs = await loader.load()
                 if (textSplitter) {
-                    let splittedDocs = await loader.load()
                     splittedDocs = await textSplitter.splitDocuments(splittedDocs)
-                    docs.push(...splittedDocs)
-                } else {
-                    docs.push(...(await loader.load()))
                 }
+                docs.push(...splittedDocs)
             }
         } else {
             if (txtFileBase64.startsWith('[') && txtFileBase64.endsWith(']')) {
@@ -125,18 +133,23 @@ class Text_DocumentLoaders implements INode {
             for (const file of files) {
                 if (!file) continue
                 const splitDataURI = file.split(',')
-                splitDataURI.pop()
+                const tail = splitDataURI.pop()
+                const filename = (tail?.startsWith("filename:")) ? (tail.substring("filename:".length)) : ("")
                 const bf = Buffer.from(splitDataURI.pop() || '', 'base64')
                 const blob = new Blob([bf])
                 const loader = new TextLoader(blob)
 
+                let splittedDocs = await loader.load()
                 if (textSplitter) {
-                    let splittedDocs = await loader.load()
                     splittedDocs = await textSplitter.splitDocuments(splittedDocs)
-                    docs.push(...splittedDocs)
-                } else {
-                    docs.push(...(await loader.load()))
                 }
+                if (filename && sourceKey) {
+                    splittedDocs.forEach(doc => {
+                        doc.metadata[sourceKey] = filename
+                        delete doc.metadata["blobType"]
+                    })
+                }
+                docs.push(...splittedDocs)
             }
         }
 
