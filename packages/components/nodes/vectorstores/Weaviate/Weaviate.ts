@@ -1,13 +1,47 @@
 import { flatten } from 'lodash'
 import weaviate, { WeaviateClient, ApiKey } from 'weaviate-ts-client'
 import { WeaviateLibArgs, WeaviateStore } from '@langchain/weaviate'
-import { Document } from '@langchain/core/documents'
+import { Document, DocumentInterface } from '@langchain/core/documents'
 import { Embeddings } from '@langchain/core/embeddings'
 import { ICommonObject, INode, INodeData, INodeOutputsValue, INodeParams, IndexingResult } from '../../../src/Interface'
 import { getBaseClasses, getCredentialData, getCredentialParam, normalizeKeysRecursively } from '../../../src/utils'
 import { addMMRInputParams, resolveVectorStoreOrRetriever } from '../VectorStoreUtils'
 import { index } from '../../../src/indexing'
 import { VectorStore } from '@langchain/core/vectorstores'
+import { Callbacks } from '@langchain/core/callbacks/manager'
+
+class WeaviateStoreCustom extends WeaviateStore {
+    maxDistance: number
+    distanceKey: string
+    constructor(embeddings: any, args: any, maxDistance: number = 1, distanceKey: string = "") {
+        super(embeddings, args);
+        Object.defineProperty(this, "maxDistance", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "distanceKey", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        this.maxDistance = maxDistance;
+        this.distanceKey = distanceKey;
+    }
+    async similaritySearch(query: string, k: number, filter: this['FilterType'] | undefined = undefined, _callbacks: Callbacks | undefined = undefined): Promise<DocumentInterface[]> {
+        const results = await this.similaritySearchVectorWithScore(await this.embeddings.embedQuery(query), k, filter);
+        return results
+                .filter((result) => result[1] <= this.maxDistance)
+                .map((result) => {
+                    if (this.distanceKey)
+                        result[0].metadata[this.distanceKey] = result[1];
+                    return [result[0], result[1]] as [Document<Record<string, any>>, number];
+                })
+                .map((result) => result[0]);
+    }
+}
 
 class Weaviate_VectorStores implements INode {
     label: string
@@ -114,6 +148,24 @@ class Weaviate_VectorStores implements INode {
                 type: 'number',
                 additionalParams: true,
                 optional: true
+            },
+            {
+                label: 'Maximum distance threshold',
+                name: 'maxDistance',
+                description: 'Maximum distance threshold per retrieved document. Default to 1 (no filtering).',
+                placeholder: '0.80',
+                type: 'number',
+                additionalParams: true,
+                optional: true
+            },
+            {
+                label: 'Metadata distance key',
+                name: 'distanceKey',
+                description: 'The metadata key that will be assigned the distance of a given document (chunk) from the query.',
+                placeholder: 'distance',
+                type: 'string',
+                optional: true,
+                additionalParams: true
             },
             {
                 label: 'Weaviate Search Filter',
@@ -271,6 +323,9 @@ class Weaviate_VectorStores implements INode {
         const weaviateTextKey = nodeData.inputs?.weaviateTextKey as string
         const weaviateMetadataKeys = nodeData.inputs?.weaviateMetadataKeys as string
         const embeddings = nodeData.inputs?.embeddings as Embeddings
+        const maxDistanceStr = nodeData.inputs?.maxDistance as string
+        const maxDistance = maxDistanceStr ? parseFloat(maxDistanceStr) : undefined;
+        const distanceKey = nodeData.inputs?.distanceKey as string
         let weaviateFilter = nodeData.inputs?.weaviateFilter
 
         const credentialData = await getCredentialData(nodeData.credential ?? '', options)
@@ -296,7 +351,8 @@ class Weaviate_VectorStores implements INode {
             weaviateFilter = typeof weaviateFilter === 'object' ? weaviateFilter : JSON.parse(weaviateFilter)
         }
 
-        const vectorStore = (await WeaviateStore.fromExistingIndex(embeddings, obj)) as unknown as VectorStore
+        // const vectorStore = (await WeaviateStore.fromExistingIndex(embeddings, obj)) as unknown as VectorStore
+        const vectorStore = (new WeaviateStoreCustom(embeddings, obj, maxDistance, distanceKey)) as unknown as VectorStore
 
         return resolveVectorStoreOrRetriever(nodeData, vectorStore, weaviateFilter)
     }
