@@ -113,6 +113,23 @@ class ExecuteFlow_Agentflow implements INode {
                         acceptNodeOutputAsVariable: true
                     }
                 ]
+            },
+            {
+                label: 'Merge flow state',
+                name: 'executeFlowMergeState',
+                description: 'Merge this flow\'s state with the state variables of the workflow',
+                type: 'array',
+                optional: true,
+                acceptVariable: true,
+                array: [
+                    {
+                        label: 'Name of state variable',
+                        name: 'variable',
+                        type: 'asyncOptions',
+                        loadMethod: 'listRuntimeStateKeys',
+                        freeSolo: true
+                    }
+                ]
             }
         ]
     }
@@ -163,6 +180,7 @@ class ExecuteFlow_Agentflow implements INode {
         const flowInput = nodeData.inputs?.executeFlowInput as string
         const returnResponseAs = nodeData.inputs?.executeFlowReturnResponseAs as string
         const _executeFlowUpdateState = nodeData.inputs?.executeFlowUpdateState
+        const _executeFlowMergeState = nodeData.inputs?.executeFlowMergeState
 
         let overrideConfig = nodeData.inputs?.executeFlowOverrideConfig
         if (typeof overrideConfig === 'string' && overrideConfig.startsWith('{') && overrideConfig.endsWith('}')) {
@@ -219,6 +237,17 @@ class ExecuteFlow_Agentflow implements INode {
             let newState = { ...state }
             if (_executeFlowUpdateState && Array.isArray(_executeFlowUpdateState) && _executeFlowUpdateState.length > 0) {
                 newState = updateFlowState(state, _executeFlowUpdateState)
+            }
+
+            // Update flow state with variables from subflow
+            if (_executeFlowMergeState && Array.isArray(_executeFlowMergeState) && _executeFlowMergeState.length > 0) {
+                const subflowData = response.data.agentFlowExecutedData;
+                const subflowFinalNode = subflowData[subflowData.length-1];
+                const subflowState = subflowFinalNode.data.state;
+                for (const item of _executeFlowMergeState) {
+                    const variable = item["variable"];
+                    newState[variable] = subflowState[variable] ?? newState[variable];
+                }
             }
 
             // Process template variables in state
