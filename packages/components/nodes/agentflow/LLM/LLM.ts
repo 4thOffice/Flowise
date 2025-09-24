@@ -136,11 +136,11 @@ class LLM_Agentflow implements INode {
                 }
             },
             {
-                label: 'Strict Mode',
-                name: 'llmMemoryWindowStrict',
+                label: 'Disable Strict Mode',
+                name: 'llmMemoryWindowDisableStrict',
                 type: 'boolean',
                 default: false,
-                description: 'Enforce the limit on the number of user & assistant messages to (2*)N(+1). Recommended if you\'re overriding llmMessages',
+                description: 'Disable strict mode. Strict mode is enforcement of limiting the number of user & assistant messages to (2*)N(+1). Strict mode is useful if you\'re overriding llmMessages',
                 show: {
                     llmMemoryType: 'windowSize'
                 }
@@ -742,9 +742,9 @@ class LLM_Agentflow implements INode {
             })
         }
 
-        const windowStrict = nodeData.inputs?.llmMemoryWindowStrict as boolean
-        if (memoryType === 'windowSize' && windowStrict === true) {
-            // Window memory (strict): Keep all system messages and only the last/latest 2*N+1 user and assistant messages
+        const windowDisableStrict = nodeData.inputs?.llmMemoryWindowDisableStrict as boolean
+        if (memoryType === 'windowSize' && windowDisableStrict !== true) {
+            // Window memory (strict mode): Keep all system messages and only the last/latest 2*N+1 user and assistant messages
             // Cut out earlier user & assistant messages if there are any
             const windowSize = nodeData.inputs?.llmMemoryWindowSize as number
             const maxUserAssistantMessages: number = 2*windowSize+1;
