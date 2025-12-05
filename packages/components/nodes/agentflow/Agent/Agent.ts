@@ -340,6 +340,10 @@ class Agent_Agentflow implements INode {
                     {
                         label: 'Assistant Message',
                         name: 'assistantMessage'
+                    },
+                    {
+                        label: 'Do not append to chat history',
+                        name: 'ignore'
                     }
                 ],
                 default: 'userMessage'
@@ -1143,20 +1147,23 @@ class Agent_Agentflow implements INode {
                     // ...toolCallMessages,
 
                     // End with the final assistant response
-                    {
-                        role: returnRole,
-                        content: finalResponse,
-                        name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id,
-                        ...(((artifacts && artifacts.length > 0) ||
-                            (fileAnnotations && fileAnnotations.length > 0) ||
-                            (usedTools && usedTools.length > 0)) && {
-                            additional_kwargs: {
-                                ...(artifacts && artifacts.length > 0 && { artifacts }),
-                                ...(fileAnnotations && fileAnnotations.length > 0 && { fileAnnotations }),
-                                ...(usedTools && usedTools.length > 0 && { usedTools })
-                            }
-                        })
-                    }
+                    ...(
+                        returnResponseAs === 'ignore' ? [] :
+                            [{
+                                role: returnRole,
+                                content: finalResponse,
+                                name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id,
+                                ...(((artifacts && artifacts.length > 0) ||
+                                    (fileAnnotations && fileAnnotations.length > 0) ||
+                                    (usedTools && usedTools.length > 0)) && {
+                                    additional_kwargs: {
+                                        ...(artifacts && artifacts.length > 0 && { artifacts }),
+                                        ...(fileAnnotations && fileAnnotations.length > 0 && { fileAnnotations }),
+                                        ...(usedTools && usedTools.length > 0 && { usedTools })
+                                    }
+                                })
+                            }]
+                    )
                 ]
             }
         } catch (error) {

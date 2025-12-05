@@ -86,6 +86,10 @@ class ExecuteFlow_Agentflow implements INode {
                     {
                         label: 'Assistant Message',
                         name: 'assistantMessage'
+                    },
+                    {
+                        label: 'Do not append to chat history',
+                        name: 'ignore'
                     }
                 ],
                 default: 'userMessage'
@@ -287,11 +291,15 @@ class ExecuteFlow_Agentflow implements INode {
                 state: newState,
                 chatHistory: [
                     ...inputMessages,
-                    {
-                        role: returnRole,
-                        content: resultText,
-                        name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id
-                    }
+                    ...(
+                        returnResponseAs === 'ignore' ? [] :
+                            [{
+                                role: returnRole,
+                                content: resultText,
+                                name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id
+
+                            }]
+                    )
                 ]
             }
 
