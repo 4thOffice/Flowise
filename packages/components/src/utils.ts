@@ -102,6 +102,8 @@ export const availableDependencies = [
     'lunary',
     'mammoth',
     'moment',
+    'moment-timezone',
+    'moment-business-days',
     'mongodb',
     'mysql2',
     'node-fetch',
