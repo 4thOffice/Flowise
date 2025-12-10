@@ -455,6 +455,7 @@ class Agent_Agentflow implements INode {
                         placeholder: 'value1, value2, value3',
                         description: 'Enum values. Separated by comma',
                         optional: true,
+                        acceptVariable: true,
                         show: {
                             'agentStructuredOutput[$index].type': 'enum'
                         }
