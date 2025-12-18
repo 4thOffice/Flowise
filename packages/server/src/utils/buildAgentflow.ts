@@ -1185,7 +1185,8 @@ const executeNode = async ({
             parentTraceIds,
             humanInputAction,
             iterationContext,
-            evaluationRunId
+            evaluationRunId,
+            overrideConfig
         }
 
         // Execute node

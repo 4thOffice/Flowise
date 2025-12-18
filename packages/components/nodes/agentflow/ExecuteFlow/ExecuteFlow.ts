@@ -188,7 +188,7 @@ class ExecuteFlow_Agentflow implements INode {
         let overrideConfig = nodeData.inputs?.executeFlowOverrideConfig
         if (typeof overrideConfig === 'string' && overrideConfig.startsWith('{') && overrideConfig.endsWith('}')) {
             try {
-                overrideConfig = parseJsonBody(overrideConfig)
+                overrideConfig = { ...parseJsonBody(overrideConfig), ...options.overrideConfig };
             } catch (parseError) {
                 throw new Error(`Invalid JSON in executeFlowOverrideConfig: ${parseError.message}`)
             }
