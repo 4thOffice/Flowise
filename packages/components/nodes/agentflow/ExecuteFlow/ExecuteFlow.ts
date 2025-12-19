@@ -184,14 +184,25 @@ class ExecuteFlow_Agentflow implements INode {
         const returnResponseAs = nodeData.inputs?.executeFlowReturnResponseAs as string
         const _executeFlowUpdateState = nodeData.inputs?.executeFlowUpdateState
         const _executeFlowMergeState = nodeData.inputs?.executeFlowMergeState
+        const parentConfig = (options?.overrideConfig ?? {})
 
-        let overrideConfig = nodeData.inputs?.executeFlowOverrideConfig
-        if (typeof overrideConfig === 'string' && overrideConfig.startsWith('{') && overrideConfig.endsWith('}')) {
+        let childConfig = nodeData.inputs?.executeFlowOverrideConfig
+        if (typeof childConfig === 'string' && childConfig.startsWith('{') && childConfig.endsWith('}')) {
             try {
-                overrideConfig = { ...parseJsonBody(overrideConfig), ...options.overrideConfig };
+                childConfig = parseJsonBody(childConfig)
             } catch (parseError) {
                 throw new Error(`Invalid JSON in executeFlowOverrideConfig: ${parseError.message}`)
             }
+        }
+        else if (!childConfig) {
+            childConfig = {}
+        }
+        let overrideConfig = {}
+        if (parentConfig && typeof parentConfig === "object" && !Array.isArray(parentConfig)) {
+            overrideConfig = { ...overrideConfig, ...parentConfig }
+        }
+        if (childConfig && typeof childConfig === "object" && !Array.isArray(childConfig)) {
+            overrideConfig = { ...overrideConfig, ...childConfig }
         }
 
         const state = options.agentflowRuntime?.state as ICommonObject
