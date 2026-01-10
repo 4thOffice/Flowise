@@ -31,7 +31,7 @@ class HumanInput_Agentflow implements INode {
     constructor() {
         this.label = 'Human Input'
         this.name = 'humanInputAgentflow'
-        this.version = 1.0
+        this.version = 1.01
         this.type = 'HumanInput'
         this.category = 'Agent Flows'
         this.description = 'Request human input, approval or rejection during execution'
@@ -65,6 +65,22 @@ class HumanInput_Agentflow implements INode {
                 show: {
                     humanInputDescriptionType: 'fixed'
                 }
+            },
+            {
+                label: 'Proceed text',
+                name: 'humanInputAcceptLabelText',
+                type: 'string',
+                placeholder: 'Proceed',
+                acceptVariable: true,
+                rows: 1
+            },
+            {
+                label: 'Reject text',
+                name: 'humanInputRejectLabelText',
+                type: 'string',
+                placeholder: 'Reject',
+                acceptVariable: true,
+                rows: 1
             },
             {
                 label: 'Model',

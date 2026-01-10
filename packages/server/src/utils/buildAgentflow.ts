@@ -1347,8 +1347,8 @@ const executeNode = async ({
                     reject: 'Reject'
                 },
                 elements: [
-                    { type: 'agentflowv2-approve-button', label: 'Proceed' },
-                    { type: 'agentflowv2-reject-button', label: 'Reject' }
+                    { type: 'agentflowv2-approve-button', label: reactFlowNodeData.inputs?.humanInputAcceptLabelText || 'Proceed' },
+                    { type: 'agentflowv2-reject-button', label: reactFlowNodeData.inputs?.humanInputRejectLabelText || 'Reject' }
                 ],
                 data: {
                     nodeId,
