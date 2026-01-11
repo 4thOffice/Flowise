@@ -837,7 +837,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                 setPendingActionData(action.data)
                 setOpenFeedbackDialog(true)
             } else {
-                onSubmitResponse(action.data, '', type)
+                onSubmitResponse(action.data, elem.label, type)
             }
         } else {
             handleSubmit(undefined, elem.label, action)
