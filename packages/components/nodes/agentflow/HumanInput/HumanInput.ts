@@ -222,7 +222,7 @@ class HumanInput_Agentflow implements INode {
                 state
             }
 
-            if (nodeData.inputs?.humanInputHistoryToggle === false && humanInput.feedback) {
+            if (!(nodeData.inputs?.humanInputHistoryToggle === false) && humanInput.feedback) {
                 ;(nodeOutput as any).chatHistory = [{ role: 'user', content: humanInput.feedback }]
             }
 
