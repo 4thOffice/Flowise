@@ -1348,14 +1348,19 @@ const executeNode = async ({
                     reject: 'Reject'
                 },
                 elements: [
-                    { type: 'agentflowv2-approve-button', label: 'Proceed' },
-                    { type: 'agentflowv2-reject-button', label: 'Reject' }
+                    { type: 'agentflowv2-approve-button', label: reactFlowNodeData.inputs?.humanInputAcceptLabelText || 'Proceed' },
+                    { type: 'agentflowv2-reject-button', label: reactFlowNodeData.inputs?.humanInputRejectLabelText || 'Reject' }
                 ],
                 data: {
                     nodeId,
                     nodeLabel: reactFlowNode.data.label,
                     input: results.input
-                }
+                },
+                extra: ''
+            }
+            if (results.state && results.state.doNotIncludeFeedbackHistory) {
+                delete results.state.doNotIncludeFeedbackHistory
+                humanInputAction.extra = 'doNotIncludeFeedbackHistory'
             }
 
             const newWorkflowExecutedData: IAgentflowExecutedData = {
@@ -1499,7 +1504,7 @@ export const executeAgentFlow = async ({
 }: IExecuteAgentFlowParams) => {
     logger.debug('\n🚀 Starting flow execution')
 
-    const question = incomingInput.question
+    let question = incomingInput.question
     const form = incomingInput.form
     let overrideConfig = incomingInput.overrideConfig ?? {}
     const uploads = incomingInput.uploads
@@ -2022,7 +2027,15 @@ export const executeAgentFlow = async ({
             if (nodeResult && nodeResult.output && nodeResult.output.ephemeralMemory) {
                 pastChatHistory.length = 0
             }
-
+            if (nodeResult && nodeResult.state && nodeResult.state.doNotIncludeFeedbackHistory) {
+                pastChatHistory.length = Math.max(0, pastChatHistory.length - 1)
+                if (pastChatHistory.length) {
+                    question = pastChatHistory[pastChatHistory.length - 1].message || pastChatHistory[pastChatHistory.length - 1].content
+                    incomingInput.question = question
+                    pastChatHistory.length = pastChatHistory.length - 1 // run original input
+                }
+                delete nodeResult.state.doNotIncludeFeedbackHistory
+            }
             // Process node outputs and handle branching
             const processResult = await processNodeOutputs({
                 nodeId: currentNode.nodeId,
@@ -2196,6 +2209,7 @@ export const executeAgentFlow = async ({
         }
     }
 
+    let doNotIncludeFeedbackHistory = false
     // Find the previous chat message with the same session/chat id and remove the action
     if (humanInput && Object.keys(humanInput).length) {
         let query = await appDataSource
@@ -2211,9 +2225,14 @@ export const executeAgentFlow = async ({
                 try {
                     const newChatMessage = new ChatMessage()
                     Object.assign(newChatMessage, result)
+                    doNotIncludeFeedbackHistory = newChatMessage.action?.includes('doNotIncludeFeedbackHistory') === true
                     newChatMessage.action = null
                     const cm = await appDataSource.getRepository(ChatMessage).create(newChatMessage)
-                    await appDataSource.getRepository(ChatMessage).save(cm)
+                    if (doNotIncludeFeedbackHistory) {
+                        await appDataSource.getRepository(ChatMessage).remove(cm)
+                    } else {
+                        await appDataSource.getRepository(ChatMessage).save(cm)
+                    }
                     break
                 } catch (e) {
                     // error converting action to JSON
@@ -2221,34 +2240,35 @@ export const executeAgentFlow = async ({
             }
         }
     }
+    if (!doNotIncludeFeedbackHistory) {
+        let finalUserInput = incomingInput.question || ' '
 
-    let finalUserInput = incomingInput.question || ' '
-
-    if (startInputType === 'chatInput') {
-        finalUserInput = question || humanInput?.feedback || ' '
-    } else if (startInputType === 'formInput') {
-        if (form) {
-            finalUserInput = Object.entries(form || {})
-                .map(([key, value]) => `${key}: ${value}`)
-                .join('\n')
-        } else {
+        if (startInputType === 'chatInput') {
             finalUserInput = question || humanInput?.feedback || ' '
+        } else if (startInputType === 'formInput') {
+            if (form) {
+                finalUserInput = Object.entries(form || {})
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join('\n')
+            } else {
+                finalUserInput = question || humanInput?.feedback || ' '
+            }
         }
-    }
 
-    const userMessage: Omit<IChatMessage, 'id'> = {
-        role: 'userMessage',
-        content: finalUserInput,
-        chatflowid,
-        chatType: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
-        chatId,
-        sessionId,
-        createdDate: userMessageDateTime,
-        fileUploads: uploads ? JSON.stringify(fileUploads) : undefined,
-        leadEmail: incomingInput.leadEmail,
-        executionId: newExecution.id
+        const userMessage: Omit<IChatMessage, 'id'> = {
+            role: 'userMessage',
+            content: finalUserInput,
+            chatflowid,
+            chatType: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
+            chatId,
+            sessionId,
+            createdDate: userMessageDateTime,
+            fileUploads: uploads ? JSON.stringify(fileUploads) : undefined,
+            leadEmail: incomingInput.leadEmail,
+            executionId: newExecution.id
+        }
+        await utilAddChatMessage(userMessage, appDataSource)
     }
-    await utilAddChatMessage(userMessage, appDataSource)
 
     const apiMessage: Omit<IChatMessage, 'createdDate'> = {
         id: apiMessageId,

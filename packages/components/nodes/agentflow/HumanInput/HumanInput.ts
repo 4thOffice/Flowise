@@ -31,7 +31,7 @@ class HumanInput_Agentflow implements INode {
     constructor() {
         this.label = 'Human Input'
         this.name = 'humanInputAgentflow'
-        this.version = 1.0
+        this.version = 1.02
         this.type = 'HumanInput'
         this.category = 'Agent Flows'
         this.description = 'Request human input, approval or rejection during execution'
@@ -65,6 +65,29 @@ class HumanInput_Agentflow implements INode {
                 show: {
                     humanInputDescriptionType: 'fixed'
                 }
+            },
+            {
+                label: 'Proceed text',
+                name: 'humanInputAcceptLabelText',
+                type: 'string',
+                placeholder: 'Proceed',
+                acceptVariable: true,
+                rows: 2
+            },
+            {
+                label: 'Reject text',
+                name: 'humanInputRejectLabelText',
+                type: 'string',
+                placeholder: 'Reject',
+                acceptVariable: true,
+                rows: 2
+            },
+            {
+                label: 'Add to history',
+                name: 'humanInputHistoryToggle',
+                type: 'boolean',
+                placeholder: 'Reject',
+                default: true
             },
             {
                 label: 'Model',
@@ -187,6 +210,9 @@ class HumanInput_Agentflow implements INode {
             ]
             const input = { ...humanInput, messages }
             const output = { conditions: outcomes }
+            if (nodeData.inputs?.humanInputHistoryToggle === false) {
+                state.doNotIncludeFeedbackHistory = 'true'
+            }
 
             const nodeOutput = {
                 id: nodeData.id,
@@ -196,7 +222,7 @@ class HumanInput_Agentflow implements INode {
                 state
             }
 
-            if (humanInput.feedback) {
+            if (nodeData.inputs?.humanInputHistoryToggle === false && humanInput.feedback) {
                 ;(nodeOutput as any).chatHistory = [{ role: 'user', content: humanInput.feedback }]
             }
 
@@ -256,6 +282,9 @@ class HumanInput_Agentflow implements INode {
             }
 
             const input = { messages: [...pastChatHistory, ...runtimeChatHistory], humanInputEnableFeedback }
+            if (nodeData.inputs?.humanInputHistoryToggle === false) {
+                state.doNotIncludeFeedbackHistory = 'true'
+            }
             const output = { content: humanInputDescription }
             const nodeOutput = {
                 id: nodeData.id,
@@ -263,7 +292,8 @@ class HumanInput_Agentflow implements INode {
                 input,
                 output,
                 state,
-                chatHistory: [{ role: 'assistant', content: humanInputDescription }]
+                chatHistory:
+                    nodeData.inputs?.humanInputHistoryToggle === false ? [] : [{ role: 'assistant', content: humanInputDescription }]
             }
 
             return nodeOutput
