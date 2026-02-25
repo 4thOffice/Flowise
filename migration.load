@@ -1,0 +1,17 @@
+LOAD DATABASE
+    FROM sqlite://database.sqlite
+    INTO postgresql://username:password@hostname:5432/dbname
+
+INCLUDING ONLY TABLE NAMES LIKE 'apikey', 'credential', 'document_store', 'document_store_file_chunk', 'upsert_history', 'variable',
+    'chat_flow', 'chat_message', 'execution',
+    'confluence_articles%', 'otp_locations%', 'spay_pogosta_vprasanja%'
+
+-- WITH include no drop, create tables, create indexes, reset sequences, quote identifiers,
+WITH include no drop, create no tables, create indexes, reset sequences, quote identifiers, data only,
+  prefetch rows = 100, batch rows = 100, concurrency = 1, workers = 2
+-- CAST
+--   type timestamp when default "current_timestamp" to "timestamp without time zone DEFAULT now()" drop default,
+--   type datetime when default "datetime('now')" to "timestamptz default NOW()" drop default,
+--   type uuid when default "lower(substr(hex(randomblob(16)), 1, 8) || '-' || substr(hex(randomblob(16)), 9, 4) || '-' || substr('1' || substr(hex(randomblob(16)), 9, 3), 1, 4) || '-' || substr('8' || substr(hex(randomblob(16)), 13, 3), 1, 4) || '-' || substr(hex(randomblob(16)), 17, 12))" to "uuid default uuid_generate_v4()" drop default
+SET work_mem to '256MB',
+maintenance_work_mem to '512MB';
