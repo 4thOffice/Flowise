@@ -1,6 +1,7 @@
 import { Entity, Column, Index, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm'
 import { IExecution, ExecutionState } from '../../Interface'
 import { ChatFlow } from './ChatFlow'
+import { gzipSync, gunzipSync } from 'node:zlib'
 
 @Entity()
 export class Execution implements IExecution {
@@ -9,6 +10,9 @@ export class Execution implements IExecution {
 
     @Column({ type: 'text' })
     executionData: string
+
+    @Column({ type: process.env.DATABASE_TYPE === 'postgres' ? 'bytea' : 'blob', nullable: true })
+    executionDataBlob?: Buffer
 
     @Column()
     state: ExecutionState
@@ -44,4 +48,13 @@ export class Execution implements IExecution {
 
     @Column({ nullable: false, type: 'text' })
     workspaceId: string
+}
+
+export const Compression = {
+    compress: (data: any) => {
+        return gzipSync(Buffer.from(typeof data === 'string' ? data : JSON.stringify(data)))
+    },
+    decompress: (buffer: Buffer) => {
+        return gunzipSync(buffer).toString()
+    }
 }
