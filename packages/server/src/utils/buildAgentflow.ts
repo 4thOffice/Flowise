@@ -2057,7 +2057,7 @@ export const executeAgentFlow = async ({
                 currentHumanInput = processResult.humanInput
             }
         } catch (error) {
-            const isAborted = getErrorMessage(error).includes('Aborted')
+            const isAborted = getErrorMessage(error).toLowerCase().includes('aborted')
             const errorStatus = isAborted ? 'TERMINATED' : 'ERROR'
             const errorMessage = isAborted ? 'Flow execution was cancelled' : getErrorMessage(error)
 
