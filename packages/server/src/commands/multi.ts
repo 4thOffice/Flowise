@@ -22,7 +22,7 @@ export default class Start extends BaseCommand {
             // Run migrations before forking workers
             await runMigrations()
 
-            const desiredWorkerCount = Number.parseInt(process.env.MULTI_NODES || '0') || os.cpus().length - 1
+            const desiredWorkerCount = Number.parseInt(process.env.MULTI_NODES || '0') || Math.ceil(os.cpus().length / 2)
             const numWorkers = Math.min(Math.max(1, desiredWorkerCount), os.cpus().length)
             logger.info(`Forking ${numWorkers} workers...`)
 
