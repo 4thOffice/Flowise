@@ -1,13 +1,21 @@
 import { Request, Response, NextFunction } from 'express'
 import executionsService from '../../services/executions'
 import { ExecutionState } from '../../Interface'
+import { Execution } from '../../database/entities/Execution'
+
+const bufferToBase64ForExecutedDataBlob = (data: Execution | null): any => {
+    if (data?.executionDataBlob) {
+        return { ...data, executionDataBlob: data.executionDataBlob.toString('base64') }
+    }
+    return data
+}
 
 const getExecutionById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const executionId = req.params.id
         const workspaceId = req.user?.activeWorkspaceId
         const execution = await executionsService.getExecutionById(executionId, workspaceId)
-        return res.json(execution)
+        return res.json(bufferToBase64ForExecutedDataBlob(execution))
     } catch (error) {
         next(error)
     }
@@ -17,7 +25,7 @@ const getPublicExecutionById = async (req: Request, res: Response, next: NextFun
     try {
         const executionId = req.params.id
         const execution = await executionsService.getPublicExecutionById(executionId)
-        return res.json(execution)
+        return res.json(bufferToBase64ForExecutedDataBlob(execution))
     } catch (error) {
         next(error)
     }
@@ -28,7 +36,7 @@ const updateExecution = async (req: Request, res: Response, next: NextFunction) 
         const executionId = req.params.id
         const workspaceId = req.user?.activeWorkspaceId
         const execution = await executionsService.updateExecution(executionId, req.body, workspaceId)
-        return res.json(execution)
+        return res.json(bufferToBase64ForExecutedDataBlob(execution))
     } catch (error) {
         next(error)
     }
@@ -77,7 +85,7 @@ const getAllExecutions = async (req: Request, res: Response, next: NextFunction)
         }
 
         const apiResponse = await executionsService.getAllExecutions(filters)
-
+        apiResponse.data = apiResponse.data.map(bufferToBase64ForExecutedDataBlob)
         return res.json(apiResponse)
     } catch (error) {
         next(error)

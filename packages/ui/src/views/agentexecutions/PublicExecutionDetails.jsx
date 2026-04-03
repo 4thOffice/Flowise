@@ -13,6 +13,7 @@ import useApi from '@/hooks/useApi'
 import { Box, Card, Stack, Typography, useTheme, CircularProgress } from '@mui/material'
 import { IconCircleXFilled } from '@tabler/icons-react'
 import { alpha } from '@mui/material/styles'
+import { decompressExecution } from '@/utils/genericHelper'
 
 // ==============================|| PublicExecutionDetails ||============================== //
 
@@ -35,16 +36,23 @@ const PublicExecutionDetails = () => {
     useEffect(() => {
         if (getExecutionByIdPublicApi.data) {
             const execution = getExecutionByIdPublicApi.data
-            const executionDetails =
-                typeof execution.executionData === 'string' ? JSON.parse(execution.executionData) : execution.executionData
-            setExecution(executionDetails)
-            const newMetadata = {
-                ...omit(execution, ['executionData']),
-                agentflow: {
-                    ...selectedMetadata.agentflow
+            const fetchData = async () => {
+                try {
+                    const executionData = await decompressExecution(execution)
+                    const executionDetails = typeof executionData === 'string' ? JSON.parse(executionData) : executionData
+                    setExecution(executionDetails)
+                    const newMetadata = {
+                        ...omit(execution, ['executionData', 'executionDataBlob']),
+                        agentflow: {
+                            ...selectedMetadata.agentflow
+                        }
+                    }
+                    setSelectedMetadata(newMetadata)
+                } catch (e) {
+                    console.error(e)
                 }
             }
-            setSelectedMetadata(newMetadata)
+            fetchData()
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps

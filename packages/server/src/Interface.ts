@@ -169,6 +169,7 @@ export interface IUpsertHistory {
 export interface IExecution {
     id: string
     executionData: string
+    executionDataBlob?: Buffer
     state: ExecutionState
     agentflowId: string
     sessionId: string

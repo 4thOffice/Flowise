@@ -51,7 +51,7 @@ import { Variable } from '../database/entities/Variable'
 import { replaceInputsWithConfig, constructGraphs, getAPIOverrideConfig } from '../utils'
 import logger from './logger'
 import { getErrorMessage } from '../errors/utils'
-import { Execution } from '../database/entities/Execution'
+import { Compression, Execution } from '../database/entities/Execution'
 import { utilAddChatMessage } from './addChatMesage'
 import { CachePool } from '../CachePool'
 import { ChatMessage } from '../database/entities/ChatMessage'
@@ -59,6 +59,7 @@ import { Telemetry } from './telemetry'
 import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
 import { UsageCacheManager } from '../UsageCacheManager'
 import { generateTTSForResponseStream, shouldAutoPlayTTS } from './buildChatflow'
+import { executionsUpdater } from '../DataSource'
 
 interface IWaitingNode {
     nodeId: string
@@ -162,18 +163,38 @@ const addExecution = async (
     sessionId: string,
     workspaceId: string
 ) => {
+    if (process.env.DISABLE_EXECUTION_RECORDING) {
+        return {
+            id: `mock-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            state: 'INPROGRESS',
+            agentflowId,
+            sessionId,
+            workspaceId,
+            executionData: JSON.stringify(agentFlowExecutedData),
+            executionDataBlob: undefined,
+            createdDate: new Date(),
+            updatedDate: new Date()
+        } as Execution
+    }
     const newExecution = new Execution()
+    let executionData = JSON.stringify(agentFlowExecutedData)
+    let postDataAsync = process.env.EXECUTIONS_DB_THREAD_EARLY ? executionData.length > 2048 : false // if init data is > 2kb, just create entry and update data in worker thread...
     const bodyExecution = {
         agentflowId,
         state: 'INPROGRESS',
         sessionId,
         workspaceId,
-        executionData: JSON.stringify(agentFlowExecutedData)
+        executionData: '[]', //postDataAsync ? '[]' : executionData,
+        executionDataBlob: postDataAsync ? null : await Compression.compress(executionData)
+        // executionData: JSON.stringify(agentFlowExecutedData)
     }
     Object.assign(newExecution, bodyExecution)
 
-    const execution = appDataSource.getRepository(Execution).create(newExecution)
-    return await appDataSource.getRepository(Execution).save(execution)
+    let executionDB = await appDataSource.getRepository(Execution).save(appDataSource.getRepository(Execution).create(newExecution))
+    if (postDataAsync) {
+        updateExecution(appDataSource, executionDB.id, workspaceId, { executionData })
+    }
+    return executionDB
 }
 
 /**
@@ -184,6 +205,20 @@ const addExecution = async (
  * @returns {Promise<void>}
  */
 const updateExecution = async (appDataSource: DataSource, executionId: string, workspaceId: string, data?: Partial<IExecution>) => {
+    if (process.env.DISABLE_EXECUTION_RECORDING) {
+        return
+    }
+
+    if (process.env.EXECUTIONS_DB_THREAD) {
+        if (data?.executionData && data.executionData.length > 2) {
+            data.executionDataBlob = await Compression.compress(data.executionData)
+            data.executionData = '[]'
+        }
+        executionsUpdater?.run({ executionId, workspaceId, data }).catch((err) => {
+            logger.warn(`updateExecution err ${err}`)
+        })
+        return
+    }
     const execution = await appDataSource.getRepository(Execution).findOneBy({
         id: executionId,
         workspaceId
@@ -195,8 +230,12 @@ const updateExecution = async (appDataSource: DataSource, executionId: string, w
 
     const updateExecution = new Execution()
     const bodyExecution: ICommonObject = {}
-    if (data && data.executionData) {
-        bodyExecution.executionData = typeof data.executionData === 'string' ? data.executionData : JSON.stringify(data.executionData)
+    if (data && data.executionDataBlob) {
+        bodyExecution.executionDataBlob = data.executionDataBlob
+        bodyExecution.executionData = '[]'
+    } else if (data && data.executionData) {
+        bodyExecution.executionDataBlob = await Compression.compress(data.executionData)
+        bodyExecution.executionData = '[]'
     }
     if (data && data.state) {
         bodyExecution.state = data.state
@@ -1294,7 +1333,7 @@ const executeNode = async ({
                             if (parentExecutionId) {
                                 try {
                                     logger.debug(`  📝 Updating parent execution ${parentExecutionId} with iteration ${i + 1} data`)
-                                    await updateExecution(appDataSource, parentExecutionId, workspaceId, {
+                                    updateExecution(appDataSource, parentExecutionId, workspaceId, {
                                         executionData: JSON.stringify(agentFlowExecutedData)
                                     })
                                 } catch (error) {
@@ -1584,27 +1623,37 @@ export const executeAgentFlow = async ({
     let previousExecution: Execution | undefined
 
     // If not a recursive call or parent execution not found, proceed normally
-    if (!isRecursive) {
-        const previousExecutions = await appDataSource.getRepository(Execution).find({
-            where: {
-                sessionId,
-                agentflowId: chatflowid,
-                workspaceId
-            },
-            order: {
-                createdDate: 'DESC'
+    const lazyLoadExecution = (() => {
+        let task: Promise<Execution | null>
+        return async () => {
+            if (process.env.DISABLE_EXECUTION_RECORDING) return null
+            if (task) {
+                return await task
             }
-        })
-
-        if (previousExecutions.length) {
-            previousExecution = previousExecutions[0]
+            task = appDataSource.getRepository(Execution).findOne({
+                where: {
+                    sessionId,
+                    agentflowId: chatflowid,
+                    workspaceId
+                },
+                order: {
+                    createdDate: 'DESC'
+                }
+            })
+            previousExecution = (await task) || undefined
+            return previousExecution
         }
-    }
+    })()
 
     // If the state is persistent, get the state from the previous execution
     const startPersistState = nodes.find((node) => node.data.name === 'startAgentflow')?.data.inputs?.startPersistState
-    if (startPersistState === true && previousExecution) {
-        const previousExecutionData = (JSON.parse(previousExecution.executionData) as IAgentflowExecutedData[]) ?? []
+    if (startPersistState === true && (await lazyLoadExecution()) && previousExecution) {
+        const previousExecutionData =
+            (JSON.parse(
+                previousExecution.executionDataBlob
+                    ? await Compression.decompress(previousExecution.executionDataBlob)
+                    : previousExecution.executionData
+            ) as IAgentflowExecutedData[]) ?? []
 
         let previousState = {}
         if (Array.isArray(previousExecutionData) && previousExecutionData.length) {
@@ -1643,8 +1692,13 @@ export const executeAgentFlow = async ({
     }
 
     // If the start input type is form input, get the form values from the previous execution (form values are persisted in the same session)
-    if (startInputType === 'formInput' && previousExecution) {
-        const previousExecutionData = (JSON.parse(previousExecution.executionData) as IAgentflowExecutedData[]) ?? []
+    if (startInputType === 'formInput' && (await lazyLoadExecution()) && previousExecution) {
+        const previousExecutionData =
+            (JSON.parse(
+                previousExecution.executionDataBlob
+                    ? await Compression.decompress(previousExecution.executionDataBlob)
+                    : previousExecution.executionData
+            ) as IAgentflowExecutedData[]) ?? []
 
         const previousStartAgent = previousExecutionData.find((execData) => execData.data.name === 'startAgentflow')
 
@@ -1664,11 +1718,15 @@ export const executeAgentFlow = async ({
     // If it is human input, find the last checkpoint and resume
     // Skip human input resumption for recursive iteration calls - they should start fresh
     if (humanInput && !(isRecursive && iterationContext)) {
-        if (!previousExecution) {
+        if (!((await lazyLoadExecution()) && previousExecution)) {
             throw new Error(`No previous execution found for session ${sessionId}`)
         }
 
-        let executionData = JSON.parse(previousExecution.executionData) as IAgentflowExecutedData[]
+        let executionData = JSON.parse(
+            previousExecution.executionDataBlob
+                ? await Compression.decompress(previousExecution.executionDataBlob)
+                : previousExecution.executionData
+        ) as IAgentflowExecutedData[]
         let shouldUpdateExecution = false
 
         // Handle different execution states
@@ -1741,7 +1799,7 @@ export const executeAgentFlow = async ({
         // Update execution data if we removed an error item
         if (shouldUpdateExecution) {
             logger.debug(`  📝 Updating execution data after removing error item`)
-            await updateExecution(appDataSource, previousExecution.id, workspaceId, {
+            updateExecution(appDataSource, previousExecution.id, workspaceId, {
                 executionData: JSON.stringify(executionData),
                 state: 'INPROGRESS'
             })
@@ -1769,9 +1827,11 @@ export const executeAgentFlow = async ({
 
         // For recursive calls with a valid parent execution ID, don't create a new execution
         // Instead, fetch the parent execution to use it
-        const parentExecution = await appDataSource.getRepository(Execution).findOne({
-            where: { id: parentExecutionId, workspaceId }
-        })
+        const parentExecution = process.env.DISABLE_EXECUTION_RECORDING
+            ? null
+            : await appDataSource.getRepository(Execution).findOne({
+                  where: { id: parentExecutionId, workspaceId }
+              })
 
         if (parentExecution) {
             logger.debug(`   📝 Using parent execution ID: ${parentExecutionId} for recursive call (iteration: ${!!iterationContext})`)
@@ -1803,68 +1863,70 @@ export const executeAgentFlow = async ({
     const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
 
     // Get chat history from ChatMessage table
-    const pastChatHistory = (await appDataSource
-        .getRepository(ChatMessage)
-        .find({
-            where: {
-                chatflowid,
-                sessionId
-            },
-            order: {
-                createdDate: 'ASC'
-            }
-        })
-        .then((messages) =>
-            messages.map((message) => {
-                const mappedMessage: any = {
-                    content: message.content,
-                    role: message.role === 'userMessage' ? 'user' : 'assistant'
-                }
+    const pastChatHistory: IMessage[] = process.env.DISABLE_CHAT_MESSAGE_RECORDING
+        ? []
+        : ((await appDataSource
+              .getRepository(ChatMessage)
+              .find({
+                  where: {
+                      chatflowid,
+                      sessionId
+                  },
+                  order: {
+                      createdDate: 'ASC'
+                  }
+              })
+              .then((messages) =>
+                  messages.map((message) => {
+                      const mappedMessage: any = {
+                          content: message.content,
+                          role: message.role === 'userMessage' ? 'user' : 'assistant'
+                      }
 
-                const hasFileUploads = message.fileUploads && message.fileUploads !== ''
-                const hasArtifacts = message.artifacts && message.artifacts !== ''
-                const hasFileAnnotations = message.fileAnnotations && message.fileAnnotations !== ''
-                const hasUsedTools = message.usedTools && message.usedTools !== ''
+                      const hasFileUploads = message.fileUploads && message.fileUploads !== ''
+                      const hasArtifacts = message.artifacts && message.artifacts !== ''
+                      const hasFileAnnotations = message.fileAnnotations && message.fileAnnotations !== ''
+                      const hasUsedTools = message.usedTools && message.usedTools !== ''
 
-                if (hasFileUploads || hasArtifacts || hasFileAnnotations || hasUsedTools) {
-                    mappedMessage.additional_kwargs = {}
+                      if (hasFileUploads || hasArtifacts || hasFileAnnotations || hasUsedTools) {
+                          mappedMessage.additional_kwargs = {}
 
-                    if (hasFileUploads) {
-                        try {
-                            mappedMessage.additional_kwargs.fileUploads = JSON.parse(message.fileUploads!)
-                        } catch {
-                            mappedMessage.additional_kwargs.fileUploads = message.fileUploads
-                        }
-                    }
+                          if (hasFileUploads) {
+                              try {
+                                  mappedMessage.additional_kwargs.fileUploads = JSON.parse(message.fileUploads!)
+                              } catch {
+                                  mappedMessage.additional_kwargs.fileUploads = message.fileUploads
+                              }
+                          }
 
-                    if (hasArtifacts) {
-                        try {
-                            mappedMessage.additional_kwargs.artifacts = JSON.parse(message.artifacts!)
-                        } catch {
-                            mappedMessage.additional_kwargs.artifacts = message.artifacts
-                        }
-                    }
+                          if (hasArtifacts) {
+                              try {
+                                  mappedMessage.additional_kwargs.artifacts = JSON.parse(message.artifacts!)
+                              } catch {
+                                  mappedMessage.additional_kwargs.artifacts = message.artifacts
+                              }
+                          }
 
-                    if (hasFileAnnotations) {
-                        try {
-                            mappedMessage.additional_kwargs.fileAnnotations = JSON.parse(message.fileAnnotations!)
-                        } catch {
-                            mappedMessage.additional_kwargs.fileAnnotations = message.fileAnnotations
-                        }
-                    }
+                          if (hasFileAnnotations) {
+                              try {
+                                  mappedMessage.additional_kwargs.fileAnnotations = JSON.parse(message.fileAnnotations!)
+                              } catch {
+                                  mappedMessage.additional_kwargs.fileAnnotations = message.fileAnnotations
+                              }
+                          }
 
-                    if (hasUsedTools) {
-                        try {
-                            mappedMessage.additional_kwargs.usedTools = JSON.parse(message.usedTools!)
-                        } catch {
-                            mappedMessage.additional_kwargs.usedTools = message.usedTools
-                        }
-                    }
-                }
+                          if (hasUsedTools) {
+                              try {
+                                  mappedMessage.additional_kwargs.usedTools = JSON.parse(message.usedTools!)
+                              } catch {
+                                  mappedMessage.additional_kwargs.usedTools = message.usedTools
+                              }
+                          }
+                      }
 
-                return mappedMessage
-            })
-        )) as IMessage[]
+                      return mappedMessage
+                  })
+              )) as IMessage[])
 
     let iterations = 0
     let currentHumanInput = humanInput
@@ -2088,7 +2150,7 @@ export const executeAgentFlow = async ({
             if (!isRecursive) {
                 sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
 
-                await updateExecution(appDataSource, newExecution.id, workspaceId, {
+                updateExecution(appDataSource, newExecution.id, workspaceId, {
                     executionData: JSON.stringify(agentFlowExecutedData),
                     state: errorStatus
                 })
@@ -2123,7 +2185,7 @@ export const executeAgentFlow = async ({
 
     // Only update execution record if this is not a recursive call
     if (!isRecursive) {
-        await updateExecution(appDataSource, newExecution.id, workspaceId, {
+        updateExecution(appDataSource, newExecution.id, workspaceId, {
             executionData: JSON.stringify(agentFlowExecutedData),
             state: status
         })
@@ -2225,9 +2287,11 @@ export const executeAgentFlow = async ({
                 try {
                     const newChatMessage = new ChatMessage()
                     Object.assign(newChatMessage, result)
-                    doNotIncludeFeedbackHistory = newChatMessage.action?.includes('doNotIncludeFeedbackHistory') === true
+                    doNotIncludeFeedbackHistory =
+                        newChatMessage.action?.includes('doNotIncludeFeedbackHistory') === true ||
+                        Boolean(process.env.DISABLE_CHAT_MESSAGE_RECORDING)
                     newChatMessage.action = null
-                    const cm = await appDataSource.getRepository(ChatMessage).create(newChatMessage)
+                    const cm = appDataSource.getRepository(ChatMessage).create(newChatMessage)
                     if (doNotIncludeFeedbackHistory) {
                         await appDataSource.getRepository(ChatMessage).remove(cm)
                     } else {

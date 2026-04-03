@@ -9,8 +9,10 @@ import { mysqlMigrations } from './database/migrations/mysql'
 import { mariadbMigrations } from './database/migrations/mariadb'
 import { postgresMigrations } from './database/migrations/postgres'
 import logger from './utils/logger'
+import { Piscina, isWorkerThread } from 'piscina'
 
 let appDataSource: DataSource
+export let executionsUpdater: Piscina | undefined
 
 export const init = async (): Promise<void> => {
     let homePath
@@ -22,12 +24,13 @@ export const init = async (): Promise<void> => {
         case 'sqlite':
             homePath = process.env.DATABASE_PATH ?? flowisePath
             appDataSource = new DataSource({
-                type: 'sqlite',
+                type: 'better-sqlite3',
                 database: path.resolve(homePath, 'database.sqlite'),
                 synchronize: false,
                 migrationsRun: false,
                 entities: Object.values(entities),
-                migrations: sqliteMigrations
+                migrations: sqliteMigrations,
+                enableWAL: true
             })
             break
         case 'mysql':
@@ -90,12 +93,13 @@ export const init = async (): Promise<void> => {
         default:
             homePath = process.env.DATABASE_PATH ?? flowisePath
             appDataSource = new DataSource({
-                type: 'sqlite',
+                type: 'better-sqlite3',
                 database: path.resolve(homePath, 'database.sqlite'),
                 synchronize: false,
                 migrationsRun: false,
                 entities: Object.values(entities),
-                migrations: sqliteMigrations
+                migrations: sqliteMigrations,
+                enableWAL: true
             })
             break
     }
@@ -104,6 +108,15 @@ export const init = async (): Promise<void> => {
 export function getDataSource(): DataSource {
     if (appDataSource === undefined) {
         init()
+    }
+    if (process.env.EXECUTIONS_DB_THREAD && executionsUpdater === undefined && !isWorkerThread) {
+        executionsUpdater = new Piscina({
+            filename: path.resolve(__dirname, 'utils/executionsWorker.js'),
+            maxThreads: 1,
+            minThreads: 1,
+            niceIncrement: 5
+        })
+        logger.info(`DEBUG spawned executionsUpdater ${executionsUpdater}`)
     }
     return appDataSource
 }

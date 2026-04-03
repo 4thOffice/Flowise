@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, startTransition } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -43,6 +43,7 @@ import { ExecutionsListTable } from '@/ui-component/table/ExecutionsListTable'
 import { ExecutionDetails } from './ExecutionDetails'
 import { omit } from 'lodash'
 import TablePagination, { DEFAULT_ITEMS_PER_PAGE } from '@/ui-component/pagination/TablePagination'
+import { decompressExecution } from '@/utils/genericHelper'
 
 // ==============================|| AGENT EXECUTIONS ||============================== //
 
@@ -214,16 +215,21 @@ const AgentExecutions = () => {
     useEffect(() => {
         if (getExecutionByIdApi.data) {
             const execution = getExecutionByIdApi.data
-            const executionDetails =
-                typeof execution.executionData === 'string' ? JSON.parse(execution.executionData) : execution.executionData
-            setSelectedExecutionData(executionDetails)
-            const newMetadata = {
-                ...omit(execution, ['executionData']),
-                agentflow: {
-                    ...selectedMetadata.agentflow
-                }
-            }
-            setSelectedMetadata(newMetadata)
+            decompressExecution(execution)
+                .then((executionData) => {
+                    const executionDetails = typeof executionData === 'string' ? JSON.parse(executionData) : executionData
+                    const newMetadata = {
+                        ...omit(execution, ['executionData', 'executionDataBlob']),
+                        agentflow: {
+                            ...selectedMetadata.agentflow
+                        }
+                    }
+                    setSelectedMetadata(newMetadata)
+                    setSelectedExecutionData(executionDetails)
+                })
+                .catch((error) => {
+                    console.error(error)
+                })
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -384,13 +390,12 @@ const AgentExecutions = () => {
                                 isLoading={isLoading}
                                 onSelectionChange={handleExecutionSelectionChange}
                                 onExecutionRowClick={(execution) => {
-                                    setOpenDrawer(true)
-                                    const executionDetails =
-                                        typeof execution.executionData === 'string'
-                                            ? JSON.parse(execution.executionData)
-                                            : execution.executionData
-                                    setSelectedExecutionData(executionDetails)
-                                    setSelectedMetadata(omit(execution, ['executionData']))
+                                    startTransition(async () => {
+                                        const data = await decompressExecution(execution)
+                                        setOpenDrawer(true)
+                                        setSelectedExecutionData(typeof data === 'string' ? JSON.parse(data) : data)
+                                        setSelectedMetadata(omit(execution, ['executionData', 'executionDataBlob']))
+                                    })
                                 }}
                             />
 

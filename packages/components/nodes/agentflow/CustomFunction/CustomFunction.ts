@@ -60,7 +60,7 @@ class CustomFunction_Agentflow implements INode {
     constructor() {
         this.label = 'Custom Function'
         this.name = 'customFunctionAgentflow'
-        this.version = 1.1
+        this.version = 1.2
         this.type = 'CustomFunction'
         this.category = 'Agent Flows'
         this.description = 'Execute custom function'
@@ -87,6 +87,15 @@ class CustomFunction_Agentflow implements INode {
                         acceptVariable: true
                     }
                 ]
+            },
+            {
+                label: 'No state',
+                name: 'noState',
+                type: 'boolean',
+                description:
+                    'Do not pass $flow.state to execution context - can help with resource-usage/speed if state is large. Use Input Variables instead.',
+                default: false,
+                optional: true
             },
             {
                 label: 'Javascript Function',
@@ -133,6 +142,7 @@ class CustomFunction_Agentflow implements INode {
 
     async run(nodeData: INodeData, input: string, options: ICommonObject): Promise<any> {
         const javascriptFunction = nodeData.inputs?.customFunctionJavascriptFunction as string
+        const doNotIncludeStateInFlowVar = nodeData.inputs?.noState as boolean
         const functionInputVariables = (nodeData.inputs?.customFunctionInputVariables as ICustomFunctionInputVariables[]) ?? []
         const _customFunctionUpdateState = nodeData.inputs?.customFunctionUpdateState
 
@@ -147,7 +157,7 @@ class CustomFunction_Agentflow implements INode {
         const variables = await getVars(appDataSource, databaseEntities, nodeData, options)
         const flow = {
             input,
-            state,
+            state: doNotIncludeStateInFlowVar ? {} : state,
             chatflowId: options.chatflowid,
             sessionId: options.sessionId,
             chatId: options.chatId,

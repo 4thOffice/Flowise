@@ -11,6 +11,14 @@ import { StatusCodes } from 'http-status-codes'
 import { utilGetChatMessage } from '../../utils/getChatMessage'
 import { getPageAndLimitParams } from '../../utils/pagination'
 
+const bufferToBase64ForExecutedDataBlob = (message: ChatMessage | null): any => {
+    let execution = message?.execution
+    if (execution?.executionDataBlob) {
+        return { ...message, execution: { ...execution, executionDataBlob: execution.executionDataBlob.toString('base64') } }
+    }
+    return message
+}
+
 const getFeedbackTypeFilters = (_feedbackTypeFilters: ChatMessageRatingType[]): ChatMessageRatingType[] | undefined => {
     try {
         let feedbackTypeFilters
@@ -319,7 +327,7 @@ const abortChatMessage = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
-const parseAPIResponse = (apiResponse: ChatMessage | ChatMessage[]): ChatMessage | ChatMessage[] => {
+const parseAPIResponse = (apiResponse: ChatMessage | ChatMessage[]): any => {
     const parseResponse = (response: ChatMessage): ChatMessage => {
         const parsedResponse = { ...response }
 
@@ -349,7 +357,7 @@ const parseAPIResponse = (apiResponse: ChatMessage | ChatMessage[]): ChatMessage
             console.error('Error parsing chat message response', e)
         }
 
-        return parsedResponse
+        return bufferToBase64ForExecutedDataBlob(parsedResponse)
     }
 
     if (Array.isArray(apiResponse)) {

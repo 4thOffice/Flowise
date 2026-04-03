@@ -84,7 +84,13 @@ import { baseURL, maxScroll } from '@/store/constant'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from '@/store/actions'
 
 // Utils
-import { isValidURL, removeDuplicateURL, setLocalStorageChatflow, getLocalStorageChatflow } from '@/utils/genericHelper'
+import {
+    isValidURL,
+    removeDuplicateURL,
+    setLocalStorageChatflow,
+    getLocalStorageChatflow,
+    decompressExecution
+} from '@/utils/genericHelper'
 import useNotifier from '@/utils/useNotifier'
 import FollowUpPromptsCard from '@/ui-component/cards/FollowUpPromptsCard'
 
@@ -1244,49 +1250,59 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     // Get chatmessages successful
     useEffect(() => {
         if (getChatmessageApi.data?.length) {
-            const chatId = getChatmessageApi.data[0]?.chatId
-            setChatId(chatId)
-            const loadedMessages = getChatmessageApi.data.map((message) => {
-                const obj = {
-                    id: message.id,
-                    message: message.content,
-                    feedback: message.feedback,
-                    type: message.role
-                }
-                if (message.sourceDocuments) obj.sourceDocuments = message.sourceDocuments
-                if (message.usedTools) obj.usedTools = message.usedTools
-                if (message.calledTools) obj.calledTools = message.calledTools
-                if (message.fileAnnotations) obj.fileAnnotations = message.fileAnnotations
-                if (message.agentReasoning) obj.agentReasoning = message.agentReasoning
-                if (message.action) obj.action = message.action
-                if (message.artifacts) {
-                    obj.artifacts = message.artifacts
-                    obj.artifacts.forEach((artifact) => {
-                        if (artifact.type === 'png' || artifact.type === 'jpeg') {
-                            artifact.data = `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${artifact.data.replace(
-                                'FILE-STORAGE::',
-                                ''
-                            )}`
+            const fetchData = async () => {
+                const chatId = getChatmessageApi.data[0]?.chatId
+                setChatId(chatId)
+                const loadedMessages = await Promise.all(
+                    getChatmessageApi.data.map(async (message) => {
+                        const obj = {
+                            id: message.id,
+                            message: message.content,
+                            feedback: message.feedback,
+                            type: message.role
                         }
-                    })
-                }
-                if (message.fileUploads) {
-                    obj.fileUploads = message.fileUploads
-                    obj.fileUploads.forEach((file) => {
-                        if (file.type === 'stored-file') {
-                            file.data = `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${file.name}`
+                        if (message.sourceDocuments) obj.sourceDocuments = message.sourceDocuments
+                        if (message.usedTools) obj.usedTools = message.usedTools
+                        if (message.calledTools) obj.calledTools = message.calledTools
+                        if (message.fileAnnotations) obj.fileAnnotations = message.fileAnnotations
+                        if (message.agentReasoning) obj.agentReasoning = message.agentReasoning
+                        if (message.action) obj.action = message.action
+                        if (message.artifacts) {
+                            obj.artifacts = message.artifacts
+                            obj.artifacts.forEach((artifact) => {
+                                if (artifact.type === 'png' || artifact.type === 'jpeg') {
+                                    artifact.data = `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${artifact.data.replace(
+                                        'FILE-STORAGE::',
+                                        ''
+                                    )}`
+                                }
+                            })
                         }
-                    })
-                }
-                if (message.followUpPrompts) obj.followUpPrompts = JSON.parse(message.followUpPrompts)
-                if (message.role === 'apiMessage' && message.execution && message.execution.executionData)
-                    obj.agentFlowExecutedData = JSON.parse(message.execution.executionData)
-                return obj
-            })
-            setMessages((prevMessages) => [...prevMessages, ...loadedMessages])
-            setLocalStorageChatflow(chatflowid, chatId)
-        }
+                        if (message.fileUploads) {
+                            obj.fileUploads = message.fileUploads
+                            obj.fileUploads.forEach((file) => {
+                                if (file.type === 'stored-file') {
+                                    file.data = `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${file.name}`
+                                }
+                            })
+                        }
+                        if (message.followUpPrompts) obj.followUpPrompts = JSON.parse(message.followUpPrompts)
+                        if (message.role === 'apiMessage' && message.execution && message.execution.executionData) {
+                            obj.agentFlowExecutedData = JSON.parse(
+                                message.execution.executionDataBlob
+                                    ? await decompressExecution(message.execution)
+                                    : message.execution.executionData
+                            )
+                        }
 
+                        return obj
+                    })
+                )
+                setMessages((prevMessages) => [...prevMessages, ...loadedMessages])
+                setLocalStorageChatflow(chatflowid, chatId)
+            }
+            fetchData()
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getChatmessageApi.data])
 

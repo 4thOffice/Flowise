@@ -1,7 +1,11 @@
 import { Entity, Column, Index, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm'
 import { IExecution, ExecutionState } from '../../Interface'
 import { ChatFlow } from './ChatFlow'
-import { gzipSync, gunzipSync } from 'node:zlib'
+import { gzip, gunzip } from 'node:zlib'
+import { promisify } from 'util'
+
+const gzipAsync = promisify(gzip)
+const gunzipAsync = promisify(gunzip)
 
 @Entity()
 export class Execution implements IExecution {
@@ -51,10 +55,10 @@ export class Execution implements IExecution {
 }
 
 export const Compression = {
-    compress: (data: any) => {
-        return gzipSync(Buffer.from(typeof data === 'string' ? data : JSON.stringify(data)))
+    compress: async (data: any): Promise<Buffer> => {
+        return await gzipAsync(Buffer.from(typeof data === 'string' ? data : JSON.stringify(data)))
     },
-    decompress: (buffer: Buffer) => {
-        return gunzipSync(buffer).toString()
+    decompress: async (buffer: Buffer): Promise<string> => {
+        return (await gunzipAsync(buffer)).toString()
     }
 }

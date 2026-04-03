@@ -8,6 +8,7 @@ type Client = {
     response: Response
     // optional property with default value
     started?: boolean
+    executedFlowData?: any
 }
 
 export class SSEStreamer implements IServerSideEventStreamer {
@@ -24,12 +25,11 @@ export class SSEStreamer implements IServerSideEventStreamer {
     removeClient(chatId: string) {
         const client = this.clients[chatId]
         if (client) {
-            const clientResponse = {
-                event: 'end',
-                data: '[DONE]'
-            }
-            client.response.write('message\ndata:' + JSON.stringify(clientResponse) + '\n\n')
-            client.response.end()
+            const pre = client.executedFlowData
+                ? `message:\ndata:${JSON.stringify({ event: 'agentFlowExecutedData', data: client.executedFlowData })}\n\n`
+                : ''
+            client.executedFlowData = undefined
+            client.response.end(pre + 'message\ndata:' + JSON.stringify({ event: 'end', data: '[DONE]' }) + '\n\n')
             delete this.clients[chatId]
         }
     }
@@ -162,11 +162,8 @@ export class SSEStreamer implements IServerSideEventStreamer {
     streamAgentFlowExecutedDataEvent(chatId: string, data: any): void {
         const client = this.clients[chatId]
         if (client) {
-            const clientResponse = {
-                event: 'agentFlowExecutedData',
-                data: data
-            }
-            client.response.write('message:\ndata:' + JSON.stringify(clientResponse) + '\n\n')
+            client.executedFlowData = data // `message:\ndata:${JSON.stringify({ event: 'agentFlowExecutedData', data })}\n\n`
+            // client.response.write('message:\ndata:' + JSON.stringify({ event: 'agentFlowExecutedData', data }) + '\n\n')
         }
     }
     streamNextAgentFlowEvent(chatId: string, data: any): void {

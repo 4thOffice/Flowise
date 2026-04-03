@@ -1304,3 +1304,10 @@ export const showHideInputParams = (nodeData) => {
 export const showHideInputAnchors = (nodeData) => {
     return showHideInputs(nodeData, 'inputAnchors')
 }
+
+export const decompressExecution = async (execution) => {
+    if (!execution.executionDataBlob) return execution.executionData
+    const ds = new DecompressionStream('gzip')
+    const stream = new Blob([Uint8Array.from(atob(execution.executionDataBlob), (v, _) => v.charCodeAt(0))]).stream().pipeThrough(ds)
+    return await new Response(stream).text().catch((reason) => console.error(reason))
+}

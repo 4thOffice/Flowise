@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { In } from 'typeorm'
 import { ChatMessage } from '../../database/entities/ChatMessage'
-import { Execution } from '../../database/entities/Execution'
+import { Compression, Execution } from '../../database/entities/Execution'
 import { InternalFlowiseError } from '../../errors/internalFlowiseError'
 import { getErrorMessage } from '../../errors/utils'
 import { ExecutionState, IAgentflowExecutedData } from '../../Interface'
@@ -51,7 +51,12 @@ const getPublicExecutionById = async (executionId: string): Promise<Execution | 
         if (!res) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Execution ${executionId} not found`)
         }
-        const executionData = typeof res?.executionData === 'string' ? JSON.parse(res?.executionData) : res?.executionData
+        const executionData = res?.executionDataBlob
+            ? JSON.parse(await Compression.decompress(res.executionDataBlob))
+            : typeof res?.executionData === 'string'
+            ? JSON.parse(res?.executionData)
+            : res?.executionData
+        delete res?.executionDataBlob
         const executionDataWithoutCredentialId = executionData.map((data: IAgentflowExecutedData) => _removeCredentialId(data))
         const stringifiedExecutionData = JSON.stringify(executionDataWithoutCredentialId)
         return { ...res, executionData: stringifiedExecutionData }
