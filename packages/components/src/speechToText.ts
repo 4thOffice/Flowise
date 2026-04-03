@@ -108,23 +108,23 @@ export const convertSpeechToText = async (upload: IFileUpload, speechToTextConfi
                     throw error.response?.data || error
                 }
             }
-            case SpeechToTextType.GROQ_WHISPER: {
-                const groqClient = new Groq({
-                    apiKey: credentialData.groqApiKey
-                })
-                const file = await toFile(audio_file, upload.name)
-                const groqTranscription = await groqClient.audio.transcriptions.create({
-                    file,
-                    model: speechToTextConfig?.model || 'whisper-large-v3',
-                    language: speechToTextConfig?.language,
-                    temperature: speechToTextConfig?.temperature ? parseFloat(speechToTextConfig.temperature) : undefined,
-                    response_format: 'verbose_json'
-                })
-                if (groqTranscription?.text) {
-                    return groqTranscription.text
-                }
-                break
-            }
+            // case SpeechToTextType.GROQ_WHISPER: {
+            //     const groqClient = new Groq({
+            //         apiKey: credentialData.groqApiKey
+            //     })
+            //     const file = await toFile(audio_file, upload.name)
+            //     const groqTranscription = await groqClient.audio.transcriptions.create({
+            //         file,
+            //         model: speechToTextConfig?.model || 'whisper-large-v3',
+            //         language: speechToTextConfig?.language,
+            //         temperature: speechToTextConfig?.temperature ? parseFloat(speechToTextConfig.temperature) : undefined,
+            //         response_format: 'verbose_json'
+            //     })
+            //     if (groqTranscription?.text) {
+            //         return groqTranscription.text
+            //     }
+            //     break
+            // }
         }
     } else {
         throw new Error('Speech to text is not selected, but found a recorded audio file. Please fix the chain.')
