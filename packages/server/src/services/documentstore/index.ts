@@ -1775,8 +1775,8 @@ const upsertDocStore = async (
     }
 
     // Step 2: Replace with new values
-    loaderName = newLoader?.name ? getComponentLabelFromName(newLoader?.name) : loaderName
-    loaderId = newLoader?.name || loaderId
+    loaderName = newLoader?.name || (newLoader?.name ? getComponentLabelFromName(newLoader?.name) : loaderName)
+    loaderId = newLoader?.id || loaderId
     loaderConfig = {
         ...loaderConfig,
         ...newLoader?.config
