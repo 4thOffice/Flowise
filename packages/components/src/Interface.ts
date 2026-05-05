@@ -434,6 +434,7 @@ export interface IServerSideEventStreamer {
     streamToolEvent(chatId: string, data: any): void
     streamAgentReasoningEvent(chatId: string, data: any): void
     streamAgentFlowExecutedDataEvent(chatId: string, data: any): void
+    streamTrustedStateDataEvent(chatId: string, data: any): void
     streamAgentFlowEvent(chatId: string, data: any): void
     streamNextAgentEvent(chatId: string, data: any): void
     streamNextAgentFlowEvent(chatId: string, data: any): void

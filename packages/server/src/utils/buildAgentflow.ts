@@ -29,7 +29,8 @@ import {
     IComponentNodes,
     INodeOverrides,
     IVariableOverride,
-    INodeDirectedGraph
+    INodeDirectedGraph,
+    TrustedState
 } from '../Interface'
 import {
     RUNTIME_MESSAGES_LENGTH_VAR_PREFIX,
@@ -48,7 +49,7 @@ import {
 } from '.'
 import { ChatFlow } from '../database/entities/ChatFlow'
 import { Variable } from '../database/entities/Variable'
-import { replaceInputsWithConfig, constructGraphs, getAPIOverrideConfig } from '../utils'
+import { replaceInputsWithConfig, constructGraphs, getAPIOverrideConfig } from './index'
 import logger from './logger'
 import { getErrorMessage } from '../errors/utils'
 import { Compression, Execution } from '../database/entities/Execution'
@@ -60,6 +61,7 @@ import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerService
 import { UsageCacheManager } from '../UsageCacheManager'
 import { generateTTSForResponseStream, shouldAutoPlayTTS } from './buildChatflow'
 import { executionsUpdater } from '../DataSource'
+import { trusted_state_from_string, trusted_state_to_string } from './trustedStateHelper'
 
 interface IWaitingNode {
     nodeId: string
@@ -140,6 +142,7 @@ interface IExecuteNodeParams {
     workspaceId: string
     subscriptionId: string
     productId: string
+    zeroRetention: boolean
 }
 
 interface IExecuteAgentFlowParams extends Omit<IExecuteFlowParams, 'incomingInput'> {
@@ -147,6 +150,49 @@ interface IExecuteAgentFlowParams extends Omit<IExecuteFlowParams, 'incomingInpu
 }
 
 const MAX_LOOP_COUNT = process.env.MAX_LOOP_COUNT ? parseInt(process.env.MAX_LOOP_COUNT) : 10
+
+function mapChatMessageToIMessage(message: IChatMessage): IMessage {
+    const mappedMessage: any = {
+        content: message.content,
+        role: message.role === 'userMessage' ? 'user' : 'assistant'
+    }
+    const hasFileUploads = message.fileUploads && message.fileUploads !== ''
+    const hasArtifacts = message.artifacts && message.artifacts !== ''
+    const hasFileAnnotations = message.fileAnnotations && message.fileAnnotations !== ''
+    const hasUsedTools = message.usedTools && message.usedTools !== ''
+    if (hasFileUploads || hasArtifacts || hasFileAnnotations || hasUsedTools) {
+        mappedMessage.additional_kwargs = {}
+        if (hasFileUploads) {
+            try {
+                mappedMessage.additional_kwargs.fileUploads = JSON.parse(message.fileUploads!)
+            } catch {
+                mappedMessage.additional_kwargs.fileUploads = message.fileUploads
+            }
+        }
+        if (hasArtifacts) {
+            try {
+                mappedMessage.additional_kwargs.artifacts = JSON.parse(message.artifacts!)
+            } catch {
+                mappedMessage.additional_kwargs.artifacts = message.artifacts
+            }
+        }
+        if (hasFileAnnotations) {
+            try {
+                mappedMessage.additional_kwargs.fileAnnotations = JSON.parse(message.fileAnnotations!)
+            } catch {
+                mappedMessage.additional_kwargs.fileAnnotations = message.fileAnnotations
+            }
+        }
+        if (hasUsedTools) {
+            try {
+                mappedMessage.additional_kwargs.usedTools = JSON.parse(message.usedTools!)
+            } catch {
+                mappedMessage.additional_kwargs.usedTools = message.usedTools
+            }
+        }
+    }
+    return mappedMessage as IMessage
+}
 
 /**
  * Add execution to database
@@ -161,9 +207,10 @@ const addExecution = async (
     agentflowId: string,
     agentFlowExecutedData: IAgentflowExecutedData[],
     sessionId: string,
-    workspaceId: string
+    workspaceId: string,
+    zeroRetention: boolean
 ) => {
-    if (process.env.DISABLE_EXECUTION_RECORDING) {
+    if (process.env.DISABLE_EXECUTION_RECORDING || zeroRetention) {
         return {
             id: `mock-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             state: 'INPROGRESS',
@@ -192,7 +239,7 @@ const addExecution = async (
 
     let executionDB = await appDataSource.getRepository(Execution).save(appDataSource.getRepository(Execution).create(newExecution))
     if (postDataAsync) {
-        updateExecution(appDataSource, executionDB.id, workspaceId, { executionData })
+        updateExecution(appDataSource, executionDB.id, workspaceId, { executionData }, zeroRetention)
     }
     return executionDB
 }
@@ -204,8 +251,14 @@ const addExecution = async (
  * @param {Partial<IExecution>} data
  * @returns {Promise<void>}
  */
-const updateExecution = async (appDataSource: DataSource, executionId: string, workspaceId: string, data?: Partial<IExecution>) => {
-    if (process.env.DISABLE_EXECUTION_RECORDING) {
+const updateExecution = async (
+    appDataSource: DataSource,
+    executionId: string,
+    workspaceId: string,
+    data?: Partial<IExecution>,
+    zeroRetention?: boolean
+) => {
+    if (process.env.DISABLE_EXECUTION_RECORDING || zeroRetention) {
         return
     }
 
@@ -1077,7 +1130,8 @@ const executeNode = async ({
     orgId,
     workspaceId,
     subscriptionId,
-    productId
+    productId,
+    zeroRetention = false
 }: IExecuteNodeParams): Promise<{
     result: any
     shouldStop?: boolean
@@ -1330,12 +1384,16 @@ const executeNode = async ({
                             agentFlowExecutedData.push(...subflowExecutedData)
 
                             // Update parent execution record with combined data if we have a parent execution ID
-                            if (parentExecutionId) {
+                            if (parentExecutionId && !zeroRetention) {
                                 try {
                                     logger.debug(`  📝 Updating parent execution ${parentExecutionId} with iteration ${i + 1} data`)
-                                    updateExecution(appDataSource, parentExecutionId, workspaceId, {
-                                        executionData: JSON.stringify(agentFlowExecutedData)
-                                    })
+                                    updateExecution(
+                                        appDataSource,
+                                        parentExecutionId,
+                                        workspaceId,
+                                        { executionData: JSON.stringify(agentFlowExecutedData) },
+                                        zeroRetention
+                                    )
                                 } catch (error) {
                                     console.error(`  ❌ Error updating parent execution: ${getErrorMessage(error)}`)
                                 }
@@ -1582,7 +1640,19 @@ export const executeAgentFlow = async ({
 
     /*** Get API Config ***/
     const { nodeOverrides, variableOverrides, apiOverrideStatus } = getAPIOverrideConfig(chatflow)
-
+    let chatflowConfig: ICommonObject = {}
+    try {
+        if (chatflow.chatbotConfig) {
+            chatflowConfig = JSON.parse(chatflow.chatbotConfig)
+        }
+    } catch (e) {
+        logger.error('[server]: Error parsing chatflow config:', e)
+    }
+    const useTrustedState: boolean = chatflowConfig.clientState?.enabled ?? incomingInput.enableTrustedState ?? false
+    const zeroRetention: boolean = chatflowConfig.clientState?.enabledFull
+    let trustedData: TrustedState | undefined = incomingInput.trustedState
+        ? await trusted_state_from_string(incomingInput.trustedState)
+        : undefined
     /*
     graph {
         startAgentflow_0: [ 'conditionAgentflow_0' ],
@@ -1605,7 +1675,7 @@ export const executeAgentFlow = async ({
 
     let status: ExecutionState = 'INPROGRESS'
     let agentFlowExecutedData: IAgentflowExecutedData[] = []
-    let newExecution: Execution
+    let newExecution: IExecution
     const startingNodeIds: string[] = []
 
     // Initialize execution queue
@@ -1620,13 +1690,20 @@ export const executeAgentFlow = async ({
         form: {}
     }
 
-    let previousExecution: Execution | undefined
+    let previousExecution: IExecution | undefined
 
     // If not a recursive call or parent execution not found, proceed normally
     const lazyLoadExecution = (() => {
-        let task: Promise<Execution | null>
+        let task: Promise<IExecution | null>
         return async () => {
-            if (process.env.DISABLE_EXECUTION_RECORDING) return null
+            if (process.env.DISABLE_EXECUTION_RECORDING || useTrustedState) {
+                // check for client-provided state (server encrypted - trusted data, compressed)
+                if (trustedData?.previousExecution) {
+                    previousExecution = trustedData.previousExecution
+                    return trustedData.previousExecution
+                }
+                return null
+            }
             if (task) {
                 return await task
             }
@@ -1657,7 +1734,8 @@ export const executeAgentFlow = async ({
 
         let previousState = {}
         if (Array.isArray(previousExecutionData) && previousExecutionData.length) {
-            for (const execData of previousExecutionData.reverse()) {
+            previousExecutionData.reverse()
+            for (const execData of previousExecutionData) {
                 if (execData.data.state) {
                     previousState = execData.data.state
                     break
@@ -1797,12 +1875,15 @@ export const executeAgentFlow = async ({
         agentFlowExecutedData.push(...executionData)
 
         // Update execution data if we removed an error item
-        if (shouldUpdateExecution) {
+        if (shouldUpdateExecution && !zeroRetention) {
             logger.debug(`  📝 Updating execution data after removing error item`)
-            updateExecution(appDataSource, previousExecution.id, workspaceId, {
-                executionData: JSON.stringify(executionData),
-                state: 'INPROGRESS'
-            })
+            updateExecution(
+                appDataSource,
+                previousExecution.id,
+                workspaceId,
+                { executionData: JSON.stringify(executionData), state: 'INPROGRESS' },
+                zeroRetention
+            )
         }
 
         // Get last state
@@ -1812,9 +1893,7 @@ export const executeAgentFlow = async ({
         agentflowRuntime.state = (lastState as ICommonObject) ?? {}
 
         // Update execution state to INPROGRESS
-        await updateExecution(appDataSource, previousExecution.id, workspaceId, {
-            state: 'INPROGRESS'
-        })
+        await updateExecution(appDataSource, previousExecution.id, workspaceId, { state: 'INPROGRESS' }, zeroRetention)
         newExecution = previousExecution
         parentExecutionId = previousExecution.id
 
@@ -1838,7 +1917,7 @@ export const executeAgentFlow = async ({
             newExecution = parentExecution
         } else {
             console.warn(`   ⚠️ Parent execution ID ${parentExecutionId} not found, will create new execution`)
-            newExecution = await addExecution(appDataSource, chatflowid, agentFlowExecutedData, sessionId, workspaceId)
+            newExecution = await addExecution(appDataSource, chatflowid, agentFlowExecutedData, sessionId, workspaceId, zeroRetention)
             parentExecutionId = newExecution.id
         }
     } else {
@@ -1847,7 +1926,7 @@ export const executeAgentFlow = async ({
         checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
 
         // Only create a new execution if this is not a recursive call
-        newExecution = await addExecution(appDataSource, chatflowid, agentFlowExecutedData, sessionId, workspaceId)
+        newExecution = await addExecution(appDataSource, chatflowid, agentFlowExecutedData, sessionId, workspaceId, zeroRetention)
         parentExecutionId = newExecution.id
     }
 
@@ -1863,70 +1942,21 @@ export const executeAgentFlow = async ({
     const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
 
     // Get chat history from ChatMessage table
-    const pastChatHistory: IMessage[] = process.env.DISABLE_CHAT_MESSAGE_RECORDING
-        ? []
-        : ((await appDataSource
-              .getRepository(ChatMessage)
-              .find({
-                  where: {
-                      chatflowid,
-                      sessionId
-                  },
-                  order: {
-                      createdDate: 'ASC'
-                  }
-              })
-              .then((messages) =>
-                  messages.map((message) => {
-                      const mappedMessage: any = {
-                          content: message.content,
-                          role: message.role === 'userMessage' ? 'user' : 'assistant'
+    const pastChatHistory: IMessage[] =
+        process.env.DISABLE_CHAT_MESSAGE_RECORDING || useTrustedState || zeroRetention
+            ? trustedData?.pastChatHistory?.map(mapChatMessageToIMessage) ?? []
+            : ((await appDataSource
+                  .getRepository(ChatMessage)
+                  .find({
+                      where: {
+                          chatflowid,
+                          sessionId
+                      },
+                      order: {
+                          createdDate: 'ASC'
                       }
-
-                      const hasFileUploads = message.fileUploads && message.fileUploads !== ''
-                      const hasArtifacts = message.artifacts && message.artifacts !== ''
-                      const hasFileAnnotations = message.fileAnnotations && message.fileAnnotations !== ''
-                      const hasUsedTools = message.usedTools && message.usedTools !== ''
-
-                      if (hasFileUploads || hasArtifacts || hasFileAnnotations || hasUsedTools) {
-                          mappedMessage.additional_kwargs = {}
-
-                          if (hasFileUploads) {
-                              try {
-                                  mappedMessage.additional_kwargs.fileUploads = JSON.parse(message.fileUploads!)
-                              } catch {
-                                  mappedMessage.additional_kwargs.fileUploads = message.fileUploads
-                              }
-                          }
-
-                          if (hasArtifacts) {
-                              try {
-                                  mappedMessage.additional_kwargs.artifacts = JSON.parse(message.artifacts!)
-                              } catch {
-                                  mappedMessage.additional_kwargs.artifacts = message.artifacts
-                              }
-                          }
-
-                          if (hasFileAnnotations) {
-                              try {
-                                  mappedMessage.additional_kwargs.fileAnnotations = JSON.parse(message.fileAnnotations!)
-                              } catch {
-                                  mappedMessage.additional_kwargs.fileAnnotations = message.fileAnnotations
-                              }
-                          }
-
-                          if (hasUsedTools) {
-                              try {
-                                  mappedMessage.additional_kwargs.usedTools = JSON.parse(message.usedTools!)
-                              } catch {
-                                  mappedMessage.additional_kwargs.usedTools = message.usedTools
-                              }
-                          }
-                      }
-
-                      return mappedMessage
                   })
-              )) as IMessage[])
+                  .then((messages) => messages.map(mapChatMessageToIMessage))) as IMessage[])
 
     let iterations = 0
     let currentHumanInput = humanInput
@@ -1965,6 +1995,28 @@ export const executeAgentFlow = async ({
         }
     } catch (error) {
         logger.error(`[server]: Error initializing analytic handlers: ${getErrorMessage(error)}`)
+    }
+
+    const getPreviousExecution = () => {
+        return {
+            id: newExecution.id,
+            state: status,
+            agentflowId: chatflowid,
+            sessionId,
+            workspaceId,
+            executionData: JSON.stringify(agentFlowExecutedData),
+            executionDataBlob: undefined,
+            createdDate: newExecution.createdDate ?? new Date(),
+            updatedDate: newExecution.updatedDate ?? new Date()
+        } as IExecution
+    }
+    const ensureTrustedData = () => {
+        if (!trustedData) {
+            trustedData = { pastChatHistory: [], previousExecution: getPreviousExecution() } as TrustedState
+        } else {
+            trustedData.previousExecution = getPreviousExecution()
+        }
+        return trustedData
     }
 
     while (nodeExecutionQueue.length > 0 && status === 'INPROGRESS') {
@@ -2037,7 +2089,8 @@ export const executeAgentFlow = async ({
                 orgId,
                 workspaceId,
                 subscriptionId,
-                productId
+                productId,
+                zeroRetention
             })
 
             if (executionResult.agentFlowExecutedData) {
@@ -2088,9 +2141,15 @@ export const executeAgentFlow = async ({
 
             if (nodeResult && nodeResult.output && nodeResult.output.ephemeralMemory) {
                 pastChatHistory.length = 0
+                if (trustedData?.pastChatHistory) {
+                    trustedData.pastChatHistory.length = 0
+                }
             }
             if (nodeResult && nodeResult.state && nodeResult.state.doNotIncludeFeedbackHistory) {
                 pastChatHistory.length = Math.max(0, pastChatHistory.length - 1)
+                if (trustedData?.pastChatHistory) {
+                    trustedData.pastChatHistory.length = Math.max(0, trustedData.pastChatHistory.length - 1)
+                }
                 if (pastChatHistory.length) {
                     question = pastChatHistory[pastChatHistory.length - 1].message || pastChatHistory[pastChatHistory.length - 1].content
                     incomingInput.question = question
@@ -2150,10 +2209,17 @@ export const executeAgentFlow = async ({
             if (!isRecursive) {
                 sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
 
-                updateExecution(appDataSource, newExecution.id, workspaceId, {
-                    executionData: JSON.stringify(agentFlowExecutedData),
-                    state: errorStatus
-                })
+                updateExecution(
+                    appDataSource,
+                    newExecution.id,
+                    workspaceId,
+                    { executionData: JSON.stringify(agentFlowExecutedData), state: errorStatus },
+                    zeroRetention
+                )
+
+                // trusted data update
+                trustedData = ensureTrustedData()
+                sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
 
                 sseStreamer?.streamAgentFlowEvent(chatId, errorStatus)
             }
@@ -2185,10 +2251,13 @@ export const executeAgentFlow = async ({
 
     // Only update execution record if this is not a recursive call
     if (!isRecursive) {
-        updateExecution(appDataSource, newExecution.id, workspaceId, {
-            executionData: JSON.stringify(agentFlowExecutedData),
-            state: status
-        })
+        updateExecution(
+            appDataSource,
+            newExecution.id,
+            workspaceId,
+            { executionData: JSON.stringify(agentFlowExecutedData), state: status },
+            zeroRetention
+        )
 
         sseStreamer?.streamAgentFlowEvent(chatId, status)
     }
@@ -2201,15 +2270,6 @@ export const executeAgentFlow = async ({
     let content = (lastNodeOutput?.content as string) ?? ' '
 
     /* Check for post-processing settings */
-    let chatflowConfig: ICommonObject = {}
-    try {
-        if (chatflow.chatbotConfig) {
-            chatflowConfig = typeof chatflow.chatbotConfig === 'string' ? JSON.parse(chatflow.chatbotConfig) : chatflow.chatbotConfig
-        }
-    } catch (e) {
-        logger.error('[server]: Error parsing chatflow config:', e)
-    }
-
     if (chatflowConfig?.postProcessing?.enabled === true && content) {
         try {
             const postProcessingFunction = JSON.parse(chatflowConfig?.postProcessing?.customFunction)
@@ -2271,29 +2331,35 @@ export const executeAgentFlow = async ({
         }
     }
 
-    let doNotIncludeFeedbackHistory = false
+    let doNotIncludeFeedbackHistory: boolean = false
     // Find the previous chat message with the same session/chat id and remove the action
     if (humanInput && Object.keys(humanInput).length) {
-        let query = await appDataSource
-            .getRepository(ChatMessage)
-            .createQueryBuilder('chat_message')
-            .where('chat_message.chatId = :chatId', { chatId })
-            .orWhere('chat_message.sessionId = :sessionId', { sessionId })
-            .orderBy('chat_message.createdDate', 'DESC')
-            .getMany()
-
+        let query: IChatMessage[]
+        if (useTrustedState && trustedData) {
+            query = trustedData.pastChatHistory
+        } else {
+            query = await appDataSource
+                .getRepository(ChatMessage)
+                .createQueryBuilder('chat_message')
+                .where('chat_message.chatId = :chatId', { chatId })
+                .orWhere('chat_message.sessionId = :sessionId', { sessionId })
+                .orderBy('chat_message.createdDate', 'DESC')
+                .getMany()
+        }
         for (const result of query) {
             if (result.action) {
                 try {
-                    const newChatMessage = new ChatMessage()
-                    Object.assign(newChatMessage, result)
                     doNotIncludeFeedbackHistory =
-                        newChatMessage.action?.includes('doNotIncludeFeedbackHistory') === true ||
-                        Boolean(process.env.DISABLE_CHAT_MESSAGE_RECORDING)
-                    newChatMessage.action = null
-                    const cm = appDataSource.getRepository(ChatMessage).create(newChatMessage)
+                        result.action?.includes('doNotIncludeFeedbackHistory') ||
+                        Boolean(process.env.DISABLE_CHAT_MESSAGE_RECORDING) ||
+                        useTrustedState
+                    result.action = null
+                    const cm = appDataSource.getRepository(ChatMessage).create(result)
                     if (doNotIncludeFeedbackHistory) {
-                        await appDataSource.getRepository(ChatMessage).remove(cm)
+                        if (!useTrustedState) {
+                            // !cm.id.startswith('mock-') ?
+                            await appDataSource.getRepository(ChatMessage).remove(cm)
+                        }
                     } else {
                         await appDataSource.getRepository(ChatMessage).save(cm)
                     }
@@ -2304,6 +2370,7 @@ export const executeAgentFlow = async ({
             }
         }
     }
+    let userMessage: ChatMessage | undefined = undefined
     if (!doNotIncludeFeedbackHistory) {
         let finalUserInput = incomingInput.question || ' '
 
@@ -2319,7 +2386,7 @@ export const executeAgentFlow = async ({
             }
         }
 
-        const userMessage: Omit<IChatMessage, 'id'> = {
+        const userMessageStub: Omit<IChatMessage, 'id'> = {
             role: 'userMessage',
             content: finalUserInput,
             chatflowid,
@@ -2331,7 +2398,7 @@ export const executeAgentFlow = async ({
             leadEmail: incomingInput.leadEmail,
             executionId: newExecution.id
         }
-        await utilAddChatMessage(userMessage, appDataSource)
+        userMessage = await utilAddChatMessage(userMessageStub, appDataSource, useTrustedState)
     }
 
     const apiMessage: Omit<IChatMessage, 'createdDate'> = {
@@ -2365,7 +2432,15 @@ export const executeAgentFlow = async ({
     if (lastNodeOutput?.humanInputAction && Object.keys(lastNodeOutput.humanInputAction).length)
         apiMessage.action = JSON.stringify(lastNodeOutput.humanInputAction)
 
-    const chatMessage = await utilAddChatMessage(apiMessage, appDataSource)
+    const chatMessage = await utilAddChatMessage(apiMessage, appDataSource, useTrustedState)
+    trustedData = ensureTrustedData()
+    if (userMessage) {
+        trustedData.pastChatHistory.push(userMessage)
+    }
+    trustedData.pastChatHistory.push(chatMessage)
+
+    // stream trusted state to client, replacing Executions and ChatMessage persistent DB collections holding user data
+    sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
 
     logger.debug(`[server]: Finished running agentflow ${chatflowid}`)
 

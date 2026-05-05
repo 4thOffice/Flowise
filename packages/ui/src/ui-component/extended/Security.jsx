@@ -6,6 +6,7 @@ import { useTheme } from '@mui/material/styles'
 import RateLimit from '@/ui-component/extended/RateLimit'
 import AllowedDomains from '@/ui-component/extended/AllowedDomains'
 import OverrideConfig from './OverrideConfig'
+import ClientState from '@/ui-component/extended/ClientState'
 
 const Security = ({ dialogProps }) => {
     const theme = useTheme()
@@ -14,6 +15,7 @@ const Security = ({ dialogProps }) => {
         <Stack direction='column' divider={<Divider sx={{ my: 0.5, borderColor: theme.palette.grey[900] + 25 }} />} spacing={4}>
             <RateLimit dialogProps={dialogProps} />
             <AllowedDomains dialogProps={dialogProps} />
+            <ClientState dialogProps={dialogProps} />
             <OverrideConfig dialogProps={dialogProps} />
         </Stack>
     )

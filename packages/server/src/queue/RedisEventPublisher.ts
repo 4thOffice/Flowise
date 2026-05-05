@@ -260,6 +260,21 @@ export class RedisEventPublisher implements IServerSideEventStreamer {
         }
     }
 
+    streamTrustedStateDataEvent(chatId: string, data: any): void {
+        try {
+            this.redisPublisher.publish(
+                chatId,
+                JSON.stringify({
+                    chatId,
+                    eventType: 'trustedStateData',
+                    data
+                })
+            )
+        } catch (error) {
+            console.error('Error streaming trustedStateData event:', error)
+        }
+    }
+
     streamNextAgentEvent(chatId: string, data: any): void {
         try {
             this.redisPublisher.publish(

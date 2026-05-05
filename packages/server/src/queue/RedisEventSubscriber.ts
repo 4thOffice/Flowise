@@ -142,6 +142,9 @@ export class RedisEventSubscriber {
             case 'agentFlowExecutedData':
                 this.sseStreamer.streamAgentFlowExecutedDataEvent(chatId, data)
                 break
+            case 'trustedStateData':
+                this.sseStreamer.streamTrustedStateDataEvent(chatId, data)
+                break
             case 'nextAgentFlow':
                 this.sseStreamer.streamNextAgentFlowEvent(chatId, data)
                 break
