@@ -31,6 +31,8 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
     ])
     const [welcomeMessage, setWelcomeMessage] = useState('')
     const [requestHumanCopy, setRequestHumanCopy] = useState('')
+    const [requestHumanIconUrl, setRequestHumanIconUrl] = useState('')
+
     const [chatbotConfig, setChatbotConfig] = useState({})
 
     const addInputField = () => {
@@ -64,6 +66,7 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
             chatbotConfig.starterPrompts = value.starterPrompts
             chatbotConfig.welcomeMessage = welcomeMessage
             chatbotConfig.requestHumanCopy = requestHumanCopy
+            chatbotConfig.requestHumanIconUrl = requestHumanIconUrl
             const saveResp = await chatflowsApi.updateChatflow(dialogProps.chatflow.id, {
                 chatbotConfig: JSON.stringify(chatbotConfig)
             })
@@ -128,6 +131,9 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                 if (chatbotConfig.requestHumanCopy) {
                     setRequestHumanCopy(chatbotConfig.requestHumanCopy)
                 }
+                if (chatbotConfig.requestHumanIconUrl) {
+                    setRequestHumanIconUrl(chatbotConfig.requestHumanIconUrl)
+                }
             } catch (e) {
                 setInputFields([
                     {
@@ -179,6 +185,21 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                         size='small'
                         onChange={(e) => {
                             setRequestHumanCopy(e.target.value)
+                        }}
+                    />
+                </Stack>
+                <Stack direction='column' spacing={1}>
+                    <Typography>Request human icon URL</Typography>
+                    <OutlinedInput
+                        id='RequestHumanIconUrl'
+                        type='text'
+                        fullWidth
+                        value={requestHumanIconUrl}
+                        placeholder={'Request human copy'}
+                        name='RequestHumanIconUrl'
+                        size='small'
+                        onChange={(e) => {
+                            setRequestHumanIconUrl(e.target.value)
                         }}
                     />
                 </Stack>
