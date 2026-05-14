@@ -20,7 +20,7 @@ const CHATFLOW_CONFIGURATION_TABS = [
         id: 'security'
     },
     {
-        label: 'Starter Prompts',
+        label: 'Welcome & Starter Prompts',
         id: 'conversationStarters'
     },
     {

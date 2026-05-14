@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction, SET_CHATFLOW } from '@/store/actions'
 
 // material-ui
-import { Button, IconButton, OutlinedInput, Box, List, InputAdornment } from '@mui/material'
+import { Button, IconButton, OutlinedInput, Box, List, InputAdornment, Typography, Stack } from '@mui/material'
 import { IconX, IconTrash, IconPlus, IconBulb } from '@tabler/icons-react'
 
 // Project import
@@ -29,7 +29,8 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
             prompt: ''
         }
     ])
-
+    const [welcomeMessage, setWelcomeMessage] = useState('')
+    const [requestHumanCopy, setRequestHumanCopy] = useState('')
     const [chatbotConfig, setChatbotConfig] = useState({})
 
     const addInputField = () => {
@@ -61,6 +62,8 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                 }
             }
             chatbotConfig.starterPrompts = value.starterPrompts
+            chatbotConfig.welcomeMessage = welcomeMessage
+            chatbotConfig.requestHumanCopy = requestHumanCopy
             const saveResp = await chatflowsApi.updateChatflow(dialogProps.chatflow.id, {
                 chatbotConfig: JSON.stringify(chatbotConfig)
             })
@@ -119,6 +122,12 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                         }
                     ])
                 }
+                if (chatbotConfig.welcomeMessage) {
+                    setWelcomeMessage(chatbotConfig.welcomeMessage)
+                }
+                if (chatbotConfig.requestHumanCopy) {
+                    setRequestHumanCopy(chatbotConfig.requestHumanCopy)
+                }
             } catch (e) {
                 setInputFields([
                     {
@@ -133,6 +142,47 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
 
     return (
         <>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 10,
+                    padding: 10,
+                    gap: 20,
+                    marginBottom: 30,
+                }}
+            >
+                <Stack direction='column' spacing={1}>
+                    <Typography>Welcome message</Typography>
+                    <OutlinedInput
+                        id='WelcomeMessage'
+                        type='textarea'
+                        fullWidth
+                        value={welcomeMessage}
+                        placeholder={'Override welcome message'}
+                        name='WelcomeMessage'
+                        size='small'
+                        onChange={(e) => {
+                            setWelcomeMessage(e.target.value)
+                        }}
+                    />
+                </Stack>
+                <Stack direction='column' spacing={1}>
+                    <Typography>Request human copy</Typography>
+                    <OutlinedInput
+                        id='RequestHumanCopy'
+                        type='text'
+                        fullWidth
+                        value={requestHumanCopy}
+                        placeholder={'Request human copy'}
+                        name='RequestHumanCopy'
+                        size='small'
+                        onChange={(e) => {
+                            setRequestHumanCopy(e.target.value)
+                        }}
+                    />
+                </Stack>
+            </div>
             <div
                 style={{
                     display: 'flex',
@@ -155,6 +205,7 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                     </span>
                 </div>
             </div>
+            <Typography>Starter prompts</Typography>
             <Box sx={{ '& > :not(style)': { m: 1 }, pt: 2 }}>
                 <List>
                     {inputFields.map((data, index) => {
