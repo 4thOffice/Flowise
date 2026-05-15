@@ -76,6 +76,13 @@ class Retriever_Agentflow implements INode {
                 default: 'text'
             },
             {
+                label: 'Weaviate metadata filter override',
+                name: 'weaviateMetadataFilterOverride',
+                type: 'string',
+                acceptVariable: true,
+                acceptNodeOutputAsVariable: true
+            },
+            {
                 label: 'Update Flow State',
                 name: 'retrieverUpdateState',
                 description: 'Update runtime state during the execution of the workflow',
