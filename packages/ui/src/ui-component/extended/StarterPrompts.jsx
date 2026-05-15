@@ -32,6 +32,9 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
     const [welcomeMessage, setWelcomeMessage] = useState('')
     const [requestHumanCopy, setRequestHumanCopy] = useState('')
     const [requestHumanIconUrl, setRequestHumanIconUrl] = useState('')
+    const [requestHumanSystemMessage, setRequestHumanSystemMessage] = useState('')
+    const [botEngagedSystemMessage, setBotEngagedSystemMessage] = useState('')
+    const [titleWhenHumanMode, setTitleWhenHumanMode] = useState('')
 
     const [chatbotConfig, setChatbotConfig] = useState({})
 
@@ -67,6 +70,9 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
             chatbotConfig.welcomeMessage = welcomeMessage
             chatbotConfig.requestHumanCopy = requestHumanCopy
             chatbotConfig.requestHumanIconUrl = requestHumanIconUrl
+            chatbotConfig.requestHumanSystemMessage = requestHumanSystemMessage
+            chatbotConfig.titleWhenHumanMode = titleWhenHumanMode
+            chatbotConfig.botEngagedSystemMessage = botEngagedSystemMessage
             const saveResp = await chatflowsApi.updateChatflow(dialogProps.chatflow.id, {
                 chatbotConfig: JSON.stringify(chatbotConfig)
             })
@@ -134,6 +140,15 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                 if (chatbotConfig.requestHumanIconUrl) {
                     setRequestHumanIconUrl(chatbotConfig.requestHumanIconUrl)
                 }
+                if (chatbotConfig.requestHumanSystemMessage) {
+                    setRequestHumanSystemMessage(chatbotConfig.requestHumanSystemMessage)
+                }
+                if (chatbotConfig.botEngagedSystemMessage) {
+                    setBotEngagedSystemMessage(chatbotConfig.botEngagedSystemMessage)
+                }
+                if (chatbotConfig.titleWhenHumanMode) {
+                    setTitleWhenHumanMode(chatbotConfig.titleWhenHumanMode)
+                }
             } catch (e) {
                 setInputFields([
                     {
@@ -155,11 +170,11 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                     borderRadius: 10,
                     padding: 10,
                     gap: 20,
-                    marginBottom: 30,
+                    marginBottom: 30
                 }}
             >
                 <Stack direction='column' spacing={1}>
-                    <Typography>Welcome message</Typography>
+                    <Typography>Welcome message (todo textarea)</Typography>
                     <OutlinedInput
                         id='WelcomeMessage'
                         type='textarea'
@@ -174,7 +189,7 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                     />
                 </Stack>
                 <Stack direction='column' spacing={1}>
-                    <Typography>Request human copy</Typography>
+                    <Typography>Request human on-hover copy</Typography>
                     <OutlinedInput
                         id='RequestHumanCopy'
                         type='text'
@@ -195,11 +210,56 @@ const StarterPrompts = ({ dialogProps, onConfirm }) => {
                         type='text'
                         fullWidth
                         value={requestHumanIconUrl}
-                        placeholder={'Request human copy'}
+                        placeholder={'Clickable icon URL for transfer / request-human'}
                         name='RequestHumanIconUrl'
                         size='small'
                         onChange={(e) => {
                             setRequestHumanIconUrl(e.target.value)
+                        }}
+                    />
+                </Stack>
+                <Stack direction='column' spacing={1}>
+                    <Typography>system-message copy that shows up when clicking request a human</Typography>
+                    <OutlinedInput
+                        id='RequestHumanSystemMessage'
+                        type='text'
+                        fullWidth
+                        value={requestHumanSystemMessage}
+                        placeholder={'Additional help requested.'}
+                        name='RequestHumanSystemMessage'
+                        size='small'
+                        onChange={(e) => {
+                            setRequestHumanSystemMessage(e.target.value)
+                        }}
+                    />
+                </Stack>
+                <Stack direction='column' spacing={1}>
+                    <Typography>system-message copy that shows up when clicking request a human</Typography>
+                    <OutlinedInput
+                        id='BotEngagedSystemMessage'
+                        type='text'
+                        fullWidth
+                        value={botEngagedSystemMessage}
+                        placeholder={'You are now talking to a robot.'}
+                        name='BotEngagedSystemMessage'
+                        size='small'
+                        onChange={(e) => {
+                            setBotEngagedSystemMessage(e.target.value)
+                        }}
+                    />
+                </Stack>
+                <Stack direction='column' spacing={1}>
+                    <Typography>Replace title when human mode</Typography>
+                    <OutlinedInput
+                        id='TitleWhenHumanMode'
+                        type='text'
+                        fullWidth
+                        value={titleWhenHumanMode}
+                        placeholder={"Corp X's support team"}
+                        name='TitleWhenHumanMode'
+                        size='small'
+                        onChange={(e) => {
+                            setTitleWhenHumanMode(e.target.value)
                         }}
                     />
                 </Stack>
