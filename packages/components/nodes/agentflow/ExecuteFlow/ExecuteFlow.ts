@@ -13,6 +13,26 @@ import { DataSource } from 'typeorm'
 import { BaseMessageLike } from '@langchain/core/messages'
 import { updateFlowState } from '../utils'
 
+const deepMerge = (target: Record<string, any>, source: Record<string, any>): Record<string, any> => {
+    const result = { ...target }
+    for (const key of Object.keys(source)) {
+        if (
+            source[key] !== null &&
+            typeof source[key] === 'object' &&
+            !Array.isArray(source[key]) &&
+            key in target &&
+            target[key] !== null &&
+            typeof target[key] === 'object' &&
+            !Array.isArray(target[key])
+        ) {
+            result[key] = deepMerge(target[key], source[key])
+        } else {
+            result[key] = source[key]
+        }
+    }
+    return result
+}
+
 class ExecuteFlow_Agentflow implements INode {
     label: string
     name: string
@@ -197,12 +217,12 @@ class ExecuteFlow_Agentflow implements INode {
         else if (!childConfig) {
             childConfig = {}
         }
-        let overrideConfig = {}
-        if (parentConfig && typeof parentConfig === "object" && !Array.isArray(parentConfig)) {
-            overrideConfig = { ...overrideConfig, ...parentConfig }
+        let overrideConfig: Record<string, any> = {}
+        if (parentConfig && typeof parentConfig === 'object' && !Array.isArray(parentConfig)) {
+            overrideConfig = deepMerge(overrideConfig, parentConfig)
         }
-        if (childConfig && typeof childConfig === "object" && !Array.isArray(childConfig)) {
-            overrideConfig = { ...overrideConfig, ...childConfig }
+        if (childConfig && typeof childConfig === 'object' && !Array.isArray(childConfig)) {
+            overrideConfig = deepMerge(overrideConfig, childConfig)
         }
 
         const state = options.agentflowRuntime?.state as ICommonObject
