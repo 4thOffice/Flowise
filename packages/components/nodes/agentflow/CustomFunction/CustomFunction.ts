@@ -8,6 +8,7 @@ import {
     INodeParams,
     IServerSideEventStreamer
 } from '../../../src/Interface'
+import { getCredentialData, getCredentialParam } from '../../../src/utils'
 import { getVars, executeJavaScriptCode, createCodeExecutionSandbox, processTemplateVariables } from '../../../src/utils'
 import { updateFlowState } from '../utils'
 
@@ -66,6 +67,13 @@ class CustomFunction_Agentflow implements INode {
         this.description = 'Execute custom function'
         this.baseClasses = [this.type]
         this.color = '#E4B7FF'
+        this.credential = {
+            label: 'Secrets',
+            name: 'credential',
+            type: 'credential',
+            credentialNames: ['customNodeSecret'],
+            optional: true
+        }
         this.inputs = [
             {
                 label: 'Input Variables',
@@ -175,6 +183,16 @@ class CustomFunction_Agentflow implements INode {
             const variableName = item.variableName
             const variableValue = item.variableValue
             additionalSandbox[`$${variableName}`] = variableValue
+        }
+
+        // Add credentials if provided
+        const credentialData = await getCredentialData(nodeData.credential ?? '', options)
+        if (credentialData && Object.keys(credentialData).length !== 0) {
+            const secretName = getCredentialParam('name', credentialData, nodeData)
+            const secretValue = getCredentialParam('value', credentialData, nodeData)
+            if (secretName && secretValue) {
+                additionalSandbox[`$${secretName}`] = secretValue
+            }
         }
 
         const sandbox = createCodeExecutionSandbox(input, variables, flow, additionalSandbox)
