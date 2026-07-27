@@ -105,6 +105,15 @@ class ChatOpenAI_ChatModels implements INode {
                 additionalParams: true
             },
             {
+                label: 'Don\'t set store parameter',
+                name: 'dontSetStoreParam',
+                type: 'boolean',
+                description:
+                    'Store parameter of request body is set to false by default. Toggle on to prevent this.',
+                optional: true,
+                default: false,
+            },
+            {
                 label: 'Strict Tool Calling',
                 name: 'strictToolCalling',
                 type: 'boolean',
@@ -255,6 +264,7 @@ class ChatOpenAI_ChatModels implements INode {
         const stopSequence = nodeData.inputs?.stopSequence as string
         const streaming = nodeData.inputs?.streaming as boolean
         const strictToolCalling = nodeData.inputs?.strictToolCalling as boolean
+        const dontSetStoreParam = nodeData.inputs?.dontSetStoreParam as boolean
         const basePath = nodeData.inputs?.basepath as string
         const proxyUrl = nodeData.inputs?.proxyUrl as string
         const baseOptions = nodeData.inputs?.baseOptions
@@ -291,6 +301,11 @@ class ChatOpenAI_ChatModels implements INode {
             obj.stop = stopSequenceArray
         }
         if (strictToolCalling) obj.supportsStrictToolCalling = strictToolCalling
+        if (!dontSetStoreParam) {
+            if (!obj.modelKwargs)
+                obj.modelKwargs = {}
+            obj.modelKwargs["store"] = false
+        }
 
         if (modelName.includes('o1') || modelName.includes('o3') || modelName.includes('gpt-5')) {
             delete obj.temperature
