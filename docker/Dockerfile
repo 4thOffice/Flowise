@@ -1,5 +1,7 @@
+ARG NODE_VERSION=26
+
 # Stage 1: Build stage
-FROM node:20-alpine AS build
+FROM node:${NODE_VERSION}-alpine AS build
 
 USER root
 
@@ -10,7 +12,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 RUN npm install -g flowise
 
 # Stage 2: Runtime stage
-FROM node:20-alpine
+FROM node:${NODE_VERSION}-alpine
 
 # Install runtime dependencies
 RUN apk add --no-cache chromium git python3 py3-pip make g++ build-base cairo-dev pango-dev curl

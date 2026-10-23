@@ -1,0 +1,14 @@
+diff --git a/index.js b/index.js
+index 5462c1f830bdbe79bf2b1fcfd811cd9799b4dd11..aa004454be0e7c1df54d53a4062ff264c44b964a 100644
+--- a/index.js
++++ b/index.js
+@@ -1,7 +1,8 @@
+ /*jshint node:true */
+ 'use strict';
+ var Buffer = require('buffer').Buffer; // browserify
+-var SlowBuffer = require('buffer').SlowBuffer;
++// SlowBuffer was removed in Node 25; fall back to Buffer so loading doesn't throw
++var SlowBuffer = require('buffer').SlowBuffer || Buffer;
+ 
+ module.exports = bufferEq;
+ 

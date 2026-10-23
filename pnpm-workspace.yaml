@@ -1,2 +1,72 @@
 packages:
-    - 'packages/*'
+  - 'packages/*'
+
+autoInstallPeers: true
+strictPeerDependencies: false
+preferWorkspacePackages: true
+linkWorkspacePackages: deep
+hoist: true
+shamefullyHoist: true
+
+allowBuilds:
+  better-sqlite3: true
+  faiss-node: true
+  sqlite3: true
+  # Our fork has a prepare script (pnpm runs it via yarn), pinned to the commit in pnpm-lock.yaml; update when bumping the fork
+  flowise-embed@https://codeload.github.com/4thOffice/FlowiseChatEmbed/tar.gz/4da78f38866fc4c33e8c7acf698e1318d2ba3fcc: true
+  '@swc/core': false
+  bufferutil: false
+  canvas: false
+  core-js: false
+  core-js-pure: false
+  couchbase: false
+  cpu-features: false
+  cypress: false
+  es5-ext: false
+  esbuild: false
+  grpc-tools: false
+  msgpackr-extract: false
+  protobufjs: false
+  puppeteer: false
+  sharp: false
+  ssh2: false
+  utf-8-validate: false
+
+overrides:
+  # Pin these out-of-range peers to the versions pnpm 9 resolved. Otherwise pnpm 11's autoInstallPeers
+  # adds a second copy (e.g. @types/react@17 splits reactflow into two @reactflow/core instances and
+  # breaks the v2 canvas; @tiptap/extension-code-block@3 mixes tiptap v3 into the v2 editor).
+  '@mui/icons-material>@types/react': 18.2.65
+  '@stripe/agent-toolkit>ai': 3.2.22
+  '@tiptap/extension-code-block-lowlight>@tiptap/extension-code-block': 2.12.0
+  '@google/generative-ai': ^0.24.0
+  '@grpc/grpc-js': ^1.10.10
+  '@langchain/core': 0.3.61
+  '@qdrant/openapi-typescript-fetch': 1.2.6
+  openai: 4.96.0
+  protobufjs: 7.4.0
+  axios: 1.12.0
+  body-parser: 2.0.2
+  braces: 3.0.3
+  cross-spawn: 7.0.6
+  form-data: 4.0.4
+  glob-parent: 6.0.2
+  http-proxy-middleware: 3.0.3
+  json5: 2.2.3
+  nth-check: 2.1.1
+  path-to-regexp: 0.1.12
+  # prebuild-install <7.1.3 (napi-build-utils 1.x) can't match prebuilds on N-API >= 10 (Node 22.14+)
+  prebuild-install: ^7.1.3
+  prismjs: 1.29.0
+  rollup: 4.45.0
+  semver: 7.7.1
+  set-value: 4.1.0
+  solid-js: 1.9.7
+  tar-fs: 3.1.0
+  unset-value: 2.0.1
+  webpack-dev-middleware: 7.4.2
+  ws: 8.18.3
+  xlsx: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+
+patchedDependencies:
+  buffer-equal-constant-time@1.0.1: patches/buffer-equal-constant-time@1.0.1.patch

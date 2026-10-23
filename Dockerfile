@@ -4,7 +4,8 @@
 # Run image
 # docker run -d -p 3000:3000 flowise
 
-FROM node:20-alpine
+ARG NODE_VERSION=26
+FROM node:${NODE_VERSION}-alpine
 
 # Install system dependencies and build tools
 RUN apk update && \
@@ -18,7 +19,7 @@ RUN apk update && \
         pango-dev \
         chromium \
         curl && \
-    npm install -g pnpm
+    npm install -g pnpm@11.15.1
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
@@ -37,7 +38,7 @@ RUN pnpm install && \
 # Give the node user ownership of the application files
 RUN chown -R node:node .
 
-# Switch to non-root user (node user already exists in node:20-alpine)
+# Switch to non-root user (node user already exists in the node alpine image)
 USER node
 
 EXPOSE 3000
