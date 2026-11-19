@@ -72,7 +72,7 @@ flowchart LR
 | # | Task File | Status | Design Ready? | Summary |
 | :--- | :--- | :--- | :--- | :--- |
 | 00 | [00-current-implementation.md](./00-current-implementation.md) | Done | N/A | Baseline technical reference of current Agentflow V2 execution. |
-| 00b | [00b-baseline-flows-and-traces.md](./00b-baseline-flows-and-traces.md) | Pending | Yes | Capture 6 zero-API-key local Agentflow V2 flows, `before/` SSE & `agentFlowExecutedData` traces, and canvas screenshots before any edits. |
+| 00b | [00b-baseline-flows-and-traces.md](./00b-baseline-flows-and-traces.md) | Done | Yes | Capture 6 zero-API-key local Agentflow V2 flows, `before/` SSE & `agentFlowExecutedData` traces, and canvas screenshots before any edits. |
 | 01 | [01-test-harness-and-refactor-seams.md](./01-test-harness-and-refactor-seams.md) | Pending | Yes | Extract testable seams & build Jest harness with controllable async mock nodes. |
 | 02 | [02-diff-based-atomic-state-merge.md](./02-diff-based-atomic-state-merge.md) | Pending | Yes (**D3**) | Snapshot isolation + per-key diff merge for `agentflowRuntime.state` and safe runtime commits. |
 | 03 | [03-concurrent-scheduler-loop.md](./03-concurrent-scheduler-loop.md) | Pending | Yes (**D1**) | Event-driven concurrent execution loop with `inFlightTasks`, `p-limit`, and sync `processNodeOutputs`. |

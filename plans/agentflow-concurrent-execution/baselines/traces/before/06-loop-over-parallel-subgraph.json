@@ -1,0 +1,1891 @@
+{
+  "capturedAt": "2026-11-19T14:29:35.134Z",
+  "flow": {
+    "slug": "06-loop-over-parallel-subgraph",
+    "name": "Baseline 06 - Loop Over Parallel Subgraph",
+    "file": "06-loop-over-parallel-subgraph.json",
+    "chatflowId": "32e17083-ca07-402e-9422-4b20ee1177ed",
+    "validationIssues": []
+  },
+  "runs": {
+    "nonStreaming": {
+      "mode": "non-streaming",
+      "request": {
+        "question": "run loop",
+        "streaming": false
+      },
+      "httpStatus": 200,
+      "durationMs": 981.96,
+      "timedOut": false,
+      "error": null,
+      "response": {
+        "text": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B",
+        "executionId": "88ea2d36-1769-4e70-9630-9caa1523d39b",
+        "sessionId": "77adaf20-524e-4487-b853-1ec10aed1744",
+        "chatId": "77adaf20-524e-4487-b853-1ec10aed1744",
+        "chatMessageId": "f7f6dc9e-3e71-4e2a-a596-a2757a1b65bf",
+        "action": null,
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "run loop"
+              },
+              "output": {
+                "question": "run loop"
+              },
+              "state": {
+                "iterA": "",
+                "iterB": ""
+              }
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "return 'fork-entry';"
+              },
+              "output": {
+                "content": "fork-entry"
+              },
+              "state": {
+                "iterA": "",
+                "iterB": ""
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "data": {
+              "id": "customFunctionAgentflow_1",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+              },
+              "output": {
+                "content": "A"
+              },
+              "state": {
+                "iterA": "A",
+                "iterB": ""
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "data": {
+              "id": "customFunctionAgentflow_2",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+              },
+              "output": {
+                "content": "B"
+              },
+              "state": {
+                "iterA": "A",
+                "iterB": "B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "data": {
+              "id": "conditionAgentflow_0",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "number",
+                    "value1": "0",
+                    "operation": "smaller",
+                    "value2": "2"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "number",
+                    "value1": "0",
+                    "operation": "smaller",
+                    "value2": "2",
+                    "isFulfilled": true
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": false
+                  }
+                ]
+              },
+              "state": {
+                "iterA": "A",
+                "iterB": "B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_1",
+              "customFunctionAgentflow_2"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "loopAgentflow_0",
+            "nodeLabel": "Loop Back",
+            "data": {
+              "id": "loopAgentflow_0",
+              "name": "loopAgentflow",
+              "input": {
+                "nodeID": "customFunctionAgentflow_0",
+                "maxLoopCount": 5
+              },
+              "output": {
+                "content": "Loop back to Fork Entry (customFunctionAgentflow_0)",
+                "nodeID": "customFunctionAgentflow_0",
+                "maxLoopCount": 5,
+                "fallbackMessage": "Max loop count reached."
+              },
+              "state": {
+                "iterA": "A",
+                "iterB": "B"
+              }
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "return 'fork-entry';"
+              },
+              "output": {
+                "content": "fork-entry"
+              },
+              "state": {
+                "iterA": "A",
+                "iterB": "B"
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "data": {
+              "id": "customFunctionAgentflow_1",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+              },
+              "output": {
+                "content": "A,A"
+              },
+              "state": {
+                "iterA": "A,A",
+                "iterB": "B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "data": {
+              "id": "customFunctionAgentflow_2",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+              },
+              "output": {
+                "content": "B,B"
+              },
+              "state": {
+                "iterA": "A,A",
+                "iterB": "B,B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "data": {
+              "id": "conditionAgentflow_0",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "number",
+                    "value1": "1",
+                    "operation": "smaller",
+                    "value2": "2"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "number",
+                    "value1": "1",
+                    "operation": "smaller",
+                    "value2": "2",
+                    "isFulfilled": true
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": false
+                  }
+                ]
+              },
+              "state": {
+                "iterA": "A,A",
+                "iterB": "B,B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_1",
+              "customFunctionAgentflow_2"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "loopAgentflow_0",
+            "nodeLabel": "Loop Back",
+            "data": {
+              "id": "loopAgentflow_0",
+              "name": "loopAgentflow",
+              "input": {
+                "nodeID": "customFunctionAgentflow_0",
+                "maxLoopCount": 5
+              },
+              "output": {
+                "content": "Loop back to Fork Entry (customFunctionAgentflow_0)",
+                "nodeID": "customFunctionAgentflow_0",
+                "maxLoopCount": 5,
+                "fallbackMessage": "Max loop count reached."
+              },
+              "state": {
+                "iterA": "A,A",
+                "iterB": "B,B"
+              }
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "return 'fork-entry';"
+              },
+              "output": {
+                "content": "fork-entry"
+              },
+              "state": {
+                "iterA": "A,A",
+                "iterB": "B,B"
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "data": {
+              "id": "customFunctionAgentflow_1",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+              },
+              "output": {
+                "content": "A,A,A"
+              },
+              "state": {
+                "iterA": "A,A,A",
+                "iterB": "B,B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "data": {
+              "id": "customFunctionAgentflow_2",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+              },
+              "output": {
+                "content": "B,B,B"
+              },
+              "state": {
+                "iterA": "A,A,A",
+                "iterB": "B,B,B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "data": {
+              "id": "conditionAgentflow_0",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "number",
+                    "value1": "2",
+                    "operation": "smaller",
+                    "value2": "2"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "number",
+                    "value1": "2",
+                    "operation": "smaller",
+                    "value2": "2"
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": true
+                  }
+                ]
+              },
+              "state": {
+                "iterA": "A,A,A",
+                "iterB": "B,B,B"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_1",
+              "customFunctionAgentflow_2"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Exit Reply",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B"
+              },
+              "state": {
+                "iterA": "A,A,A",
+                "iterB": "B,B,B"
+              }
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          }
+        ]
+      }
+    },
+    "streaming": {
+      "mode": "streaming",
+      "request": {
+        "question": "run loop",
+        "streaming": true
+      },
+      "httpStatus": 200,
+      "durationMs": 970.18,
+      "timedOut": false,
+      "error": null,
+      "streamedText": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B",
+      "tokenChunks": [
+        "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B"
+      ],
+      "agentFlowEvents": [
+        {
+          "offsetMs": 27.87,
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 965.69,
+          "status": "FINISHED"
+        }
+      ],
+      "nextAgentFlowEvents": [
+        {
+          "offsetMs": 28,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 28.04,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 28.06,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 28.08,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 28.1,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 175.61,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 175.68,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 339.12,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 339.21,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 339.23,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 339.24,
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Loop Back",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 339.26,
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Loop Back",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 339.27,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 339.28,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 339.3,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 494.08,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 494.14,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 652.69,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 652.74,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 652.77,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 652.78,
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Loop Back",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 652.8,
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Loop Back",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 652.82,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 652.84,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 652.85,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 810.01,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 810.06,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 965.49,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 965.58,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 965.64,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 965.65,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Exit Reply",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 965.68,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Exit Reply",
+          "status": "FINISHED"
+        }
+      ],
+      "action": null,
+      "metadata": {
+        "chatId": "5b6bad4c-4e61-4ca0-8e9d-f3884ace02a2",
+        "chatMessageId": "38d18738-1724-4fae-9aff-f05cba3276df",
+        "question": "run loop",
+        "sessionId": "5b6bad4c-4e61-4ca0-8e9d-f3884ace02a2"
+      },
+      "agentFlowExecutedData": [
+        {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+            "id": "startAgentflow_0",
+            "name": "startAgentflow",
+            "input": {
+              "question": "run loop"
+            },
+            "output": {
+              "question": "run loop"
+            },
+            "state": {
+              "iterA": "",
+              "iterB": ""
+            }
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "data": {
+            "id": "customFunctionAgentflow_0",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "return 'fork-entry';"
+            },
+            "output": {
+              "content": "fork-entry"
+            },
+            "state": {
+              "iterA": "",
+              "iterB": ""
+            }
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "data": {
+            "id": "customFunctionAgentflow_1",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+            },
+            "output": {
+              "content": "A"
+            },
+            "state": {
+              "iterA": "A",
+              "iterB": ""
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "data": {
+            "id": "customFunctionAgentflow_2",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+            },
+            "output": {
+              "content": "B"
+            },
+            "state": {
+              "iterA": "A",
+              "iterB": "B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "data": {
+            "id": "conditionAgentflow_0",
+            "name": "conditionAgentflow",
+            "input": {
+              "conditions": {
+                "0": {
+                  "type": "number",
+                  "value1": "0",
+                  "operation": "smaller",
+                  "value2": "2"
+                }
+              }
+            },
+            "output": {
+              "conditions": [
+                {
+                  "type": "number",
+                  "value1": "0",
+                  "operation": "smaller",
+                  "value2": "2",
+                  "isFulfilled": true
+                },
+                {
+                  "type": "string",
+                  "value1": "",
+                  "operation": "equal",
+                  "value2": "",
+                  "isFulfilled": false
+                }
+              ]
+            },
+            "state": {
+              "iterA": "A",
+              "iterB": "B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_1",
+            "customFunctionAgentflow_2"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Loop Back",
+          "data": {
+            "id": "loopAgentflow_0",
+            "name": "loopAgentflow",
+            "input": {
+              "nodeID": "customFunctionAgentflow_0",
+              "maxLoopCount": 5
+            },
+            "output": {
+              "content": "Loop back to Fork Entry (customFunctionAgentflow_0)",
+              "nodeID": "customFunctionAgentflow_0",
+              "maxLoopCount": 5,
+              "fallbackMessage": "Max loop count reached."
+            },
+            "state": {
+              "iterA": "A",
+              "iterB": "B"
+            }
+          },
+          "previousNodeIds": [
+            "conditionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "data": {
+            "id": "customFunctionAgentflow_0",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "return 'fork-entry';"
+            },
+            "output": {
+              "content": "fork-entry"
+            },
+            "state": {
+              "iterA": "A",
+              "iterB": "B"
+            }
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "data": {
+            "id": "customFunctionAgentflow_1",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+            },
+            "output": {
+              "content": "A,A"
+            },
+            "state": {
+              "iterA": "A,A",
+              "iterB": "B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "data": {
+            "id": "customFunctionAgentflow_2",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+            },
+            "output": {
+              "content": "B,B"
+            },
+            "state": {
+              "iterA": "A,A",
+              "iterB": "B,B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "data": {
+            "id": "conditionAgentflow_0",
+            "name": "conditionAgentflow",
+            "input": {
+              "conditions": {
+                "0": {
+                  "type": "number",
+                  "value1": "1",
+                  "operation": "smaller",
+                  "value2": "2"
+                }
+              }
+            },
+            "output": {
+              "conditions": [
+                {
+                  "type": "number",
+                  "value1": "1",
+                  "operation": "smaller",
+                  "value2": "2",
+                  "isFulfilled": true
+                },
+                {
+                  "type": "string",
+                  "value1": "",
+                  "operation": "equal",
+                  "value2": "",
+                  "isFulfilled": false
+                }
+              ]
+            },
+            "state": {
+              "iterA": "A,A",
+              "iterB": "B,B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_1",
+            "customFunctionAgentflow_2"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Loop Back",
+          "data": {
+            "id": "loopAgentflow_0",
+            "name": "loopAgentflow",
+            "input": {
+              "nodeID": "customFunctionAgentflow_0",
+              "maxLoopCount": 5
+            },
+            "output": {
+              "content": "Loop back to Fork Entry (customFunctionAgentflow_0)",
+              "nodeID": "customFunctionAgentflow_0",
+              "maxLoopCount": 5,
+              "fallbackMessage": "Max loop count reached."
+            },
+            "state": {
+              "iterA": "A,A",
+              "iterB": "B,B"
+            }
+          },
+          "previousNodeIds": [
+            "conditionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Fork Entry",
+          "data": {
+            "id": "customFunctionAgentflow_0",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "return 'fork-entry';"
+            },
+            "output": {
+              "content": "fork-entry"
+            },
+            "state": {
+              "iterA": "A,A",
+              "iterB": "B,B"
+            }
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Worker A (150ms)",
+          "data": {
+            "id": "customFunctionAgentflow_1",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+            },
+            "output": {
+              "content": "A,A,A"
+            },
+            "state": {
+              "iterA": "A,A,A",
+              "iterB": "B,B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Worker B (150ms)",
+          "data": {
+            "id": "customFunctionAgentflow_2",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+            },
+            "output": {
+              "content": "B,B,B"
+            },
+            "state": {
+              "iterA": "A,A,A",
+              "iterB": "B,B,B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Loop Check",
+          "data": {
+            "id": "conditionAgentflow_0",
+            "name": "conditionAgentflow",
+            "input": {
+              "conditions": {
+                "0": {
+                  "type": "number",
+                  "value1": "2",
+                  "operation": "smaller",
+                  "value2": "2"
+                }
+              }
+            },
+            "output": {
+              "conditions": [
+                {
+                  "type": "number",
+                  "value1": "2",
+                  "operation": "smaller",
+                  "value2": "2"
+                },
+                {
+                  "type": "string",
+                  "value1": "",
+                  "operation": "equal",
+                  "value2": "",
+                  "isFulfilled": true
+                }
+              ]
+            },
+            "state": {
+              "iterA": "A,A,A",
+              "iterB": "B,B,B"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_1",
+            "customFunctionAgentflow_2"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Exit Reply",
+          "data": {
+            "id": "directReplyAgentflow_0",
+            "name": "directReplyAgentflow",
+            "input": {},
+            "output": {
+              "content": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B"
+            },
+            "state": {
+              "iterA": "A,A,A",
+              "iterB": "B,B,B"
+            }
+          },
+          "previousNodeIds": [
+            "conditionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        }
+      ],
+      "events": [
+        {
+          "offsetMs": 27.87,
+          "event": "agentFlowEvent",
+          "data": "INPROGRESS"
+        },
+        {
+          "offsetMs": 28,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 28.04,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 28.06,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 28.08,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 28.1,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 175.61,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 175.68,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 339.12,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 339.21,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 339.23,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 339.24,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "loopAgentflow_0",
+            "nodeLabel": "Loop Back",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 339.26,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "loopAgentflow_0",
+            "nodeLabel": "Loop Back",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 339.27,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 339.28,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 339.3,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 494.08,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 494.14,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 652.69,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 652.74,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 652.77,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 652.78,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "loopAgentflow_0",
+            "nodeLabel": "Loop Back",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 652.8,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "loopAgentflow_0",
+            "nodeLabel": "Loop Back",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 652.82,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 652.84,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Fork Entry",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 652.85,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 810.01,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Worker A (150ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 810.06,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 965.49,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Worker B (150ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 965.58,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 965.64,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Loop Check",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 965.65,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Exit Reply",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 965.67,
+          "event": "token",
+          "data": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B"
+        },
+        {
+          "offsetMs": 965.68,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Exit Reply",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 965.69,
+          "event": "agentFlowEvent",
+          "data": "FINISHED"
+        },
+        {
+          "offsetMs": 968.27,
+          "event": "trustedStateData",
+          "data": "yzvyluHfssFH75SrmWyS+fUHZgM88y/5DxfFfalzUx3ODMYjGKs7A0WIL7O6w1YfaAzP98abxj9kd0oQTb9pFYVoEX7N5MndjWQwZFGXbyO4uKEjUGWqiwf3Veo7qfWAXG9Kmos67jj15vWnS3H55EP0yHb4+O5YA4u5k5k1jMRt2OX9PjZFvXWnpFw/b90Q9zIXG5qRcrE21Ifrp+gObSazosKZOXVm4NrDl46SY5qUqR0EStzxqlcXcxj8VcGusU/ER3DjVFW5gKtJy9S69VKP7gfRkIpQR7LVRnZ73JoU5seShO3t7w67P6VCJ/l4e5i8tVSYfHQ8zjh5cuJXohQvyyCuIiry8w8N1g5UiooeyWUmW9N36WAxZBHX9D2dCTKxKZuCUEMSiR1fexR6IIAd32XI3zb1/Q5E7OFcBPj5bZHq34mTxkuMBlNcSqJ86uWv43zf+LUEZb88Ia7qbUbn0fTaWZ8b6QPjH+u3HjfQDqb525aPd344jsjvkzV+YiHkPcdF8ZoQE7Tx9EaY5KfZNj+NvaMlSYlOQ9GMwgZ1E930rwKotLitqevzu1hZ/m4T4ZHrJFB3IFu9X1UslyuTaD9AGo+kReOAviBbjn9qa5xtk6ZlmTdrEAzdz+Y/Ja6WL8q6nWi6jbZ7qaWaEKDdG276ozi8JO4Dx1FB69pKYpqqvKJ/Gkwp7KAXcS9FhhtZebhS/TPligpebVTGHJ6x5Ud6FowvRAJUqTn7Z5RpEC0qIFr54yMYqaet327M4hJLtLwZtkhHaajEiANxkkmC6oAohPRKb2BamHMOvgR09cQuiCrjTXmxAdnkLEZk8ERqzHgaYa1MkTU1kCDIZ1n9dYk8iKD1qNiMcPhPehFc/F7lgv8pQSf83GQGCKY45dtyPdrFG27HhqEU5WZabyQlDUC5p0qJfadDTruZxoyhnzQZKWrKm9mCRMQM+tY5cUALya9iGsGJ3kqNpjUIrYMGU5i72QPOBYMzVvrKh474cGXQQGrrXctqStXBiVIAaP/qw0xn6qtY1RskrPGK2eMSxE5tqofM9BfgeUd6u/w7f7wdQM3vQHZQuEFbYjJr+Wl/nyEPTtYMHbaHrizdzIkei4UYXlZJTE8a3naSuUjzHPWn+cw2Vug3p2W02uhyP87WCRPFiWzbffhJDuzerlhdGHT+fz0S+DEYR2WOfCIzvqPkHY9qJao1cgOjrPO52CJXBKKzYzKnQZV579suHwg5BuWehqPzegPzHde6351LWYBYIWG9NE8Qf2BOCEemdmE2wCf8DUhAGVz2c/V/DC7ZWLUZbuEj+1djkzxqo6aGLbNuEr2BgP1baUDfh0otFo+RnbdbW2TWTjtj35Ov75lfJdMWQZ4b/RgQA3g/puHDzDuuv2nsIxlInUt0wShJKQwKGlRBLO6sCBHFwmJVMuOvERI594EYvrMwdKkJLSHXr3OkOdlP9IDEXqN13qexe8KVdXoTFFA15pu4b5RvfGzbKQmjWqGmqzG8hQrsZrtychwMmZqEPELFa6Jh6c1VPJaBgkldHH42ksG8q7ilUOkg5SLf7Zx8a0I7exrpBa68CmAU7Qx+dJaF+4Jtl4E3UXLWOJ1T0IEIge4BeV6wamcKl/a4yXrjSY09/ScjVcocFsEZHehgvcu/3+xzkDYyOqUM6Jx0vd72Eb1bd3vDGhwWx5W52lpWota6wCrdSth32kaLCblXIjbAhUpvO9WTe5V/1WUydjJJ7NGa"
+        },
+        {
+          "offsetMs": 970,
+          "event": "metadata",
+          "data": {
+            "chatId": "5b6bad4c-4e61-4ca0-8e9d-f3884ace02a2",
+            "chatMessageId": "38d18738-1724-4fae-9aff-f05cba3276df",
+            "question": "run loop",
+            "sessionId": "5b6bad4c-4e61-4ca0-8e9d-f3884ace02a2"
+          }
+        },
+        {
+          "offsetMs": 970.07,
+          "event": "agentFlowExecutedData",
+          "data": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "run loop"
+                },
+                "output": {
+                  "question": "run loop"
+                },
+                "state": {
+                  "iterA": "",
+                  "iterB": ""
+                }
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Fork Entry",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "return 'fork-entry';"
+                },
+                "output": {
+                  "content": "fork-entry"
+                },
+                "state": {
+                  "iterA": "",
+                  "iterB": ""
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "nodeLabel": "Worker A (150ms)",
+              "data": {
+                "id": "customFunctionAgentflow_1",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+                },
+                "output": {
+                  "content": "A"
+                },
+                "state": {
+                  "iterA": "A",
+                  "iterB": ""
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "nodeLabel": "Worker B (150ms)",
+              "data": {
+                "id": "customFunctionAgentflow_2",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+                },
+                "output": {
+                  "content": "B"
+                },
+                "state": {
+                  "iterA": "A",
+                  "iterB": "B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Loop Check",
+              "data": {
+                "id": "conditionAgentflow_0",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "number",
+                      "value1": "0",
+                      "operation": "smaller",
+                      "value2": "2"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "number",
+                      "value1": "0",
+                      "operation": "smaller",
+                      "value2": "2",
+                      "isFulfilled": true
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": false
+                    }
+                  ]
+                },
+                "state": {
+                  "iterA": "A",
+                  "iterB": "B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_1",
+                "customFunctionAgentflow_2"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "loopAgentflow_0",
+              "nodeLabel": "Loop Back",
+              "data": {
+                "id": "loopAgentflow_0",
+                "name": "loopAgentflow",
+                "input": {
+                  "nodeID": "customFunctionAgentflow_0",
+                  "maxLoopCount": 5
+                },
+                "output": {
+                  "content": "Loop back to Fork Entry (customFunctionAgentflow_0)",
+                  "nodeID": "customFunctionAgentflow_0",
+                  "maxLoopCount": 5,
+                  "fallbackMessage": "Max loop count reached."
+                },
+                "state": {
+                  "iterA": "A",
+                  "iterB": "B"
+                }
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Fork Entry",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "return 'fork-entry';"
+                },
+                "output": {
+                  "content": "fork-entry"
+                },
+                "state": {
+                  "iterA": "A",
+                  "iterB": "B"
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "nodeLabel": "Worker A (150ms)",
+              "data": {
+                "id": "customFunctionAgentflow_1",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+                },
+                "output": {
+                  "content": "A,A"
+                },
+                "state": {
+                  "iterA": "A,A",
+                  "iterB": "B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "nodeLabel": "Worker B (150ms)",
+              "data": {
+                "id": "customFunctionAgentflow_2",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+                },
+                "output": {
+                  "content": "B,B"
+                },
+                "state": {
+                  "iterA": "A,A",
+                  "iterB": "B,B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Loop Check",
+              "data": {
+                "id": "conditionAgentflow_0",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "number",
+                      "value1": "1",
+                      "operation": "smaller",
+                      "value2": "2"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "number",
+                      "value1": "1",
+                      "operation": "smaller",
+                      "value2": "2",
+                      "isFulfilled": true
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": false
+                    }
+                  ]
+                },
+                "state": {
+                  "iterA": "A,A",
+                  "iterB": "B,B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_1",
+                "customFunctionAgentflow_2"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "loopAgentflow_0",
+              "nodeLabel": "Loop Back",
+              "data": {
+                "id": "loopAgentflow_0",
+                "name": "loopAgentflow",
+                "input": {
+                  "nodeID": "customFunctionAgentflow_0",
+                  "maxLoopCount": 5
+                },
+                "output": {
+                  "content": "Loop back to Fork Entry (customFunctionAgentflow_0)",
+                  "nodeID": "customFunctionAgentflow_0",
+                  "maxLoopCount": 5,
+                  "fallbackMessage": "Max loop count reached."
+                },
+                "state": {
+                  "iterA": "A,A",
+                  "iterB": "B,B"
+                }
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Fork Entry",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "return 'fork-entry';"
+                },
+                "output": {
+                  "content": "fork-entry"
+                },
+                "state": {
+                  "iterA": "A,A",
+                  "iterB": "B,B"
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "nodeLabel": "Worker A (150ms)",
+              "data": {
+                "id": "customFunctionAgentflow_1",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterA ? $flow.state.iterA + ',' : '';\nreturn prev + 'A';"
+                },
+                "output": {
+                  "content": "A,A,A"
+                },
+                "state": {
+                  "iterA": "A,A,A",
+                  "iterB": "B,B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "nodeLabel": "Worker B (150ms)",
+              "data": {
+                "id": "customFunctionAgentflow_2",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nconst prev = $flow.state?.iterB ? $flow.state.iterB + ',' : '';\nreturn prev + 'B';"
+                },
+                "output": {
+                  "content": "B,B,B"
+                },
+                "state": {
+                  "iterA": "A,A,A",
+                  "iterB": "B,B,B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Loop Check",
+              "data": {
+                "id": "conditionAgentflow_0",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "number",
+                      "value1": "2",
+                      "operation": "smaller",
+                      "value2": "2"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "number",
+                      "value1": "2",
+                      "operation": "smaller",
+                      "value2": "2"
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": true
+                    }
+                  ]
+                },
+                "state": {
+                  "iterA": "A,A,A",
+                  "iterB": "B,B,B"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_1",
+                "customFunctionAgentflow_2"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Exit Reply",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B"
+                },
+                "state": {
+                  "iterA": "A,A,A",
+                  "iterB": "B,B,B"
+                }
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        },
+        {
+          "offsetMs": 970.13,
+          "event": "end",
+          "data": "[DONE]"
+        }
+      ]
+    }
+  }
+}

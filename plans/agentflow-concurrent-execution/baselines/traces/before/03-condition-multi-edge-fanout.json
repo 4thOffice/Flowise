@@ -1,0 +1,514 @@
+{
+  "capturedAt": "2026-11-19T14:29:31.101Z",
+  "flow": {
+    "slug": "03-condition-multi-edge-fanout",
+    "name": "Baseline 03 - Condition Multi-Edge Fanout",
+    "file": "03-condition-multi-edge-fanout.json",
+    "chatflowId": "b4f0b27b-3514-45da-9ed9-6c202f824e42",
+    "validationIssues": []
+  },
+  "runs": {
+    "nonStreaming": {
+      "mode": "non-streaming",
+      "request": {
+        "question": "go-true",
+        "streaming": false
+      },
+      "httpStatus": 200,
+      "durationMs": 47.17,
+      "timedOut": false,
+      "error": null,
+      "response": {
+        "text": "BUG: Else Target B executed!",
+        "executionId": "97685725-07e8-4a84-87eb-34e7af402f92",
+        "sessionId": "ff554f04-9bcc-4a84-9942-980b21427624",
+        "chatId": "ff554f04-9bcc-4a84-9942-980b21427624",
+        "chatMessageId": "d076f7d1-a499-47dd-b5d1-8c34e287160c",
+        "action": null,
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "go-true"
+              },
+              "output": {
+                "question": "go-true"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Condition",
+            "data": {
+              "id": "conditionAgentflow_0",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "string",
+                    "value1": "go-true",
+                    "operation": "equal",
+                    "value2": "go-true"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "string",
+                    "value1": "go-true",
+                    "operation": "equal",
+                    "value2": "go-true",
+                    "isFulfilled": true
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": false
+                  }
+                ]
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "True Reply",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "True branch executed cleanly."
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_2",
+            "nodeLabel": "Else Target B",
+            "data": {
+              "id": "directReplyAgentflow_2",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "BUG: Else Target B executed!"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          }
+        ]
+      }
+    },
+    "streaming": {
+      "mode": "streaming",
+      "request": {
+        "question": "go-true",
+        "streaming": true
+      },
+      "httpStatus": 200,
+      "durationMs": 27.43,
+      "timedOut": false,
+      "error": null,
+      "streamedText": "True branch executed cleanly.BUG: Else Target B executed!",
+      "tokenChunks": [
+        "True branch executed cleanly.",
+        "BUG: Else Target B executed!"
+      ],
+      "agentFlowEvents": [
+        {
+          "offsetMs": 24.6,
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 24.75,
+          "status": "FINISHED"
+        }
+      ],
+      "nextAgentFlowEvents": [
+        {
+          "offsetMs": 24.64,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 24.66,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 24.67,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Condition",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 24.68,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Condition",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 24.69,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "True Reply",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 24.71,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "True Reply",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 24.72,
+          "nodeId": "directReplyAgentflow_2",
+          "nodeLabel": "Else Target B",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 24.74,
+          "nodeId": "directReplyAgentflow_2",
+          "nodeLabel": "Else Target B",
+          "status": "FINISHED"
+        }
+      ],
+      "action": null,
+      "metadata": {
+        "chatId": "7c1a50c8-b635-416d-84d5-ee20bc8e629d",
+        "chatMessageId": "52816dde-b559-4cfd-b7d8-d4fb31b395a2",
+        "question": "go-true",
+        "sessionId": "7c1a50c8-b635-416d-84d5-ee20bc8e629d"
+      },
+      "agentFlowExecutedData": [
+        {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+            "id": "startAgentflow_0",
+            "name": "startAgentflow",
+            "input": {
+              "question": "go-true"
+            },
+            "output": {
+              "question": "go-true"
+            },
+            "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Condition",
+          "data": {
+            "id": "conditionAgentflow_0",
+            "name": "conditionAgentflow",
+            "input": {
+              "conditions": {
+                "0": {
+                  "type": "string",
+                  "value1": "go-true",
+                  "operation": "equal",
+                  "value2": "go-true"
+                }
+              }
+            },
+            "output": {
+              "conditions": [
+                {
+                  "type": "string",
+                  "value1": "go-true",
+                  "operation": "equal",
+                  "value2": "go-true",
+                  "isFulfilled": true
+                },
+                {
+                  "type": "string",
+                  "value1": "",
+                  "operation": "equal",
+                  "value2": "",
+                  "isFulfilled": false
+                }
+              ]
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "True Reply",
+          "data": {
+            "id": "directReplyAgentflow_0",
+            "name": "directReplyAgentflow",
+            "input": {},
+            "output": {
+              "content": "True branch executed cleanly."
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "conditionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "directReplyAgentflow_2",
+          "nodeLabel": "Else Target B",
+          "data": {
+            "id": "directReplyAgentflow_2",
+            "name": "directReplyAgentflow",
+            "input": {},
+            "output": {
+              "content": "BUG: Else Target B executed!"
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "conditionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        }
+      ],
+      "events": [
+        {
+          "offsetMs": 24.6,
+          "event": "agentFlowEvent",
+          "data": "INPROGRESS"
+        },
+        {
+          "offsetMs": 24.64,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 24.66,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 24.67,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Condition",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 24.68,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Condition",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 24.69,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "True Reply",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 24.7,
+          "event": "token",
+          "data": "True branch executed cleanly."
+        },
+        {
+          "offsetMs": 24.71,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "True Reply",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 24.72,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_2",
+            "nodeLabel": "Else Target B",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 24.73,
+          "event": "token",
+          "data": "BUG: Else Target B executed!"
+        },
+        {
+          "offsetMs": 24.74,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_2",
+            "nodeLabel": "Else Target B",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 24.75,
+          "event": "agentFlowEvent",
+          "data": "FINISHED"
+        },
+        {
+          "offsetMs": 26.06,
+          "event": "trustedStateData",
+          "data": "UckMHRkd7rCu1ESFRUNQ+B9Klf4FCsXDHEd5TwyFlnlchcNtPF3MrBPXWsYLBsvsYUKF5Qe5zuxTtACyZDh1rzzZX+/CfvJ9ORbObSrg64tIxaIPbPpI0+g66xUHwHQc4lnwIerpxFDkUWnHA1J0LjNhRcd2shdQOtAMJSjFbGAM54Gpu8wY9dx5zVpfBDUf+9rXoVIyar3dEhnf7CoQjc/uXn6+WW6xLUI12Db+spmOLrqBuKeyqwE+XEVm0/2rui9gPogsEshmeebiyE6EgQVuVHVkia3bJ5HD3/cKcQfoeBRfw0QKMRYEc5eqNSMDciwH601SpQ+KzzjNdV7oQM77IuGNrfkYDzip9eQJzzwFA177XJHlLsW/oYc2A3GJ5sqxCEXyDjPCt2jz/a1ABEtcGJ7zQOGtFPVk8lAEaszexi2vW/nfsfj34pj2ArJcsgLfNvbOdlBJQ/qP2VoRJc4WAiTa6hSQgIaa0isBBuIA8Cu5ocASTf2RSd8FEK/5i7IVc3AS/N4juFnvqkkpqsIYTW+sYGkg0MX/fg+8k5VSMsezAl9ijSOsIPMOilngfTrGx9xHyphRworJD3nUtgSCvrNeHfkpzx3SskTm1Rw2M6J2fdkv1cnn8Klav8l212mMMnHH3a5BUmCKfCESQoAbzkq0JEaFZMOnnQbdDb2VWXU5u2FfrpiCUBWoS9upY7M09svtrHorfC6DlSPv0CIIAFFcttA7i+J+9+P2pk/s+Z+LlI8FgIT2JjVqlsU5hiOq1LL/FkUKaYnFNQdH21AhwYBvElWcgCMY1/U1g8dA+zvGIXDC+QZu1EU9V3x0fYEYrVeh1WqK1kBJo4JeJrOobZqx6KT7NRra9PxWFL4/VIY001opZ/3oYHP3FqfzUdc8PUbT1vZC7eq2B9EXby3tq6usmUjw72qIUI/VxWnOG7jWS8ggaswyX1FBMXweelBwHCvQ7tS/1hvE0OvrJtYdE/eM9HEtlTD3D38BVdB+GykP/pAm0OW48Ypip3yor0hIhDE/jtc1PVUtqdr5augUI0y3fe+yaDHcHE4qiqcCUcoBi7oOqiU1BNcPdG3g3fZYw2HCL4PnEsY0KZXImz0cFVFvp8dQX1Eo2+Y="
+        },
+        {
+          "offsetMs": 27.27,
+          "event": "metadata",
+          "data": {
+            "chatId": "7c1a50c8-b635-416d-84d5-ee20bc8e629d",
+            "chatMessageId": "52816dde-b559-4cfd-b7d8-d4fb31b395a2",
+            "question": "go-true",
+            "sessionId": "7c1a50c8-b635-416d-84d5-ee20bc8e629d"
+          }
+        },
+        {
+          "offsetMs": 27.31,
+          "event": "agentFlowExecutedData",
+          "data": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "go-true"
+                },
+                "output": {
+                  "question": "go-true"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Condition",
+              "data": {
+                "id": "conditionAgentflow_0",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "string",
+                      "value1": "go-true",
+                      "operation": "equal",
+                      "value2": "go-true"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "string",
+                      "value1": "go-true",
+                      "operation": "equal",
+                      "value2": "go-true",
+                      "isFulfilled": true
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": false
+                    }
+                  ]
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "True Reply",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "True branch executed cleanly."
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_2",
+              "nodeLabel": "Else Target B",
+              "data": {
+                "id": "directReplyAgentflow_2",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "BUG: Else Target B executed!"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        },
+        {
+          "offsetMs": 27.34,
+          "event": "end",
+          "data": "[DONE]"
+        }
+      ]
+    }
+  }
+}

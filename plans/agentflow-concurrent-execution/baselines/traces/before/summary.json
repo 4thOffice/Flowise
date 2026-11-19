@@ -1,0 +1,777 @@
+{
+  "capturedAt": "2026-11-19T14:29:28.647Z",
+  "baseUrl": "http://localhost:3000",
+  "timeoutMs": 15000,
+  "flows": [
+    {
+      "slug": "01-parallel-fork-join-timing-and-state",
+      "name": "Baseline 01 - Parallel Fork-Join Timing & State",
+      "chatflowId": "b5abebb7-bf6a-4ac2-a9f1-3e64fbcdf603",
+      "validationIssueCount": 0,
+      "validationIssues": [],
+      "runs": {
+        "nonStreaming": {
+          "mode": "non-streaming",
+          "httpStatus": 200,
+          "durationMs": 591.65,
+          "timedOut": false,
+          "error": null,
+          "text": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))",
+          "finalState": {
+            "a": "A(saw_b=empty)",
+            "b": "B(saw_a=A(saw_b=empty))"
+          },
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Branch A (250ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Branch B (250ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "Join Reply",
+              "status": "FINISHED"
+            }
+          ]
+        },
+        "streaming": {
+          "mode": "streaming",
+          "httpStatus": 200,
+          "durationMs": 537.77,
+          "timedOut": false,
+          "error": null,
+          "text": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))",
+          "tokenChunks": [
+            "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))"
+          ],
+          "finalState": {
+            "a": "A(saw_b=empty)",
+            "b": "B(saw_a=A(saw_b=empty))"
+          },
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Branch A (250ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Branch B (250ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "Join Reply",
+              "status": "FINISHED"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "slug": "02-multi-hop-and-nested-conditions",
+      "name": "Baseline 02 - Multi-Hop & Nested Conditions",
+      "chatflowId": "0b4ab009-a7ea-418b-afe1-b766ecadab86",
+      "validationIssueCount": 0,
+      "validationIssues": [],
+      "runs": {
+        "cond1_true": {
+          "nonStreaming": {
+            "mode": "non-streaming",
+            "httpStatus": 200,
+            "durationMs": 283.24,
+            "timedOut": false,
+            "error": null,
+            "text": "cond1-true-cond2-A",
+            "finalState": {
+              "parallel": "parallel-ok",
+              "branch": "cond1-true-cond2-A"
+            },
+            "actionLabel": null,
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_0",
+                "label": "Cond1",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_4",
+                "label": "ParallelNode",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_1",
+                "label": "Cond2",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "label": "Branch A",
+                "status": "FINISHED"
+              }
+            ]
+          },
+          "streaming": {
+            "mode": "streaming",
+            "httpStatus": 200,
+            "durationMs": 283.43,
+            "timedOut": false,
+            "error": null,
+            "text": "",
+            "tokenChunks": [],
+            "finalState": {
+              "parallel": "parallel-ok",
+              "branch": "cond1-true-cond2-A"
+            },
+            "actionLabel": null,
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_0",
+                "label": "Cond1",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_4",
+                "label": "ParallelNode",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_1",
+                "label": "Cond2",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "label": "Branch A",
+                "status": "FINISHED"
+              }
+            ]
+          }
+        },
+        "cond1_false": {
+          "nonStreaming": {
+            "mode": "non-streaming",
+            "httpStatus": 200,
+            "durationMs": 337.18,
+            "timedOut": false,
+            "error": null,
+            "text": "cond1-false-F1-F2",
+            "finalState": {
+              "parallel": "parallel-ok",
+              "branch": "cond1-false-F1-F2"
+            },
+            "actionLabel": null,
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_0",
+                "label": "Cond1",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_4",
+                "label": "ParallelNode",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_2",
+                "label": "F1",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_3",
+                "label": "F2",
+                "status": "FINISHED"
+              }
+            ]
+          },
+          "streaming": {
+            "mode": "streaming",
+            "httpStatus": 200,
+            "durationMs": 339.09,
+            "timedOut": false,
+            "error": null,
+            "text": "",
+            "tokenChunks": [],
+            "finalState": {
+              "parallel": "parallel-ok",
+              "branch": "cond1-false-F1-F2"
+            },
+            "actionLabel": null,
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_0",
+                "label": "Cond1",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_4",
+                "label": "ParallelNode",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_2",
+                "label": "F1",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_3",
+                "label": "F2",
+                "status": "FINISHED"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "slug": "03-condition-multi-edge-fanout",
+      "name": "Baseline 03 - Condition Multi-Edge Fanout",
+      "chatflowId": "b4f0b27b-3514-45da-9ed9-6c202f824e42",
+      "validationIssueCount": 0,
+      "validationIssues": [],
+      "runs": {
+        "nonStreaming": {
+          "mode": "non-streaming",
+          "httpStatus": 200,
+          "durationMs": 47.17,
+          "timedOut": false,
+          "error": null,
+          "text": "BUG: Else Target B executed!",
+          "finalState": {},
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Condition",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "True Reply",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_2",
+              "label": "Else Target B",
+              "status": "FINISHED"
+            }
+          ]
+        },
+        "streaming": {
+          "mode": "streaming",
+          "httpStatus": 200,
+          "durationMs": 27.43,
+          "timedOut": false,
+          "error": null,
+          "text": "True branch executed cleanly.BUG: Else Target B executed!",
+          "tokenChunks": [
+            "True branch executed cleanly.",
+            "BUG: Else Target B executed!"
+          ],
+          "finalState": {},
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Condition",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "True Reply",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_2",
+              "label": "Else Target B",
+              "status": "FINISHED"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "slug": "04-multi-terminal-streaming-and-silent-leaf",
+      "name": "Baseline 04 - Multi-Terminal Streaming & Silent Leaf",
+      "chatflowId": "df80374d-8054-498b-b712-90c946f51b88",
+      "validationIssueCount": 0,
+      "validationIssues": [],
+      "runs": {
+        "nonStreaming": {
+          "mode": "non-streaming",
+          "httpStatus": 200,
+          "durationMs": 793.86,
+          "timedOut": false,
+          "error": null,
+          "text": "",
+          "finalState": {},
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "Fast Ack",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Lookup Worker (300ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Telemetry Prep (50ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_1",
+              "label": "Final Result",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Silent Leaf (400ms)",
+              "status": "FINISHED"
+            }
+          ]
+        },
+        "streaming": {
+          "mode": "streaming",
+          "httpStatus": 200,
+          "durationMs": 780.84,
+          "timedOut": false,
+          "error": null,
+          "text": "I'm looking up the data...Here is the result.",
+          "tokenChunks": [
+            "I'm looking up the data...",
+            "Here is the result."
+          ],
+          "finalState": {},
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "Fast Ack",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Lookup Worker (300ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Telemetry Prep (50ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_1",
+              "label": "Final Result",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Silent Leaf (400ms)",
+              "status": "FINISHED"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "slug": "05-human-input-with-companion-text",
+      "name": "Baseline 05 - HumanInput With Companion Text",
+      "chatflowId": "f415d4a3-bd6a-451d-929f-316c37614163",
+      "validationIssueCount": 0,
+      "validationIssues": [],
+      "runs": {
+        "nonStreaming": {
+          "turn1_stopped": {
+            "mode": "non-streaming",
+            "httpStatus": 200,
+            "durationMs": 231.6,
+            "timedOut": false,
+            "error": null,
+            "text": "\n\nApprove?",
+            "finalState": {},
+            "actionLabel": "Approval Gate",
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "label": "Prepare Summary (200ms)",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "humanInputAgentflow_0",
+                "label": "Approval Gate",
+                "status": "STOPPED"
+              }
+            ]
+          },
+          "turn2_resume": {
+            "mode": "non-streaming",
+            "httpStatus": 200,
+            "durationMs": 20.63,
+            "timedOut": false,
+            "error": null,
+            "text": "Approved!",
+            "finalState": {},
+            "actionLabel": null,
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "label": "Prepare Summary (200ms)",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "humanInputAgentflow_0",
+                "label": "Approval Gate",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "directReplyAgentflow_1",
+                "label": "Approved Reply",
+                "status": "FINISHED"
+              }
+            ]
+          }
+        },
+        "streaming": {
+          "turn1_stopped": {
+            "mode": "streaming",
+            "httpStatus": 200,
+            "durationMs": 235.36,
+            "timedOut": false,
+            "error": null,
+            "text": "\n\nApprove?",
+            "tokenChunks": [
+              "\n\nApprove?"
+            ],
+            "finalState": {},
+            "actionLabel": "Approval Gate",
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "label": "Prepare Summary (200ms)",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "humanInputAgentflow_0",
+                "label": "Approval Gate",
+                "status": "STOPPED"
+              }
+            ]
+          },
+          "turn2_resume": {
+            "mode": "streaming",
+            "httpStatus": 200,
+            "durationMs": 16.36,
+            "timedOut": false,
+            "error": null,
+            "text": "Approved!",
+            "tokenChunks": [
+              "Approved!"
+            ],
+            "finalState": {},
+            "actionLabel": null,
+            "executedNodes": [
+              {
+                "nodeId": "startAgentflow_0",
+                "label": "Start",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "label": "Prepare Summary (200ms)",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "humanInputAgentflow_0",
+                "label": "Approval Gate",
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "directReplyAgentflow_1",
+                "label": "Approved Reply",
+                "status": "FINISHED"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "slug": "06-loop-over-parallel-subgraph",
+      "name": "Baseline 06 - Loop Over Parallel Subgraph",
+      "chatflowId": "32e17083-ca07-402e-9422-4b20ee1177ed",
+      "validationIssueCount": 0,
+      "validationIssues": [],
+      "runs": {
+        "nonStreaming": {
+          "mode": "non-streaming",
+          "httpStatus": 200,
+          "durationMs": 981.96,
+          "timedOut": false,
+          "error": null,
+          "text": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B",
+          "finalState": {
+            "iterA": "A,A,A",
+            "iterB": "B,B,B"
+          },
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Fork Entry",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Worker A (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Worker B (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Loop Check",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "loopAgentflow_0",
+              "label": "Loop Back",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Fork Entry",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Worker A (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Worker B (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Loop Check",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "loopAgentflow_0",
+              "label": "Loop Back",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Fork Entry",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Worker A (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Worker B (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Loop Check",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "Exit Reply",
+              "status": "FINISHED"
+            }
+          ]
+        },
+        "streaming": {
+          "mode": "streaming",
+          "httpStatus": 200,
+          "durationMs": 970.18,
+          "timedOut": false,
+          "error": null,
+          "text": "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B",
+          "tokenChunks": [
+            "Loop exited at loop_count=2; iterA=A,A,A; iterB=B,B,B"
+          ],
+          "finalState": {
+            "iterA": "A,A,A",
+            "iterB": "B,B,B"
+          },
+          "actionLabel": null,
+          "executedNodes": [
+            {
+              "nodeId": "startAgentflow_0",
+              "label": "Start",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Fork Entry",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Worker A (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Worker B (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Loop Check",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "loopAgentflow_0",
+              "label": "Loop Back",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Fork Entry",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Worker A (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Worker B (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Loop Check",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "loopAgentflow_0",
+              "label": "Loop Back",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "label": "Fork Entry",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "label": "Worker A (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "label": "Worker B (150ms)",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "label": "Loop Check",
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "label": "Exit Reply",
+              "status": "FINISHED"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Task 00b: Baseline Agentflows V2 Capture (Flows, Traces, & Screenshots)
 
-- **Status**: Pending (Ready to implement — execute **before** Task 01 / any code edits)
+- **Status**: Done (Captured on unmodified `master` before Task 01 / any code edits)
 - **Depends On**: [00-current-implementation.md](./00-current-implementation.md)
 - **Primary Outputs**:
   - `plans/agentflow-concurrent-execution/baselines/flows/*.json` (importable Agentflow V2 JSON definitions)
@@ -77,7 +77,7 @@ Store all 6 flow definitions under `plans/agentflow-concurrent-execution/baselin
 
 ## 6. Acceptance Criteria & Verification
 
-- [ ] All 6 flow JSON fixtures exist in `plans/agentflow-concurrent-execution/baselines/flows/` and contain zero LLM/external API dependencies.
-- [ ] All baseline prediction traces (REST + SSE + `agentFlowExecutedData` + timings) are captured in `plans/agentflow-concurrent-execution/baselines/traces/before/`.
-- [ ] Canvas & validation screenshots on unmodified UI are saved in `plans/agentflow-concurrent-execution/baselines/screenshots/before/`.
-- [ ] `plans/agentflow-concurrent-execution/baselines/README.md` records exact baseline metrics and failure observations ready for before/after comparison.
+- [x] All 6 flow JSON fixtures exist in `plans/agentflow-concurrent-execution/baselines/flows/` and contain zero LLM/external API dependencies.
+- [x] All baseline prediction traces (REST + SSE + `agentFlowExecutedData` + timings) are captured in `plans/agentflow-concurrent-execution/baselines/traces/before/`.
+- [x] Canvas & validation screenshots on unmodified UI are saved in `plans/agentflow-concurrent-execution/baselines/screenshots/before/`.
+- [x] `plans/agentflow-concurrent-execution/baselines/README.md` records exact baseline metrics and failure observations ready for before/after comparison.
