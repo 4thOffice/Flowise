@@ -1,6 +1,6 @@
 # Task 03: Concurrent Event-Driven Scheduler Loop
 
-- **Status**: Pending
+- **Status**: Done
 - **Design Status**: Ready to implement (Decision **D1** resolved)
 - **Depends On**:
   - [01-test-harness-and-refactor-seams.md](./01-test-harness-and-refactor-seams.md)
@@ -151,9 +151,9 @@ Execution flow:
 
 ## 6. Acceptance Criteria & Verification
 
-- [ ] **True concurrency proof**: Fork `Start -> [A, B] -> Join` where `A` and `B` both wait on a mutual barrier (deadlocks if sequential; resolves immediately if concurrent!) succeeds when `AGENTFLOW_MAX_NODE_CONCURRENCY >= 2`.
-- [ ] **Concurrency bound proof**: Fork `Start -> [A, B, C, D] -> Join` with `AGENTFLOW_MAX_NODE_CONCURRENCY=2` never exceeds `maxObservedActive === 2`.
-- [ ] **Sequential fallback proof**: With `AGENTFLOW_MAX_NODE_CONCURRENCY=1`, `maxObservedActive === 1` and all baseline tests pass identically.
-- [ ] **Fresh snapshot proof**: With limit `1` (or queued node `C` waiting on `A`), `C` observes state written by `A`.
-- [ ] **Zero orphaned promises**: Error in `A` while `B` is in-flight waits for `B` to settle without Jest `--detectOpenHandles` warnings or unhandled rejections.
-- [ ] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.
+- [x] **True concurrency proof**: Fork `Start -> [A, B] -> Join` where `A` and `B` both wait on a mutual barrier (deadlocks if sequential; resolves immediately if concurrent!) succeeds when `AGENTFLOW_MAX_NODE_CONCURRENCY >= 2`.
+- [x] **Concurrency bound proof**: Fork `Start -> [A, B, C, D] -> Join` with `AGENTFLOW_MAX_NODE_CONCURRENCY=2` never exceeds `maxObservedActive === 2`.
+- [x] **Sequential fallback proof**: With `AGENTFLOW_MAX_NODE_CONCURRENCY=1`, `maxObservedActive === 1` and all baseline tests pass identically.
+- [x] **Fresh snapshot proof**: With limit `1` (or queued node `C` waiting on `A`), `C` observes state written by `A`.
+- [x] **Zero orphaned promises**: Error in `A` while `B` is in-flight waits for `B` to settle without Jest `--detectOpenHandles` warnings or unhandled rejections.
+- [x] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.

@@ -162,12 +162,12 @@ export function hasReceivedRequiredInputs(waitingNode: IWaitingNode): boolean {
  * @param nodeId - Current node ID
  * @returns Array of node IDs that should be ignored
  */
-export async function determineNodesToIgnore(
+export function determineNodesToIgnore(
     currentNode: IReactFlowNode,
     result: any,
     edges: IReactFlowEdge[],
     nodeId: string
-): Promise<string[]> {
+): string[] {
     const ignoreNodeIds: string[] = []
 
     // Check if this is a decision node
@@ -202,7 +202,7 @@ export async function determineNodesToIgnore(
 /**
  * Process node outputs and handle branching logic
  */
-export async function processNodeOutputs({
+export function processNodeOutputs({
     nodeId,
     nodeName,
     result,
@@ -215,7 +215,7 @@ export async function processNodeOutputs({
     loopCounts,
     sseStreamer,
     chatId
-}: IProcessNodeOutputsParams): Promise<{ humanInput?: IHumanInput }> {
+}: IProcessNodeOutputsParams): { humanInput?: IHumanInput } {
     logger.debug(`\n🔄 Processing outputs from node: ${nodeId}`)
 
     let updatedHumanInput = humanInput
@@ -227,7 +227,7 @@ export async function processNodeOutputs({
     if (!currentNode) return { humanInput: updatedHumanInput }
 
     // Get nodes to ignore based on conditions
-    const ignoreNodeIds = await determineNodesToIgnore(currentNode, result, edges, nodeId)
+    const ignoreNodeIds = determineNodesToIgnore(currentNode, result, edges, nodeId)
     if (ignoreNodeIds.length) {
         logger.debug(`  ⏭️  Skipping nodes: [${ignoreNodeIds.join(', ')}]`)
     }

@@ -108,6 +108,7 @@ export interface IExecuteNodeParams {
     productId: string
     zeroRetention: boolean
     nodeInstanceFactory?: NodeInstanceFactory
+    maxNodeConcurrency?: number
 }
 
 export interface IExecuteNodeResult {
@@ -123,4 +124,5 @@ export interface IExecuteNodeResult {
 export interface IExecuteAgentFlowParams extends Omit<IExecuteFlowParams, 'incomingInput'> {
     incomingInput: IncomingAgentflowInput
     nodeInstanceFactory?: NodeInstanceFactory
+    maxNodeConcurrency?: number
 }

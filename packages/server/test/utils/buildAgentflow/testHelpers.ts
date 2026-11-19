@@ -515,6 +515,7 @@ export interface RunTestAgentFlowOptions {
     chatId?: string
     signal?: AbortController
     nodeInstanceFactory?: NodeInstanceFactory
+    maxNodeConcurrency?: number
     isInternal?: boolean
 }
 
@@ -528,6 +529,7 @@ export async function runTestAgentFlow({
     chatId = `chat-${uuidv4()}`,
     signal,
     nodeInstanceFactory,
+    maxNodeConcurrency,
     isInternal = false
 }: RunTestAgentFlowOptions) {
     const resolvedChatflow = chatflow ?? (flow ? createChatflow(flow) : undefined)
@@ -554,7 +556,8 @@ export async function runTestAgentFlow({
         workspaceId: 'ws-1',
         subscriptionId: '',
         productId: '',
-        nodeInstanceFactory
+        nodeInstanceFactory,
+        maxNodeConcurrency
     })
 }
 
