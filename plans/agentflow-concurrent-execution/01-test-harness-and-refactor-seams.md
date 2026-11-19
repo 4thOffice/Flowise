@@ -1,6 +1,6 @@
 # Task 01: Test Harness & Refactor Seams
 
-- **Status**: Pending
+- **Status**: Done
 - **Design Status**: Ready to implement
 - **Depends On**: [00b-baseline-flows-and-traces.md](./00b-baseline-flows-and-traces.md) (recommended before refactoring so baseline traces reflect unmodified `master`)
 - **Primary Files**:
@@ -82,7 +82,7 @@ Create test utilities:
 
 ## 6. Acceptance Criteria & Verification
 
-- [ ] `packages/server/src/utils/agentflow/types.ts` and `schedulerHelpers.ts` cleanly extracted and imported by `buildAgentflow.ts`.
-- [ ] `pnpm --filter flowise build` succeeds with zero TypeScript errors.
-- [ ] `pnpm --filter flowise test -- test/utils/buildAgentflow` passes all baseline scenarios.
-- [ ] Existing server test suite (`pnpm --filter flowise test`) remains green.
+- [x] `packages/server/src/utils/agentflow/types.ts` and `schedulerHelpers.ts` cleanly extracted and imported by `buildAgentflow.ts`.
+- [x] `pnpm --filter flowise build` succeeds with zero TypeScript errors.
+- [x] `pnpm --filter flowise test -- test/utils/buildAgentflow` passes all baseline scenarios.
+- [x] Existing server test suite (`pnpm --filter flowise test`) remains green.
