@@ -10,6 +10,12 @@ import { UsageCacheManager } from '../../../src/UsageCacheManager'
 import { ChatFlow } from '../../../src/database/entities/ChatFlow'
 import { IComponentNodes, INodeData } from '../../../src/Interface'
 
+jest.mock('../../../src/utils/getRunningExpressApp', () => ({
+    getRunningExpressApp: jest.fn(() => {
+        throw new Error('getRunningExpressApp should not be called when appDataSource is injected')
+    })
+}))
+
 const REPO_ROOT = path.resolve(__dirname, '../../../../..')
 const AGENTFLOW_NODES_DIR = path.join(REPO_ROOT, 'packages/components/dist/nodes/agentflow')
 
@@ -224,6 +230,14 @@ function createStreamingRecorder(chatId: string) {
     }
 
     return { sseStreamer, getEvents }
+}
+
+async function waitUntil(predicate: () => boolean, timeoutMs = 1000) {
+    const deadline = Date.now() + timeoutMs
+    while (!predicate()) {
+        if (Date.now() >= deadline) break
+        await new Promise((r) => setTimeout(r, 5))
+    }
 }
 
 describe('Agentflow V2 public interface contract', () => {
@@ -648,6 +662,7 @@ describe('Agentflow V2 public interface contract', () => {
             })
         ).rejects.toThrow(/boom/)
         sseStreamer.removeClient(chatId)
+        await waitUntil(() => executions[0]?.state === 'ERROR')
         expect(executions[0].state).toBe('ERROR')
         expect(getEvents().some((e) => e.event === 'agentFlowEvent' && e.data === 'ERROR')).toBe(true)
 
@@ -669,6 +684,7 @@ describe('Agentflow V2 public interface contract', () => {
                 signal: abortCtrl
             })
         ).rejects.toThrow(/cancelled/i)
+        await waitUntil(() => executions[1]?.state === 'TERMINATED')
         expect(executions[1].state).toBe('TERMINATED')
 
         // Multiple start nodes rejected
@@ -766,23 +782,23 @@ describe('Agentflow V2 public interface contract', () => {
             name: 'customFunctionAgentflow',
             version: 1.2,
             type: 'CustomFunction',
+            icon: '',
             category: 'Agent Flows',
             baseClasses: ['CustomFunction'],
             inputAnchors: [],
             outputAnchors: [],
             outputs: {},
             inputParams: [
-                { id: 'p1', label: 'Msg', name: 'msg', type: 'string', acceptVariable: true },
-                { id: 'p2', label: 'Code', name: 'code', type: 'code' },
+                { label: 'Msg', name: 'msg', type: 'string', acceptVariable: true },
+                { label: 'Code', name: 'code', type: 'code' },
                 {
-                    id: 'p3',
                     label: 'State',
                     name: 'customFunctionUpdateState',
                     type: 'array',
                     acceptVariable: true,
                     array: [
-                        { id: 'k', label: 'Key', name: 'key', type: 'string' },
-                        { id: 'v', label: 'Val', name: 'value', type: 'string', acceptVariable: true }
+                        { label: 'Key', name: 'key', type: 'string' },
+                        { label: 'Val', name: 'value', type: 'string', acceptVariable: true }
                     ]
                 }
             ],
@@ -806,9 +822,9 @@ describe('Agentflow V2 public interface contract', () => {
                 chatHistory: [],
                 state: { color: 'blue' },
                 vars: { API_MODE: 'override-mode' }
-            },
+            } as any,
             [{ id: 'v-1', name: 'API_MODE', type: 'static', value: 'default-mode', workspaceId: 'ws-1', createdDate: new Date(), updatedDate: new Date() }],
-            [{ name: 'API_MODE', label: 'API_MODE', type: 'string', enabled: true }],
+            [{ id: 'v-1', name: 'API_MODE', type: 'static', enabled: true }],
             '',
             [],
             componentNodes,
@@ -816,12 +832,14 @@ describe('Agentflow V2 public interface contract', () => {
                 {
                     nodeId: 'customFunctionAgentflow_0',
                     nodeLabel: 'Upstream',
+                    previousNodeIds: [],
                     status: 'FINISHED',
                     data: { id: 'customFunctionAgentflow_0', name: 'customFunctionAgentflow', output: { content: 'upstream-val' } }
                 },
                 {
                     nodeId: 'loopAgentflow_0',
                     nodeLabel: 'Loop',
+                    previousNodeIds: ['customFunctionAgentflow_0'],
                     status: 'FINISHED',
                     data: { id: 'loopAgentflow_0', name: 'loopAgentflow' }
                 }

@@ -18,7 +18,7 @@ function loadCompiledNodeInstance(relPath: string) {
     return new mod.nodeClass()
 }
 
-function buildComponentNodesPool() {
+function buildComponentNodesPool(): Record<string, any> {
     const start = loadCompiledNodeInstance('Start/Start.js')
     const customFn = loadCompiledNodeInstance('CustomFunction/CustomFunction.js')
     const condition = loadCompiledNodeInstance('Condition/Condition.js')
