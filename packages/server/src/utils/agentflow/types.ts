@@ -113,7 +113,10 @@ export interface IExecuteNodeParams {
 export interface IExecuteNodeResult {
     result: any
     shouldStop?: boolean
-    agentFlowExecutedData?: IAgentflowExecutedData[]
+    additionalExecutedData?: IAgentflowExecutedData[]
+    removedExecutedNodeIds?: string[]
+    stoppedExecutedData?: IAgentflowExecutedData
+    humanInputAction?: Record<string, any>
     humanInput?: IHumanInput
 }
 

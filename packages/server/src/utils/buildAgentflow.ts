@@ -65,6 +65,7 @@ import {
     IWaitingNode
 } from './agentflow/types'
 import { processNodeOutputs } from './agentflow/schedulerHelpers'
+import { commitExecutedDataDelta, createNodeRuntimeSnapshot, reconcileRuntimeCommit } from './agentflow/stateReconciler'
 
 function mapChatMessageToIMessage(message: IChatMessage): IMessage {
     const mappedMessage: any = {
@@ -686,6 +687,11 @@ const executeNode = async ({
         // Get available variables and resolve them
         const availableVariables = await appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId))
 
+        // Snapshot read-only view of prior execution data and track incremental deltas to commit by caller
+        const executedDataSnapshot = [...agentFlowExecutedData]
+        const additionalExecutedData: IAgentflowExecutedData[] = []
+        const removedExecutedNodeIds: string[] = []
+
         // Prepare flow config
         let updatedState = cloneDeep(agentflowRuntime.state)
         const runtimeChatHistory = agentflowRuntime.chatHistory || []
@@ -709,7 +715,7 @@ const executeNode = async ({
         ) {
             updatedState = {
                 ...updatedState,
-                ...iterationContext.agentflowRuntime.state
+                ...cloneDeep(iterationContext.agentflowRuntime.state)
             }
             flowConfig.state = updatedState
         }
@@ -725,7 +731,7 @@ const executeNode = async ({
             uploadedFilesContent,
             chatHistory,
             componentNodes,
-            agentFlowExecutedData,
+            executedDataSnapshot,
             iterationContext,
             loopCounts
         )
@@ -734,16 +740,16 @@ const executeNode = async ({
         let humanInputAction: Record<string, any> | undefined
         let updatedHumanInput = humanInput
 
-        if (agentFlowExecutedData.length) {
-            const lastNodeOutput = agentFlowExecutedData[agentFlowExecutedData.length - 1]?.data?.output as ICommonObject | undefined
+        if (executedDataSnapshot.length) {
+            const lastNodeOutput = executedDataSnapshot[executedDataSnapshot.length - 1]?.data?.output as ICommonObject | undefined
             humanInputAction = lastNodeOutput?.humanInputAction
         }
 
         // This is when human in the loop is resumed
         if (humanInput && nodeId === humanInput.startNodeId) {
             reactFlowNodeData.inputs = { ...reactFlowNodeData.inputs, humanInput }
-            // Remove the stopped humanInput from execution data
-            agentFlowExecutedData = agentFlowExecutedData.filter((execData) => execData.nodeId !== nodeId)
+            // Mark the stopped humanInput entry for removal when committing this node
+            removedExecutedNodeIds.push(nodeId)
 
             // Clear humanInput after it's been consumed to prevent subsequent humanInputAgentflow nodes from proceeding
             logger.debug(`🧹 Clearing humanInput after consumption by node: ${nodeId}`)
@@ -790,14 +796,14 @@ const executeNode = async ({
             baseURL,
             isLastNode,
             sseStreamer,
-            pastChatHistory,
-            prependedChatHistory,
+            pastChatHistory: cloneDeep(pastChatHistory),
+            prependedChatHistory: cloneDeep(prependedChatHistory),
             agentflowRuntime,
             abortController,
             analyticHandlers,
             parentTraceIds,
             humanInputAction,
-            iterationContext,
+            iterationContext: iterationContext ? cloneDeep(iterationContext) : undefined,
             evaluationRunId,
             overrideConfig
         }
@@ -875,7 +881,7 @@ const executeNode = async ({
                             parentExecutionId,
                             iterationContext: {
                                 ...iterationContext,
-                                agentflowRuntime
+                                agentflowRuntime: createNodeRuntimeSnapshot(agentflowRuntime).nodeRuntimeSnapshot
                             },
                             orgId,
                             workspaceId,
@@ -901,8 +907,8 @@ const executeNode = async ({
                                 }
                             }))
 
-                            // Add executed data to parent execution
-                            agentFlowExecutedData.push(...subflowExecutedData)
+                            // Record subflow executed data incrementally for caller commit
+                            additionalExecutedData.push(...subflowExecutedData)
 
                             // Update parent execution record with combined data if we have a parent execution ID
                             if (parentExecutionId && !zeroRetention) {
@@ -912,7 +918,7 @@ const executeNode = async ({
                                         appDataSource,
                                         parentExecutionId,
                                         workspaceId,
-                                        { executionData: JSON.stringify(agentFlowExecutedData) },
+                                        { executionData: JSON.stringify([...executedDataSnapshot, ...additionalExecutedData]) },
                                         zeroRetention
                                     )
                                 } catch (error) {
@@ -931,11 +937,11 @@ const executeNode = async ({
 
                             updatedState = {
                                 ...updatedState,
-                                ...subFlowResult.agentflowRuntime.state
+                                ...cloneDeep(subFlowResult.agentflowRuntime.state)
                             }
 
-                            // Update next iteration's runtime state
-                            agentflowRuntime.state = updatedState
+                            // Update next iteration's isolated runtime state
+                            agentflowRuntime.state = cloneDeep(updatedState)
 
                             // Update parent execution's runtime state
                             results.state = updatedState
@@ -994,19 +1000,16 @@ const executeNode = async ({
                 previousNodeIds: reversedGraph[nodeId] || [],
                 status: 'STOPPED'
             }
-            agentFlowExecutedData.push(newWorkflowExecutedData)
 
-            sseStreamer?.streamNextAgentFlowEvent(chatId, {
-                nodeId,
-                nodeLabel: reactFlowNode.data.label,
-                status: 'STOPPED'
-            })
-            sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-            sseStreamer?.streamAgentFlowEvent(chatId, 'STOPPED')
-
-            sseStreamer?.streamActionEvent(chatId, humanInputAction)
-
-            return { result: results, shouldStop: true, agentFlowExecutedData, humanInput: updatedHumanInput }
+            return {
+                result: results,
+                shouldStop: true,
+                additionalExecutedData,
+                removedExecutedNodeIds,
+                stoppedExecutedData: newWorkflowExecutedData,
+                humanInputAction,
+                humanInput: updatedHumanInput
+            }
         }
 
         // Stop going through the current route if the node is a agent node waiting for human input before using the tool
@@ -1041,22 +1044,24 @@ const executeNode = async ({
                 previousNodeIds: reversedGraph[nodeId] || [],
                 status: 'STOPPED'
             }
-            agentFlowExecutedData.push(newWorkflowExecutedData)
 
-            sseStreamer?.streamNextAgentFlowEvent(chatId, {
-                nodeId,
-                nodeLabel: reactFlowNode.data.label,
-                status: 'STOPPED'
-            })
-            sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-            sseStreamer?.streamAgentFlowEvent(chatId, 'STOPPED')
-
-            sseStreamer?.streamActionEvent(chatId, humanInputAction)
-
-            return { result: results, shouldStop: true, agentFlowExecutedData, humanInput: updatedHumanInput }
+            return {
+                result: results,
+                shouldStop: true,
+                additionalExecutedData,
+                removedExecutedNodeIds,
+                stoppedExecutedData: newWorkflowExecutedData,
+                humanInputAction,
+                humanInput: updatedHumanInput
+            }
         }
 
-        return { result: results, agentFlowExecutedData, humanInput: updatedHumanInput }
+        return {
+            result: results,
+            additionalExecutedData,
+            removedExecutedNodeIds,
+            humanInput: updatedHumanInput
+        }
     } catch (error) {
         logger.error(`[server]: Error executing node ${nodeId}: ${getErrorMessage(error)}`)
         throw error
@@ -1568,6 +1573,9 @@ export const executeAgentFlow = async ({
 
             logger.debug(`   🎯 Executing node: ${reactFlowNode?.data.label}`)
 
+            // Capture immutable start state snapshot and isolated runtime clone for this node
+            const { startStateSnapshot, nodeRuntimeSnapshot } = createNodeRuntimeSnapshot(agentflowRuntime)
+
             // Execute current node
             const executionResult = await executeNode({
                 nodeId: currentNode.nodeId,
@@ -1600,8 +1608,8 @@ export const executeAgentFlow = async ({
                 uploadedFilesContent,
                 fileUploads,
                 humanInput: currentHumanInput,
-                agentFlowExecutedData,
-                agentflowRuntime,
+                agentFlowExecutedData: [...agentFlowExecutedData],
+                agentflowRuntime: nodeRuntimeSnapshot,
                 abortController,
                 parentTraceIds,
                 analyticHandlers,
@@ -1616,29 +1624,55 @@ export const executeAgentFlow = async ({
                 nodeInstanceFactory
             })
 
-            if (executionResult.agentFlowExecutedData) {
-                agentFlowExecutedData = executionResult.agentFlowExecutedData
-            }
-
             // Update humanInput if it was cleared by the executed node
             if (executionResult.humanInput !== currentHumanInput) {
                 currentHumanInput = executionResult.humanInput
             }
 
             if (executionResult.shouldStop) {
+                commitExecutedDataDelta(agentFlowExecutedData, {
+                    removedNodeIds: executionResult.removedExecutedNodeIds,
+                    additionalRecords: executionResult.additionalExecutedData,
+                    nodeRecord: executionResult.stoppedExecutedData
+                })
+                sseStreamer?.streamNextAgentFlowEvent(chatId, {
+                    nodeId: currentNode.nodeId,
+                    nodeLabel: reactFlowNode.data.label,
+                    status: 'STOPPED'
+                })
+                sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+                sseStreamer?.streamAgentFlowEvent(chatId, 'STOPPED')
+                if (executionResult.humanInputAction) {
+                    sseStreamer?.streamActionEvent(chatId, executionResult.humanInputAction)
+                }
                 status = 'STOPPED'
                 break
             }
 
             nodeResult = executionResult.result
 
-            // Add execution data
-            agentFlowExecutedData.push({
-                nodeId: currentNode.nodeId,
-                nodeLabel: reactFlowNode.data.label,
-                data: nodeResult,
-                previousNodeIds: reversedGraph[currentNode.nodeId],
-                status: 'FINISHED'
+            // Reconcile runtime state delta, chat history, form, and feedback flags atomically before committing record
+            const commitResult = reconcileRuntimeCommit({
+                agentflowRuntime,
+                startStateSnapshot,
+                nodeResult,
+                pastChatHistory,
+                trustedData,
+                incomingInput,
+                question
+            })
+            question = commitResult.question
+
+            commitExecutedDataDelta(agentFlowExecutedData, {
+                removedNodeIds: executionResult.removedExecutedNodeIds,
+                additionalRecords: executionResult.additionalExecutedData,
+                nodeRecord: {
+                    nodeId: currentNode.nodeId,
+                    nodeLabel: reactFlowNode.data.label,
+                    data: nodeResult,
+                    previousNodeIds: reversedGraph[currentNode.nodeId],
+                    status: 'FINISHED'
+                }
             })
 
             sseStreamer?.streamNextAgentFlowEvent(chatId, {
@@ -1648,38 +1682,6 @@ export const executeAgentFlow = async ({
             })
 
             if (!isRecursive) sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-
-            // Add to agentflow runtime state
-            if (nodeResult && nodeResult.state) {
-                agentflowRuntime.state = nodeResult.state
-            }
-
-            if (nodeResult && nodeResult.chatHistory) {
-                agentflowRuntime.chatHistory = [...(agentflowRuntime.chatHistory ?? []), ...nodeResult.chatHistory]
-            }
-
-            if (nodeResult && nodeResult.output && nodeResult.output.form) {
-                agentflowRuntime.form = nodeResult.output.form
-            }
-
-            if (nodeResult && nodeResult.output && nodeResult.output.ephemeralMemory) {
-                pastChatHistory.length = 0
-                if (trustedData?.pastChatHistory) {
-                    trustedData.pastChatHistory.length = 0
-                }
-            }
-            if (nodeResult && nodeResult.state && nodeResult.state.doNotIncludeFeedbackHistory) {
-                pastChatHistory.length = Math.max(0, pastChatHistory.length - 1)
-                if (trustedData?.pastChatHistory) {
-                    trustedData.pastChatHistory.length = Math.max(0, trustedData.pastChatHistory.length - 1)
-                }
-                if (pastChatHistory.length) {
-                    question = pastChatHistory[pastChatHistory.length - 1].message || pastChatHistory[pastChatHistory.length - 1].content
-                    incomingInput.question = question
-                    pastChatHistory.length = pastChatHistory.length - 1 // run original input
-                }
-                delete nodeResult.state.doNotIncludeFeedbackHistory
-            }
             // Process node outputs and handle branching
             const processResult = await processNodeOutputs({
                 nodeId: currentNode.nodeId,

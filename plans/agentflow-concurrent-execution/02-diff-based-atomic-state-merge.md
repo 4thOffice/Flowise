@@ -1,6 +1,6 @@
 # Task 02: Diff-Based Atomic State Merge & Runtime Isolation
 
-- **Status**: Pending
+- **Status**: Done
 - **Design Status**: Ready to implement (Decision **D3** resolved)
 - **Depends On**: [01-test-harness-and-refactor-seams.md](./01-test-harness-and-refactor-seams.md)
 - **Primary Files**:
@@ -115,8 +115,8 @@ export function applyStateDelta(
 
 ## 6. Acceptance Criteria & Verification
 
-- [ ] Unit tests verify `computeStateDelta` & `applyStateDelta` for: disjoint parallel writes, key deletions, unchanged keys, nested value edits, conflicting key LWW, and `undefined` `nodeResult.state`.
-- [ ] Parallel-simulation test proves Branch A writing `{ a: 1 }` and Branch B writing `{ b: 2 }` from the same initial snapshot both survive in `agentflowRuntime.state` (`{ a: 1, b: 2 }`).
-- [ ] In-place mutation inside a mock node does not corrupt `startStateSnapshot` or sibling nodes' `runParams.agentflowRuntime`.
-- [ ] `agentFlowExecutedData` never loses entries when `executeNode` returns subflow or humanInput data.
-- [ ] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.
+- [x] Unit tests verify `computeStateDelta` & `applyStateDelta` for: disjoint parallel writes, key deletions, unchanged keys, nested value edits, conflicting key LWW, and `undefined` `nodeResult.state`.
+- [x] Parallel-simulation test proves Branch A writing `{ a: 1 }` and Branch B writing `{ b: 2 }` from the same initial snapshot both survive in `agentflowRuntime.state` (`{ a: 1, b: 2 }`).
+- [x] In-place mutation inside a mock node does not corrupt `startStateSnapshot` or sibling nodes' `runParams.agentflowRuntime`.
+- [x] `agentFlowExecutedData` never loses entries when `executeNode` returns subflow or humanInput data.
+- [x] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.
