@@ -1305,7 +1305,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 })
             })
             expect(hitMaxExitRuns).toBe(1)
-            expect(maxRes.text).toBe('released:1')
+            // Task 05 (D4): both content-bearing terminal leaves (exitReply at y=-50 and loop_0 fallback at y=300) are joined
+            expect(maxRes.text).toBe('released:1\n\nmaxed')
         })
 
         it('waits for PENDING external incoming edges into loop target before launching loop re-entry', async () => {
@@ -1460,7 +1461,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
             const res = await runPromise
             const slowRecords = res.agentFlowExecutedData.filter((d: any) => d.nodeId === 'slowSide')
             expect(slowRecords.map((r: any) => r.data.output.content)).toEqual(['FRESH-EPOCH-1'])
-            expect(res.text).toBe('stale=false')
+            // Task 05 (D4): slowSide (level=2) and exitReply (level=4) are both content-bearing terminal leaves
+            expect(res.text).toBe('FRESH-EPOCH-1\n\nstale=false')
         })
 
         it('executes captured baseline flow 06-loop-over-parallel-subgraph.json concurrently and exits with exact counts', async () => {

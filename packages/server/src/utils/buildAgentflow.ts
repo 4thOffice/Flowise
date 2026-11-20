@@ -72,6 +72,12 @@ import {
     createNodeRuntimeSnapshot,
     reconcileRuntimeCommit
 } from './agentflow/stateReconciler'
+import {
+    aggregateTerminalMetadata,
+    createStreamCoordinator,
+    ITerminalMetadata,
+    resolveTerminalContent
+} from './agentflow/terminalCoordinator'
 
 function mapChatMessageToIMessage(message: IChatMessage): IMessage {
     const mappedMessage: any = {
@@ -803,7 +809,7 @@ const executeNode = async ({
             uploads: fileUploads,
             baseURL,
             isLastNode,
-            sseStreamer,
+            sseStreamer: isRecursive ? undefined : sseStreamer,
             pastChatHistory: cloneDeep(pastChatHistory),
             prependedChatHistory: cloneDeep(prependedChatHistory),
             agentflowRuntime,
@@ -1569,11 +1575,44 @@ export const executeAgentFlow = async ({
     }
 
     const effectiveMaxNodeConcurrency = getMaxNodeConcurrency(maxNodeConcurrency)
+    const streamCoordinator = !isRecursive && sseStreamer ? createStreamCoordinator(sseStreamer) : undefined
+    const currentTurnNodeIds = new Set<string>()
+    const excludedLoopNodeIds = new Set<string>()
+    const resolveCurrentTerminalOutput = () => {
+        streamCoordinator?.flushAll()
+        const levels = dependencyEngine.getLevels()
+        const streamOrder = streamCoordinator?.getStreamOrder()
+        const resolved = resolveTerminalContent({
+            agentFlowExecutedData,
+            graph,
+            nodes,
+            levels,
+            streamOrder,
+            excludedLoopNodeIds,
+            currentTurnNodeIds
+        })
+        const metadata = aggregateTerminalMetadata({
+            agentFlowExecutedData,
+            graph,
+            nodes,
+            levels,
+            streamOrder,
+            excludedLoopNodeIds,
+            currentTurnNodeIds
+        })
+        return {
+            content: resolved.content,
+            terminalNodeIds: resolved.terminalNodeIds,
+            metadata
+        }
+    }
+
     let firstFatalError: { errorStatus: ExecutionState; errorMessage: string } | undefined
     let schedulerError: unknown
+    let schedulerTerminalOutput: ReturnType<typeof resolveCurrentTerminalOutput> | undefined
 
     try {
-        await runConcurrentNodeScheduler({
+        const schedulerResult = await runConcurrentNodeScheduler({
             nodeExecutionQueue,
             maxNodeConcurrency: effectiveMaxNodeConcurrency,
             maxIterations,
@@ -1606,6 +1645,7 @@ export const executeAgentFlow = async ({
 
                 // Capture immutable start state snapshot and isolated runtime clone at actual launch time
                 const { startStateSnapshot, nodeRuntimeSnapshot } = createNodeRuntimeSnapshot(agentflowRuntime)
+                const nodeSseStreamer = streamCoordinator ? streamCoordinator.createNodeStreamer(currentNode.nodeId) : sseStreamer
 
                 const executionResult = await executeNode({
                     nodeId: currentNode.nodeId,
@@ -1629,7 +1669,7 @@ export const executeAgentFlow = async ({
                     telemetry,
                     componentNodes,
                     cachePool,
-                    sseStreamer,
+                    sseStreamer: nodeSseStreamer,
                     baseURL,
                     overrideConfig,
                     apiOverrideStatus,
@@ -1659,119 +1699,136 @@ export const executeAgentFlow = async ({
                 return {
                     executionResult,
                     startStateSnapshot,
-                    reactFlowNode
+                    reactFlowNode,
+                    nodeSseStreamer
                 }
             },
-            onNodeComplete: (currentNode, { executionResult, startStateSnapshot, reactFlowNode }) => {
-                if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
-                    logger.debug(
-                        `[agentflow]: Ignoring stale completion from node ${currentNode.nodeId} (epoch ${currentNode.epoch} !== ${dependencyEngine.getNodeEpoch(currentNode.nodeId)})`
-                    )
-                    return { shouldStop: false }
-                }
-
-                // Only clear currentHumanInput when consumed by its target startNodeId (never resurrect from non-consuming siblings)
-                if (currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId && !executionResult.humanInput) {
-                    currentHumanInput = undefined
-                }
-
-                if (executionResult.shouldStop) {
-                    dependencyEngine.markNodeStopped(currentNode.nodeId, currentNode.epoch)
-                    if (
-                        executionResult.result?.state &&
-                        typeof executionResult.result.state === 'object' &&
-                        !Array.isArray(executionResult.result.state)
-                    ) {
-                        const stoppedDelta = computeStateDelta(startStateSnapshot, executionResult.result.state)
-                        agentflowRuntime.state = applyStateDelta(agentflowRuntime.state ?? {}, stoppedDelta)
+            onNodeComplete: (currentNode, { executionResult, startStateSnapshot, reactFlowNode, nodeSseStreamer }) => {
+                let isStale = false
+                try {
+                    if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
+                        logger.debug(
+                            `[agentflow]: Ignoring stale completion from node ${currentNode.nodeId} (epoch ${currentNode.epoch} !== ${dependencyEngine.getNodeEpoch(currentNode.nodeId)})`
+                        )
+                        isStale = true
+                        return { shouldStop: false }
                     }
-                    if (executionResult.stoppedExecutedData?.data) {
-                        executionResult.stoppedExecutedData.data = {
-                            ...executionResult.stoppedExecutedData.data,
-                            state: cloneDeep(agentflowRuntime.state ?? {})
+
+                    // Only clear currentHumanInput when consumed by its target startNodeId (never resurrect from non-consuming siblings)
+                    if (currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId && !executionResult.humanInput) {
+                        currentHumanInput = undefined
+                    }
+
+                    if (executionResult.shouldStop) {
+                        dependencyEngine.markNodeStopped(currentNode.nodeId, currentNode.epoch)
+                        if (
+                            executionResult.result?.state &&
+                            typeof executionResult.result.state === 'object' &&
+                            !Array.isArray(executionResult.result.state)
+                        ) {
+                            const stoppedDelta = computeStateDelta(startStateSnapshot, executionResult.result.state)
+                            agentflowRuntime.state = applyStateDelta(agentflowRuntime.state ?? {}, stoppedDelta)
                         }
+                        if (executionResult.stoppedExecutedData?.data) {
+                            executionResult.stoppedExecutedData.data = {
+                                ...executionResult.stoppedExecutedData.data,
+                                state: cloneDeep(agentflowRuntime.state ?? {})
+                            }
+                        }
+                        commitExecutedDataDelta(agentFlowExecutedData, {
+                            removedNodeIds: executionResult.removedExecutedNodeIds,
+                            additionalRecords: executionResult.additionalExecutedData,
+                            nodeRecord: executionResult.stoppedExecutedData
+                        })
+                        currentTurnNodeIds.add(currentNode.nodeId)
+                        sseStreamer?.streamNextAgentFlowEvent(chatId, {
+                            nodeId: currentNode.nodeId,
+                            nodeLabel: reactFlowNode.data.label,
+                            status: 'STOPPED'
+                        })
+                        if (!isRecursive) {
+                            sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+                        }
+                        if (!isRecursive && status === 'INPROGRESS') {
+                            sseStreamer?.streamAgentFlowEvent(chatId, 'STOPPED')
+                            if (executionResult.humanInputAction) {
+                                sseStreamer?.streamActionEvent(chatId, executionResult.humanInputAction)
+                            }
+                        }
+                        return { shouldStop: true }
                     }
+
+                    const nodeResult = executionResult.result
+
+                    // Reconcile runtime state delta, chat history, form, and feedback flags atomically before committing record
+                    const commitResult = reconcileRuntimeCommit({
+                        agentflowRuntime,
+                        startStateSnapshot,
+                        nodeResult,
+                        pastChatHistory,
+                        trustedData,
+                        incomingInput,
+                        question
+                    })
+                    question = commitResult.question
+
+                    if (status === 'INPROGRESS') {
+                        // Synchronously settle DAG edges, cascade DPE, and handle loop subgraph reset
+                        const processResult = dependencyEngine.processNodeCompletion({
+                            nodeId: currentNode.nodeId,
+                            nodeName: reactFlowNode.data.name,
+                            result: nodeResult,
+                            epoch: currentNode.epoch,
+                            humanInput: currentHumanInput,
+                            nodeExecutionQueue,
+                            loopCounts,
+                            sseStreamer: !isRecursive ? nodeSseStreamer : undefined,
+                            chatId
+                        })
+
+                        if (reactFlowNode.data.name === 'loopAgentflow' && !processResult.loopHitMaxCount) {
+                            excludedLoopNodeIds.add(currentNode.nodeId)
+                        } else {
+                            excludedLoopNodeIds.delete(currentNode.nodeId)
+                        }
+
+                        if (currentHumanInput && !processResult.humanInput) {
+                            currentHumanInput = undefined
+                        }
+                    } else if (reactFlowNode.data.name === 'loopAgentflow') {
+                        excludedLoopNodeIds.add(currentNode.nodeId)
+                    }
+
+                    const committedNodeData =
+                        nodeResult && typeof nodeResult === 'object'
+                            ? { ...nodeResult, state: cloneDeep(agentflowRuntime.state ?? {}) }
+                            : nodeResult
+
                     commitExecutedDataDelta(agentFlowExecutedData, {
                         removedNodeIds: executionResult.removedExecutedNodeIds,
                         additionalRecords: executionResult.additionalExecutedData,
-                        nodeRecord: executionResult.stoppedExecutedData
+                        nodeRecord: {
+                            nodeId: currentNode.nodeId,
+                            nodeLabel: reactFlowNode.data.label,
+                            data: committedNodeData,
+                            previousNodeIds: reversedGraph[currentNode.nodeId],
+                            status: 'FINISHED'
+                        }
                     })
+                    currentTurnNodeIds.add(currentNode.nodeId)
+
                     sseStreamer?.streamNextAgentFlowEvent(chatId, {
                         nodeId: currentNode.nodeId,
                         nodeLabel: reactFlowNode.data.label,
-                        status: 'STOPPED'
-                    })
-                    if (!isRecursive) {
-                        sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-                    }
-                    if (status === 'INPROGRESS') {
-                        sseStreamer?.streamAgentFlowEvent(chatId, 'STOPPED')
-                        if (executionResult.humanInputAction) {
-                            sseStreamer?.streamActionEvent(chatId, executionResult.humanInputAction)
-                        }
-                    }
-                    return { shouldStop: true }
-                }
-
-                const nodeResult = executionResult.result
-
-                // Reconcile runtime state delta, chat history, form, and feedback flags atomically before committing record
-                const commitResult = reconcileRuntimeCommit({
-                    agentflowRuntime,
-                    startStateSnapshot,
-                    nodeResult,
-                    pastChatHistory,
-                    trustedData,
-                    incomingInput,
-                    question
-                })
-                question = commitResult.question
-
-                if (status === 'INPROGRESS') {
-                    // Synchronously settle DAG edges, cascade DPE, and handle loop subgraph reset
-                    const processResult = dependencyEngine.processNodeCompletion({
-                        nodeId: currentNode.nodeId,
-                        nodeName: reactFlowNode.data.name,
-                        result: nodeResult,
-                        epoch: currentNode.epoch,
-                        humanInput: currentHumanInput,
-                        nodeExecutionQueue,
-                        loopCounts,
-                        sseStreamer,
-                        chatId
-                    })
-
-                    if (currentHumanInput && !processResult.humanInput) {
-                        currentHumanInput = undefined
-                    }
-                }
-
-                const committedNodeData =
-                    nodeResult && typeof nodeResult === 'object'
-                        ? { ...nodeResult, state: cloneDeep(agentflowRuntime.state ?? {}) }
-                        : nodeResult
-
-                commitExecutedDataDelta(agentFlowExecutedData, {
-                    removedNodeIds: executionResult.removedExecutedNodeIds,
-                    additionalRecords: executionResult.additionalExecutedData,
-                    nodeRecord: {
-                        nodeId: currentNode.nodeId,
-                        nodeLabel: reactFlowNode.data.label,
-                        data: committedNodeData,
-                        previousNodeIds: reversedGraph[currentNode.nodeId],
                         status: 'FINISHED'
-                    }
-                })
+                    })
 
-                sseStreamer?.streamNextAgentFlowEvent(chatId, {
-                    nodeId: currentNode.nodeId,
-                    nodeLabel: reactFlowNode.data.label,
-                    status: 'FINISHED'
-                })
+                    if (!isRecursive) sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
 
-                if (!isRecursive) sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-
-                return { shouldStop: false }
+                    return { shouldStop: false }
+                } finally {
+                    streamCoordinator?.releaseStream(currentNode.nodeId, { discardBuffered: isStale })
+                }
             },
             handleNodeStopped: () => {
                 if (status === 'INPROGRESS') {
@@ -1779,6 +1836,7 @@ export const executeAgentFlow = async ({
                 }
             },
             handleNodeError: (currentNode, error) => {
+                streamCoordinator?.releaseStream(currentNode.nodeId, { discardBuffered: true })
                 const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
                 const isAborted = getErrorMessage(error).toLowerCase().includes('aborted')
                 const errorStatus: ExecutionState = isAborted ? 'TERMINATED' : 'ERROR'
@@ -1809,8 +1867,10 @@ export const executeAgentFlow = async ({
                         error: isAborted ? undefined : errorMessage
                     })
                 }
-            }
+            },
+            selectTerminalOutput: resolveCurrentTerminalOutput
         })
+        schedulerTerminalOutput = schedulerResult.terminalOutput
     } catch (error) {
         schedulerError = error
     }
@@ -1876,9 +1936,10 @@ export const executeAgentFlow = async ({
     logger.debug(`\n🏁 Flow execution completed`)
     logger.debug(`   Status: ${status}`)
 
-    // check if last agentFlowExecutedData.data.output contains the key "content"
     const lastNodeOutput = defaultSelectTerminalOutput(agentFlowExecutedData)
-    let content = (lastNodeOutput?.content as string) ?? ' '
+    const terminalOutput = schedulerTerminalOutput ?? resolveCurrentTerminalOutput()
+    let content = terminalOutput.content
+    const terminalMetadata: ITerminalMetadata = terminalOutput.metadata
 
     /* Check for post-processing settings */
     if (chatflowConfig?.postProcessing?.enabled === true && content) {
@@ -1900,10 +1961,10 @@ export const executeAgentFlow = async ({
                 postProcessing: {
                     rawOutput: content,
                     chatHistory: cloneDeep(chatHistory),
-                    sourceDocuments: lastNodeOutput?.sourceDocuments ? cloneDeep(lastNodeOutput.sourceDocuments) : undefined,
-                    usedTools: lastNodeOutput?.usedTools ? cloneDeep(lastNodeOutput.usedTools) : undefined,
-                    artifacts: lastNodeOutput?.artifacts ? cloneDeep(lastNodeOutput.artifacts) : undefined,
-                    fileAnnotations: lastNodeOutput?.fileAnnotations ? cloneDeep(lastNodeOutput.fileAnnotations) : undefined
+                    sourceDocuments: terminalMetadata.sourceDocuments ? cloneDeep(terminalMetadata.sourceDocuments) : undefined,
+                    usedTools: terminalMetadata.usedTools ? cloneDeep(terminalMetadata.usedTools) : undefined,
+                    artifacts: terminalMetadata.artifacts ? cloneDeep(terminalMetadata.artifacts) : undefined,
+                    fileAnnotations: terminalMetadata.fileAnnotations ? cloneDeep(terminalMetadata.fileAnnotations) : undefined
                 },
                 appDataSource,
                 databaseEntities,
@@ -2022,10 +2083,10 @@ export const executeAgentFlow = async ({
         sessionId,
         executionId: newExecution.id
     }
-    if (lastNodeOutput?.sourceDocuments) apiMessage.sourceDocuments = JSON.stringify(lastNodeOutput.sourceDocuments)
-    if (lastNodeOutput?.usedTools) apiMessage.usedTools = JSON.stringify(lastNodeOutput.usedTools)
-    if (lastNodeOutput?.fileAnnotations) apiMessage.fileAnnotations = JSON.stringify(lastNodeOutput.fileAnnotations)
-    if (lastNodeOutput?.artifacts) apiMessage.artifacts = JSON.stringify(lastNodeOutput.artifacts)
+    if (terminalMetadata.sourceDocuments) apiMessage.sourceDocuments = JSON.stringify(terminalMetadata.sourceDocuments)
+    if (terminalMetadata.usedTools) apiMessage.usedTools = JSON.stringify(terminalMetadata.usedTools)
+    if (terminalMetadata.fileAnnotations) apiMessage.fileAnnotations = JSON.stringify(terminalMetadata.fileAnnotations)
+    if (terminalMetadata.artifacts) apiMessage.artifacts = JSON.stringify(terminalMetadata.artifacts)
     if (chatflow.followUpPrompts) {
         const followUpPromptsConfig = JSON.parse(chatflow.followUpPrompts)
         const followUpPrompts = await generateFollowUpPrompts(followUpPromptsConfig, apiMessage.content, {

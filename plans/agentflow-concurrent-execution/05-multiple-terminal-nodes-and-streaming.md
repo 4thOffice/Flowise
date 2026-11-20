@@ -1,6 +1,6 @@
 # Task 05: Multiple Terminal Nodes, Final Response Assembly, & SSE Streaming
 
-- **Status**: Pending (Ready to implement — Decision **D4** resolved)
+- **Status**: Done (Decision **D4** implemented & verified)
 - **Depends On**: [03-concurrent-scheduler-loop.md](./03-concurrent-scheduler-loop.md)
 - **Primary Files**:
   - `packages/server/src/utils/agentflow/terminalCoordinator.ts` (new)
@@ -126,11 +126,11 @@ Replace single-node `lastNodeOutput` lookups (`buildAgentflow.ts:2414-2433`):
 3. Implement `packages/server/test/utils/buildAgentflow/terminalAndStreaming.test.ts`.
 
 ### Verification Matrix
-- [ ] Fast `DirectReply` leaf + slow `LLM` leaf: fast leaf streams immediately, slow leaf buffers if overlapping and flushes with `\n\n` separator once fast leaf completes; zero interleaved tokens.
-- [ ] Two concurrent streaming `LLM` leaves (`A` and `B` emitting interleaved chunks `[A1, B1, A2, B2]`): wire stream equals `A1 + A2 + "\n\n" + B1 + B2`, matching saved `apiMessage.content` verbatim.
-- [ ] `LLM` leaf + slow silent `HTTP` webhook leaf (no `output.content`) finishing last: `result.text` retains `LLM`'s content instead of blanking out, and no trailing `\n\n` is emitted.
-- [ ] Empty-token edge case: node emitting only `""` does not trigger a stray `\n\n` separator.
-- [ ] Non-streaming (`streaming: false`): `result.text` orders multiple content-bearing leaves deterministically by `(executionOrder ?? position.y, level, nodeId)` joined by `\n\n`.
-- [ ] Metadata (`sourceDocuments`, `usedTools`, `artifacts`, `fileAnnotations`) aggregates across multiple terminal branches without dropping fields from earlier finishers.
-- [ ] Recursive subflows (`isRecursive: true` inside `iterationAgentflow`) never leak tokens to `sseStreamer` and return proper subflow `text`.
-- [ ] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.
+- [x] Fast `DirectReply` leaf + slow `LLM` leaf: fast leaf streams immediately, slow leaf buffers if overlapping and flushes with `\n\n` separator once fast leaf completes; zero interleaved tokens.
+- [x] Two concurrent streaming `LLM` leaves (`A` and `B` emitting interleaved chunks `[A1, B1, A2, B2]`): wire stream equals `A1 + A2 + "\n\n" + B1 + B2`, matching saved `apiMessage.content` verbatim.
+- [x] `LLM` leaf + slow silent `HTTP` webhook leaf (no `output.content`) finishing last: `result.text` retains `LLM`'s content instead of blanking out, and no trailing `\n\n` is emitted.
+- [x] Empty-token edge case: node emitting only `""` does not trigger a stray `\n\n` separator.
+- [x] Non-streaming (`streaming: false`): `result.text` orders multiple content-bearing leaves deterministically by `(executionOrder ?? position.y, level, nodeId)` joined by `\n\n`.
+- [x] Metadata (`sourceDocuments`, `usedTools`, `artifacts`, `fileAnnotations`) aggregates across multiple terminal branches without dropping fields from earlier finishers.
+- [x] Recursive subflows (`isRecursive: true` inside `iterationAgentflow`) never leak tokens to `sseStreamer` and return proper subflow `text`.
+- [x] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.
