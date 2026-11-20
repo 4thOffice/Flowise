@@ -1,4 +1,5 @@
 import { IAgentflowExecutedData, IReactFlowEdge, IReactFlowNode } from '../../../src/Interface'
+import { Execution } from '../../../src/database/entities/Execution'
 import {
     classifyDecisionOutgoingEdges,
     compareNodesDeterministically,
@@ -1708,15 +1709,33 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 }
             })
 
-            await runTestAgentFlow({
-                flow,
-                incomingInput: { question: 'seq-stop', overrideConfig: { sessionId: 'sess-seq-stop' } },
-                appDataSource,
-                componentNodes: realComponentNodes,
-                nodeInstanceFactory: factory
-            })
-            await waitUntil(() => executions[0]?.state === 'STOPPED')
-            expect(parRan).toBe(0) // human_0 stopped before parSibling ran
+            // Task 06 (D5): non-interrupting STOPPED drain runs ready siblings in Turn 1, so seed the legacy
+            // partial STOPPED checkpoint directly to verify mid-graph resume of unexecuted siblings.
+            await appDataSource.getRepository(Execution).save(
+                appDataSource.getRepository(Execution).create({
+                    agentflowId: 'cf-test-1',
+                    sessionId: 'sess-seq-stop',
+                    workspaceId: 'ws-1',
+                    state: 'STOPPED',
+                    executionData: JSON.stringify([
+                        {
+                            nodeId: 'start_0',
+                            nodeLabel: 'Start',
+                            previousNodeIds: [],
+                            data: { output: { question: 'seq-stop' }, state: {} },
+                            status: 'FINISHED'
+                        },
+                        {
+                            nodeId: 'human_0',
+                            nodeLabel: 'Human Input',
+                            previousNodeIds: ['start_0'],
+                            data: { output: { content: 'Gate?' }, state: {} },
+                            status: 'STOPPED'
+                        }
+                    ])
+                })
+            )
+            expect(parRan).toBe(0)
 
             ranOnResume.length = 0
             const res = await runTestAgentFlow({
@@ -1877,7 +1896,6 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
             )
 
             for (const mode of ['human0First', 'parFirstBeforeHuman0Finishes'] as const) {
-                process.env.AGENTFLOW_MAX_NODE_CONCURRENCY = '1'
                 const { appDataSource, executions } = createMockDataSource()
 
                 const h0CanFinish = createDeferred<void>()
@@ -1917,14 +1935,32 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     }
                 })
 
-                await runTestAgentFlow({
-                    flow,
-                    incomingInput: { question: 'multi-gate', overrideConfig: { sessionId: `sess-${mode}` } },
-                    appDataSource,
-                    componentNodes: realComponentNodes,
-                    nodeInstanceFactory: factory
-                })
-                await waitUntil(() => executions[0]?.state === 'STOPPED')
+                // Task 06 (D5): seed legacy partial STOPPED checkpoint before parSibling ran so Turn 2
+                // exercises concurrent human_0 resume racing with parSibling -> human_1.
+                await appDataSource.getRepository(Execution).save(
+                    appDataSource.getRepository(Execution).create({
+                        agentflowId: 'cf-test-1',
+                        sessionId: `sess-${mode}`,
+                        workspaceId: 'ws-1',
+                        state: 'STOPPED',
+                        executionData: JSON.stringify([
+                            {
+                                nodeId: 'start_0',
+                                nodeLabel: 'Start',
+                                previousNodeIds: [],
+                                data: { output: { question: 'multi-gate' }, state: {} },
+                                status: 'FINISHED'
+                            },
+                            {
+                                nodeId: 'human_0',
+                                nodeLabel: 'Human Input',
+                                previousNodeIds: ['start_0'],
+                                data: { output: { content: 'Gate 0?' }, state: {} },
+                                status: 'STOPPED'
+                            }
+                        ])
+                    })
+                )
 
                 process.env.AGENTFLOW_MAX_NODE_CONCURRENCY = '4'
                 if (mode === 'human0First') {

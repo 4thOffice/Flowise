@@ -63,8 +63,16 @@ import {
     IExecuteNodeResult,
     INodeQueue
 } from './agentflow/types'
-import { createDependencyEngine } from './agentflow/dependencyEngine'
-import { defaultSelectTerminalOutput, getMaxNodeConcurrency, runConcurrentNodeScheduler } from './agentflow/scheduler'
+import { computeTopologicalLevels, createDependencyEngine } from './agentflow/dependencyEngine'
+import {
+    createExecutionAbortScope,
+    createFaultRecorder,
+    createSerializedTaskQueue,
+    findResumedHumanInputAction,
+    selectPrimaryStoppedAction,
+    selectPrimaryStoppedNode
+} from './agentflow/faultCoordinator'
+import { getMaxNodeConcurrency, runConcurrentNodeScheduler } from './agentflow/scheduler'
 import {
     applyStateDelta,
     commitExecutedDataDelta,
@@ -136,7 +144,8 @@ const addExecution = async (
     agentFlowExecutedData: IAgentflowExecutedData[],
     sessionId: string,
     workspaceId: string,
-    zeroRetention: boolean
+    zeroRetention: boolean,
+    enqueueDbUpdate?: <T>(task: () => Promise<T>) => Promise<T>
 ) => {
     if (process.env.DISABLE_EXECUTION_RECORDING || zeroRetention) {
         return {
@@ -167,7 +176,11 @@ const addExecution = async (
 
     let executionDB = await appDataSource.getRepository(Execution).save(appDataSource.getRepository(Execution).create(newExecution))
     if (postDataAsync) {
-        updateExecution(appDataSource, executionDB.id, workspaceId, { executionData }, zeroRetention)
+        const runPostUpdate = () => updateExecution(appDataSource, executionDB.id, workspaceId, { executionData }, zeroRetention)
+        const pending = enqueueDbUpdate ? enqueueDbUpdate(runPostUpdate) : runPostUpdate()
+        pending.catch((err) => {
+            logger.warn(`addExecution async update err ${getErrorMessage(err)}`)
+        })
     }
     return executionDB
 }
@@ -191,13 +204,16 @@ const updateExecution = async (
     }
 
     if (process.env.EXECUTIONS_DB_THREAD) {
-        if (data?.executionData && data.executionData.length > 2) {
-            data.executionDataBlob = await Compression.compress(data.executionData)
-            data.executionData = '[]'
+        const payload = data ? { ...data } : undefined
+        if (payload?.executionData && payload.executionData.length > 2) {
+            payload.executionDataBlob = await Compression.compress(payload.executionData)
+            payload.executionData = '[]'
         }
-        executionsUpdater?.run({ executionId, workspaceId, data }).catch((err) => {
+        try {
+            await executionsUpdater?.run({ executionId, workspaceId, data: payload })
+        } catch (err) {
             logger.warn(`updateExecution err ${err}`)
-        })
+        }
         return
     }
     const execution = await appDataSource.getRepository(Execution).findOneBy({
@@ -665,7 +681,8 @@ const executeNode = async ({
     productId,
     zeroRetention = false,
     nodeInstanceFactory,
-    maxNodeConcurrency
+    maxNodeConcurrency,
+    enqueueDbUpdate
 }: IExecuteNodeParams): Promise<IExecuteNodeResult> => {
     try {
         if (abortController?.signal?.aborted) {
@@ -753,13 +770,11 @@ const executeNode = async ({
         let humanInputAction: Record<string, any> | undefined
         let updatedHumanInput = humanInput
 
-        if (executedDataSnapshot.length) {
-            const lastNodeOutput = executedDataSnapshot[executedDataSnapshot.length - 1]?.data?.output as ICommonObject | undefined
-            humanInputAction = lastNodeOutput?.humanInputAction
-        }
-
         // This is when human in the loop is resumed (strictly scoped to the target startNodeId)
         const isResumedHumanInputNode = Boolean(humanInput && nodeId === humanInput.startNodeId)
+        if (isResumedHumanInputNode && executedDataSnapshot.length) {
+            humanInputAction = findResumedHumanInputAction(executedDataSnapshot, nodeId)
+        }
         if (isResumedHumanInputNode && humanInput) {
             reactFlowNodeData.inputs = { ...reactFlowNodeData.inputs, humanInput }
             // Mark the stopped humanInput entry for removal when committing this node
@@ -861,6 +876,9 @@ const executeNode = async ({
 
                 // Execute sub-flow for each item in the iteration array
                 for (let i = 0; i < results.input.iterationInput.length; i++) {
+                    if (abortController?.signal?.aborted) {
+                        throw new Error('Aborted')
+                    }
                     const item = results.input.iterationInput[i]
                     logger.debug(`  🔄 Processing iteration ${i + 1}/${results.input.iterationInput.length} recursively`)
 
@@ -929,13 +947,19 @@ const executeNode = async ({
                             if (parentExecutionId && !zeroRetention) {
                                 try {
                                     logger.debug(`  📝 Updating parent execution ${parentExecutionId} with iteration ${i + 1} data`)
-                                    updateExecution(
-                                        appDataSource,
-                                        parentExecutionId,
-                                        workspaceId,
-                                        { executionData: JSON.stringify([...executedDataSnapshot, ...additionalExecutedData]) },
-                                        zeroRetention
-                                    )
+                                    const executionDataJson = JSON.stringify([...executedDataSnapshot, ...additionalExecutedData])
+                                    const persistIteration = () =>
+                                        updateExecution(
+                                            appDataSource,
+                                            parentExecutionId,
+                                            workspaceId,
+                                            { executionData: executionDataJson },
+                                            zeroRetention
+                                        )
+                                    const pendingUpdate = enqueueDbUpdate ? enqueueDbUpdate(persistIteration) : persistIteration()
+                                    pendingUpdate.catch((error) => {
+                                        console.error(`  ❌ Error updating parent execution: ${getErrorMessage(error)}`)
+                                    })
                                 } catch (error) {
                                     console.error(`  ❌ Error updating parent execution: ${getErrorMessage(error)}`)
                                 }
@@ -962,6 +986,9 @@ const executeNode = async ({
                             results.state = updatedState
                         }
                     } catch (error) {
+                        if (abortController?.signal?.aborted) {
+                            throw error
+                        }
                         console.error(`  ❌ Error in iteration ${i + 1}: ${getErrorMessage(error)}`)
                         iterationResults.push(`Error in iteration ${i + 1}: ${getErrorMessage(error)}`)
                     }
@@ -1146,7 +1173,8 @@ export const executeAgentFlow = async ({
     subscriptionId,
     productId,
     nodeInstanceFactory,
-    maxNodeConcurrency
+    maxNodeConcurrency,
+    onNodeError
 }: IExecuteAgentFlowParams) => {
     logger.debug('\n🚀 Starting flow execution')
 
@@ -1230,13 +1258,18 @@ export const executeAgentFlow = async ({
     // Initialize execution queue
     const nodeExecutionQueue: INodeQueue[] = []
     const loopCounts: Map<string, number> = new Map()
+    const dbUpdateQueue = createSerializedTaskQueue()
+    const serializedUpdateExecution = (executionId: string, data?: Partial<IExecution>) =>
+        dbUpdateQueue.enqueue(() => updateExecution(appDataSource, executionId, workspaceId, data, zeroRetention))
+    const abortScope = createExecutionAbortScope(abortController)
 
-    // Initialize runtime state for new execution
-    let agentflowRuntime: IAgentFlowRuntime = {
-        state: {},
-        chatHistory: [],
-        form: {}
-    }
+    try {
+        // Initialize runtime state for new execution
+        let agentflowRuntime: IAgentFlowRuntime = {
+            state: {},
+            chatHistory: [],
+            form: {}
+        }
 
     let previousExecution: IExecution | undefined
 
@@ -1394,10 +1427,10 @@ export const executeAgentFlow = async ({
 
         let startNodeId = humanInput.startNodeId
 
-        // If startNodeId is not provided, find the last node with STOPPED status from execution data
+        // If startNodeId is not provided, deterministically pick the primary STOPPED node
         if (!startNodeId) {
-            // Search in reverse order to find the last (most recent) STOPPED node
-            const stoppedNode = [...executionData].reverse().find((data) => data.status === 'STOPPED')
+            const resumeLevels = computeTopologicalLevels(nodes, edges)
+            const stoppedNode = selectPrimaryStoppedNode(executionData, nodes, resumeLevels)
 
             if (!stoppedNode) {
                 throw new Error('No stopped node found in previous execution data to resume from')
@@ -1425,23 +1458,28 @@ export const executeAgentFlow = async ({
         // Update execution data if we removed an error item
         if (shouldUpdateExecution && !zeroRetention) {
             logger.debug(`  📝 Updating execution data after removing error item`)
-            updateExecution(
-                appDataSource,
-                previousExecution.id,
-                workspaceId,
-                { executionData: JSON.stringify(executionData), state: 'INPROGRESS' },
-                zeroRetention
-            )
+            serializedUpdateExecution(previousExecution.id, {
+                executionData: JSON.stringify(executionData),
+                state: 'INPROGRESS'
+            }).catch((err) => {
+                logger.warn(`updateExecution resume cleanup err ${getErrorMessage(err)}`)
+            })
         }
 
-        // Get last state
-        const lastState = executionData[executionData.length - 1].data.state
+        // Get latest recorded state without assuming the final array entry contains `.state`
+        let lastState: ICommonObject | undefined
+        for (let i = executionData.length - 1; i >= 0; i -= 1) {
+            if (executionData[i]?.data?.state) {
+                lastState = executionData[i].data.state as ICommonObject
+                break
+            }
+        }
 
         // Update agentflow runtime state
-        agentflowRuntime.state = (lastState as ICommonObject) ?? {}
+        agentflowRuntime.state = cloneDeep(lastState ?? {})
 
         // Update execution state to INPROGRESS
-        await updateExecution(appDataSource, previousExecution.id, workspaceId, { state: 'INPROGRESS' }, zeroRetention)
+        await serializedUpdateExecution(previousExecution.id, { state: 'INPROGRESS' })
         newExecution = previousExecution
         parentExecutionId = previousExecution.id
 
@@ -1465,7 +1503,15 @@ export const executeAgentFlow = async ({
             newExecution = parentExecution
         } else {
             console.warn(`   ⚠️ Parent execution ID ${parentExecutionId} not found, will create new execution`)
-            newExecution = await addExecution(appDataSource, chatflowid, agentFlowExecutedData, sessionId, workspaceId, zeroRetention)
+            newExecution = await addExecution(
+                appDataSource,
+                chatflowid,
+                agentFlowExecutedData,
+                sessionId,
+                workspaceId,
+                zeroRetention,
+                dbUpdateQueue.enqueue
+            )
             parentExecutionId = newExecution.id
         }
     } else {
@@ -1474,7 +1520,15 @@ export const executeAgentFlow = async ({
         checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
 
         // Only create a new execution if this is not a recursive call
-        newExecution = await addExecution(appDataSource, chatflowid, agentFlowExecutedData, sessionId, workspaceId, zeroRetention)
+        newExecution = await addExecution(
+            appDataSource,
+            chatflowid,
+            agentFlowExecutedData,
+            sessionId,
+            workspaceId,
+            zeroRetention,
+            dbUpdateQueue.enqueue
+        )
         parentExecutionId = newExecution.id
     }
 
@@ -1607,7 +1661,9 @@ export const executeAgentFlow = async ({
         }
     }
 
-    let firstFatalError: { errorStatus: ExecutionState; errorMessage: string } | undefined
+    const faultRecorder = createFaultRecorder(abortScope)
+    const skippedErrorNodeIds = new Set<string>()
+    let hasStoppedNode = false
     let schedulerError: unknown
     let schedulerTerminalOutput: ReturnType<typeof resolveCurrentTerminalOutput> | undefined
 
@@ -1616,7 +1672,7 @@ export const executeAgentFlow = async ({
             nodeExecutionQueue,
             maxNodeConcurrency: effectiveMaxNodeConcurrency,
             maxIterations,
-            canScheduleMore: () => status === 'INPROGRESS' && !firstFatalError,
+            canScheduleMore: () => status === 'INPROGRESS' && !faultRecorder.getRootError() && !abortScope.isAborted(),
             onBeforeFirstLaunch: () => {
                 if (!isRecursive) {
                     sseStreamer?.streamAgentFlowEvent(chatId, 'INPROGRESS')
@@ -1637,7 +1693,7 @@ export const executeAgentFlow = async ({
                 }
 
                 // Check for abort signal early before capturing snapshot or running node
-                if (abortController?.signal?.aborted) {
+                if (abortScope.isAborted()) {
                     throw new Error('Aborted')
                 }
 
@@ -1681,7 +1737,7 @@ export const executeAgentFlow = async ({
                         currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId ? currentHumanInput : undefined,
                     agentFlowExecutedData: [...agentFlowExecutedData],
                     agentflowRuntime: nodeRuntimeSnapshot,
-                    abortController,
+                    abortController: abortScope.abortController,
                     parentTraceIds,
                     analyticHandlers,
                     isRecursive,
@@ -1693,7 +1749,8 @@ export const executeAgentFlow = async ({
                     productId,
                     zeroRetention,
                     nodeInstanceFactory,
-                    maxNodeConcurrency
+                    maxNodeConcurrency,
+                    enqueueDbUpdate: dbUpdateQueue.enqueue
                 })
 
                 return {
@@ -1718,6 +1775,8 @@ export const executeAgentFlow = async ({
                     if (currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId && !executionResult.humanInput) {
                         currentHumanInput = undefined
                     }
+
+                    skippedErrorNodeIds.delete(currentNode.nodeId)
 
                     if (executionResult.shouldStop) {
                         dependencyEngine.markNodeStopped(currentNode.nodeId, currentNode.epoch)
@@ -1749,12 +1808,6 @@ export const executeAgentFlow = async ({
                         if (!isRecursive) {
                             sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
                         }
-                        if (!isRecursive && status === 'INPROGRESS') {
-                            sseStreamer?.streamAgentFlowEvent(chatId, 'STOPPED')
-                            if (executionResult.humanInputAction) {
-                                sseStreamer?.streamActionEvent(chatId, executionResult.humanInputAction)
-                            }
-                        }
                         return { shouldStop: true }
                     }
 
@@ -1772,7 +1825,7 @@ export const executeAgentFlow = async ({
                     })
                     question = commitResult.question
 
-                    if (status === 'INPROGRESS') {
+                    if (status === 'INPROGRESS' && !faultRecorder.getRootError() && !abortScope.isAborted()) {
                         // Synchronously settle DAG edges, cascade DPE, and handle loop subgraph reset
                         const processResult = dependencyEngine.processNodeCompletion({
                             nodeId: currentNode.nodeId,
@@ -1827,25 +1880,48 @@ export const executeAgentFlow = async ({
 
                     return { shouldStop: false }
                 } finally {
-                    streamCoordinator?.releaseStream(currentNode.nodeId, { discardBuffered: isStale })
+                    streamCoordinator?.releaseStream(currentNode.nodeId, {
+                        discardBuffered: isStale || Boolean(faultRecorder.getRootError() || abortScope.isAborted())
+                    })
                 }
             },
             handleNodeStopped: () => {
-                if (status === 'INPROGRESS') {
-                    status = 'STOPPED'
-                }
+                // Keep status === 'INPROGRESS' so non-blocked sibling branches continue draining naturally
+                hasStoppedNode = true
             },
-            handleNodeError: (currentNode, error) => {
+            onNodeError: onNodeError ?? (() => 'abort'),
+            handleNodeError: (currentNode, error, policy = 'abort') => {
                 streamCoordinator?.releaseStream(currentNode.nodeId, { discardBuffered: true })
                 const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
-                const isAborted = getErrorMessage(error).toLowerCase().includes('aborted')
-                const errorStatus: ExecutionState = isAborted ? 'TERMINATED' : 'ERROR'
-                const errorMessage = isAborted ? 'Flow execution was cancelled' : getErrorMessage(error)
 
-                if (!firstFatalError) {
-                    firstFatalError = { errorStatus, errorMessage }
-                    status = errorStatus
+                if (policy === 'skip-branch' && !faultRecorder.getRootError() && !abortScope.isAborted()) {
+                    skippedErrorNodeIds.add(currentNode.nodeId)
+                    const errorMessage = getErrorMessage(error)
+                    if (reactFlowNode) {
+                        agentFlowExecutedData.push({
+                            nodeId: currentNode.nodeId,
+                            nodeLabel: reactFlowNode.data.label,
+                            previousNodeIds: reversedGraph[currentNode.nodeId] || [],
+                            data: {
+                                id: currentNode.nodeId,
+                                name: reactFlowNode.data.name,
+                                error: errorMessage
+                            },
+                            status: 'ERROR'
+                        })
+                        sseStreamer?.streamNextAgentFlowEvent(chatId, {
+                            nodeId: currentNode.nodeId,
+                            nodeLabel: reactFlowNode.data.label,
+                            status: 'ERROR',
+                            error: errorMessage
+                        })
+                    }
+                    dependencyEngine.markNodeSkipped(currentNode.nodeId, nodeExecutionQueue, currentNode.epoch)
+                    return
                 }
+
+                const recorded = faultRecorder.recordNodeError(error)
+                status = recorded.rootError.errorStatus
 
                 if (reactFlowNode) {
                     agentFlowExecutedData.push({
@@ -1855,66 +1931,91 @@ export const executeAgentFlow = async ({
                         data: {
                             id: currentNode.nodeId,
                             name: reactFlowNode.data.name,
-                            error: errorMessage
+                            error: recorded.nodeMessage
                         },
-                        status: errorStatus
+                        status: recorded.nodeStatus
                     })
 
                     sseStreamer?.streamNextAgentFlowEvent(chatId, {
                         nodeId: currentNode.nodeId,
                         nodeLabel: reactFlowNode.data.label,
-                        status: errorStatus,
-                        error: isAborted ? undefined : errorMessage
+                        status: recorded.nodeStatus,
+                        error: recorded.isAbort ? undefined : recorded.nodeMessage
                     })
                 }
+
+                abortScope.abortInternal(error)
             },
-            selectTerminalOutput: resolveCurrentTerminalOutput
+            selectTerminalOutput: () => {
+                if (faultRecorder.getRootError() || abortScope.isAborted()) {
+                    return undefined
+                }
+                return resolveCurrentTerminalOutput()
+            }
         })
         schedulerTerminalOutput = schedulerResult.terminalOutput
     } catch (error) {
         schedulerError = error
     }
 
-    if (firstFatalError) {
+    const persistAndThrowFatalError = async (errorStatus: ExecutionState, errorMessage: string, errorToThrow: unknown): Promise<never> => {
+        status = errorStatus
         if (!isRecursive) {
             sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
 
-            await updateExecution(
-                appDataSource,
-                newExecution.id,
-                workspaceId,
-                { executionData: JSON.stringify(agentFlowExecutedData), state: firstFatalError.errorStatus },
-                zeroRetention
-            )
+            await serializedUpdateExecution(newExecution.id, {
+                executionData: JSON.stringify(agentFlowExecutedData),
+                state: errorStatus
+            })
+            await dbUpdateQueue.drain()
 
             // trusted data update
             trustedData = ensureTrustedData()
             sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
 
-            sseStreamer?.streamAgentFlowEvent(chatId, firstFatalError.errorStatus)
+            sseStreamer?.streamAgentFlowEvent(chatId, errorStatus)
+        } else {
+            await dbUpdateQueue.drain()
         }
 
         if (parentTraceIds && analyticHandlers) {
-            await analyticHandlers.onChainError(parentTraceIds, firstFatalError.errorMessage, true)
+            await analyticHandlers.onChainError(parentTraceIds, errorMessage, true)
         }
 
-        throw new Error(firstFatalError.errorMessage)
+        throw errorToThrow
+    }
+
+    const finalFault = faultRecorder.finalizeForExternalAbort()
+    if (finalFault) {
+        await persistAndThrowFatalError(finalFault.errorStatus, finalFault.errorMessage, new Error(finalFault.errorMessage))
     }
 
     if (schedulerError) {
-        throw schedulerError
+        const schedulerStatus: ExecutionState = abortScope.isAborted() ? 'TERMINATED' : 'ERROR'
+        await persistAndThrowFatalError(schedulerStatus, getErrorMessage(schedulerError), schedulerError)
     }
 
-    // check if there is any status stopped from agentFlowExecutedData
-    const terminatedNode = agentFlowExecutedData.find((data) => data.status === 'TERMINATED')
-    const errorNode = agentFlowExecutedData.find((data) => data.status === 'ERROR')
-    const stoppedNode = agentFlowExecutedData.find((data) => data.status === 'STOPPED')
+    const levels = dependencyEngine.getLevels()
+    const primaryStopped = selectPrimaryStoppedAction(agentFlowExecutedData, nodes, levels)
+
+    const latestStatusByNodeId = new Map<string, ExecutionState>()
+    for (const data of agentFlowExecutedData) {
+        if (data.data?.parentNodeId) continue
+        if (data.status) {
+            latestStatusByNodeId.set(data.nodeId, data.status)
+        }
+    }
+    const terminatedNode = Array.from(latestStatusByNodeId.values()).includes('TERMINATED')
+    const errorNode = Array.from(latestStatusByNodeId.entries()).some(
+        ([nodeId, nodeStatus]) => nodeStatus === 'ERROR' && !skippedErrorNodeIds.has(nodeId)
+    )
+    const hasActiveStoppedNode = primaryStopped.stoppedNodeIds.length > 0
 
     if (terminatedNode) {
         status = 'TERMINATED'
     } else if (errorNode) {
         status = 'ERROR'
-    } else if (stoppedNode) {
+    } else if (hasStoppedNode || hasActiveStoppedNode) {
         status = 'STOPPED'
     } else {
         status = 'FINISHED'
@@ -1922,21 +2023,21 @@ export const executeAgentFlow = async ({
 
     // Only update execution record if this is not a recursive call
     if (!isRecursive) {
-        await updateExecution(
-            appDataSource,
-            newExecution.id,
-            workspaceId,
-            { executionData: JSON.stringify(agentFlowExecutedData), state: status },
-            zeroRetention
-        )
+        await serializedUpdateExecution(newExecution.id, {
+            executionData: JSON.stringify(agentFlowExecutedData),
+            state: status
+        })
+        await dbUpdateQueue.drain()
 
+        if (status === 'STOPPED' && primaryStopped.action) {
+            sseStreamer?.streamActionEvent(chatId, primaryStopped.action)
+        }
         sseStreamer?.streamAgentFlowEvent(chatId, status)
     }
 
     logger.debug(`\n🏁 Flow execution completed`)
     logger.debug(`   Status: ${status}`)
 
-    const lastNodeOutput = defaultSelectTerminalOutput(agentFlowExecutedData)
     const terminalOutput = schedulerTerminalOutput ?? resolveCurrentTerminalOutput()
     let content = terminalOutput.content
     const terminalMetadata: ITerminalMetadata = terminalOutput.metadata
@@ -2101,8 +2202,8 @@ export const executeAgentFlow = async ({
             apiMessage.followUpPrompts = JSON.stringify(followUpPrompts.questions)
         }
     }
-    if (lastNodeOutput?.humanInputAction && Object.keys(lastNodeOutput.humanInputAction).length)
-        apiMessage.action = JSON.stringify(lastNodeOutput.humanInputAction)
+    if (status === 'STOPPED' && primaryStopped.action && Object.keys(primaryStopped.action).length)
+        apiMessage.action = JSON.stringify(primaryStopped.action)
 
     const chatMessage = await utilAddChatMessage(apiMessage, appDataSource, useTrustedState)
     trustedData = ensureTrustedData()
@@ -2160,10 +2261,14 @@ export const executeAgentFlow = async ({
                 chatId,
                 chatMessage?.id,
                 sseStreamer,
-                abortController
+                abortScope.abortController
             )
         }
     }
 
     return result
+    } finally {
+        abortScope.cleanup()
+        await dbUpdateQueue.drain()
+    }
 }

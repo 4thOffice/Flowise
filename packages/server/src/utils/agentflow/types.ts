@@ -64,6 +64,15 @@ export type NodeInstanceFactory = (
     componentNodes: IComponentNodes
 ) => Promise<IAgentflowNodeInstance> | IAgentflowNodeInstance
 
+export type NodeErrorPolicy = 'abort' | 'skip-branch'
+
+export interface INodeErrorContext {
+    inFlightCount: number
+    queuedCount: number
+}
+
+export type NodeErrorPolicyHook = (node: INodeQueue, error: unknown, context: INodeErrorContext) => NodeErrorPolicy
+
 export interface IExecuteNodeParams {
     nodeId: string
     reactFlowNode: IReactFlowNode
@@ -110,6 +119,7 @@ export interface IExecuteNodeParams {
     zeroRetention: boolean
     nodeInstanceFactory?: NodeInstanceFactory
     maxNodeConcurrency?: number
+    enqueueDbUpdate?: <T>(task: () => Promise<T>) => Promise<T>
 }
 
 export interface IExecuteNodeResult {
@@ -126,4 +136,5 @@ export interface IExecuteAgentFlowParams extends Omit<IExecuteFlowParams, 'incom
     incomingInput: IncomingAgentflowInput
     nodeInstanceFactory?: NodeInstanceFactory
     maxNodeConcurrency?: number
+    onNodeError?: NodeErrorPolicyHook
 }

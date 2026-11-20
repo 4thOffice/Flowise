@@ -440,16 +440,13 @@ export class AgentflowDependencyEngine {
                         if (this.nodeIdSet.has(targetNodeId)) {
                             this.knownLoopTargets.set(record.nodeId, targetNodeId)
                             const targetReach = this.getForwardReach(targetNodeId)
-                            // Guard against a sibling loop that drained AFTER a STOPPED target in the prior run:
-                            // if the loop target subgraph includes a resumed STOPPED node with no later execution record,
-                            // skip replaying that un-taken loop reset over the resumed checkpoint.
-                            const overlapsPendingStoppedResume = Array.from(startingNodeSet).some(
-                                (startId) =>
-                                    targetReach.has(startId) &&
-                                    this.nodeState.get(startId) === 'STOPPED' &&
-                                    !executedData.slice(recordIdx + 1).some((later) => !later.data?.parentNodeId && later.nodeId === startId)
+                            // Guard against a sibling loop that drained AFTER any active STOPPED target in the prior run:
+                            // if the loop target subgraph currently has a STOPPED checkpoint at this replay point,
+                            // skip replaying that un-taken loop reset over it (consistent with live processNodeCompletion).
+                            const overlapsPendingStopped = Array.from(targetReach).some(
+                                (targetId) => this.nodeState.get(targetId) === 'STOPPED'
                             )
-                            if (!overlapsPendingStoppedResume) {
+                            if (!overlapsPendingStopped) {
                                 const loopCount = (this.replayLoopCounts.get(record.nodeId) || 0) + 1
                                 const maxLoop = resolveMaxLoopCount(loopOutput.maxLoopCount, MAX_LOOP_COUNT)
                                 if (loopCount < maxLoop) {
@@ -576,6 +573,37 @@ export class AgentflowDependencyEngine {
     }
 
     /**
+     * Marks a failed node as `SKIPPED` and settles its `PENDING` outgoing edges via DPE
+     * so downstream joins can finish when the `'skip-branch'` error policy is active.
+     */
+    markNodeSkipped(nodeId: string, nodeExecutionQueue?: INodeQueue[], epoch?: number): string[] {
+        if (epoch !== undefined && epoch !== this.getNodeEpoch(nodeId)) {
+            return []
+        }
+        if (!this.nodeIdSet.has(nodeId)) {
+            return []
+        }
+        this.nodeState.set(nodeId, 'SKIPPED')
+        const outgoing = this.outgoingEdges.get(nodeId) || []
+        const settlementItems: IEdgeSettlementItem[] = outgoing.map((item) => ({
+            edgeKey: item.key,
+            status: 'SKIPPED'
+        }))
+        const { newlyReadyNodeIds } = this.settleWorklist(settlementItems)
+        const releasedIds = this.releaseEligibleDeferredNodes()
+        const readyIds = [...newlyReadyNodeIds, ...releasedIds]
+        if (nodeExecutionQueue && readyIds.length > 0) {
+            for (const readyId of readyIds) {
+                if (this.nodeState.get(readyId) === 'READY') {
+                    nodeExecutionQueue.push(this.buildQueueEntry(readyId))
+                }
+            }
+            nodeExecutionQueue.sort((a, b) => this.compareQueueItems(a, b))
+        }
+        return readyIds
+    }
+
+    /**
      * Synchronously processes a finished node's outputs, settles outgoing edges with iterative DPE,
      * handles `loopAgentflow` forward-subgraph resets, and updates `nodeExecutionQueue` in place.
      */
@@ -628,40 +656,48 @@ export class AgentflowDependencyEngine {
                 logger.warn(`[agentflow]: loopAgentflow node "${nodeId}" requested jump to unknown target "${targetNodeId}"`)
             } else {
                 this.knownLoopTargets.set(nodeId, targetNodeId)
-                const loopCount = (loopCounts.get(nodeId) || 0) + 1
-                const maxLoop = resolveMaxLoopCount(result.output.maxLoopCount, MAX_LOOP_COUNT)
-
-                if (loopCount < maxLoop) {
-                    loopCounts.set(nodeId, loopCount)
-                    loopedToNodeId = targetNodeId
-
-                    const resetResult = this.resetLoopSubgraph(targetNodeId, result.output)
-                    resetNodes = resetResult.loopSubgraphNodes
-                    loopTargetEntry = resetResult.targetNodeEntry
-
-                    // Purge any queued items belonging to the reset loop subgraph from the previous iteration
-                    for (let i = nodeExecutionQueue.length - 1; i >= 0; i -= 1) {
-                        if (resetResult.loopSubgraphNodes.has(nodeExecutionQueue[i].nodeId)) {
-                            nodeExecutionQueue.splice(i, 1)
-                        }
-                    }
-
-                    if (loopTargetEntry) {
-                        nodeExecutionQueue.push(loopTargetEntry)
-                    }
-
-                    if (updatedHumanInput) {
-                        updatedHumanInput = undefined
-                    }
+                const targetReach = this.getForwardReach(targetNodeId)
+                const overlapsStoppedNode = Array.from(targetReach).some((id) => this.nodeState.get(id) === 'STOPPED')
+                if (overlapsStoppedNode) {
+                    logger.warn(
+                        `[agentflow]: Skipping loop reset from "${nodeId}" to "${targetNodeId}" because target subgraph contains an active STOPPED checkpoint`
+                    )
                 } else {
-                    loopHitMaxCount = true
-                    const resolvedFallback: string =
-                        result.output.fallbackMessage || `Loop completed after reaching maximum iteration count of ${maxLoop}.`
-                    fallbackMessage = resolvedFallback
-                    if (sseStreamer) {
-                        sseStreamer.streamTokenEvent(chatId, resolvedFallback)
+                    const loopCount = (loopCounts.get(nodeId) || 0) + 1
+                    const maxLoop = resolveMaxLoopCount(result.output.maxLoopCount, MAX_LOOP_COUNT)
+
+                    if (loopCount < maxLoop) {
+                        loopCounts.set(nodeId, loopCount)
+                        loopedToNodeId = targetNodeId
+
+                        const resetResult = this.resetLoopSubgraph(targetNodeId, result.output)
+                        resetNodes = resetResult.loopSubgraphNodes
+                        loopTargetEntry = resetResult.targetNodeEntry
+
+                        // Purge any queued items belonging to the reset loop subgraph from the previous iteration
+                        for (let i = nodeExecutionQueue.length - 1; i >= 0; i -= 1) {
+                            if (resetResult.loopSubgraphNodes.has(nodeExecutionQueue[i].nodeId)) {
+                                nodeExecutionQueue.splice(i, 1)
+                            }
+                        }
+
+                        if (loopTargetEntry) {
+                            nodeExecutionQueue.push(loopTargetEntry)
+                        }
+
+                        if (updatedHumanInput) {
+                            updatedHumanInput = undefined
+                        }
+                    } else {
+                        loopHitMaxCount = true
+                        const resolvedFallback: string =
+                            result.output.fallbackMessage || `Loop completed after reaching maximum iteration count of ${maxLoop}.`
+                        fallbackMessage = resolvedFallback
+                        if (sseStreamer) {
+                            sseStreamer.streamTokenEvent(chatId, resolvedFallback)
+                        }
+                        result.output = { ...result.output, content: resolvedFallback }
                     }
-                    result.output = { ...result.output, content: resolvedFallback }
                 }
             }
         }

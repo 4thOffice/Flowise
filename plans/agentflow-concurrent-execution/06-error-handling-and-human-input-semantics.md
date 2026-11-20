@@ -1,6 +1,6 @@
 # Task 06: Error Handling & Human-in-the-Loop (`STOPPED`) Semantics
 
-- **Status**: Pending (Ready to implement — Decision **D5** resolved)
+- **Status**: Done (Decision **D5** implemented & verified)
 - **Depends On**: [03-concurrent-scheduler-loop.md](./03-concurrent-scheduler-loop.md)
 - **Primary Files**:
   - `packages/server/src/utils/buildAgentflow.ts`
@@ -99,11 +99,11 @@ When any node returns `shouldStop: true`:
 4. Implement `packages/server/test/utils/buildAgentflow/faultAndHumanInput.test.ts`.
 
 ### Verification Matrix
-- [ ] **HumanInput + Companion Text Branch**: `Start -> [DirectReply("Review this"), HumanInput("Approve?")]`: both execute, `agentFlowEvent: 'STOPPED'` emits *only after* `DirectReply` finishes, final `apiMessage` has `content: "Review this"` AND `action: humanInputAction`, execution status is `'STOPPED'`.
-- [ ] **Resume after parallel `STOPPED`**: Resuming with `humanInput` executes downstream of `HumanInput` without re-running `DirectReply`, and `humanInputAction` lookup inside `executeNode` succeeds even when `DirectReply` completed after `HumanInput`.
-- [ ] **Multiple concurrent `STOPPED` nodes**: Logs warning, selects deterministic action via topological/canvas order, and preserves both `STOPPED` records for `startNodeId` resumption.
-- [ ] **Fail-fast Error Cancellation**: Branch A throws while Branch B is suspended waiting on `abortSignal`; Branch B receives abort immediately, scheduler waits for Branch B to settle before throwing Branch A's original error (not masked by `AbortError`), DB status is `'ERROR'`.
-- [ ] **External Abort (`callerSignal.abort()`)**: Cancels all in-flight nodes cleanly, sets status `'TERMINATED'`, and cleans up listener.
-- [ ] **Serialized `updateExecution`**: Rapid consecutive checkpoint updates execute in strict FIFO order without earlier snapshots overwriting later ones.
-- [ ] **Trusted state (`useTrustedState: true`)**: Preserves consistent `previousExecution` on both `ERROR` and `STOPPED`.
-- [ ] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.
+- [x] **HumanInput + Companion Text Branch**: `Start -> [DirectReply("Review this"), HumanInput("Approve?")]`: both execute, `agentFlowEvent: 'STOPPED'` emits *only after* `DirectReply` finishes, final `apiMessage` has `content: "Review this"` AND `action: humanInputAction`, execution status is `'STOPPED'`.
+- [x] **Resume after parallel `STOPPED`**: Resuming with `humanInput` executes downstream of `HumanInput` without re-running `DirectReply`, and `humanInputAction` lookup inside `executeNode` succeeds even when `DirectReply` completed after `HumanInput`.
+- [x] **Multiple concurrent `STOPPED` nodes**: Logs warning, selects deterministic action via topological/canvas order, and preserves both `STOPPED` records for `startNodeId` resumption.
+- [x] **Fail-fast Error Cancellation**: Branch A throws while Branch B is suspended waiting on `abortSignal`; Branch B receives abort immediately, scheduler waits for Branch B to settle before throwing Branch A's original error (not masked by `AbortError`), DB status is `'ERROR'`.
+- [x] **External Abort (`callerSignal.abort()`)**: Cancels all in-flight nodes cleanly, sets status `'TERMINATED'`, and cleans up listener.
+- [x] **Serialized `updateExecution`**: Rapid consecutive checkpoint updates execute in strict FIFO order without earlier snapshots overwriting later ones.
+- [x] **Trusted state (`useTrustedState: true`)**: Preserves consistent `previousExecution` on both `ERROR` and `STOPPED`.
+- [x] `pnpm --filter flowise build` and `pnpm --filter ./packages/server test` / `pnpm --filter ./packages/server test -- test/utils/buildAgentflow` pass.

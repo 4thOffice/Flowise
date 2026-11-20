@@ -35,7 +35,12 @@ export default async ({ executionId, workspaceId, data }: ExecutionUpdateParams)
 
     const updateExecution = new Execution()
     const bodyExecution: ICommonObject = {}
-    if (data && data.executionData) {
+    if (data && data.executionDataBlob) {
+        bodyExecution.executionDataBlob = Buffer.isBuffer(data.executionDataBlob)
+            ? data.executionDataBlob
+            : Buffer.from(data.executionDataBlob as Uint8Array)
+        bodyExecution.executionData = '[]'
+    } else if (data && data.executionData) {
         bodyExecution.executionDataBlob = await Compression.compress(data.executionData)
         bodyExecution.executionData = '[]'
     }

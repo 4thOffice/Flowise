@@ -78,7 +78,7 @@ flowchart LR
 | 03 | [03-concurrent-scheduler-loop.md](./03-concurrent-scheduler-loop.md) | Done | Yes (**D1**) | Event-driven concurrent execution loop with `inFlightTasks`, `p-limit`, and sync `processNodeOutputs`. |
 | 04 | [04-dag-joins-condition-pruning-and-loops.md](./04-dag-joins-condition-pruning-and-loops.md) | Done | Yes (**D2**) | Kahn's topological scheduling + 3-state Dead-Path Elimination, loop-body subgraph reset, and topological leveling. |
 | 05 | [05-multiple-terminal-nodes-and-streaming.md](./05-multiple-terminal-nodes-and-streaming.md) | Done | Yes (**D4**) | Support multiple terminal nodes via per-execution `StreamCoordinator` (`\n\n` consecutive streams), topological output resolution, and metadata aggregation. |
-| 06 | [06-error-handling-and-human-input-semantics.md](./06-error-handling-and-human-input-semantics.md) | Pending | Yes (**D5**) | Fail-fast child `AbortController` hook on error, non-interrupting `STOPPED` drain for companion text + buttons, and serialized DB persistence. |
+| 06 | [06-error-handling-and-human-input-semantics.md](./06-error-handling-and-human-input-semantics.md) | Done | Yes (**D5**) | Fail-fast child `AbortController` hook on error, non-interrupting `STOPPED` drain for companion text + buttons, and serialized DB persistence. |
 | 08 | [08-additive-canvas-ux-and-validation.md](./08-additive-canvas-ux-and-validation.md) | Pending | Yes (**D7**) | Backwards-compatible canvas execution wave/order overlay + concurrency-aware validation checks (`validation/index.ts`). |
 | 07 | [07-integration-testing-and-rollout.md](./07-integration-testing-and-rollout.md) | Pending | After 04–08 | Full end-to-end concurrency stress tests, DB/trusted-state/queue checks, `.env.example`, and rollout checklist. |
 

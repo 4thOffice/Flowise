@@ -2,7 +2,7 @@ import pLimit from 'p-limit'
 import { ICommonObject } from 'flowise-components'
 import { IAgentflowExecutedData } from '../../Interface'
 import logger from '../logger'
-import { INodeQueue } from './types'
+import { INodeErrorContext, INodeQueue, NodeErrorPolicy, NodeErrorPolicyHook } from './types'
 
 export const DEFAULT_MAX_NODE_CONCURRENCY = 10
 
@@ -39,7 +39,8 @@ export interface IConcurrentSchedulerOptions<TResult = any> {
     executeNodeTask: (node: INodeQueue) => Promise<TResult>
     onNodeComplete: (node: INodeQueue, result: TResult) => { shouldStop?: boolean } | void
     handleNodeStopped?: (node: INodeQueue, result: TResult) => void
-    handleNodeError: (node: INodeQueue, error: unknown) => void
+    onNodeError?: NodeErrorPolicyHook
+    handleNodeError: (node: INodeQueue, error: unknown, policy?: NodeErrorPolicy) => void
     onBeforeFirstLaunch?: () => void
     selectTerminalOutput?: () => any
 }
@@ -64,6 +65,7 @@ export async function runConcurrentNodeScheduler<TResult = any>({
     executeNodeTask,
     onNodeComplete,
     handleNodeStopped,
+    onNodeError,
     handleNodeError,
     onBeforeFirstLaunch,
     selectTerminalOutput
@@ -78,9 +80,10 @@ export async function runConcurrentNodeScheduler<TResult = any>({
     let maxObservedConcurrency = 0
     let hasNotifiedFirstLaunch = false
     let schedulerFatalError: Error | undefined
+    let stoppedByErrorPolicy = false
     let settled = false
 
-    const isSchedulingActive = () => !schedulerFatalError && canScheduleMore()
+    const isSchedulingActive = () => !schedulerFatalError && !stoppedByErrorPolicy && canScheduleMore()
 
     return new Promise<IConcurrentSchedulerResult>((resolve, reject) => {
         const finish = () => {
@@ -119,7 +122,18 @@ export async function runConcurrentNodeScheduler<TResult = any>({
             })
                 .catch((err) => {
                     try {
-                        handleNodeError(currentNode, err)
+                        let policy: NodeErrorPolicy = 'abort'
+                        if (onNodeError && isSchedulingActive()) {
+                            const context: INodeErrorContext = {
+                                inFlightCount: Math.max(0, inFlightTasks.size - 1),
+                                queuedCount: nodeExecutionQueue.length
+                            }
+                            policy = onNodeError(currentNode, err, context)
+                        }
+                        if (policy !== 'skip-branch') {
+                            stoppedByErrorPolicy = true
+                        }
+                        handleNodeError(currentNode, err, policy)
                     } catch (handlerError) {
                         if (!schedulerFatalError) {
                             schedulerFatalError = handlerError instanceof Error ? handlerError : new Error(String(handlerError))
