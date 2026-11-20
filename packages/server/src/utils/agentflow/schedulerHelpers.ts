@@ -34,6 +34,7 @@ export function getNodeInputConnections(edges: IReactFlowEdge[], nodeId: string)
 
 /**
  * Analyzes node dependencies and sets up expected inputs
+ * @deprecated Superseded by `dependencyEngine.ts` (Task 04); retained for Task 01/03 test compatibility until Task 07 cleanup.
  */
 export function setupNodeDependencies(nodeId: string, edges: IReactFlowEdge[], nodes: IReactFlowNode[]): IWaitingNode {
     logger.debug(`\n🔍 Analyzing dependencies for node: ${nodeId}`)
@@ -81,6 +82,7 @@ export function setupNodeDependencies(nodeId: string, edges: IReactFlowEdge[], n
 
 /**
  * Finds the parent condition node for a given node, if any
+ * @deprecated Superseded by `dependencyEngine.ts` (Task 04); retained for Task 01/03 test compatibility until Task 07 cleanup.
  */
 export function findConditionParent(nodeId: string, edges: IReactFlowEdge[], nodes: IReactFlowNode[]): string | null {
     const currentNode = nodes.find((n) => n.id === nodeId)
@@ -132,6 +134,7 @@ export function findConditionParent(nodeId: string, edges: IReactFlowEdge[], nod
 
 /**
  * Checks if a node has received all required inputs
+ * @deprecated Superseded by `dependencyEngine.ts` (Task 04); retained for Task 01/03 test compatibility until Task 07 cleanup.
  */
 export function hasReceivedRequiredInputs(waitingNode: IWaitingNode): boolean {
     logger.debug(`\n✨ Checking inputs for node: ${waitingNode.nodeId}`)
@@ -156,6 +159,7 @@ export function hasReceivedRequiredInputs(waitingNode: IWaitingNode): boolean {
 
 /**
  * Determines which nodes should be ignored based on condition results
+ * @deprecated Superseded by `dependencyEngine.ts` (Task 04); retained for Task 01/03 test compatibility until Task 07 cleanup.
  * @param currentNode - The node being processed
  * @param result - The execution result from the node
  * @param edges - All edges in the workflow
@@ -186,12 +190,14 @@ export function determineNodesToIgnore(
             )
             .filter((index: number) => index !== -1)
 
-        // Find nodes to ignore based on unfulfilled conditions
+        // Find all target nodes connected to unfulfilled condition handles (supports multi-edge fan-out)
         for (const index of unfulfilledIndexes) {
-            const ignoreEdge = edges.find((edge) => edge.source === nodeId && edge.sourceHandle === `${nodeId}-output-${index}`)
+            const ignoreEdges = edges.filter((edge) => edge.source === nodeId && edge.sourceHandle === `${nodeId}-output-${index}`)
 
-            if (ignoreEdge) {
-                ignoreNodeIds.push(ignoreEdge.target)
+            for (const ignoreEdge of ignoreEdges) {
+                if (!ignoreNodeIds.includes(ignoreEdge.target)) {
+                    ignoreNodeIds.push(ignoreEdge.target)
+                }
             }
         }
     }
@@ -201,6 +207,7 @@ export function determineNodesToIgnore(
 
 /**
  * Process node outputs and handle branching logic
+ * @deprecated Superseded by `dependencyEngine.ts` (Task 04); retained for Task 01/03 test compatibility until Task 07 cleanup.
  */
 export function processNodeOutputs({
     nodeId,

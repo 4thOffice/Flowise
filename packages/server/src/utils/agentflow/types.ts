@@ -29,6 +29,7 @@ export interface INodeQueue {
     nodeId: string
     data: any
     inputs: Record<string, any>
+    epoch?: number
 }
 
 export interface IProcessNodeOutputsParams {

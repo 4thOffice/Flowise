@@ -1,6 +1,6 @@
 # Task 04: DAG Join Readiness, Condition Pruning, & Loop Semantics
 
-- **Status**: Pending (Ready to implement — Decision **D2** resolved)
+- **Status**: Done (Decision **D2** implemented & verified)
 - **Depends On**: [03-concurrent-scheduler-loop.md](./03-concurrent-scheduler-loop.md)
 - **Primary Files**:
   - `packages/server/src/utils/agentflow/dependencyEngine.ts` (new)
@@ -157,13 +157,13 @@ Export pure graph analysis helpers in `dependencyEngine.ts` (reusable by Tasks 0
 3. Implement `packages/server/test/utils/buildAgentflow/dagSemantics.test.ts`.
 
 ### Verification Matrix
-- [ ] **Topology A**: Multi-hop skipped branch merging with parallel branch (no deadlock).
-- [ ] **Topology B**: Multi-parent merge node inside conditional branch (edge order independent).
-- [ ] **Topology C**: Condition with 0 fulfilled outputs (graceful completion via DPE) and 2 fulfilled outputs (join fires once with both inputs, not twice!).
-- [ ] **Multi-edge fan-out**: Decision node handle wired to 2 target nodes properly skips/activates *both* targets (regression test for `edges.find` -> `edges.filter`).
-- [ ] **Topology D**: Nested conditions (`Cond1 -> Cond2 -> [A, B]`, `Cond1 -> D`, all -> `Join`) under all 3 branch paths.
-- [ ] **Topology E**: `loopAgentflow` looping over a subgraph containing parallel branches and conditions, respecting `maxLoopCount`, without clearing external settled inputs.
-- [ ] Disconnected unused nodes on canvas do not block active joins.
-- [ ] Human-in-the-loop resume starting mid-graph (`startNodeId !== startAgentflow`) properly settles upstream edges already completed in `agentFlowExecutedData`.
-- [ ] `computeTopologicalLevels` assigns `max(parent) + 1` on diamond paths of unequal length (`A -> B -> C` and `A -> C` gives `level(C) === 2`).
-- [ ] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.
+- [x] **Topology A**: Multi-hop skipped branch merging with parallel branch (no deadlock).
+- [x] **Topology B**: Multi-parent merge node inside conditional branch (edge order independent).
+- [x] **Topology C**: Condition with 0 fulfilled outputs (graceful completion via DPE) and 2 fulfilled outputs (join fires once with both inputs, not twice!).
+- [x] **Multi-edge fan-out**: Decision node handle wired to 2 target nodes properly skips/activates *both* targets (regression test for `edges.find` -> `edges.filter`).
+- [x] **Topology D**: Nested conditions (`Cond1 -> Cond2 -> [A, B]`, `Cond1 -> D`, all -> `Join`) under all 3 branch paths.
+- [x] **Topology E**: `loopAgentflow` looping over a subgraph containing parallel branches and conditions, respecting `maxLoopCount`, without clearing external settled inputs.
+- [x] Disconnected unused nodes on canvas do not block active joins.
+- [x] Human-in-the-loop resume starting mid-graph (`startNodeId !== startAgentflow`) properly settles upstream edges already completed in `agentFlowExecutedData`.
+- [x] `computeTopologicalLevels` assigns `max(parent) + 1` on diamond paths of unequal length (`A -> B -> C` and `A -> C` gives `level(C) === 2`).
+- [x] `pnpm --filter flowise build` and `pnpm --filter flowise test -- test/utils/buildAgentflow` pass.

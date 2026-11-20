@@ -35,6 +35,7 @@ export interface IConcurrentSchedulerOptions<TResult = any> {
     maxIterations: number
     canScheduleMore: () => boolean
     shouldLaunchNode?: (node: INodeQueue) => boolean
+    compareQueuedNodes?: (a: INodeQueue, b: INodeQueue) => number
     executeNodeTask: (node: INodeQueue) => Promise<TResult>
     onNodeComplete: (node: INodeQueue, result: TResult) => { shouldStop?: boolean } | void
     handleNodeStopped?: (node: INodeQueue, result: TResult) => void
@@ -59,6 +60,7 @@ export async function runConcurrentNodeScheduler<TResult = any>({
     maxIterations,
     canScheduleMore,
     shouldLaunchNode,
+    compareQueuedNodes,
     executeNodeTask,
     onNodeComplete,
     handleNodeStopped,
@@ -138,6 +140,9 @@ export async function runConcurrentNodeScheduler<TResult = any>({
 
         const schedule = () => {
             try {
+                if (compareQueuedNodes && nodeExecutionQueue.length > 1) {
+                    nodeExecutionQueue.sort(compareQueuedNodes)
+                }
                 while (isSchedulingActive() && nodeExecutionQueue.length > 0 && inFlightTasks.size < effectiveConcurrency) {
                     const nextIndex = nodeExecutionQueue.findIndex((item) => !inFlightNodeIds.has(item.nodeId))
                     if (nextIndex === -1) {

@@ -61,12 +61,17 @@ import {
     IExecuteAgentFlowParams,
     IExecuteNodeParams,
     IExecuteNodeResult,
-    INodeQueue,
-    IWaitingNode
+    INodeQueue
 } from './agentflow/types'
-import { processNodeOutputs } from './agentflow/schedulerHelpers'
+import { createDependencyEngine } from './agentflow/dependencyEngine'
 import { defaultSelectTerminalOutput, getMaxNodeConcurrency, runConcurrentNodeScheduler } from './agentflow/scheduler'
-import { commitExecutedDataDelta, createNodeRuntimeSnapshot, reconcileRuntimeCommit } from './agentflow/stateReconciler'
+import {
+    applyStateDelta,
+    commitExecutedDataDelta,
+    computeStateDelta,
+    createNodeRuntimeSnapshot,
+    reconcileRuntimeCommit
+} from './agentflow/stateReconciler'
 
 function mapChatMessageToIMessage(message: IChatMessage): IMessage {
     const mappedMessage: any = {
@@ -747,8 +752,9 @@ const executeNode = async ({
             humanInputAction = lastNodeOutput?.humanInputAction
         }
 
-        // This is when human in the loop is resumed
-        if (humanInput && nodeId === humanInput.startNodeId) {
+        // This is when human in the loop is resumed (strictly scoped to the target startNodeId)
+        const isResumedHumanInputNode = Boolean(humanInput && nodeId === humanInput.startNodeId)
+        if (isResumedHumanInputNode && humanInput) {
             reactFlowNodeData.inputs = { ...reactFlowNodeData.inputs, humanInput }
             // Mark the stopped humanInput entry for removal when committing this node
             removedExecutedNodeIds.push(nodeId)
@@ -761,7 +767,7 @@ const executeNode = async ({
         // Check if this is the last node for streaming purpose
         const isLastNode =
             !isRecursive &&
-            (!graph[nodeId] || graph[nodeId].length === 0 || (!humanInput && reactFlowNode.data.name === 'humanInputAgentflow'))
+            (!graph[nodeId] || graph[nodeId].length === 0 || (!isResumedHumanInputNode && reactFlowNode.data.name === 'humanInputAgentflow'))
 
         if (incomingInput.question && incomingInput.form) {
             throw new Error('Question and form cannot be provided at the same time')
@@ -967,7 +973,7 @@ const executeNode = async ({
         }
 
         // Stop going through the current route if the node is a human task
-        if (!humanInput && reactFlowNode.data.name === 'humanInputAgentflow') {
+        if (!isResumedHumanInputNode && reactFlowNode.data.name === 'humanInputAgentflow') {
             const humanInputAction = {
                 id: uuidv4(),
                 mapping: {
@@ -1082,6 +1088,12 @@ const checkForMultipleStartNodes = (startingNodeIds: string[], isRecursive: bool
     }
 
     if (!isRecursive && startingNodeIds.length > 1) {
+        const startAgentflowIds = startingNodeIds.filter((id) => nodes.find((node) => node.id === id)?.data?.name === 'startAgentflow')
+        if (startAgentflowIds.length === 1) {
+            // Allow disconnected non-start nodes on canvas; dependencyEngine pre-marks them SKIPPED
+            startingNodeIds.splice(0, startingNodeIds.length, startAgentflowIds[0])
+            return
+        }
         throw new Error('Multiple starting nodes are not allowed')
     }
 }
@@ -1211,7 +1223,6 @@ export const executeAgentFlow = async ({
 
     // Initialize execution queue
     const nodeExecutionQueue: INodeQueue[] = []
-    const waitingNodes: Map<string, IWaitingNode> = new Map()
     const loopCounts: Map<string, number> = new Map()
 
     // Initialize runtime state for new execution
@@ -1461,14 +1472,22 @@ export const executeAgentFlow = async ({
         parentExecutionId = newExecution.id
     }
 
-    // Add starting nodes to queue
-    startingNodeIds.forEach((nodeId) => {
-        nodeExecutionQueue.push({
-            nodeId,
-            data: {},
-            inputs: {}
-        })
+    const isMidGraphResumption = Boolean(humanInput && !(isRecursive && iterationContext))
+    const dependencyEngine = createDependencyEngine({
+        nodes,
+        edges,
+        startingNodeIds,
+        executedData: isMidGraphResumption ? agentFlowExecutedData : undefined,
+        isResuming: isMidGraphResumption
     })
+
+    if (isMidGraphResumption) {
+        dependencyEngine.getReplayLoopCounts().forEach((count, loopNodeId) => {
+            loopCounts.set(loopNodeId, count)
+        })
+    }
+
+    nodeExecutionQueue.push(...dependencyEngine.getInitialQueue())
 
     const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
 
@@ -1565,9 +1584,13 @@ export const executeAgentFlow = async ({
                 }
             },
             shouldLaunchNode: (currentNode) => {
+                if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
+                    return false
+                }
                 const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
                 return Boolean(reactFlowNode && reactFlowNode.data.name !== 'stickyNoteAgentflow')
             },
+            compareQueuedNodes: (a, b) => dependencyEngine.compareQueueItems(a, b),
             executeNodeTask: async (currentNode) => {
                 const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
                 if (!reactFlowNode) {
@@ -1614,7 +1637,8 @@ export const executeAgentFlow = async ({
                     variableOverrides,
                     uploadedFilesContent,
                     fileUploads,
-                    humanInput: currentHumanInput,
+                    humanInput:
+                        currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId ? currentHumanInput : undefined,
                     agentFlowExecutedData: [...agentFlowExecutedData],
                     agentflowRuntime: nodeRuntimeSnapshot,
                     abortController,
@@ -1639,12 +1663,34 @@ export const executeAgentFlow = async ({
                 }
             },
             onNodeComplete: (currentNode, { executionResult, startStateSnapshot, reactFlowNode }) => {
-                // Update humanInput if it was cleared by the executed node
-                if (executionResult.humanInput !== currentHumanInput) {
-                    currentHumanInput = executionResult.humanInput
+                if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
+                    logger.debug(
+                        `[agentflow]: Ignoring stale completion from node ${currentNode.nodeId} (epoch ${currentNode.epoch} !== ${dependencyEngine.getNodeEpoch(currentNode.nodeId)})`
+                    )
+                    return { shouldStop: false }
+                }
+
+                // Only clear currentHumanInput when consumed by its target startNodeId (never resurrect from non-consuming siblings)
+                if (currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId && !executionResult.humanInput) {
+                    currentHumanInput = undefined
                 }
 
                 if (executionResult.shouldStop) {
+                    dependencyEngine.markNodeStopped(currentNode.nodeId, currentNode.epoch)
+                    if (
+                        executionResult.result?.state &&
+                        typeof executionResult.result.state === 'object' &&
+                        !Array.isArray(executionResult.result.state)
+                    ) {
+                        const stoppedDelta = computeStateDelta(startStateSnapshot, executionResult.result.state)
+                        agentflowRuntime.state = applyStateDelta(agentflowRuntime.state ?? {}, stoppedDelta)
+                    }
+                    if (executionResult.stoppedExecutedData?.data) {
+                        executionResult.stoppedExecutedData.data = {
+                            ...executionResult.stoppedExecutedData.data,
+                            state: cloneDeep(agentflowRuntime.state ?? {})
+                        }
+                    }
                     commitExecutedDataDelta(agentFlowExecutedData, {
                         removedNodeIds: executionResult.removedExecutedNodeIds,
                         additionalRecords: executionResult.additionalExecutedData,
@@ -1681,13 +1727,37 @@ export const executeAgentFlow = async ({
                 })
                 question = commitResult.question
 
+                if (status === 'INPROGRESS') {
+                    // Synchronously settle DAG edges, cascade DPE, and handle loop subgraph reset
+                    const processResult = dependencyEngine.processNodeCompletion({
+                        nodeId: currentNode.nodeId,
+                        nodeName: reactFlowNode.data.name,
+                        result: nodeResult,
+                        epoch: currentNode.epoch,
+                        humanInput: currentHumanInput,
+                        nodeExecutionQueue,
+                        loopCounts,
+                        sseStreamer,
+                        chatId
+                    })
+
+                    if (currentHumanInput && !processResult.humanInput) {
+                        currentHumanInput = undefined
+                    }
+                }
+
+                const committedNodeData =
+                    nodeResult && typeof nodeResult === 'object'
+                        ? { ...nodeResult, state: cloneDeep(agentflowRuntime.state ?? {}) }
+                        : nodeResult
+
                 commitExecutedDataDelta(agentFlowExecutedData, {
                     removedNodeIds: executionResult.removedExecutedNodeIds,
                     additionalRecords: executionResult.additionalExecutedData,
                     nodeRecord: {
                         nodeId: currentNode.nodeId,
                         nodeLabel: reactFlowNode.data.label,
-                        data: nodeResult,
+                        data: committedNodeData,
                         previousNodeIds: reversedGraph[currentNode.nodeId],
                         status: 'FINISHED'
                     }
@@ -1700,28 +1770,6 @@ export const executeAgentFlow = async ({
                 })
 
                 if (!isRecursive) sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-
-                if (status === 'INPROGRESS') {
-                    // Synchronously process node outputs and enqueue newly ready children
-                    const processResult = processNodeOutputs({
-                        nodeId: currentNode.nodeId,
-                        nodeName: reactFlowNode.data.name,
-                        result: nodeResult,
-                        humanInput: currentHumanInput,
-                        graph,
-                        nodes,
-                        edges,
-                        nodeExecutionQueue,
-                        waitingNodes,
-                        loopCounts,
-                        sseStreamer,
-                        chatId
-                    })
-
-                    if (processResult.humanInput !== currentHumanInput) {
-                        currentHumanInput = processResult.humanInput
-                    }
-                }
 
                 return { shouldStop: false }
             },
