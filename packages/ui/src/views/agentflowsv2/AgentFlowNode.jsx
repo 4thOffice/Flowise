@@ -11,6 +11,7 @@ import { ButtonGroup, Avatar, Box, Typography, IconButton, Tooltip } from '@mui/
 import MainCard from '@/ui-component/cards/MainCard'
 import { flowContext } from '@/store/context/ReactFlowContext'
 import NodeInfoDialog from '@/ui-component/dialog/NodeInfoDialog'
+import { ExecutionOrderContext } from './ExecutionOrderContext'
 
 // icons
 import {
@@ -54,7 +55,7 @@ const StyledNodeToolbar = styled(NodeToolbar)(({ theme }) => ({
 
 // ===========================|| CANVAS NODE ||=========================== //
 
-const AgentFlowNode = ({ data }) => {
+const AgentFlowNode = ({ id, data }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const canvas = useSelector((state) => state.canvas)
@@ -65,6 +66,8 @@ const AgentFlowNode = ({ data }) => {
     const [isHovered, setIsHovered] = useState(false)
     const [warningMessage, setWarningMessage] = useState('')
     const { deleteNode, duplicateNode } = useContext(flowContext)
+    const { showExecutionOrder, waveMap } = useContext(ExecutionOrderContext)
+    const waveInfo = showExecutionOrder ? waveMap?.[id ?? data?.id] : null
     const [showInfoDialog, setShowInfoDialog] = useState(false)
     const [infoDialogProps, setInfoDialogProps] = useState({})
 
@@ -175,7 +178,7 @@ const AgentFlowNode = ({ data }) => {
                 updateNodeInternals(data.id)
             }, 10)
         }
-    }, [data, ref, updateNodeInternals])
+    }, [data, ref, updateNodeInternals, waveInfo?.label])
 
     useEffect(() => {
         const nodeOutdatedMessage = (oldVersion, newVersion) =>
@@ -397,6 +400,56 @@ const AgentFlowNode = ({ data }) => {
                             >
                                 {data.label}
                             </Typography>
+
+                            {waveInfo && (
+                                <Tooltip title={waveInfo.tooltip} placement='bottom' arrow>
+                                    <Box
+                                        data-testid='execution-wave-badge'
+                                        sx={{
+                                            mt: 0.5,
+                                            px: 0.75,
+                                            py: 0.2,
+                                            borderRadius: '10px',
+                                            width: 'max-content',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            fontSize: '0.68rem',
+                                            fontWeight: 600,
+                                            lineHeight: 1.25,
+                                            whiteSpace: 'nowrap',
+                                            border: '1px solid',
+                                            ...(waveInfo.unreachable
+                                                ? {
+                                                      backgroundColor: alpha(
+                                                          theme.palette.warning.main,
+                                                          customization.isDarkMode ? 0.2 : 0.16
+                                                      ),
+                                                      borderColor: alpha(customization.isDarkMode ? '#fbbf24' : '#d97706', 0.45),
+                                                      color: customization.isDarkMode ? '#fcd34d' : '#92400e'
+                                                  }
+                                                : waveInfo.isParallel
+                                                ? {
+                                                      backgroundColor: alpha(
+                                                          customization.isDarkMode ? '#38bdf8' : '#0284c7',
+                                                          customization.isDarkMode ? 0.22 : 0.12
+                                                      ),
+                                                      borderColor: alpha(customization.isDarkMode ? '#38bdf8' : '#0284c7', 0.4),
+                                                      color: customization.isDarkMode ? '#7dd3fc' : '#0369a1'
+                                                  }
+                                                : {
+                                                      backgroundColor: alpha(
+                                                          customization.isDarkMode ? '#60a5fa' : '#2563eb',
+                                                          customization.isDarkMode ? 0.22 : 0.1
+                                                      ),
+                                                      borderColor: alpha(customization.isDarkMode ? '#60a5fa' : '#2563eb', 0.4),
+                                                      color: customization.isDarkMode ? '#bfdbfe' : '#1d4ed8'
+                                                  })
+                                        }}
+                                    >
+                                        {waveInfo.label}
+                                    </Box>
+                                </Tooltip>
+                            )}
 
                             {(() => {
                                 // Array of model configs to check and render
@@ -664,6 +717,7 @@ const AgentFlowNode = ({ data }) => {
 }
 
 AgentFlowNode.propTypes = {
+    id: PropTypes.string,
     data: PropTypes.object
 }
 

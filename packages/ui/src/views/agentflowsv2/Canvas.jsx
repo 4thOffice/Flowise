@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useContext } from 'react'
+import { useEffect, useRef, useState, useCallback, useContext, useMemo } from 'react'
 import ReactFlow, { addEdge, Controls, MiniMap, Background, useNodesState, useEdgesState } from 'reactflow'
 import 'reactflow/dist/style.css'
 import './index.css'
@@ -42,7 +42,16 @@ import useApi from '@/hooks/useApi'
 import useConfirm from '@/hooks/useConfirm'
 
 // icons
-import { IconX, IconRefreshAlert, IconMagnetFilled, IconMagnetOff, IconArtboard, IconArtboardOff } from '@tabler/icons-react'
+import {
+    IconX,
+    IconRefreshAlert,
+    IconMagnetFilled,
+    IconMagnetOff,
+    IconArtboard,
+    IconArtboardOff,
+    IconLayersIntersect,
+    IconLayersOff
+} from '@tabler/icons-react'
 
 // utils
 import {
@@ -53,11 +62,15 @@ import {
     updateOutdatedNodeEdge,
     isValidConnectionAgentflowV2
 } from '@/utils/genericHelper'
+import { computeExecutionWaveMap } from './executionOrder'
+import { ExecutionOrderContext } from './ExecutionOrderContext'
 import useNotifier from '@/utils/useNotifier'
 import { usePrompt } from '@/utils/usePrompt'
 
 // const
 import { FLOWISE_CREDENTIAL_ID, AGENTFLOW_ICONS } from '@/store/constant'
+
+const EXECUTION_ORDER_STORAGE_KEY = 'flowise_agentflow_show_execution_order'
 
 const nodeTypes = { agentFlow: CanvasNode, stickyNote: StickyNote, iteration: IterationNode }
 const edgeTypes = { agentFlow: AgentFlowEdge }
@@ -102,6 +115,14 @@ const AgentflowCanvas = () => {
     const [editNodeDialogProps, setEditNodeDialogProps] = useState({})
     const [isSnappingEnabled, setIsSnappingEnabled] = useState(false)
     const [isBackgroundEnabled, setIsBackgroundEnabled] = useState(true)
+    const [showExecutionOrder, setShowExecutionOrder] = useState(() => {
+        try {
+            const saved = localStorage.getItem(EXECUTION_ORDER_STORAGE_KEY)
+            return saved === null ? true : saved === 'true'
+        } catch {
+            return true
+        }
+    })
 
     const reactFlowWrapper = useRef(null)
 
@@ -639,6 +660,16 @@ const AgentflowCanvas = () => {
 
     const [chatPopupOpen, setChatPopupOpen] = useState(false)
 
+    const executionOrderContextValue = useMemo(() => {
+        if (!showExecutionOrder) {
+            return { showExecutionOrder: false, waveMap: {} }
+        }
+        return {
+            showExecutionOrder: true,
+            waveMap: computeExecutionWaveMap(nodes || [], edges || [])
+        }
+    }, [showExecutionOrder, nodes, edges])
+
     useEffect(() => {
         if (!chatflowId && !localStorage.getItem('duplicatedFlowData') && getNodesApi.data && nodes.length === 0) {
             const startNodeData = getNodesApi.data.find((node) => node.name === 'startAgentflow')
@@ -703,102 +734,127 @@ const AgentflowCanvas = () => {
                 <Box sx={{ pt: '70px', height: '100vh', width: '100%' }}>
                     <div className='reactflow-parent-wrapper'>
                         <div className='reactflow-wrapper' ref={reactFlowWrapper}>
-                            <ReactFlow
-                                nodes={nodes}
-                                edges={edges}
-                                onNodesChange={onNodesChange}
-                                onNodeClick={onNodeClick}
-                                onNodeDoubleClick={onNodeDoubleClick}
-                                onEdgesChange={onEdgesChange}
-                                onDrop={onDrop}
-                                onDragOver={onDragOver}
-                                onNodeDragStop={setDirty}
-                                nodeTypes={nodeTypes}
-                                edgeTypes={edgeTypes}
-                                onConnect={onConnect}
-                                onInit={setReactFlowInstance}
-                                fitView
-                                deleteKeyCode={canvas.canvasDialogShow ? null : ['Delete']}
-                                minZoom={0.5}
-                                snapGrid={[25, 25]}
-                                snapToGrid={isSnappingEnabled}
-                                connectionLineComponent={ConnectionLine}
-                            >
-                                <Controls
-                                    className={customization.isDarkMode ? 'dark-mode-controls' : ''}
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)'
-                                    }}
+                            <ExecutionOrderContext.Provider value={executionOrderContextValue}>
+                                <ReactFlow
+                                    nodes={nodes}
+                                    edges={edges}
+                                    onNodesChange={onNodesChange}
+                                    onNodeClick={onNodeClick}
+                                    onNodeDoubleClick={onNodeDoubleClick}
+                                    onEdgesChange={onEdgesChange}
+                                    onDrop={onDrop}
+                                    onDragOver={onDragOver}
+                                    onNodeDragStop={setDirty}
+                                    nodeTypes={nodeTypes}
+                                    edgeTypes={edgeTypes}
+                                    onConnect={onConnect}
+                                    onInit={setReactFlowInstance}
+                                    fitView
+                                    deleteKeyCode={canvas.canvasDialogShow ? null : ['Delete']}
+                                    minZoom={0.5}
+                                    snapGrid={[25, 25]}
+                                    snapToGrid={isSnappingEnabled}
+                                    connectionLineComponent={ConnectionLine}
                                 >
-                                    <button
-                                        className='react-flow__controls-button react-flow__controls-interactive'
-                                        onClick={() => {
-                                            setIsSnappingEnabled(!isSnappingEnabled)
+                                    <Controls
+                                        className={customization.isDarkMode ? 'dark-mode-controls' : ''}
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)'
                                         }}
-                                        title='toggle snapping'
-                                        aria-label='toggle snapping'
                                     >
-                                        {isSnappingEnabled ? <IconMagnetFilled /> : <IconMagnetOff />}
-                                    </button>
-                                    <button
-                                        className='react-flow__controls-button react-flow__controls-interactive'
-                                        onClick={() => {
-                                            setIsBackgroundEnabled(!isBackgroundEnabled)
+                                        <button
+                                            className='react-flow__controls-button react-flow__controls-interactive'
+                                            onClick={() => {
+                                                setIsSnappingEnabled(!isSnappingEnabled)
+                                            }}
+                                            title='toggle snapping'
+                                            aria-label='toggle snapping'
+                                        >
+                                            {isSnappingEnabled ? <IconMagnetFilled /> : <IconMagnetOff />}
+                                        </button>
+                                        <button
+                                            className='react-flow__controls-button react-flow__controls-interactive'
+                                            onClick={() => {
+                                                setIsBackgroundEnabled(!isBackgroundEnabled)
+                                            }}
+                                            title='toggle background'
+                                            aria-label='toggle background'
+                                        >
+                                            {isBackgroundEnabled ? <IconArtboard /> : <IconArtboardOff />}
+                                        </button>
+                                        <button
+                                            className='react-flow__controls-button react-flow__controls-interactive'
+                                            onClick={() => {
+                                                setShowExecutionOrder((prev) => {
+                                                    const next = !prev
+                                                    try {
+                                                        localStorage.setItem(EXECUTION_ORDER_STORAGE_KEY, String(next))
+                                                    } catch {
+                                                        // ignore storage errors
+                                                    }
+                                                    return next
+                                                })
+                                            }}
+                                            title={showExecutionOrder ? 'hide execution waves' : 'show execution waves'}
+                                            aria-label='toggle execution waves'
+                                            aria-pressed={showExecutionOrder}
+                                        >
+                                            {showExecutionOrder ? (
+                                                <IconLayersIntersect style={{ fill: 'none' }} />
+                                            ) : (
+                                                <IconLayersOff style={{ fill: 'none' }} />
+                                            )}
+                                        </button>
+                                    </Controls>
+                                    <MiniMap
+                                        nodeStrokeWidth={3}
+                                        nodeColor={customization.isDarkMode ? '#2d2d2d' : '#e2e2e2'}
+                                        nodeStrokeColor={customization.isDarkMode ? '#525252' : '#fff'}
+                                        maskColor={customization.isDarkMode ? 'rgb(45, 45, 45, 0.6)' : 'rgb(240, 240, 240, 0.6)'}
+                                        style={{
+                                            backgroundColor: customization.isDarkMode ? theme.palette.background.default : '#fff'
                                         }}
-                                        title='toggle background'
-                                        aria-label='toggle background'
-                                    >
-                                        {isBackgroundEnabled ? <IconArtboard /> : <IconArtboardOff />}
-                                    </button>
-                                </Controls>
-                                <MiniMap
-                                    nodeStrokeWidth={3}
-                                    nodeColor={customization.isDarkMode ? '#2d2d2d' : '#e2e2e2'}
-                                    nodeStrokeColor={customization.isDarkMode ? '#525252' : '#fff'}
-                                    maskColor={customization.isDarkMode ? 'rgb(45, 45, 45, 0.6)' : 'rgb(240, 240, 240, 0.6)'}
-                                    style={{
-                                        backgroundColor: customization.isDarkMode ? theme.palette.background.default : '#fff'
-                                    }}
-                                />
-                                {isBackgroundEnabled && <Background color='#aaa' gap={16} />}
-                                <AddNodes
-                                    isAgentCanvas={true}
-                                    isAgentflowv2={true}
-                                    nodesData={getNodesApi.data}
-                                    node={selectedNode}
-                                    onFlowGenerated={triggerConfetti}
-                                />
-                                <EditNodeDialog
-                                    show={editNodeDialogOpen}
-                                    dialogProps={editNodeDialogProps}
-                                    onCancel={() => setEditNodeDialogOpen(false)}
-                                />
-                                {isSyncNodesButtonEnabled && (
-                                    <Fab
-                                        sx={{
-                                            left: 60,
-                                            top: 20,
-                                            color: 'white',
-                                            background: 'orange',
-                                            '&:hover': {
+                                    />
+                                    {isBackgroundEnabled && <Background color='#aaa' gap={16} />}
+                                    <AddNodes
+                                        isAgentCanvas={true}
+                                        isAgentflowv2={true}
+                                        nodesData={getNodesApi.data}
+                                        node={selectedNode}
+                                        onFlowGenerated={triggerConfetti}
+                                    />
+                                    <EditNodeDialog
+                                        show={editNodeDialogOpen}
+                                        dialogProps={editNodeDialogProps}
+                                        onCancel={() => setEditNodeDialogOpen(false)}
+                                    />
+                                    {isSyncNodesButtonEnabled && (
+                                        <Fab
+                                            sx={{
+                                                left: 60,
+                                                top: 20,
+                                                color: 'white',
                                                 background: 'orange',
-                                                backgroundImage: `linear-gradient(rgb(0 0 0/10%) 0 0)`
-                                            }
-                                        }}
-                                        size='small'
-                                        aria-label='sync'
-                                        title='Sync Nodes'
-                                        onClick={() => syncNodes()}
-                                    >
-                                        <IconRefreshAlert />
-                                    </Fab>
-                                )}
-                                <ChatPopUp isAgentCanvas={true} chatflowid={chatflowId} onOpenChange={setChatPopupOpen} />
-                                {!chatPopupOpen && <ValidationPopUp isAgentCanvas={true} chatflowid={chatflowId} />}
-                            </ReactFlow>
+                                                '&:hover': {
+                                                    background: 'orange',
+                                                    backgroundImage: `linear-gradient(rgb(0 0 0/10%) 0 0)`
+                                                }
+                                            }}
+                                            size='small'
+                                            aria-label='sync'
+                                            title='Sync Nodes'
+                                            onClick={() => syncNodes()}
+                                        >
+                                            <IconRefreshAlert />
+                                        </Fab>
+                                    )}
+                                    <ChatPopUp isAgentCanvas={true} chatflowid={chatflowId} onOpenChange={setChatPopupOpen} />
+                                    {!chatPopupOpen && <ValidationPopUp isAgentCanvas={true} chatflowid={chatflowId} />}
+                                </ReactFlow>
+                            </ExecutionOrderContext.Provider>
                         </div>
                     </div>
                 </Box>

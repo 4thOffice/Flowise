@@ -5,13 +5,9 @@ import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { ChatFlow } from '../../database/entities/ChatFlow'
 import { INodeParams } from 'flowise-components'
 import { IReactFlowEdge, IReactFlowNode } from '../../Interface'
+import { IValidationResult, validateAgentflowConcurrency } from './agentflowConcurrencyValidation'
 
-interface IValidationResult {
-    id: string
-    label: string
-    name: string
-    issues: string[]
-}
+export { IValidationResult }
 
 const checkFlowValidation = async (flowId: string, workspaceId?: string): Promise<IValidationResult[]> => {
     try {
@@ -32,11 +28,11 @@ const checkFlowValidation = async (flowId: string, workspaceId?: string): Promis
         }
 
         const flowData = JSON.parse(flow.flowData)
-        const nodes = flowData.nodes
-        const edges = flowData.edges
+        const nodes = Array.isArray(flowData?.nodes) ? flowData.nodes : []
+        const edges = Array.isArray(flowData?.edges) ? flowData.edges : []
 
         // Store validation results
-        const validationResults = []
+        const validationResults: IValidationResult[] = []
 
         // Create a map of connected nodes
         const connectedNodes = new Set<string>()
@@ -310,6 +306,22 @@ const checkFlowValidation = async (flowId: string, workspaceId?: string): Promis
                         name: 'edge',
                         issues: ['Disconnected edge - both source and target nodes do not exist']
                     })
+                }
+            }
+        }
+
+        if (flow.type === 'AGENTFLOW') {
+            const concurrencyResults = validateAgentflowConcurrency(nodes, edges)
+            for (const item of concurrencyResults) {
+                const existingResult = validationResults.find((result) => result.id === item.id)
+                if (existingResult) {
+                    for (const issue of item.issues) {
+                        if (!existingResult.issues.includes(issue)) {
+                            existingResult.issues.push(issue)
+                        }
+                    }
+                } else {
+                    validationResults.push(item)
                 }
             }
         }

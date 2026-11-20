@@ -1,15 +1,17 @@
 # Task 08: Additive Canvas UX & Concurrency Validation
 
-- **Status**: Pending (Ready to implement — Decision **D7** resolved)
+- **Status**: Done (Decision **D7** implemented & verified)
 - **Depends On**:
   - [04-dag-joins-condition-pruning-and-loops.md](./04-dag-joins-condition-pruning-and-loops.md)
   - [00b-baseline-flows-and-traces.md](./00b-baseline-flows-and-traces.md) (optional visual reference for before/after screenshots)
 - **Primary Files**:
   - `packages/server/src/services/validation/index.ts`
+  - `packages/server/src/services/validation/agentflowConcurrencyValidation.ts` (new)
   - `packages/ui/src/views/agentflowsv2/executionOrder.js` (new)
+  - `packages/ui/src/views/agentflowsv2/ExecutionOrderContext.js` (new)
   - `packages/ui/src/views/agentflowsv2/AgentFlowNode.jsx`
   - `packages/ui/src/views/agentflowsv2/Canvas.jsx`
-  - `packages/ui/src/views/chatmessage/ValidationPopUp.jsx` (verify rendering only; likely no changes needed)
+  - `packages/ui/src/views/chatmessage/ValidationPopUp.jsx` (verified rendering; zero changes needed)
   - `packages/server/test/utils/buildAgentflow/validation.test.ts` (new)
 
 ---
@@ -106,12 +108,12 @@ Scope concurrency checks to Agentflow V2 (`flow.type === 'AGENTFLOW'`, ignoring 
 
 ## 6. Acceptance Criteria & Verification
 
-- [ ] `executionOrder.js` computes identical topological levels and deterministic wave sorting as `dependencyEngine.ts` (`computeTopologicalLevels`).
-- [ ] `Canvas.jsx` + `AgentFlowNode.jsx` display toggleable wave badges (`Step 1`, `Step 2.1 (Parallel)`, `Step 2.2 (Parallel)`) cleanly without overlapping status icons or triggering unsaved changes.
-- [ ] `checkFlowValidation` detects:
+- [x] `executionOrder.js` computes identical topological levels and deterministic wave sorting as `dependencyEngine.ts` (`computeTopologicalLevels`).
+- [x] `Canvas.jsx` + `AgentFlowNode.jsx` display toggleable wave badges (`Step 1`, `Step 2.1 (Parallel)`, `Step 2.2 (Parallel)`) cleanly without overlapping status icons or triggering unsaved changes.
+- [x] `checkFlowValidation` detects:
   - Unlinked `{{nodeId}}` / `{{nodeId.output...}}` references to non-ancestor nodes.
   - Concurrent writes to the same top-level `state` key across unordered sibling branches (while staying silent on ordered `A -> B` writes).
   - Multiple terminal nodes notice.
-- [ ] `packages/server/test/utils/buildAgentflow/validation.test.ts` passes.
-- [ ] Full workspace build (`pnpm build`) and server tests (`pnpm --filter flowise test`) succeed.
-- [ ] Post-change canvas wave-badge and validation-checklist screenshots saved to `plans/agentflow-concurrent-execution/baselines/screenshots/after/` matching the `screenshots/before/` baseline set.
+- [x] `packages/server/test/utils/buildAgentflow/validation.test.ts` passes.
+- [x] Full workspace build (`pnpm build`) and server tests (`pnpm --filter ./packages/server test`) succeed.
+- [x] Post-change canvas wave-badge and validation-checklist screenshots saved to `plans/agentflow-concurrent-execution/baselines/screenshots/after/` matching the `screenshots/before/` baseline set.
