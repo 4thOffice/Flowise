@@ -46,6 +46,7 @@ class ChatOpenAI_ChatModels implements INode {
                 name: 'modelName',
                 type: 'asyncOptions',
                 loadMethod: 'listModels',
+                freeSolo: true,
                 default: 'gpt-4o-mini'
             },
             {
@@ -265,9 +266,9 @@ class ChatOpenAI_ChatModels implements INode {
         const streaming = nodeData.inputs?.streaming as boolean
         const strictToolCalling = nodeData.inputs?.strictToolCalling as boolean
         const dontSetStoreParam = nodeData.inputs?.dontSetStoreParam as boolean
-        const basePath = nodeData.inputs?.basepath as string
         const proxyUrl = nodeData.inputs?.proxyUrl as string
         const baseOptions = nodeData.inputs?.baseOptions
+        const reasoningEnabled = nodeData.inputs?.reasoning as boolean
         const reasoningEffort = nodeData.inputs?.reasoningEffort as OpenAIClient.ReasoningEffort | null
         const reasoningSummary = nodeData.inputs?.reasoningSummary as 'auto' | 'concise' | 'detailed' | null
 
@@ -279,6 +280,7 @@ class ChatOpenAI_ChatModels implements INode {
         }
         const credentialData = await getCredentialData(nodeData.credential ?? '', options)
         const openAIApiKey = getCredentialParam('openAIApiKey', credentialData, nodeData)
+        const basePath = (nodeData.inputs?.basepath as string) || getCredentialParam('openAIBaseUrl', credentialData, nodeData)
 
         const cache = nodeData.inputs?.cache as BaseCache
 
@@ -307,7 +309,8 @@ class ChatOpenAI_ChatModels implements INode {
             obj.modelKwargs["store"] = false
         }
 
-        if (modelName.includes('o1') || modelName.includes('o3') || modelName.includes('gpt-5')) {
+        // A custom deployment name says nothing about the model behind it, so the Reasoning toggle has to count too
+        if (reasoningEnabled || modelName.includes('o1') || modelName.includes('o3') || modelName.includes('gpt-5')) {
             delete obj.temperature
             delete obj.stop
             const reasoning: OpenAIClient.Reasoning = {}

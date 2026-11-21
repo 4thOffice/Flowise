@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, Fragment } from 'react'
+import { useState, useEffect, useContext, useRef, Fragment } from 'react'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import axios from 'axios'
@@ -97,6 +97,23 @@ export const AsyncDropdown = ({
     let [internalValue, setInternalValue] = useState(value ?? 'choose an option')
     const { reactFlowInstance } = useContext(flowContext)
 
+    const editedText = useRef(null)
+    const allowTypedValue = freeSolo && !multiple
+    const typedValue = allowTypedValue && typeof internalValue === 'string' && internalValue !== 'choose an option' ? internalValue : ''
+    const selectValue = (value) => {
+        editedText.current = null
+        setInternalValue(value)
+        onSelect(value)
+    }
+    const toOptionName = (text) => {
+        const trimmed = text.trim()
+        // Options can share a label, so text that still names the current selection must not resolve to an earlier one
+        const selected = findMatchingOptions(options, internalValue)
+        if (selected?.label === trimmed) return selected.name
+        const match = options.find((option) => option.name === trimmed || option.label === trimmed)
+        return match ? match.name : trimmed
+    }
+
     const fetchCredentialList = async () => {
         try {
             let names = ''
@@ -180,6 +197,7 @@ export const AsyncDropdown = ({
             <Autocomplete
                 id={name}
                 freeSolo={freeSolo}
+                forcePopupIcon
                 disabled={disabled}
                 disableClearable={disableClearable}
                 multiple={multiple}
@@ -194,7 +212,15 @@ export const AsyncDropdown = ({
                     setOpen(false)
                 }}
                 options={options}
-                value={findMatchingOptions(options, internalValue) || getDefaultOptionValue()}
+                value={findMatchingOptions(options, internalValue) || typedValue || getDefaultOptionValue()}
+                onInputChange={(e, text, reason) => {
+                    editedText.current = reason === 'input' ? text : null
+                }}
+                onBlur={() => {
+                    if (!allowTypedValue || editedText.current === null) return
+                    const value = toOptionName(editedText.current)
+                    if (value !== typedValue) selectValue(value)
+                }}
                 onChange={(e, selection) => {
                     if (multiple) {
                         let value = ''
@@ -202,15 +228,13 @@ export const AsyncDropdown = ({
                             const selectionNames = selection.map((item) => item.name)
                             value = JSON.stringify(selectionNames)
                         }
-                        setInternalValue(value)
-                        onSelect(value)
+                        selectValue(value)
                     } else {
-                        const value = selection ? selection.name : ''
+                        const value = typeof selection === 'string' ? toOptionName(selection) : selection?.name ?? ''
                         if (isCreateNewOption && value === '-create-') {
                             onCreateNew()
                         } else {
-                            setInternalValue(value)
-                            onSelect(value)
+                            selectValue(value)
                         }
                     }
                 }}
