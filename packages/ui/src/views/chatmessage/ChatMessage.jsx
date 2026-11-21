@@ -280,6 +280,9 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     const isTTSActionRef = useRef(false)
     const ttsTimeoutRef = useRef(null)
 
+    // Server-encrypted conversation state; for clientState/zero-retention flows it is the only copy of history and the previous execution
+    const trustedStateRef = useRef(null)
+
     const isFileAllowedForUpload = (file) => {
         const constraints = getAllowChatFlowUploads.data
         /**
@@ -1009,6 +1012,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
             if (leadEmail) params.leadEmail = leadEmail
             if (action) params.action = action
             if (humanInput) params.humanInput = humanInput
+            if (trustedStateRef.current) params.trustedState = trustedStateRef.current
 
             if (isChatFlowAvailableToStream) {
                 fetchResponseFromEventStream(chatflowid, params)
@@ -1105,6 +1109,9 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                         break
                     case 'agentFlowExecutedData':
                         updateAgentFlowExecutedData(payload.data)
+                        break
+                    case 'trustedStateData':
+                        trustedStateRef.current = payload.data
                         break
                     case 'artifacts':
                         updateLastMessageArtifacts(payload.data)
@@ -1504,6 +1511,8 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
         }
 
         return () => {
+            // Visible history is dropped here, so the server-side context must go with it (also covers Clear Chat)
+            trustedStateRef.current = null
             setUserInput('')
             setUploadedFiles([])
             setLoading(false)
