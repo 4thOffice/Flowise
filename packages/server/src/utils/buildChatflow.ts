@@ -69,6 +69,7 @@ import { FLOWISE_METRIC_COUNTERS, FLOWISE_COUNTER_STATUS, IMetricsProvider } fro
 import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
 import { OMIT_QUEUE_JOB_DATA } from './constants'
 import { executeAgentFlow } from './buildAgentflow'
+import { resolveFlowRedirect } from './flowRedirect'
 import { Workspace } from '../enterprise/database/entities/workspace.entity'
 import { Organization } from '../enterprise/database/entities/organization.entity'
 
@@ -982,35 +983,23 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
     const chatflowid = req.params.id
 
     // Check if chatflow exists
-    const chatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
+    const requestedChatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
         id: chatflowid
     })
-    if (!chatflow) {
+    if (!requestedChatflow) {
         throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowid} not found`)
     }
+    let chatflow: ChatFlow = requestedChatflow
 
-    const isAgentFlow = chatflow.type === 'MULTIAGENT'
     const httpProtocol = req.get('x-forwarded-proto') || req.protocol
     const baseURL = `${httpProtocol}://${req.get('host')}`
     const incomingInput: IncomingInput = req.body || {} // Ensure incomingInput is never undefined
     const chatId = incomingInput.chatId ?? incomingInput.overrideConfig?.sessionId ?? uuidv4()
     const files = (req.files as Express.Multer.File[]) || []
-    const abortControllerId = `${chatflow.id}_${chatId}`
     const isTool = req.get('flowise-tool') === 'true'
     const isEvaluation: boolean = req.headers['X-Flowise-Evaluation'] || req.body.evaluation
     let evaluationRunId = ''
     evaluationRunId = req.body.evaluationRunId
-    if (isEvaluation && chatflow.type !== 'AGENTFLOW' && req.body.evaluationRunId) {
-        // this is needed for the collection of token metrics for non-agent flows,
-        // for agentflows the execution trace has the info needed
-        const newEval = {
-            evaluation: {
-                status: true,
-                evaluationRunId
-            }
-        }
-        chatflow.analytic = JSON.stringify(newEval)
-    }
 
     let organizationId = ''
 
@@ -1021,6 +1010,21 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             if (!isKeyValidated) {
                 throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, `Unauthorized`)
             }
+        }
+
+        chatflow = await resolveFlowRedirect(chatflow, appServer.AppDataSource)
+        const isAgentFlow = chatflow.type === 'MULTIAGENT'
+        const abortControllerId = `${chatflow.id}_${chatId}`
+        if (isEvaluation && chatflow.type !== 'AGENTFLOW' && req.body.evaluationRunId) {
+            // this is needed for the collection of token metrics for non-agent flows,
+            // for agentflows the execution trace has the info needed
+            const newEval = {
+                evaluation: {
+                    status: true,
+                    evaluationRunId
+                }
+            }
+            chatflow.analytic = JSON.stringify(newEval)
         }
 
         // This can be public API, so we can only get orgId from the chatflow
@@ -1099,7 +1103,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
     } catch (e) {
         logger.error(`[server]:${organizationId}/${chatflow.id}/${chatId} Error:`, e)
         appServer.abortControllerPool.remove(`${chatflow.id}_${chatId}`)
-        incrementFailedMetricCounter(appServer.metricsProvider, isInternal, isAgentFlow)
+        incrementFailedMetricCounter(appServer.metricsProvider, isInternal, chatflow.type === 'MULTIAGENT')
         if (e instanceof InternalFlowiseError && e.statusCode === StatusCodes.UNAUTHORIZED) {
             throw e
         } else {

@@ -1,6 +1,7 @@
 import { removeFilesFromStorage } from 'flowise-components'
 import { StatusCodes } from 'http-status-codes'
 import { DeleteResult, FindOptionsWhere, In } from 'typeorm'
+import { ChatFlow } from '../../database/entities/ChatFlow'
 import { ChatMessage } from '../../database/entities/ChatMessage'
 import { ChatMessageFeedback } from '../../database/entities/ChatMessageFeedback'
 import { InternalFlowiseError } from '../../errors/internalFlowiseError'
@@ -8,6 +9,7 @@ import { getErrorMessage } from '../../errors/utils'
 import { ChatMessageRatingType, ChatType, IChatMessage, MODE } from '../../Interface'
 import { UsageCacheManager } from '../../UsageCacheManager'
 import { utilAddChatMessage } from '../../utils/addChatMesage'
+import { resolveFlowRedirect } from '../../utils/flowRedirect'
 import { utilGetChatMessage } from '../../utils/getChatMessage'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { updateStorageUsage } from '../../utils/quotaUsage'
@@ -190,7 +192,9 @@ const removeChatMessagesByMessageIds = async (
 const abortChatMessage = async (chatId: string, chatflowid: string) => {
     try {
         const appServer = getRunningExpressApp()
-        const id = `${chatflowid}_${chatId}`
+        const chatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({ id: chatflowid })
+        const resolvedChatflowId = chatflow ? (await resolveFlowRedirect(chatflow, appServer.AppDataSource)).id : chatflowid
+        const id = `${resolvedChatflowId}_${chatId}`
 
         if (process.env.MODE === MODE.QUEUE) {
             await appServer.queueManager.getPredictionQueueEventsProducer().publishEvent({

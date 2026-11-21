@@ -1,17 +1,8 @@
-import {
-    ICommonObject,
-    IDatabaseEntity,
-    INode,
-    INodeData,
-    INodeOptionsValue,
-    INodeParams,
-    IServerSideEventStreamer
-} from '../../../src/Interface'
+import { ICommonObject, INode, INodeData, INodeOptionsValue, INodeParams, IServerSideEventStreamer } from '../../../src/Interface'
 import axios, { AxiosRequestConfig } from 'axios'
 import { getCredentialData, getCredentialParam, processTemplateVariables, parseJsonBody } from '../../../src/utils'
-import { DataSource } from 'typeorm'
 import { BaseMessageLike } from '@langchain/core/messages'
-import { updateFlowState } from '../utils'
+import { listFlows, updateFlowState } from '../utils'
 
 const deepMerge = (target: Record<string, any>, source: Record<string, any>): Record<string, any> => {
     const result = { ...target }
@@ -160,34 +151,7 @@ class ExecuteFlow_Agentflow implements INode {
     //@ts-ignore
     loadMethods = {
         async listFlows(_: INodeData, options: ICommonObject): Promise<INodeOptionsValue[]> {
-            const returnData: INodeOptionsValue[] = []
-
-            const appDataSource = options.appDataSource as DataSource
-            const databaseEntities = options.databaseEntities as IDatabaseEntity
-            if (appDataSource === undefined || !appDataSource) {
-                return returnData
-            }
-
-            const searchOptions = options.searchOptions || {}
-            const chatflows = await appDataSource.getRepository(databaseEntities['ChatFlow']).findBy(searchOptions)
-
-            for (let i = 0; i < chatflows.length; i += 1) {
-                let cfType = 'Chatflow'
-                if (chatflows[i].type === 'AGENTFLOW') {
-                    cfType = 'Agentflow V2'
-                } else if (chatflows[i].type === 'MULTIAGENT') {
-                    cfType = 'Agentflow V1'
-                }
-                const data = {
-                    label: chatflows[i].name,
-                    name: chatflows[i].id,
-                    description: cfType
-                } as INodeOptionsValue
-                returnData.push(data)
-            }
-
-            // order by label
-            return returnData.sort((a, b) => a.label.localeCompare(b.label))
+            return listFlows(options)
         },
         async listRuntimeStateKeys(_: INodeData, options: ICommonObject): Promise<INodeOptionsValue[]> {
             const previousNodes = options.previousNodes as ICommonObject[]

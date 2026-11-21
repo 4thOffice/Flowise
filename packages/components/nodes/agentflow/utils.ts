@@ -1,7 +1,8 @@
 import { BaseMessage, MessageContentImageUrl, AIMessageChunk } from '@langchain/core/messages'
 import { getImageUploads } from '../../src/multiModalUtils'
 import { addSingleFileToStorage, getFileFromStorage } from '../../src/storageUtils'
-import { ICommonObject, IFileUpload, INodeData } from '../../src/Interface'
+import { ICommonObject, IDatabaseEntity, IFileUpload, INodeData, INodeOptionsValue } from '../../src/Interface'
+import { DataSource } from 'typeorm'
 import { BaseMessageLike } from '@langchain/core/messages'
 import { IFlowState } from './Interface.Agentflow'
 import { getCredentialData, getCredentialParam, handleEscapeCharacters, mapMimeTypeToInputField } from '../../src/utils'
@@ -904,4 +905,35 @@ export const updateFlowState = (state: ICommonObject, updateState: IFlowState[])
         ...state,
         ...newFlowState
     }
+}
+
+export const listFlows = async (options: ICommonObject): Promise<INodeOptionsValue[]> => {
+    const returnData: INodeOptionsValue[] = []
+
+    const appDataSource = options.appDataSource as DataSource
+    const databaseEntities = options.databaseEntities as IDatabaseEntity
+    if (appDataSource === undefined || !appDataSource) {
+        return returnData
+    }
+
+    const searchOptions = options.searchOptions || {}
+    const chatflows = await appDataSource.getRepository(databaseEntities['ChatFlow']).findBy(searchOptions)
+
+    for (let i = 0; i < chatflows.length; i += 1) {
+        let cfType = 'Chatflow'
+        if (chatflows[i].type === 'AGENTFLOW') {
+            cfType = 'Agentflow V2'
+        } else if (chatflows[i].type === 'MULTIAGENT') {
+            cfType = 'Agentflow V1'
+        }
+        const data = {
+            label: chatflows[i].name,
+            name: chatflows[i].id,
+            description: cfType
+        } as INodeOptionsValue
+        returnData.push(data)
+    }
+
+    // order by label
+    return returnData.sort((a, b) => a.label.localeCompare(b.label))
 }

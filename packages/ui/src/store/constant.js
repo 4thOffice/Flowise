@@ -14,7 +14,8 @@ import {
     IconNote,
     IconWorld,
     IconRelationOneToManyFilled,
-    IconVectorBezier2
+    IconVectorBezier2,
+    IconArrowForwardUp
 } from '@tabler/icons-react'
 
 export const gridSpacing = 3
@@ -112,5 +113,10 @@ export const AGENTFLOW_ICONS = [
         name: 'executeFlowAgentflow',
         icon: IconVectorBezier2,
         color: '#a3b18a'
+    },
+    {
+        name: 'redirectFlowAgentflow',
+        icon: IconArrowForwardUp,
+        color: '#5FA8D3'
     }
 ]

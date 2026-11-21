@@ -15,6 +15,7 @@ import { getErrorMessage } from '../../errors/utils'
 import documentStoreService from '../../services/documentstore'
 import { constructGraphs, getAppVersion, getEndingNodes, getTelemetryFlowObj, isFlowValidForStream } from '../../utils'
 import { containsBase64File, updateFlowDataWithFilePaths } from '../../utils/fileRepository'
+import { resolveFlowRedirect } from '../../utils/flowRedirect'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { utilGetUploadsConfig } from '../../utils/getUploadsConfig'
 import logger from '../../utils/logger'
@@ -34,12 +35,13 @@ const checkIfChatflowIsValidForStreaming = async (chatflowId: string): Promise<a
     try {
         const appServer = getRunningExpressApp()
         //**
-        const chatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
+        const requestedChatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
             id: chatflowId
         })
-        if (!chatflow) {
+        if (!requestedChatflow) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowId} not found`)
         }
+        const chatflow = await resolveFlowRedirect(requestedChatflow, appServer.AppDataSource)
 
         /* Check for post-processing settings, if available isStreamValid is always false */
         let chatflowConfig: ICommonObject = {}
