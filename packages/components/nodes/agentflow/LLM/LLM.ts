@@ -6,6 +6,7 @@ import { AnalyticHandler } from '../../../src/handler'
 import { ILLMMessage } from '../Interface.Agentflow'
 import {
     addImageArtifactsToMessages,
+    countTrailingHistoryCopy,
     extractArtifactsFromResponse,
     getPastChatHistoryImageMessages,
     getUniqueImageMessages,
@@ -412,7 +413,12 @@ class LLM_Agentflow implements INode {
                 }
             }
 
-            for (const msg of llmMessages) {
+            // Clients that send history both in the `history` field and as an llmMessages override would get it here twice
+            const historyCopyLength =
+                prependedChatHistory.length > 0 && !runtimeChatHistory.length
+                    ? countTrailingHistoryCopy(llmMessages, prependedChatHistory)
+                    : 0
+            for (const msg of llmMessages.slice(0, llmMessages.length - historyCopyLength)) {
                 const role = msg.role
                 const content = msg.content
                 if (role && content) {

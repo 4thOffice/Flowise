@@ -1,7 +1,7 @@
 import { BaseMessage, MessageContentImageUrl, AIMessageChunk } from '@langchain/core/messages'
 import { getImageUploads } from '../../src/multiModalUtils'
 import { addSingleFileToStorage, getFileFromStorage } from '../../src/storageUtils'
-import { ICommonObject, IDatabaseEntity, IFileUpload, INodeData, INodeOptionsValue } from '../../src/Interface'
+import { ICommonObject, IDatabaseEntity, IFileUpload, IMessage, INodeData, INodeOptionsValue } from '../../src/Interface'
 import { DataSource } from 'typeorm'
 import { BaseMessageLike } from '@langchain/core/messages'
 import { IFlowState } from './Interface.Agentflow'
@@ -936,4 +936,27 @@ export const listFlows = async (options: ICommonObject): Promise<INodeOptionsVal
 
     // order by label
     return returnData.sort((a, b) => a.label.localeCompare(b.label))
+}
+
+// Message contents pass through turndown in resolveVariables, which escapes markdown characters and collapses whitespace
+const normalizeForComparison = (text: string): string =>
+    text
+        .replace(/\\([\\`*_{}[\]()#+\-.!>~|=])/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim()
+
+export const countTrailingHistoryCopy = (messages: { role: string; content: string }[], history: IMessage[]): number => {
+    const expected = history
+        .filter((msg) => msg.content)
+        .map((msg) => ({
+            role: msg.role === 'apiMessage' ? 'assistant' : 'user',
+            content: normalizeForComparison(msg.content as string)
+        }))
+    if (!expected.length || expected.length > messages.length) return 0
+    const tail = messages.slice(-expected.length)
+    const isCopy = tail.every(
+        (msg, i) =>
+            msg.role === expected[i].role && typeof msg.content === 'string' && normalizeForComparison(msg.content) === expected[i].content
+    )
+    return isCopy ? expected.length : 0
 }
