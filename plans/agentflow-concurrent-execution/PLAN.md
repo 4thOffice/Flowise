@@ -80,7 +80,7 @@ flowchart LR
 | 05 | [05-multiple-terminal-nodes-and-streaming.md](./05-multiple-terminal-nodes-and-streaming.md) | Done | Yes (**D4**) | Support multiple terminal nodes via per-execution `StreamCoordinator` (`\n\n` consecutive streams), topological output resolution, and metadata aggregation. |
 | 06 | [06-error-handling-and-human-input-semantics.md](./06-error-handling-and-human-input-semantics.md) | Done | Yes (**D5**) | Fail-fast child `AbortController` hook on error, non-interrupting `STOPPED` drain for companion text + buttons, and serialized DB persistence. |
 | 08 | [08-additive-canvas-ux-and-validation.md](./08-additive-canvas-ux-and-validation.md) | Done | Yes (**D7**) | Backwards-compatible canvas execution wave/order overlay + concurrency-aware validation checks (`validation/index.ts`). |
-| 07 | [07-integration-testing-and-rollout.md](./07-integration-testing-and-rollout.md) | Pending | After 04–08 | Full end-to-end concurrency stress tests, DB/trusted-state/queue checks, `.env.example`, and rollout checklist. |
+| 07 | [07-integration-testing-and-rollout.md](./07-integration-testing-and-rollout.md) | Done | After 04–08 | Full end-to-end concurrency stress tests, DB/trusted-state/queue checks, `.env.example`, and rollout checklist. |
 
 ---
 

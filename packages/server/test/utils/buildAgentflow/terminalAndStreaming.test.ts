@@ -237,16 +237,9 @@ describe('Agentflow V2 Task 05: Multiple Terminal Nodes & Stream Coordinator', (
             coordinator.flushAll()
 
             const usedToolsEvents = getEvents('usedTools')
-            expect(usedToolsEvents[usedToolsEvents.length - 1].data).toEqual([
-                { tool: 't1' },
-                { tool: 't2' },
-                { tool: 't3' }
-            ])
+            expect(usedToolsEvents[usedToolsEvents.length - 1].data).toEqual([{ tool: 't1' }, { tool: 't2' }, { tool: 't3' }])
             const docEvents = getEvents('sourceDocuments')
-            expect(docEvents[docEvents.length - 1].data).toEqual([
-                { pageContent: 'docA' },
-                { pageContent: 'docB' }
-            ])
+            expect(docEvents[docEvents.length - 1].data).toEqual([{ pageContent: 'docA' }, { pageContent: 'docB' }])
             expect(getEvents('artifacts')[0].data).toEqual([{ type: 'png', data: 'a.png' }])
             expect(getEvents('fileAnnotations')[0].data).toEqual([{ fileName: 'out.txt' }])
         })
@@ -278,7 +271,13 @@ describe('Agentflow V2 Task 05: Multiple Terminal Nodes & Stream Coordinator', (
 
             const executedData: IAgentflowExecutedData[] = [
                 { nodeId: 'start_0', nodeLabel: 'Start', previousNodeIds: [], status: 'FINISHED', data: { output: { question: 'q' } } },
-                { nodeId: 'child_0', nodeLabel: 'Child', previousNodeIds: [], status: 'FINISHED', data: { parentNodeId: 'leafBottom', output: { content: 'child-skip' } } },
+                {
+                    nodeId: 'child_0',
+                    nodeLabel: 'Child',
+                    previousNodeIds: [],
+                    status: 'FINISHED',
+                    data: { parentNodeId: 'leafBottom', output: { content: 'child-skip' } }
+                },
                 {
                     nodeId: 'leafBottom',
                     nodeLabel: 'Bottom',
@@ -361,7 +360,13 @@ describe('Agentflow V2 Task 05: Multiple Terminal Nodes & Stream Coordinator', (
             // Only silent leaves -> falls back to ' '
             const silentOnly = resolveTerminalContent({
                 agentFlowExecutedData: [
-                    { nodeId: 'silentLeaf', nodeLabel: 'Silent', previousNodeIds: ['start_0'], status: 'FINISHED', data: { output: { content: '' } } }
+                    {
+                        nodeId: 'silentLeaf',
+                        nodeLabel: 'Silent',
+                        previousNodeIds: ['start_0'],
+                        status: 'FINISHED',
+                        data: { output: { content: '' } }
+                    }
                 ],
                 graph,
                 nodes,
@@ -680,12 +685,7 @@ describe('Agentflow V2 Task 05: Multiple Terminal Nodes & Stream Coordinator', (
             const flow = createFlow(
                 [
                     createNode('start_0', 'startAgentflow', { inputs: { startInputType: 'chatInput' } }, realComponentNodes),
-                    createNode(
-                        'iter_0',
-                        'iterationAgentflow',
-                        { inputs: { iterationInput: '["one","two"]' } },
-                        realComponentNodes
-                    ),
+                    createNode('iter_0', 'iterationAgentflow', { inputs: { iterationInput: '["one","two"]' } }, realComponentNodes),
                     createNode(
                         'subStart',
                         'startAgentflow',
@@ -703,11 +703,7 @@ describe('Agentflow V2 Task 05: Multiple Terminal Nodes & Stream Coordinator', (
                         },
                         realComponentNodes
                     ),
-                    createNode(
-                        'subBody',
-                        'mockSubBody',
-                        { parentNode: 'iter_0', extent: 'parent', position: { x: 100, y: 50 } }
-                    ),
+                    createNode('subBody', 'mockSubBody', { parentNode: 'iter_0', extent: 'parent', position: { x: 100, y: 50 } }),
                     createNode(
                         'subLoop',
                         'loopAgentflow',

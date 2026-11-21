@@ -688,6 +688,26 @@ export const additionalCallbacks = async (nodeData: INodeData, options: ICommonO
     }
 }
 
+const LLM_RUN_KEYS: Record<string, string> = {
+    langSmith: 'llmRun',
+    langFuse: 'generation',
+    lunary: 'llmEvent',
+    langWatch: 'span',
+    arize: 'llmSpan',
+    phoenix: 'llmSpan',
+    opik: 'llmSpan'
+}
+
+const TOOL_RUN_KEYS: Record<string, string> = {
+    langSmith: 'toolRun',
+    langFuse: 'toolSpan',
+    lunary: 'toolEvent',
+    langWatch: 'span',
+    arize: 'toolSpan',
+    phoenix: 'toolSpan',
+    opik: 'toolSpan'
+}
+
 export class AnalyticHandler {
     private static instances: Map<string, AnalyticHandler> = new Map()
     private nodeData: INodeData
@@ -760,6 +780,19 @@ export class AnalyticHandler {
     // Add getter for handlers (useful for debugging)
     getHandlers(): ICommonObject {
         return this.handlers
+    }
+
+    // One handler is shared by every node of a chat, and agentflow nodes run concurrently, so open runs must not evict each other
+    private trackRun(provider: string, kind: string, id: string, run: unknown) {
+        this.handlers[provider][kind] = { ...this.handlers[provider][kind], [id]: run }
+    }
+
+    private untrackRuns(returnIds: ICommonObject, runKeys: Record<string, string>) {
+        for (const [provider, kind] of Object.entries(runKeys)) {
+            const id = returnIds?.[provider]?.[kind]
+            const runs = this.handlers[provider]?.[kind]
+            if (id !== undefined && runs) delete runs[id]
+        }
     }
 
     async initializeProvider(provider: string, providerConfig: any, credentialData: any) {
@@ -893,7 +926,7 @@ export class AnalyticHandler {
                 }
                 const parentRun = new RunTree(parentRunConfig)
                 await parentRun.postRun()
-                this.handlers['langSmith'].chainRun = { [parentRun.id]: parentRun }
+                this.trackRun('langSmith', 'chainRun', parentRun.id, parentRun)
                 returnIds['langSmith'].chainRun = parentRun.id
             } else {
                 const parentRun: RunTree | undefined = this.handlers['langSmith'].chainRun[parentIds['langSmith'].chainRun]
@@ -906,7 +939,7 @@ export class AnalyticHandler {
                         }
                     })
                     await childChainRun.postRun()
-                    this.handlers['langSmith'].chainRun = { [childChainRun.id]: childChainRun }
+                    this.trackRun('langSmith', 'chainRun', childChainRun.id, childChainRun)
                     returnIds['langSmith'].chainRun = childChainRun.id
                 }
             }
@@ -939,8 +972,8 @@ export class AnalyticHandler {
                         text: input
                     }
                 })
-                this.handlers['langFuse'].trace = { [langfuseTraceClient.id]: langfuseTraceClient }
-                this.handlers['langFuse'].span = { [span.id]: span }
+                this.trackRun('langFuse', 'trace', langfuseTraceClient.id, langfuseTraceClient)
+                this.trackRun('langFuse', 'span', span.id, span)
                 returnIds['langFuse'].trace = langfuseTraceClient.id
                 returnIds['langFuse'].span = span.id
             }
@@ -957,7 +990,7 @@ export class AnalyticHandler {
                     input,
                     ...this.nodeData?.inputs?.analytics?.lunary
                 })
-                this.handlers['lunary'].chainEvent = { [runId]: runId }
+                this.trackRun('lunary', 'chainEvent', runId, runId)
                 returnIds['lunary'].chainEvent = runId
             }
         }
@@ -982,8 +1015,8 @@ export class AnalyticHandler {
                     type: 'chain',
                     input: autoconvertTypedValues(input)
                 })
-                this.handlers['langWatch'].trace = { [langwatchTrace.traceId]: langwatchTrace }
-                this.handlers['langWatch'].span = { [span.spanId]: span }
+                this.trackRun('langWatch', 'trace', langwatchTrace.traceId, langwatchTrace)
+                this.trackRun('langWatch', 'span', span.spanId, span)
                 returnIds['langWatch'].trace = langwatchTrace.traceId
                 returnIds['langWatch'].span = span.spanId
             }
@@ -1019,7 +1052,7 @@ export class AnalyticHandler {
             }
             const chainSpanId: any = chainSpan?.spanContext().spanId
 
-            this.handlers['arize'].chainSpan = { [chainSpanId]: chainSpan }
+            this.trackRun('arize', 'chainSpan', chainSpanId, chainSpan)
             returnIds['arize'].chainSpan = chainSpanId
         }
 
@@ -1053,7 +1086,7 @@ export class AnalyticHandler {
             }
             const chainSpanId: any = chainSpan?.spanContext().spanId
 
-            this.handlers['phoenix'].chainSpan = { [chainSpanId]: chainSpan }
+            this.trackRun('phoenix', 'chainSpan', chainSpanId, chainSpan)
             returnIds['phoenix'].chainSpan = chainSpanId
         }
 
@@ -1087,7 +1120,7 @@ export class AnalyticHandler {
             }
             const chainSpanId: any = chainSpan?.spanContext().spanId
 
-            this.handlers['opik'].chainSpan = { [chainSpanId]: chainSpan }
+            this.trackRun('opik', 'chainSpan', chainSpanId, chainSpan)
             returnIds['opik'].chainSpan = chainSpanId
         }
 
@@ -1275,7 +1308,8 @@ export class AnalyticHandler {
             lunary: {},
             langWatch: {},
             arize: {},
-            phoenix: {}
+            phoenix: {},
+            opik: {}
         }
 
         if (Object.prototype.hasOwnProperty.call(this.handlers, 'langSmith')) {
@@ -1294,7 +1328,7 @@ export class AnalyticHandler {
                     inputs
                 })
                 await childLLMRun.postRun()
-                this.handlers['langSmith'].llmRun = { [childLLMRun.id]: childLLMRun }
+                this.trackRun('langSmith', 'llmRun', childLLMRun.id, childLLMRun)
                 returnIds['langSmith'].llmRun = childLLMRun.id
             }
         }
@@ -1306,7 +1340,7 @@ export class AnalyticHandler {
                     name,
                     input: input
                 })
-                this.handlers['langFuse'].generation = { [generation.id]: generation }
+                this.trackRun('langFuse', 'generation', generation.id, generation)
                 returnIds['langFuse'].generation = generation.id
             }
         }
@@ -1323,7 +1357,7 @@ export class AnalyticHandler {
                     name,
                     input
                 })
-                this.handlers['lunary'].llmEvent = { [runId]: runId }
+                this.trackRun('lunary', 'llmEvent', runId, runId)
                 returnIds['lunary'].llmEvent = runId
             }
         }
@@ -1335,7 +1369,7 @@ export class AnalyticHandler {
                     name,
                     input: autoconvertTypedValues(input)
                 })
-                this.handlers['langWatch'].span = { [span.spanId]: span }
+                this.trackRun('langWatch', 'span', span.spanId, span)
                 returnIds['langWatch'].span = span.spanId
             }
         }
@@ -1355,7 +1389,7 @@ export class AnalyticHandler {
             }
             const llmSpanId: any = llmSpan?.spanContext().spanId
 
-            this.handlers['arize'].llmSpan = { [llmSpanId]: llmSpan }
+            this.trackRun('arize', 'llmSpan', llmSpanId, llmSpan)
             returnIds['arize'].llmSpan = llmSpanId
         }
 
@@ -1374,7 +1408,7 @@ export class AnalyticHandler {
             }
             const llmSpanId: any = llmSpan?.spanContext().spanId
 
-            this.handlers['phoenix'].llmSpan = { [llmSpanId]: llmSpan }
+            this.trackRun('phoenix', 'llmSpan', llmSpanId, llmSpan)
             returnIds['phoenix'].llmSpan = llmSpanId
         }
 
@@ -1393,7 +1427,7 @@ export class AnalyticHandler {
             }
             const llmSpanId: any = llmSpan?.spanContext().spanId
 
-            this.handlers['opik'].llmSpan = { [llmSpanId]: llmSpan }
+            this.trackRun('opik', 'llmSpan', llmSpanId, llmSpan)
             returnIds['opik'].llmSpan = llmSpanId
         }
 
@@ -1472,6 +1506,8 @@ export class AnalyticHandler {
                 llmSpan.end()
             }
         }
+
+        this.untrackRuns(returnIds, LLM_RUN_KEYS)
     }
 
     async onLLMError(returnIds: ICommonObject, error: string | object) {
@@ -1546,6 +1582,8 @@ export class AnalyticHandler {
                 llmSpan.end()
             }
         }
+
+        this.untrackRuns(returnIds, LLM_RUN_KEYS)
     }
 
     async onToolStart(name: string, input: string | object, parentIds: ICommonObject) {
@@ -1570,7 +1608,7 @@ export class AnalyticHandler {
                     }
                 })
                 await childToolRun.postRun()
-                this.handlers['langSmith'].toolRun = { [childToolRun.id]: childToolRun }
+                this.trackRun('langSmith', 'toolRun', childToolRun.id, childToolRun)
                 returnIds['langSmith'].toolRun = childToolRun.id
             }
         }
@@ -1582,7 +1620,7 @@ export class AnalyticHandler {
                     name,
                     input
                 })
-                this.handlers['langFuse'].toolSpan = { [toolSpan.id]: toolSpan }
+                this.trackRun('langFuse', 'toolSpan', toolSpan.id, toolSpan)
                 returnIds['langFuse'].toolSpan = toolSpan.id
             }
         }
@@ -1599,7 +1637,7 @@ export class AnalyticHandler {
                     name,
                     input
                 })
-                this.handlers['lunary'].toolEvent = { [runId]: runId }
+                this.trackRun('lunary', 'toolEvent', runId, runId)
                 returnIds['lunary'].toolEvent = runId
             }
         }
@@ -1612,7 +1650,7 @@ export class AnalyticHandler {
                     type: 'tool',
                     input: autoconvertTypedValues(input)
                 })
-                this.handlers['langWatch'].span = { [span.spanId]: span }
+                this.trackRun('langWatch', 'span', span.spanId, span)
                 returnIds['langWatch'].span = span.spanId
             }
         }
@@ -1632,7 +1670,7 @@ export class AnalyticHandler {
             }
             const toolSpanId: any = toolSpan?.spanContext().spanId
 
-            this.handlers['arize'].toolSpan = { [toolSpanId]: toolSpan }
+            this.trackRun('arize', 'toolSpan', toolSpanId, toolSpan)
             returnIds['arize'].toolSpan = toolSpanId
         }
 
@@ -1651,7 +1689,7 @@ export class AnalyticHandler {
             }
             const toolSpanId: any = toolSpan?.spanContext().spanId
 
-            this.handlers['phoenix'].toolSpan = { [toolSpanId]: toolSpan }
+            this.trackRun('phoenix', 'toolSpan', toolSpanId, toolSpan)
             returnIds['phoenix'].toolSpan = toolSpanId
         }
 
@@ -1670,7 +1708,7 @@ export class AnalyticHandler {
             }
             const toolSpanId: any = toolSpan?.spanContext().spanId
 
-            this.handlers['opik'].toolSpan = { [toolSpanId]: toolSpan }
+            this.trackRun('opik', 'toolSpan', toolSpanId, toolSpan)
             returnIds['opik'].toolSpan = toolSpanId
         }
 
@@ -1749,6 +1787,8 @@ export class AnalyticHandler {
                 toolSpan.end()
             }
         }
+
+        this.untrackRuns(returnIds, TOOL_RUN_KEYS)
     }
 
     async onToolError(returnIds: ICommonObject, error: string | object) {
@@ -1823,6 +1863,8 @@ export class AnalyticHandler {
                 toolSpan.end()
             }
         }
+
+        this.untrackRuns(returnIds, TOOL_RUN_KEYS)
     }
 }
 

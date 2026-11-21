@@ -40,18 +40,14 @@ import {
     validateHistorySchema,
     LOOP_COUNT_VAR_PREFIX
 } from '.'
-import { ChatFlow } from '../database/entities/ChatFlow'
 import { Variable } from '../database/entities/Variable'
 import { replaceInputsWithConfig, constructGraphs, getAPIOverrideConfig } from './index'
 import logger from './logger'
 import { getErrorMessage } from '../errors/utils'
 import { Compression, Execution } from '../database/entities/Execution'
 import { utilAddChatMessage } from './addChatMesage'
-import { CachePool } from '../CachePool'
 import { ChatMessage } from '../database/entities/ChatMessage'
-import { Telemetry } from './telemetry'
 import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
-import { UsageCacheManager } from '../UsageCacheManager'
 import { generateTTSForResponseStream, shouldAutoPlayTTS } from './buildChatflow'
 import { executionsUpdater } from '../DataSource'
 import { trusted_state_from_string, trusted_state_to_string } from './trustedStateHelper'
@@ -682,7 +678,8 @@ const executeNode = async ({
     zeroRetention = false,
     nodeInstanceFactory,
     maxNodeConcurrency,
-    enqueueDbUpdate
+    enqueueDbUpdate,
+    getExecutedData
 }: IExecuteNodeParams): Promise<IExecuteNodeResult> => {
     try {
         if (abortController?.signal?.aborted) {
@@ -788,7 +785,9 @@ const executeNode = async ({
         // Check if this is the last node for streaming purpose
         const isLastNode =
             !isRecursive &&
-            (!graph[nodeId] || graph[nodeId].length === 0 || (!isResumedHumanInputNode && reactFlowNode.data.name === 'humanInputAgentflow'))
+            (!graph[nodeId] ||
+                graph[nodeId].length === 0 ||
+                (!isResumedHumanInputNode && reactFlowNode.data.name === 'humanInputAgentflow'))
 
         if (incomingInput.question && incomingInput.form) {
             throw new Error('Question and form cannot be provided at the same time')
@@ -947,15 +946,22 @@ const executeNode = async ({
                             if (parentExecutionId && !zeroRetention) {
                                 try {
                                     logger.debug(`  📝 Updating parent execution ${parentExecutionId} with iteration ${i + 1} data`)
-                                    const executionDataJson = JSON.stringify([...executedDataSnapshot, ...additionalExecutedData])
-                                    const persistIteration = () =>
-                                        updateExecution(
+                                    // Serialized when the queued write runs, so records committed by parallel siblings since launch are kept
+                                    const persistIteration = () => {
+                                        const committed = getExecutedData?.() ?? executedDataSnapshot
+                                        const committedRecords = new Set(committed)
+                                        const executionDataJson = JSON.stringify([
+                                            ...committed,
+                                            ...additionalExecutedData.filter((record) => !committedRecords.has(record))
+                                        ])
+                                        return updateExecution(
                                             appDataSource,
                                             parentExecutionId,
                                             workspaceId,
                                             { executionData: executionDataJson },
                                             zeroRetention
                                         )
+                                    }
                                     const pendingUpdate = enqueueDbUpdate ? enqueueDbUpdate(persistIteration) : persistIteration()
                                     pendingUpdate.catch((error) => {
                                         console.error(`  ❌ Error updating parent execution: ${getErrorMessage(error)}`)
@@ -1271,238 +1277,257 @@ export const executeAgentFlow = async ({
             form: {}
         }
 
-    let previousExecution: IExecution | undefined
+        let previousExecution: IExecution | undefined
 
-    // If not a recursive call or parent execution not found, proceed normally
-    const lazyLoadExecution = (() => {
-        let task: Promise<IExecution | null>
-        return async () => {
-            if (process.env.DISABLE_EXECUTION_RECORDING || useTrustedState) {
-                // check for client-provided state (server encrypted - trusted data, compressed)
-                if (trustedData?.previousExecution) {
-                    previousExecution = trustedData.previousExecution
-                    return trustedData.previousExecution
+        // If not a recursive call or parent execution not found, proceed normally
+        const lazyLoadExecution = (() => {
+            let task: Promise<IExecution | null>
+            return async () => {
+                if (process.env.DISABLE_EXECUTION_RECORDING || useTrustedState) {
+                    // check for client-provided state (server encrypted - trusted data, compressed)
+                    if (trustedData?.previousExecution) {
+                        previousExecution = trustedData.previousExecution
+                        return trustedData.previousExecution
+                    }
+                    return null
                 }
-                return null
-            }
-            if (task) {
-                return await task
-            }
-            task = appDataSource.getRepository(Execution).findOne({
-                where: {
-                    sessionId,
-                    agentflowId: chatflowid,
-                    workspaceId
-                },
-                order: {
-                    createdDate: 'DESC'
+                if (task) {
+                    return await task
                 }
-            })
-            previousExecution = (await task) || undefined
-            return previousExecution
-        }
-    })()
-
-    // If the state is persistent, get the state from the previous execution
-    const startPersistState = nodes.find((node) => node.data.name === 'startAgentflow')?.data.inputs?.startPersistState
-    if (startPersistState === true && (await lazyLoadExecution()) && previousExecution) {
-        const previousExecutionData =
-            (JSON.parse(
-                previousExecution.executionDataBlob
-                    ? await Compression.decompress(previousExecution.executionDataBlob)
-                    : previousExecution.executionData
-            ) as IAgentflowExecutedData[]) ?? []
-
-        let previousState = {}
-        if (Array.isArray(previousExecutionData) && previousExecutionData.length) {
-            previousExecutionData.reverse()
-            for (const execData of previousExecutionData) {
-                if (execData.data.state) {
-                    previousState = execData.data.state
-                    break
-                }
+                task = appDataSource.getRepository(Execution).findOne({
+                    where: {
+                        sessionId,
+                        agentflowId: chatflowid,
+                        workspaceId
+                    },
+                    order: {
+                        createdDate: 'DESC'
+                    }
+                })
+                previousExecution = (await task) || undefined
+                return previousExecution
             }
-        }
+        })()
 
-        // Check if startState has been overridden from overrideConfig.startState and is enabled
-        const startAgentflowNode = nodes.find((node) => node.data.name === 'startAgentflow')
-        const isStartStateEnabled =
-            nodeOverrides && startAgentflowNode
-                ? nodeOverrides[startAgentflowNode.data.label]?.find((param: any) => param.name === 'startState')?.enabled ?? false
-                : false
+        // If the state is persistent, get the state from the previous execution
+        const startPersistState = nodes.find((node) => node.data.name === 'startAgentflow')?.data.inputs?.startPersistState
+        if (startPersistState === true && (await lazyLoadExecution()) && previousExecution) {
+            const previousExecutionData =
+                (JSON.parse(
+                    previousExecution.executionDataBlob
+                        ? await Compression.decompress(previousExecution.executionDataBlob)
+                        : previousExecution.executionData
+                ) as IAgentflowExecutedData[]) ?? []
 
-        if (isStartStateEnabled && overrideConfig?.startState) {
-            if (Array.isArray(overrideConfig.startState)) {
-                // Handle array format: [{"key": "foo", "value": "foo4"}]
-                const overrideStateObj: ICommonObject = {}
-                for (const item of overrideConfig.startState) {
-                    if (item.key && item.value !== undefined) {
-                        overrideStateObj[item.key] = item.value
+            let previousState = {}
+            if (Array.isArray(previousExecutionData) && previousExecutionData.length) {
+                previousExecutionData.reverse()
+                for (const execData of previousExecutionData) {
+                    if (execData.data.state) {
+                        previousState = execData.data.state
+                        break
                     }
                 }
-                previousState = { ...previousState, ...overrideStateObj }
-            } else if (typeof overrideConfig.startState === 'object') {
-                // Object override: "startState": {...}
-                previousState = { ...previousState, ...overrideConfig.startState }
             }
+
+            // Check if startState has been overridden from overrideConfig.startState and is enabled
+            const startAgentflowNode = nodes.find((node) => node.data.name === 'startAgentflow')
+            const isStartStateEnabled =
+                nodeOverrides && startAgentflowNode
+                    ? nodeOverrides[startAgentflowNode.data.label]?.find((param: any) => param.name === 'startState')?.enabled ?? false
+                    : false
+
+            if (isStartStateEnabled && overrideConfig?.startState) {
+                if (Array.isArray(overrideConfig.startState)) {
+                    // Handle array format: [{"key": "foo", "value": "foo4"}]
+                    const overrideStateObj: ICommonObject = {}
+                    for (const item of overrideConfig.startState) {
+                        if (item.key && item.value !== undefined) {
+                            overrideStateObj[item.key] = item.value
+                        }
+                    }
+                    previousState = { ...previousState, ...overrideStateObj }
+                } else if (typeof overrideConfig.startState === 'object') {
+                    // Object override: "startState": {...}
+                    previousState = { ...previousState, ...overrideConfig.startState }
+                }
+            }
+
+            agentflowRuntime.state = previousState
         }
 
-        agentflowRuntime.state = previousState
-    }
+        // If the start input type is form input, get the form values from the previous execution (form values are persisted in the same session)
+        if (startInputType === 'formInput' && (await lazyLoadExecution()) && previousExecution) {
+            const previousExecutionData =
+                (JSON.parse(
+                    previousExecution.executionDataBlob
+                        ? await Compression.decompress(previousExecution.executionDataBlob)
+                        : previousExecution.executionData
+                ) as IAgentflowExecutedData[]) ?? []
 
-    // If the start input type is form input, get the form values from the previous execution (form values are persisted in the same session)
-    if (startInputType === 'formInput' && (await lazyLoadExecution()) && previousExecution) {
-        const previousExecutionData =
-            (JSON.parse(
-                previousExecution.executionDataBlob
-                    ? await Compression.decompress(previousExecution.executionDataBlob)
-                    : previousExecution.executionData
-            ) as IAgentflowExecutedData[]) ?? []
+            const previousStartAgent = previousExecutionData.find((execData) => execData.data.name === 'startAgentflow')
 
-        const previousStartAgent = previousExecutionData.find((execData) => execData.data.name === 'startAgentflow')
-
-        if (previousStartAgent) {
-            const previousStartAgentOutput = previousStartAgent.data.output
-            if (previousStartAgentOutput && typeof previousStartAgentOutput === 'object' && 'form' in previousStartAgentOutput) {
-                const formValues = previousStartAgentOutput.form
-                if (typeof formValues === 'string') {
-                    agentflowRuntime.form = parseFormStringToJson(formValues)
-                } else {
-                    agentflowRuntime.form = formValues
+            if (previousStartAgent) {
+                const previousStartAgentOutput = previousStartAgent.data.output
+                if (previousStartAgentOutput && typeof previousStartAgentOutput === 'object' && 'form' in previousStartAgentOutput) {
+                    const formValues = previousStartAgentOutput.form
+                    if (typeof formValues === 'string') {
+                        agentflowRuntime.form = parseFormStringToJson(formValues)
+                    } else {
+                        agentflowRuntime.form = formValues
+                    }
                 }
             }
         }
-    }
 
-    // If it is human input, find the last checkpoint and resume
-    // Skip human input resumption for recursive iteration calls - they should start fresh
-    if (humanInput && !(isRecursive && iterationContext)) {
-        if (!((await lazyLoadExecution()) && previousExecution)) {
-            throw new Error(`No previous execution found for session ${sessionId}`)
-        }
+        // If it is human input, find the last checkpoint and resume
+        // Skip human input resumption for recursive iteration calls - they should start fresh
+        if (humanInput && !(isRecursive && iterationContext)) {
+            if (!((await lazyLoadExecution()) && previousExecution)) {
+                throw new Error(`No previous execution found for session ${sessionId}`)
+            }
 
-        let executionData = JSON.parse(
-            previousExecution.executionDataBlob
-                ? await Compression.decompress(previousExecution.executionDataBlob)
-                : previousExecution.executionData
-        ) as IAgentflowExecutedData[]
-        let shouldUpdateExecution = false
+            let executionData = JSON.parse(
+                previousExecution.executionDataBlob
+                    ? await Compression.decompress(previousExecution.executionDataBlob)
+                    : previousExecution.executionData
+            ) as IAgentflowExecutedData[]
+            let shouldUpdateExecution = false
 
-        // Handle different execution states
-        if (previousExecution.state === 'STOPPED') {
-            // Normal case - execution is stopped and ready to resume
-            logger.debug(`  ✅ Previous execution is in STOPPED state, ready to resume`)
-        } else if (previousExecution.state === 'ERROR') {
-            // Check if second-to-last execution item is STOPPED and last is ERROR
-            if (executionData.length >= 2) {
-                const lastItem = executionData[executionData.length - 1]
-                const secondLastItem = executionData[executionData.length - 2]
+            // Handle different execution states
+            if (previousExecution.state === 'STOPPED') {
+                // Normal case - execution is stopped and ready to resume
+                logger.debug(`  ✅ Previous execution is in STOPPED state, ready to resume`)
+            } else if (previousExecution.state === 'ERROR') {
+                // Check if second-to-last execution item is STOPPED and last is ERROR
+                if (executionData.length >= 2) {
+                    const lastItem = executionData[executionData.length - 1]
+                    const secondLastItem = executionData[executionData.length - 2]
 
-                if (lastItem.status === 'ERROR' && secondLastItem.status === 'STOPPED') {
-                    logger.debug(`  🔄 Found ERROR after STOPPED - removing last error item to allow retry`)
-                    logger.debug(`    Removing: ${lastItem.nodeId} (${lastItem.nodeLabel}) - ${lastItem.data?.error || 'Unknown error'}`)
+                    if (lastItem.status === 'ERROR' && secondLastItem.status === 'STOPPED') {
+                        logger.debug(`  🔄 Found ERROR after STOPPED - removing last error item to allow retry`)
+                        logger.debug(
+                            `    Removing: ${lastItem.nodeId} (${lastItem.nodeLabel}) - ${lastItem.data?.error || 'Unknown error'}`
+                        )
 
-                    // Remove the last ERROR item
-                    executionData = executionData.slice(0, -1)
-                    shouldUpdateExecution = true
+                        // Remove the last ERROR item
+                        executionData = executionData.slice(0, -1)
+                        shouldUpdateExecution = true
+                    } else {
+                        throw new Error(
+                            `Cannot resume execution ${previousExecution.id} because it is in 'ERROR' state ` +
+                                `and the previous item is not in 'STOPPED' state. Only executions that ended with a ` +
+                                `STOPPED state (or ERROR after STOPPED) can be resumed.`
+                        )
+                    }
                 } else {
                     throw new Error(
                         `Cannot resume execution ${previousExecution.id} because it is in 'ERROR' state ` +
-                            `and the previous item is not in 'STOPPED' state. Only executions that ended with a ` +
-                            `STOPPED state (or ERROR after STOPPED) can be resumed.`
+                            `with insufficient execution data. Only executions in 'STOPPED' state can be resumed.`
                     )
                 }
             } else {
                 throw new Error(
-                    `Cannot resume execution ${previousExecution.id} because it is in 'ERROR' state ` +
-                        `with insufficient execution data. Only executions in 'STOPPED' state can be resumed.`
+                    `Cannot resume execution ${previousExecution.id} because it is in '${previousExecution.state}' state. ` +
+                        `Only executions in 'STOPPED' state (or 'ERROR' after 'STOPPED') can be resumed.`
                 )
             }
-        } else {
-            throw new Error(
-                `Cannot resume execution ${previousExecution.id} because it is in '${previousExecution.state}' state. ` +
-                    `Only executions in 'STOPPED' state (or 'ERROR' after 'STOPPED') can be resumed.`
-            )
-        }
 
-        let startNodeId = humanInput.startNodeId
+            let startNodeId = humanInput.startNodeId
 
-        // If startNodeId is not provided, deterministically pick the primary STOPPED node
-        if (!startNodeId) {
-            const resumeLevels = computeTopologicalLevels(nodes, edges)
-            const stoppedNode = selectPrimaryStoppedNode(executionData, nodes, resumeLevels)
+            // If startNodeId is not provided, deterministically pick the primary STOPPED node
+            if (!startNodeId) {
+                const resumeLevels = computeTopologicalLevels(nodes, edges)
+                const stoppedNode = selectPrimaryStoppedNode(executionData, nodes, resumeLevels)
 
-            if (!stoppedNode) {
-                throw new Error('No stopped node found in previous execution data to resume from')
+                if (!stoppedNode) {
+                    throw new Error('No stopped node found in previous execution data to resume from')
+                }
+
+                startNodeId = stoppedNode.nodeId
+                logger.debug(`  🔍 Auto-detected stopped node to resume from: ${startNodeId} (${stoppedNode.nodeLabel})`)
             }
 
-            startNodeId = stoppedNode.nodeId
-            logger.debug(`  🔍 Auto-detected stopped node to resume from: ${startNodeId} (${stoppedNode.nodeLabel})`)
-        }
+            // Verify that the node exists in previous execution
+            const nodeExists = executionData.some((data) => data.nodeId === startNodeId)
 
-        // Verify that the node exists in previous execution
-        const nodeExists = executionData.some((data) => data.nodeId === startNodeId)
-
-        if (!nodeExists) {
-            throw new Error(
-                `Node ${startNodeId} not found in previous execution. ` +
-                    `This could indicate an invalid resume attempt or a modified flow.`
-            )
-        }
-
-        startingNodeIds.push(startNodeId)
-        checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
-
-        agentFlowExecutedData.push(...executionData)
-
-        // Update execution data if we removed an error item
-        if (shouldUpdateExecution && !zeroRetention) {
-            logger.debug(`  📝 Updating execution data after removing error item`)
-            serializedUpdateExecution(previousExecution.id, {
-                executionData: JSON.stringify(executionData),
-                state: 'INPROGRESS'
-            }).catch((err) => {
-                logger.warn(`updateExecution resume cleanup err ${getErrorMessage(err)}`)
-            })
-        }
-
-        // Get latest recorded state without assuming the final array entry contains `.state`
-        let lastState: ICommonObject | undefined
-        for (let i = executionData.length - 1; i >= 0; i -= 1) {
-            if (executionData[i]?.data?.state) {
-                lastState = executionData[i].data.state as ICommonObject
-                break
+            if (!nodeExists) {
+                throw new Error(
+                    `Node ${startNodeId} not found in previous execution. ` +
+                        `This could indicate an invalid resume attempt or a modified flow.`
+                )
             }
-        }
 
-        // Update agentflow runtime state
-        agentflowRuntime.state = cloneDeep(lastState ?? {})
+            startingNodeIds.push(startNodeId)
+            checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
 
-        // Update execution state to INPROGRESS
-        await serializedUpdateExecution(previousExecution.id, { state: 'INPROGRESS' })
-        newExecution = previousExecution
-        parentExecutionId = previousExecution.id
+            agentFlowExecutedData.push(...executionData)
 
-        // Update humanInput with the resolved startNodeId
-        humanInput.startNodeId = startNodeId
-    } else if (isRecursive && parentExecutionId) {
-        const { startingNodeIds: startingNodeIdsFromFlow } = getStartingNode(nodeDependencies)
-        startingNodeIds.push(...startingNodeIdsFromFlow)
-        checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
+            // Update execution data if we removed an error item
+            if (shouldUpdateExecution && !zeroRetention) {
+                logger.debug(`  📝 Updating execution data after removing error item`)
+                serializedUpdateExecution(previousExecution.id, {
+                    executionData: JSON.stringify(executionData),
+                    state: 'INPROGRESS'
+                }).catch((err) => {
+                    logger.warn(`updateExecution resume cleanup err ${getErrorMessage(err)}`)
+                })
+            }
 
-        // For recursive calls with a valid parent execution ID, don't create a new execution
-        // Instead, fetch the parent execution to use it
-        const parentExecution = process.env.DISABLE_EXECUTION_RECORDING
-            ? null
-            : await appDataSource.getRepository(Execution).findOne({
-                  where: { id: parentExecutionId, workspaceId }
-              })
+            // Get latest recorded state without assuming the final array entry contains `.state`
+            let lastState: ICommonObject | undefined
+            for (let i = executionData.length - 1; i >= 0; i -= 1) {
+                if (executionData[i]?.data?.state) {
+                    lastState = executionData[i].data.state as ICommonObject
+                    break
+                }
+            }
 
-        if (parentExecution) {
-            logger.debug(`   📝 Using parent execution ID: ${parentExecutionId} for recursive call (iteration: ${!!iterationContext})`)
-            newExecution = parentExecution
+            // Update agentflow runtime state
+            agentflowRuntime.state = cloneDeep(lastState ?? {})
+
+            // Update execution state to INPROGRESS
+            await serializedUpdateExecution(previousExecution.id, { state: 'INPROGRESS' })
+            newExecution = previousExecution
+            parentExecutionId = previousExecution.id
+
+            // Update humanInput with the resolved startNodeId
+            humanInput.startNodeId = startNodeId
+        } else if (isRecursive && parentExecutionId) {
+            const { startingNodeIds: startingNodeIdsFromFlow } = getStartingNode(nodeDependencies)
+            startingNodeIds.push(...startingNodeIdsFromFlow)
+            checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
+
+            // For recursive calls with a valid parent execution ID, don't create a new execution
+            // Instead, fetch the parent execution to use it
+            const parentExecution = process.env.DISABLE_EXECUTION_RECORDING
+                ? null
+                : await appDataSource.getRepository(Execution).findOne({
+                      where: { id: parentExecutionId, workspaceId }
+                  })
+
+            if (parentExecution) {
+                logger.debug(`   📝 Using parent execution ID: ${parentExecutionId} for recursive call (iteration: ${!!iterationContext})`)
+                newExecution = parentExecution
+            } else {
+                console.warn(`   ⚠️ Parent execution ID ${parentExecutionId} not found, will create new execution`)
+                newExecution = await addExecution(
+                    appDataSource,
+                    chatflowid,
+                    agentFlowExecutedData,
+                    sessionId,
+                    workspaceId,
+                    zeroRetention,
+                    dbUpdateQueue.enqueue
+                )
+                parentExecutionId = newExecution.id
+            }
         } else {
-            console.warn(`   ⚠️ Parent execution ID ${parentExecutionId} not found, will create new execution`)
+            const { startingNodeIds: startingNodeIdsFromFlow } = getStartingNode(nodeDependencies)
+            startingNodeIds.push(...startingNodeIdsFromFlow)
+            checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
+
+            // Only create a new execution if this is not a recursive call
             newExecution = await addExecution(
                 appDataSource,
                 chatflowid,
@@ -1514,389 +1539,401 @@ export const executeAgentFlow = async ({
             )
             parentExecutionId = newExecution.id
         }
-    } else {
-        const { startingNodeIds: startingNodeIdsFromFlow } = getStartingNode(nodeDependencies)
-        startingNodeIds.push(...startingNodeIdsFromFlow)
-        checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
 
-        // Only create a new execution if this is not a recursive call
-        newExecution = await addExecution(
-            appDataSource,
-            chatflowid,
-            agentFlowExecutedData,
-            sessionId,
-            workspaceId,
-            zeroRetention,
-            dbUpdateQueue.enqueue
-        )
-        parentExecutionId = newExecution.id
-    }
-
-    const isMidGraphResumption = Boolean(humanInput && !(isRecursive && iterationContext))
-    const dependencyEngine = createDependencyEngine({
-        nodes,
-        edges,
-        startingNodeIds,
-        executedData: isMidGraphResumption ? agentFlowExecutedData : undefined,
-        isResuming: isMidGraphResumption
-    })
-
-    if (isMidGraphResumption) {
-        dependencyEngine.getReplayLoopCounts().forEach((count, loopNodeId) => {
-            loopCounts.set(loopNodeId, count)
+        const isMidGraphResumption = Boolean(humanInput && !(isRecursive && iterationContext))
+        const dependencyEngine = createDependencyEngine({
+            nodes,
+            edges,
+            startingNodeIds,
+            executedData: isMidGraphResumption ? agentFlowExecutedData : undefined,
+            isResuming: isMidGraphResumption
         })
-    }
 
-    nodeExecutionQueue.push(...dependencyEngine.getInitialQueue())
-
-    const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
-
-    // Get chat history from ChatMessage table
-    const pastChatHistory: IMessage[] =
-        process.env.DISABLE_CHAT_MESSAGE_RECORDING || useTrustedState || zeroRetention
-            ? trustedData?.pastChatHistory?.map(mapChatMessageToIMessage) ?? []
-            : ((await appDataSource
-                  .getRepository(ChatMessage)
-                  .find({
-                      where: {
-                          chatflowid,
-                          sessionId
-                      },
-                      order: {
-                          createdDate: 'ASC'
-                      }
-                  })
-                  .then((messages) => messages.map(mapChatMessageToIMessage))) as IMessage[])
-
-    let currentHumanInput = humanInput
-
-    // For iteration calls, clear human input since they should start fresh
-    if (isRecursive && iterationContext && humanInput) {
-        currentHumanInput = undefined
-    }
-
-    let analyticHandlers: AnalyticHandler | undefined
-    let parentTraceIds: ICommonObject | undefined
-
-    try {
-        if (chatflow.analytic) {
-            // Override config analytics
-            let analyticInputs: ICommonObject = {}
-            if (overrideConfig?.analytics && Object.keys(overrideConfig.analytics).length > 0) {
-                analyticInputs = {
-                    ...overrideConfig.analytics
-                }
-            }
-            analyticHandlers = AnalyticHandler.getInstance({ inputs: { analytics: analyticInputs } } as any, {
-                orgId,
-                workspaceId,
-                appDataSource,
-                databaseEntities,
-                componentNodes,
-                analytic: chatflow.analytic,
-                chatId
+        if (isMidGraphResumption) {
+            dependencyEngine.getReplayLoopCounts().forEach((count, loopNodeId) => {
+                loopCounts.set(loopNodeId, count)
             })
-            await analyticHandlers.init()
-            parentTraceIds = await analyticHandlers.onChainStart(
-                'Agentflow',
-                form && Object.keys(form).length > 0 ? JSON.stringify(form) : question || ''
-            )
         }
-    } catch (error) {
-        logger.error(`[server]: Error initializing analytic handlers: ${getErrorMessage(error)}`)
-    }
 
-    const getPreviousExecution = () => {
-        return {
-            id: newExecution.id,
-            state: status,
-            agentflowId: chatflowid,
-            sessionId,
-            workspaceId,
-            executionData: JSON.stringify(agentFlowExecutedData),
-            executionDataBlob: undefined,
-            createdDate: newExecution.createdDate ?? new Date(),
-            updatedDate: newExecution.updatedDate ?? new Date()
-        } as IExecution
-    }
-    const ensureTrustedData = () => {
-        if (!trustedData) {
-            trustedData = { pastChatHistory: [], previousExecution: getPreviousExecution() } as TrustedState
-        } else {
-            trustedData.previousExecution = getPreviousExecution()
+        nodeExecutionQueue.push(...dependencyEngine.getInitialQueue())
+
+        const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
+
+        // Get chat history from ChatMessage table
+        const pastChatHistory: IMessage[] =
+            process.env.DISABLE_CHAT_MESSAGE_RECORDING || useTrustedState || zeroRetention
+                ? trustedData?.pastChatHistory?.map(mapChatMessageToIMessage) ?? []
+                : ((await appDataSource
+                      .getRepository(ChatMessage)
+                      .find({
+                          where: {
+                              chatflowid,
+                              sessionId
+                          },
+                          order: {
+                              createdDate: 'ASC'
+                          }
+                      })
+                      .then((messages) => messages.map(mapChatMessageToIMessage))) as IMessage[])
+
+        let currentHumanInput = humanInput
+
+        // For iteration calls, clear human input since they should start fresh
+        if (isRecursive && iterationContext && humanInput) {
+            currentHumanInput = undefined
         }
-        return trustedData
-    }
 
-    const effectiveMaxNodeConcurrency = getMaxNodeConcurrency(maxNodeConcurrency)
-    const streamCoordinator = !isRecursive && sseStreamer ? createStreamCoordinator(sseStreamer) : undefined
-    const currentTurnNodeIds = new Set<string>()
-    const excludedLoopNodeIds = new Set<string>()
-    const resolveCurrentTerminalOutput = () => {
-        streamCoordinator?.flushAll()
-        const levels = dependencyEngine.getLevels()
-        const streamOrder = streamCoordinator?.getStreamOrder()
-        const resolved = resolveTerminalContent({
-            agentFlowExecutedData,
-            graph,
-            nodes,
-            levels,
-            streamOrder,
-            excludedLoopNodeIds,
-            currentTurnNodeIds
-        })
-        const metadata = aggregateTerminalMetadata({
-            agentFlowExecutedData,
-            graph,
-            nodes,
-            levels,
-            streamOrder,
-            excludedLoopNodeIds,
-            currentTurnNodeIds
-        })
-        return {
-            content: resolved.content,
-            terminalNodeIds: resolved.terminalNodeIds,
-            metadata
-        }
-    }
+        let analyticHandlers: AnalyticHandler | undefined
+        let parentTraceIds: ICommonObject | undefined
 
-    const faultRecorder = createFaultRecorder(abortScope)
-    const skippedErrorNodeIds = new Set<string>()
-    let hasStoppedNode = false
-    let schedulerError: unknown
-    let schedulerTerminalOutput: ReturnType<typeof resolveCurrentTerminalOutput> | undefined
-
-    try {
-        const schedulerResult = await runConcurrentNodeScheduler({
-            nodeExecutionQueue,
-            maxNodeConcurrency: effectiveMaxNodeConcurrency,
-            maxIterations,
-            canScheduleMore: () => status === 'INPROGRESS' && !faultRecorder.getRootError() && !abortScope.isAborted(),
-            onBeforeFirstLaunch: () => {
-                if (!isRecursive) {
-                    sseStreamer?.streamAgentFlowEvent(chatId, 'INPROGRESS')
+        try {
+            if (chatflow.analytic) {
+                // Override config analytics
+                let analyticInputs: ICommonObject = {}
+                if (overrideConfig?.analytics && Object.keys(overrideConfig.analytics).length > 0) {
+                    analyticInputs = {
+                        ...overrideConfig.analytics
+                    }
                 }
-            },
-            shouldLaunchNode: (currentNode) => {
-                if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
-                    return false
-                }
-                const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
-                return Boolean(reactFlowNode && reactFlowNode.data.name !== 'stickyNoteAgentflow')
-            },
-            compareQueuedNodes: (a, b) => dependencyEngine.compareQueueItems(a, b),
-            executeNodeTask: async (currentNode) => {
-                const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
-                if (!reactFlowNode) {
-                    throw new Error(`Node ${currentNode.nodeId} not found`)
-                }
-
-                // Check for abort signal early before capturing snapshot or running node
-                if (abortScope.isAborted()) {
-                    throw new Error('Aborted')
-                }
-
-                logger.debug(`   🎯 Executing node: ${reactFlowNode?.data.label}`)
-
-                // Capture immutable start state snapshot and isolated runtime clone at actual launch time
-                const { startStateSnapshot, nodeRuntimeSnapshot } = createNodeRuntimeSnapshot(agentflowRuntime)
-                const nodeSseStreamer = streamCoordinator ? streamCoordinator.createNodeStreamer(currentNode.nodeId) : sseStreamer
-
-                const executionResult = await executeNode({
-                    nodeId: currentNode.nodeId,
-                    reactFlowNode,
-                    nodes,
-                    edges,
-                    graph,
-                    reversedGraph,
-                    incomingInput: { ...incomingInput },
-                    chatflow,
-                    chatId,
-                    sessionId,
-                    apiMessageId,
-                    evaluationRunId,
-                    parentExecutionId,
-                    isInternal,
-                    pastChatHistory: cloneDeep(pastChatHistory),
-                    prependedChatHistory: cloneDeep(prependedChatHistory),
-                    appDataSource,
-                    usageCacheManager,
-                    telemetry,
-                    componentNodes,
-                    cachePool,
-                    sseStreamer: nodeSseStreamer,
-                    baseURL,
-                    overrideConfig,
-                    apiOverrideStatus,
-                    nodeOverrides,
-                    variableOverrides,
-                    uploadedFilesContent,
-                    fileUploads,
-                    humanInput:
-                        currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId ? currentHumanInput : undefined,
-                    agentFlowExecutedData: [...agentFlowExecutedData],
-                    agentflowRuntime: nodeRuntimeSnapshot,
-                    abortController: abortScope.abortController,
-                    parentTraceIds,
-                    analyticHandlers,
-                    isRecursive,
-                    iterationContext,
-                    loopCounts: new Map(loopCounts),
+                analyticHandlers = AnalyticHandler.getInstance({ inputs: { analytics: analyticInputs } } as any, {
                     orgId,
                     workspaceId,
-                    subscriptionId,
-                    productId,
-                    zeroRetention,
-                    nodeInstanceFactory,
-                    maxNodeConcurrency,
-                    enqueueDbUpdate: dbUpdateQueue.enqueue
+                    appDataSource,
+                    databaseEntities,
+                    componentNodes,
+                    analytic: chatflow.analytic,
+                    chatId
                 })
+                await analyticHandlers.init()
+                parentTraceIds = await analyticHandlers.onChainStart(
+                    'Agentflow',
+                    form && Object.keys(form).length > 0 ? JSON.stringify(form) : question || ''
+                )
+            }
+        } catch (error) {
+            logger.error(`[server]: Error initializing analytic handlers: ${getErrorMessage(error)}`)
+        }
 
-                return {
-                    executionResult,
-                    startStateSnapshot,
-                    reactFlowNode,
-                    nodeSseStreamer
-                }
-            },
-            onNodeComplete: (currentNode, { executionResult, startStateSnapshot, reactFlowNode, nodeSseStreamer }) => {
-                let isStale = false
-                try {
+        const getPreviousExecution = () => {
+            return {
+                id: newExecution.id,
+                state: status,
+                agentflowId: chatflowid,
+                sessionId,
+                workspaceId,
+                executionData: JSON.stringify(agentFlowExecutedData),
+                executionDataBlob: undefined,
+                createdDate: newExecution.createdDate ?? new Date(),
+                updatedDate: newExecution.updatedDate ?? new Date()
+            } as IExecution
+        }
+        const ensureTrustedData = () => {
+            if (!trustedData) {
+                trustedData = { pastChatHistory: [], previousExecution: getPreviousExecution() } as TrustedState
+            } else {
+                trustedData.previousExecution = getPreviousExecution()
+            }
+            return trustedData
+        }
+
+        const effectiveMaxNodeConcurrency = getMaxNodeConcurrency(maxNodeConcurrency)
+        const streamCoordinator = !isRecursive && sseStreamer ? createStreamCoordinator(sseStreamer) : undefined
+        const currentTurnNodeIds = new Set<string>()
+        const excludedLoopNodeIds = new Set<string>()
+        const resolveCurrentTerminalOutput = () => {
+            streamCoordinator?.flushAll()
+            const levels = dependencyEngine.getLevels()
+            const streamOrder = streamCoordinator?.getStreamOrder()
+            const resolved = resolveTerminalContent({
+                agentFlowExecutedData,
+                graph,
+                nodes,
+                levels,
+                streamOrder,
+                excludedLoopNodeIds,
+                currentTurnNodeIds
+            })
+            const metadata = aggregateTerminalMetadata({
+                agentFlowExecutedData,
+                graph,
+                nodes,
+                levels,
+                streamOrder,
+                excludedLoopNodeIds,
+                currentTurnNodeIds
+            })
+            return {
+                content: resolved.content,
+                terminalNodeIds: resolved.terminalNodeIds,
+                metadata
+            }
+        }
+
+        const faultRecorder = createFaultRecorder(abortScope)
+        const skippedErrorNodeIds = new Set<string>()
+        let hasStoppedNode = false
+        let schedulerError: unknown
+        let schedulerTerminalOutput: ReturnType<typeof resolveCurrentTerminalOutput> | undefined
+
+        try {
+            const schedulerResult = await runConcurrentNodeScheduler({
+                nodeExecutionQueue,
+                maxNodeConcurrency: effectiveMaxNodeConcurrency,
+                maxIterations,
+                canScheduleMore: () => status === 'INPROGRESS' && !faultRecorder.getRootError() && !abortScope.isAborted(),
+                onBeforeFirstLaunch: () => {
+                    if (!isRecursive) {
+                        sseStreamer?.streamAgentFlowEvent(chatId, 'INPROGRESS')
+                    }
+                },
+                shouldLaunchNode: (currentNode) => {
                     if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
-                        logger.debug(
-                            `[agentflow]: Ignoring stale completion from node ${currentNode.nodeId} (epoch ${currentNode.epoch} !== ${dependencyEngine.getNodeEpoch(currentNode.nodeId)})`
-                        )
-                        isStale = true
-                        return { shouldStop: false }
+                        return false
+                    }
+                    const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
+                    return Boolean(reactFlowNode && reactFlowNode.data.name !== 'stickyNoteAgentflow')
+                },
+                compareQueuedNodes: (a, b) => dependencyEngine.compareQueueItems(a, b),
+                executeNodeTask: async (currentNode) => {
+                    const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
+                    if (!reactFlowNode) {
+                        throw new Error(`Node ${currentNode.nodeId} not found`)
                     }
 
-                    // Only clear currentHumanInput when consumed by its target startNodeId (never resurrect from non-consuming siblings)
-                    if (currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId && !executionResult.humanInput) {
-                        currentHumanInput = undefined
+                    // Check for abort signal early before capturing snapshot or running node
+                    if (abortScope.isAborted()) {
+                        throw new Error('Aborted')
                     }
 
-                    skippedErrorNodeIds.delete(currentNode.nodeId)
+                    logger.debug(`   🎯 Executing node: ${reactFlowNode?.data.label}`)
 
-                    if (executionResult.shouldStop) {
-                        dependencyEngine.markNodeStopped(currentNode.nodeId, currentNode.epoch)
-                        if (
-                            executionResult.result?.state &&
-                            typeof executionResult.result.state === 'object' &&
-                            !Array.isArray(executionResult.result.state)
-                        ) {
-                            const stoppedDelta = computeStateDelta(startStateSnapshot, executionResult.result.state)
-                            agentflowRuntime.state = applyStateDelta(agentflowRuntime.state ?? {}, stoppedDelta)
+                    // Capture immutable start state snapshot and isolated runtime clone at actual launch time
+                    const { startStateSnapshot, nodeRuntimeSnapshot } = createNodeRuntimeSnapshot(agentflowRuntime)
+                    const nodeSseStreamer = streamCoordinator ? streamCoordinator.createNodeStreamer(currentNode.nodeId) : sseStreamer
+
+                    const executionResult = await executeNode({
+                        nodeId: currentNode.nodeId,
+                        reactFlowNode,
+                        nodes,
+                        edges,
+                        graph,
+                        reversedGraph,
+                        incomingInput: { ...incomingInput },
+                        chatflow,
+                        chatId,
+                        sessionId,
+                        apiMessageId,
+                        evaluationRunId,
+                        parentExecutionId,
+                        isInternal,
+                        pastChatHistory: cloneDeep(pastChatHistory),
+                        prependedChatHistory: cloneDeep(prependedChatHistory),
+                        appDataSource,
+                        usageCacheManager,
+                        telemetry,
+                        componentNodes,
+                        cachePool,
+                        sseStreamer: nodeSseStreamer,
+                        baseURL,
+                        overrideConfig,
+                        apiOverrideStatus,
+                        nodeOverrides,
+                        variableOverrides,
+                        uploadedFilesContent,
+                        fileUploads,
+                        humanInput:
+                            currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId ? currentHumanInput : undefined,
+                        agentFlowExecutedData: [...agentFlowExecutedData],
+                        agentflowRuntime: nodeRuntimeSnapshot,
+                        abortController: abortScope.abortController,
+                        parentTraceIds,
+                        analyticHandlers,
+                        isRecursive,
+                        iterationContext,
+                        loopCounts: new Map(loopCounts),
+                        orgId,
+                        workspaceId,
+                        subscriptionId,
+                        productId,
+                        zeroRetention,
+                        nodeInstanceFactory,
+                        maxNodeConcurrency,
+                        enqueueDbUpdate: dbUpdateQueue.enqueue,
+                        getExecutedData: () => agentFlowExecutedData
+                    })
+
+                    return {
+                        executionResult,
+                        startStateSnapshot,
+                        reactFlowNode,
+                        nodeSseStreamer
+                    }
+                },
+                onNodeComplete: (currentNode, { executionResult, startStateSnapshot, reactFlowNode, nodeSseStreamer }) => {
+                    let isStale = false
+                    try {
+                        if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
+                            logger.debug(
+                                `[agentflow]: Ignoring stale completion from node ${currentNode.nodeId} (epoch ${
+                                    currentNode.epoch
+                                } !== ${dependencyEngine.getNodeEpoch(currentNode.nodeId)})`
+                            )
+                            isStale = true
+                            return { shouldStop: false }
                         }
-                        if (executionResult.stoppedExecutedData?.data) {
-                            executionResult.stoppedExecutedData.data = {
-                                ...executionResult.stoppedExecutedData.data,
-                                state: cloneDeep(agentflowRuntime.state ?? {})
+
+                        // Only clear currentHumanInput when consumed by its target startNodeId (never resurrect from non-consuming siblings)
+                        if (currentHumanInput && currentNode.nodeId === currentHumanInput.startNodeId && !executionResult.humanInput) {
+                            currentHumanInput = undefined
+                        }
+
+                        skippedErrorNodeIds.delete(currentNode.nodeId)
+
+                        if (executionResult.shouldStop) {
+                            dependencyEngine.markNodeStopped(currentNode.nodeId, currentNode.epoch)
+                            if (
+                                executionResult.result?.state &&
+                                typeof executionResult.result.state === 'object' &&
+                                !Array.isArray(executionResult.result.state)
+                            ) {
+                                const stoppedDelta = computeStateDelta(startStateSnapshot, executionResult.result.state)
+                                agentflowRuntime.state = applyStateDelta(agentflowRuntime.state ?? {}, stoppedDelta)
                             }
+                            if (executionResult.stoppedExecutedData?.data) {
+                                executionResult.stoppedExecutedData.data = {
+                                    ...executionResult.stoppedExecutedData.data,
+                                    state: cloneDeep(agentflowRuntime.state ?? {})
+                                }
+                            }
+                            commitExecutedDataDelta(agentFlowExecutedData, {
+                                removedNodeIds: executionResult.removedExecutedNodeIds,
+                                additionalRecords: executionResult.additionalExecutedData,
+                                nodeRecord: executionResult.stoppedExecutedData
+                            })
+                            currentTurnNodeIds.add(currentNode.nodeId)
+                            sseStreamer?.streamNextAgentFlowEvent(chatId, {
+                                nodeId: currentNode.nodeId,
+                                nodeLabel: reactFlowNode.data.label,
+                                status: 'STOPPED'
+                            })
+                            if (!isRecursive) {
+                                sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+                            }
+                            return { shouldStop: true }
                         }
+
+                        const nodeResult = executionResult.result
+
+                        // Reconcile runtime state delta, chat history, form, and feedback flags atomically before committing record
+                        const commitResult = reconcileRuntimeCommit({
+                            agentflowRuntime,
+                            startStateSnapshot,
+                            nodeResult,
+                            pastChatHistory,
+                            trustedData,
+                            incomingInput,
+                            question
+                        })
+                        question = commitResult.question
+
+                        if (status === 'INPROGRESS' && !faultRecorder.getRootError() && !abortScope.isAborted()) {
+                            // Synchronously settle DAG edges, cascade DPE, and handle loop subgraph reset
+                            const processResult = dependencyEngine.processNodeCompletion({
+                                nodeId: currentNode.nodeId,
+                                nodeName: reactFlowNode.data.name,
+                                result: nodeResult,
+                                epoch: currentNode.epoch,
+                                humanInput: currentHumanInput,
+                                nodeExecutionQueue,
+                                loopCounts,
+                                sseStreamer: !isRecursive ? nodeSseStreamer : undefined,
+                                chatId
+                            })
+
+                            if (reactFlowNode.data.name === 'loopAgentflow' && !processResult.loopHitMaxCount) {
+                                excludedLoopNodeIds.add(currentNode.nodeId)
+                            } else {
+                                excludedLoopNodeIds.delete(currentNode.nodeId)
+                            }
+
+                            if (currentHumanInput && !processResult.humanInput) {
+                                currentHumanInput = undefined
+                            }
+                        } else if (reactFlowNode.data.name === 'loopAgentflow') {
+                            excludedLoopNodeIds.add(currentNode.nodeId)
+                        }
+
+                        const committedNodeData =
+                            nodeResult && typeof nodeResult === 'object'
+                                ? { ...nodeResult, state: cloneDeep(agentflowRuntime.state ?? {}) }
+                                : nodeResult
+
                         commitExecutedDataDelta(agentFlowExecutedData, {
                             removedNodeIds: executionResult.removedExecutedNodeIds,
                             additionalRecords: executionResult.additionalExecutedData,
-                            nodeRecord: executionResult.stoppedExecutedData
+                            nodeRecord: {
+                                nodeId: currentNode.nodeId,
+                                nodeLabel: reactFlowNode.data.label,
+                                data: committedNodeData,
+                                previousNodeIds: reversedGraph[currentNode.nodeId],
+                                status: 'FINISHED'
+                            }
                         })
                         currentTurnNodeIds.add(currentNode.nodeId)
+
                         sseStreamer?.streamNextAgentFlowEvent(chatId, {
                             nodeId: currentNode.nodeId,
                             nodeLabel: reactFlowNode.data.label,
-                            status: 'STOPPED'
-                        })
-                        if (!isRecursive) {
-                            sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-                        }
-                        return { shouldStop: true }
-                    }
-
-                    const nodeResult = executionResult.result
-
-                    // Reconcile runtime state delta, chat history, form, and feedback flags atomically before committing record
-                    const commitResult = reconcileRuntimeCommit({
-                        agentflowRuntime,
-                        startStateSnapshot,
-                        nodeResult,
-                        pastChatHistory,
-                        trustedData,
-                        incomingInput,
-                        question
-                    })
-                    question = commitResult.question
-
-                    if (status === 'INPROGRESS' && !faultRecorder.getRootError() && !abortScope.isAborted()) {
-                        // Synchronously settle DAG edges, cascade DPE, and handle loop subgraph reset
-                        const processResult = dependencyEngine.processNodeCompletion({
-                            nodeId: currentNode.nodeId,
-                            nodeName: reactFlowNode.data.name,
-                            result: nodeResult,
-                            epoch: currentNode.epoch,
-                            humanInput: currentHumanInput,
-                            nodeExecutionQueue,
-                            loopCounts,
-                            sseStreamer: !isRecursive ? nodeSseStreamer : undefined,
-                            chatId
-                        })
-
-                        if (reactFlowNode.data.name === 'loopAgentflow' && !processResult.loopHitMaxCount) {
-                            excludedLoopNodeIds.add(currentNode.nodeId)
-                        } else {
-                            excludedLoopNodeIds.delete(currentNode.nodeId)
-                        }
-
-                        if (currentHumanInput && !processResult.humanInput) {
-                            currentHumanInput = undefined
-                        }
-                    } else if (reactFlowNode.data.name === 'loopAgentflow') {
-                        excludedLoopNodeIds.add(currentNode.nodeId)
-                    }
-
-                    const committedNodeData =
-                        nodeResult && typeof nodeResult === 'object'
-                            ? { ...nodeResult, state: cloneDeep(agentflowRuntime.state ?? {}) }
-                            : nodeResult
-
-                    commitExecutedDataDelta(agentFlowExecutedData, {
-                        removedNodeIds: executionResult.removedExecutedNodeIds,
-                        additionalRecords: executionResult.additionalExecutedData,
-                        nodeRecord: {
-                            nodeId: currentNode.nodeId,
-                            nodeLabel: reactFlowNode.data.label,
-                            data: committedNodeData,
-                            previousNodeIds: reversedGraph[currentNode.nodeId],
                             status: 'FINISHED'
+                        })
+
+                        if (!isRecursive) sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+
+                        return { shouldStop: false }
+                    } finally {
+                        streamCoordinator?.releaseStream(currentNode.nodeId, {
+                            discardBuffered: isStale || Boolean(faultRecorder.getRootError() || abortScope.isAborted())
+                        })
+                    }
+                },
+                handleNodeStopped: () => {
+                    // Keep status === 'INPROGRESS' so non-blocked sibling branches continue draining naturally
+                    hasStoppedNode = true
+                },
+                onNodeError: onNodeError ?? (() => 'abort'),
+                handleNodeError: (currentNode, error, policy = 'abort') => {
+                    streamCoordinator?.releaseStream(currentNode.nodeId, { discardBuffered: true })
+                    const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
+
+                    if (policy === 'skip-branch' && !faultRecorder.getRootError() && !abortScope.isAborted()) {
+                        skippedErrorNodeIds.add(currentNode.nodeId)
+                        const errorMessage = getErrorMessage(error)
+                        if (reactFlowNode) {
+                            agentFlowExecutedData.push({
+                                nodeId: currentNode.nodeId,
+                                nodeLabel: reactFlowNode.data.label,
+                                previousNodeIds: reversedGraph[currentNode.nodeId] || [],
+                                data: {
+                                    id: currentNode.nodeId,
+                                    name: reactFlowNode.data.name,
+                                    error: errorMessage
+                                },
+                                status: 'ERROR'
+                            })
+                            sseStreamer?.streamNextAgentFlowEvent(chatId, {
+                                nodeId: currentNode.nodeId,
+                                nodeLabel: reactFlowNode.data.label,
+                                status: 'ERROR',
+                                error: errorMessage
+                            })
                         }
-                    })
-                    currentTurnNodeIds.add(currentNode.nodeId)
+                        dependencyEngine.markNodeSkipped(currentNode.nodeId, nodeExecutionQueue, currentNode.epoch)
+                        return
+                    }
 
-                    sseStreamer?.streamNextAgentFlowEvent(chatId, {
-                        nodeId: currentNode.nodeId,
-                        nodeLabel: reactFlowNode.data.label,
-                        status: 'FINISHED'
-                    })
+                    const recorded = faultRecorder.recordNodeError(error)
+                    status = recorded.rootError.errorStatus
 
-                    if (!isRecursive) sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-
-                    return { shouldStop: false }
-                } finally {
-                    streamCoordinator?.releaseStream(currentNode.nodeId, {
-                        discardBuffered: isStale || Boolean(faultRecorder.getRootError() || abortScope.isAborted())
-                    })
-                }
-            },
-            handleNodeStopped: () => {
-                // Keep status === 'INPROGRESS' so non-blocked sibling branches continue draining naturally
-                hasStoppedNode = true
-            },
-            onNodeError: onNodeError ?? (() => 'abort'),
-            handleNodeError: (currentNode, error, policy = 'abort') => {
-                streamCoordinator?.releaseStream(currentNode.nodeId, { discardBuffered: true })
-                const reactFlowNode = nodes.find((nd) => nd.id === currentNode.nodeId)
-
-                if (policy === 'skip-branch' && !faultRecorder.getRootError() && !abortScope.isAborted()) {
-                    skippedErrorNodeIds.add(currentNode.nodeId)
-                    const errorMessage = getErrorMessage(error)
                     if (reactFlowNode) {
                         agentFlowExecutedData.push({
                             nodeId: currentNode.nodeId,
@@ -1905,368 +1942,353 @@ export const executeAgentFlow = async ({
                             data: {
                                 id: currentNode.nodeId,
                                 name: reactFlowNode.data.name,
-                                error: errorMessage
+                                error: recorded.nodeMessage
                             },
-                            status: 'ERROR'
+                            status: recorded.nodeStatus
                         })
+
                         sseStreamer?.streamNextAgentFlowEvent(chatId, {
                             nodeId: currentNode.nodeId,
                             nodeLabel: reactFlowNode.data.label,
-                            status: 'ERROR',
-                            error: errorMessage
+                            status: recorded.nodeStatus,
+                            error: recorded.isAbort ? undefined : recorded.nodeMessage
                         })
                     }
-                    dependencyEngine.markNodeSkipped(currentNode.nodeId, nodeExecutionQueue, currentNode.epoch)
-                    return
+
+                    abortScope.abortInternal(error)
+                },
+                selectTerminalOutput: () => {
+                    if (faultRecorder.getRootError() || abortScope.isAborted()) {
+                        return undefined
+                    }
+                    return resolveCurrentTerminalOutput()
                 }
-
-                const recorded = faultRecorder.recordNodeError(error)
-                status = recorded.rootError.errorStatus
-
-                if (reactFlowNode) {
-                    agentFlowExecutedData.push({
-                        nodeId: currentNode.nodeId,
-                        nodeLabel: reactFlowNode.data.label,
-                        previousNodeIds: reversedGraph[currentNode.nodeId] || [],
-                        data: {
-                            id: currentNode.nodeId,
-                            name: reactFlowNode.data.name,
-                            error: recorded.nodeMessage
-                        },
-                        status: recorded.nodeStatus
-                    })
-
-                    sseStreamer?.streamNextAgentFlowEvent(chatId, {
-                        nodeId: currentNode.nodeId,
-                        nodeLabel: reactFlowNode.data.label,
-                        status: recorded.nodeStatus,
-                        error: recorded.isAbort ? undefined : recorded.nodeMessage
-                    })
-                }
-
-                abortScope.abortInternal(error)
-            },
-            selectTerminalOutput: () => {
-                if (faultRecorder.getRootError() || abortScope.isAborted()) {
-                    return undefined
-                }
-                return resolveCurrentTerminalOutput()
-            }
-        })
-        schedulerTerminalOutput = schedulerResult.terminalOutput
-    } catch (error) {
-        schedulerError = error
-    }
-
-    const persistAndThrowFatalError = async (errorStatus: ExecutionState, errorMessage: string, errorToThrow: unknown): Promise<never> => {
-        status = errorStatus
-        if (!isRecursive) {
-            sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
-
-            await serializedUpdateExecution(newExecution.id, {
-                executionData: JSON.stringify(agentFlowExecutedData),
-                state: errorStatus
             })
-            await dbUpdateQueue.drain()
+            schedulerTerminalOutput = schedulerResult.terminalOutput
+        } catch (error) {
+            schedulerError = error
+        }
 
-            // trusted data update
-            trustedData = ensureTrustedData()
-            sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
-
-            sseStreamer?.streamAgentFlowEvent(chatId, errorStatus)
-        } else {
+        // By now the answer (or the root node error) is decided; a failed Execution write must neither replace it nor stop the final events
+        const persistFinalExecution = async (finalState: ExecutionState) => {
+            try {
+                await serializedUpdateExecution(newExecution.id, {
+                    executionData: JSON.stringify(agentFlowExecutedData),
+                    state: finalState
+                })
+            } catch (error) {
+                logger.warn(
+                    `[agentflow]: Failed to persist ${finalState} state for execution ${newExecution.id}: ${getErrorMessage(error)}`
+                )
+            }
             await dbUpdateQueue.drain()
         }
+
+        const persistAndThrowFatalError = async (
+            errorStatus: ExecutionState,
+            errorMessage: string,
+            errorToThrow: unknown
+        ): Promise<never> => {
+            status = errorStatus
+            if (!isRecursive) {
+                sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+
+                await persistFinalExecution(errorStatus)
+
+                // trusted data update
+                trustedData = ensureTrustedData()
+                sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
+
+                sseStreamer?.streamAgentFlowEvent(chatId, errorStatus)
+            } else {
+                await dbUpdateQueue.drain()
+            }
+
+            if (parentTraceIds && analyticHandlers) {
+                await analyticHandlers.onChainError(parentTraceIds, errorMessage, true)
+            }
+
+            throw errorToThrow
+        }
+
+        const finalFault = faultRecorder.finalizeForExternalAbort()
+        if (finalFault) {
+            await persistAndThrowFatalError(finalFault.errorStatus, finalFault.errorMessage, new Error(finalFault.errorMessage))
+        }
+
+        if (schedulerError) {
+            const schedulerStatus: ExecutionState = abortScope.isAborted() ? 'TERMINATED' : 'ERROR'
+            await persistAndThrowFatalError(schedulerStatus, getErrorMessage(schedulerError), schedulerError)
+        }
+
+        const levels = dependencyEngine.getLevels()
+        const primaryStopped = selectPrimaryStoppedAction(agentFlowExecutedData, nodes, levels)
+
+        const latestStatusByNodeId = new Map<string, ExecutionState>()
+        for (const data of agentFlowExecutedData) {
+            if (data.data?.parentNodeId) continue
+            if (data.status) {
+                latestStatusByNodeId.set(data.nodeId, data.status)
+            }
+        }
+        const terminatedNode = Array.from(latestStatusByNodeId.values()).includes('TERMINATED')
+        const errorNode = Array.from(latestStatusByNodeId.entries()).some(
+            ([nodeId, nodeStatus]) => nodeStatus === 'ERROR' && !skippedErrorNodeIds.has(nodeId)
+        )
+        const hasActiveStoppedNode = primaryStopped.stoppedNodeIds.length > 0
+
+        if (terminatedNode) {
+            status = 'TERMINATED'
+        } else if (errorNode) {
+            status = 'ERROR'
+        } else if (hasStoppedNode || hasActiveStoppedNode) {
+            status = 'STOPPED'
+        } else {
+            status = 'FINISHED'
+        }
+
+        // Only update execution record if this is not a recursive call
+        if (!isRecursive) {
+            await persistFinalExecution(status)
+
+            if (status === 'STOPPED' && primaryStopped.action) {
+                sseStreamer?.streamActionEvent(chatId, primaryStopped.action)
+            }
+            sseStreamer?.streamAgentFlowEvent(chatId, status)
+        }
+
+        logger.debug(`\n🏁 Flow execution completed`)
+        logger.debug(`   Status: ${status}`)
+
+        const terminalOutput = schedulerTerminalOutput ?? resolveCurrentTerminalOutput()
+        let content = terminalOutput.content
+        const terminalMetadata: ITerminalMetadata = terminalOutput.metadata
+
+        /* Check for post-processing settings */
+        if (chatflowConfig?.postProcessing?.enabled === true && content) {
+            try {
+                const postProcessingFunction = JSON.parse(chatflowConfig?.postProcessing?.customFunction)
+                const nodeInstanceFilePath = componentNodes['customFunctionAgentflow'].filePath as string
+                const nodeModule = await import(nodeInstanceFilePath)
+                //set the outputs.output to EndingNode to prevent json escaping of content...
+                const nodeData = {
+                    inputs: { customFunctionJavascriptFunction: postProcessingFunction }
+                }
+                const runtimeChatHistory = agentflowRuntime.chatHistory || []
+                const chatHistory = [...pastChatHistory, ...runtimeChatHistory]
+                const options: ICommonObject = {
+                    chatflowid: chatflow.id,
+                    sessionId,
+                    chatId,
+                    input: question || form,
+                    postProcessing: {
+                        rawOutput: content,
+                        chatHistory: cloneDeep(chatHistory),
+                        sourceDocuments: terminalMetadata.sourceDocuments ? cloneDeep(terminalMetadata.sourceDocuments) : undefined,
+                        usedTools: terminalMetadata.usedTools ? cloneDeep(terminalMetadata.usedTools) : undefined,
+                        artifacts: terminalMetadata.artifacts ? cloneDeep(terminalMetadata.artifacts) : undefined,
+                        fileAnnotations: terminalMetadata.fileAnnotations ? cloneDeep(terminalMetadata.fileAnnotations) : undefined
+                    },
+                    appDataSource,
+                    databaseEntities,
+                    workspaceId,
+                    orgId,
+                    logger
+                }
+                const customFuncNodeInstance = new nodeModule.nodeClass()
+                const customFunctionResponse = await customFuncNodeInstance.run(nodeData, question || form, options)
+                const moderatedResponse = customFunctionResponse.output.content
+                if (typeof moderatedResponse === 'string') {
+                    content = moderatedResponse
+                } else if (typeof moderatedResponse === 'object') {
+                    content = '```json\n' + JSON.stringify(moderatedResponse, null, 2) + '\n```'
+                } else {
+                    content = moderatedResponse
+                }
+            } catch (e) {
+                logger.error('[server]: Post Processing Error:', e)
+            }
+        }
+
+        // remove credentialId from agentFlowExecutedData
+        agentFlowExecutedData = agentFlowExecutedData.map((data) => _removeCredentialId(data))
 
         if (parentTraceIds && analyticHandlers) {
-            await analyticHandlers.onChainError(parentTraceIds, errorMessage, true)
+            await analyticHandlers.onChainEnd(parentTraceIds, content, true)
         }
 
-        throw errorToThrow
-    }
-
-    const finalFault = faultRecorder.finalizeForExternalAbort()
-    if (finalFault) {
-        await persistAndThrowFatalError(finalFault.errorStatus, finalFault.errorMessage, new Error(finalFault.errorMessage))
-    }
-
-    if (schedulerError) {
-        const schedulerStatus: ExecutionState = abortScope.isAborted() ? 'TERMINATED' : 'ERROR'
-        await persistAndThrowFatalError(schedulerStatus, getErrorMessage(schedulerError), schedulerError)
-    }
-
-    const levels = dependencyEngine.getLevels()
-    const primaryStopped = selectPrimaryStoppedAction(agentFlowExecutedData, nodes, levels)
-
-    const latestStatusByNodeId = new Map<string, ExecutionState>()
-    for (const data of agentFlowExecutedData) {
-        if (data.data?.parentNodeId) continue
-        if (data.status) {
-            latestStatusByNodeId.set(data.nodeId, data.status)
-        }
-    }
-    const terminatedNode = Array.from(latestStatusByNodeId.values()).includes('TERMINATED')
-    const errorNode = Array.from(latestStatusByNodeId.entries()).some(
-        ([nodeId, nodeStatus]) => nodeStatus === 'ERROR' && !skippedErrorNodeIds.has(nodeId)
-    )
-    const hasActiveStoppedNode = primaryStopped.stoppedNodeIds.length > 0
-
-    if (terminatedNode) {
-        status = 'TERMINATED'
-    } else if (errorNode) {
-        status = 'ERROR'
-    } else if (hasStoppedNode || hasActiveStoppedNode) {
-        status = 'STOPPED'
-    } else {
-        status = 'FINISHED'
-    }
-
-    // Only update execution record if this is not a recursive call
-    if (!isRecursive) {
-        await serializedUpdateExecution(newExecution.id, {
-            executionData: JSON.stringify(agentFlowExecutedData),
-            state: status
-        })
-        await dbUpdateQueue.drain()
-
-        if (status === 'STOPPED' && primaryStopped.action) {
-            sseStreamer?.streamActionEvent(chatId, primaryStopped.action)
-        }
-        sseStreamer?.streamAgentFlowEvent(chatId, status)
-    }
-
-    logger.debug(`\n🏁 Flow execution completed`)
-    logger.debug(`   Status: ${status}`)
-
-    const terminalOutput = schedulerTerminalOutput ?? resolveCurrentTerminalOutput()
-    let content = terminalOutput.content
-    const terminalMetadata: ITerminalMetadata = terminalOutput.metadata
-
-    /* Check for post-processing settings */
-    if (chatflowConfig?.postProcessing?.enabled === true && content) {
-        try {
-            const postProcessingFunction = JSON.parse(chatflowConfig?.postProcessing?.customFunction)
-            const nodeInstanceFilePath = componentNodes['customFunctionAgentflow'].filePath as string
-            const nodeModule = await import(nodeInstanceFilePath)
-            //set the outputs.output to EndingNode to prevent json escaping of content...
-            const nodeData = {
-                inputs: { customFunctionJavascriptFunction: postProcessingFunction }
+        if (isRecursive) {
+            return {
+                agentFlowExecutedData,
+                agentflowRuntime,
+                status,
+                text: content
             }
-            const runtimeChatHistory = agentflowRuntime.chatHistory || []
-            const chatHistory = [...pastChatHistory, ...runtimeChatHistory]
-            const options: ICommonObject = {
-                chatflowid: chatflow.id,
-                sessionId,
-                chatId,
-                input: question || form,
-                postProcessing: {
-                    rawOutput: content,
-                    chatHistory: cloneDeep(chatHistory),
-                    sourceDocuments: terminalMetadata.sourceDocuments ? cloneDeep(terminalMetadata.sourceDocuments) : undefined,
-                    usedTools: terminalMetadata.usedTools ? cloneDeep(terminalMetadata.usedTools) : undefined,
-                    artifacts: terminalMetadata.artifacts ? cloneDeep(terminalMetadata.artifacts) : undefined,
-                    fileAnnotations: terminalMetadata.fileAnnotations ? cloneDeep(terminalMetadata.fileAnnotations) : undefined
-                },
-                appDataSource,
-                databaseEntities,
-                workspaceId,
-                orgId,
-                logger
-            }
-            const customFuncNodeInstance = new nodeModule.nodeClass()
-            const customFunctionResponse = await customFuncNodeInstance.run(nodeData, question || form, options)
-            const moderatedResponse = customFunctionResponse.output.content
-            if (typeof moderatedResponse === 'string') {
-                content = moderatedResponse
-            } else if (typeof moderatedResponse === 'object') {
-                content = '```json\n' + JSON.stringify(moderatedResponse, null, 2) + '\n```'
+        }
+
+        let doNotIncludeFeedbackHistory: boolean = false
+        // Find the previous chat message with the same session/chat id and remove the action
+        if (humanInput && Object.keys(humanInput).length) {
+            let query: IChatMessage[]
+            if (useTrustedState && trustedData) {
+                query = trustedData.pastChatHistory
             } else {
-                content = moderatedResponse
+                query = await appDataSource
+                    .getRepository(ChatMessage)
+                    .createQueryBuilder('chat_message')
+                    .where('chat_message.chatId = :chatId', { chatId })
+                    .orWhere('chat_message.sessionId = :sessionId', { sessionId })
+                    .orderBy('chat_message.createdDate', 'DESC')
+                    .getMany()
             }
-        } catch (e) {
-            logger.error('[server]: Post Processing Error:', e)
-        }
-    }
-
-    // remove credentialId from agentFlowExecutedData
-    agentFlowExecutedData = agentFlowExecutedData.map((data) => _removeCredentialId(data))
-
-    if (parentTraceIds && analyticHandlers) {
-        await analyticHandlers.onChainEnd(parentTraceIds, content, true)
-    }
-
-    if (isRecursive) {
-        return {
-            agentFlowExecutedData,
-            agentflowRuntime,
-            status,
-            text: content
-        }
-    }
-
-    let doNotIncludeFeedbackHistory: boolean = false
-    // Find the previous chat message with the same session/chat id and remove the action
-    if (humanInput && Object.keys(humanInput).length) {
-        let query: IChatMessage[]
-        if (useTrustedState && trustedData) {
-            query = trustedData.pastChatHistory
-        } else {
-            query = await appDataSource
-                .getRepository(ChatMessage)
-                .createQueryBuilder('chat_message')
-                .where('chat_message.chatId = :chatId', { chatId })
-                .orWhere('chat_message.sessionId = :sessionId', { sessionId })
-                .orderBy('chat_message.createdDate', 'DESC')
-                .getMany()
-        }
-        for (const result of query) {
-            if (result.action) {
-                try {
-                    doNotIncludeFeedbackHistory =
-                        result.action?.includes('doNotIncludeFeedbackHistory') ||
-                        Boolean(process.env.DISABLE_CHAT_MESSAGE_RECORDING) ||
-                        useTrustedState
-                    result.action = null
-                    const cm = appDataSource.getRepository(ChatMessage).create(result)
-                    if (doNotIncludeFeedbackHistory) {
-                        if (!useTrustedState) {
-                            // !cm.id.startswith('mock-') ?
-                            await appDataSource.getRepository(ChatMessage).remove(cm)
+            for (const result of query) {
+                if (result.action) {
+                    try {
+                        doNotIncludeFeedbackHistory =
+                            result.action?.includes('doNotIncludeFeedbackHistory') ||
+                            Boolean(process.env.DISABLE_CHAT_MESSAGE_RECORDING) ||
+                            useTrustedState
+                        result.action = null
+                        const cm = appDataSource.getRepository(ChatMessage).create(result)
+                        if (doNotIncludeFeedbackHistory) {
+                            if (!useTrustedState) {
+                                // !cm.id.startswith('mock-') ?
+                                await appDataSource.getRepository(ChatMessage).remove(cm)
+                            }
+                        } else {
+                            await appDataSource.getRepository(ChatMessage).save(cm)
                         }
-                    } else {
-                        await appDataSource.getRepository(ChatMessage).save(cm)
+                        break
+                    } catch (e) {
+                        // error converting action to JSON
                     }
-                    break
-                } catch (e) {
-                    // error converting action to JSON
                 }
             }
         }
-    }
-    let userMessage: ChatMessage | undefined = undefined
-    if (!doNotIncludeFeedbackHistory) {
-        let finalUserInput = incomingInput.question || ' '
+        let userMessage: ChatMessage | undefined = undefined
+        if (!doNotIncludeFeedbackHistory) {
+            let finalUserInput = incomingInput.question || ' '
 
-        if (startInputType === 'chatInput') {
-            finalUserInput = question || humanInput?.feedback || ' '
-        } else if (startInputType === 'formInput') {
-            if (form) {
-                finalUserInput = Object.entries(form || {})
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join('\n')
-            } else {
+            if (startInputType === 'chatInput') {
                 finalUserInput = question || humanInput?.feedback || ' '
+            } else if (startInputType === 'formInput') {
+                if (form) {
+                    finalUserInput = Object.entries(form || {})
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join('\n')
+                } else {
+                    finalUserInput = question || humanInput?.feedback || ' '
+                }
             }
+
+            const userMessageStub: Omit<IChatMessage, 'id'> = {
+                role: 'userMessage',
+                content: finalUserInput,
+                chatflowid,
+                chatType: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
+                chatId,
+                sessionId,
+                createdDate: userMessageDateTime,
+                fileUploads: uploads ? JSON.stringify(fileUploads) : undefined,
+                leadEmail: incomingInput.leadEmail,
+                executionId: newExecution.id
+            }
+            userMessage = await utilAddChatMessage(userMessageStub, appDataSource, useTrustedState)
         }
 
-        const userMessageStub: Omit<IChatMessage, 'id'> = {
-            role: 'userMessage',
-            content: finalUserInput,
+        const apiMessage: Omit<IChatMessage, 'createdDate'> = {
+            id: apiMessageId,
+            role: 'apiMessage',
+            content: content,
             chatflowid,
             chatType: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
             chatId,
             sessionId,
-            createdDate: userMessageDateTime,
-            fileUploads: uploads ? JSON.stringify(fileUploads) : undefined,
-            leadEmail: incomingInput.leadEmail,
             executionId: newExecution.id
         }
-        userMessage = await utilAddChatMessage(userMessageStub, appDataSource, useTrustedState)
-    }
-
-    const apiMessage: Omit<IChatMessage, 'createdDate'> = {
-        id: apiMessageId,
-        role: 'apiMessage',
-        content: content,
-        chatflowid,
-        chatType: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
-        chatId,
-        sessionId,
-        executionId: newExecution.id
-    }
-    if (terminalMetadata.sourceDocuments) apiMessage.sourceDocuments = JSON.stringify(terminalMetadata.sourceDocuments)
-    if (terminalMetadata.usedTools) apiMessage.usedTools = JSON.stringify(terminalMetadata.usedTools)
-    if (terminalMetadata.fileAnnotations) apiMessage.fileAnnotations = JSON.stringify(terminalMetadata.fileAnnotations)
-    if (terminalMetadata.artifacts) apiMessage.artifacts = JSON.stringify(terminalMetadata.artifacts)
-    if (chatflow.followUpPrompts) {
-        const followUpPromptsConfig = JSON.parse(chatflow.followUpPrompts)
-        const followUpPrompts = await generateFollowUpPrompts(followUpPromptsConfig, apiMessage.content, {
-            orgId,
-            workspaceId,
-            chatId,
-            chatflowid,
-            appDataSource,
-            databaseEntities
-        })
-        if (followUpPrompts?.questions) {
-            apiMessage.followUpPrompts = JSON.stringify(followUpPrompts.questions)
-        }
-    }
-    if (status === 'STOPPED' && primaryStopped.action && Object.keys(primaryStopped.action).length)
-        apiMessage.action = JSON.stringify(primaryStopped.action)
-
-    const chatMessage = await utilAddChatMessage(apiMessage, appDataSource, useTrustedState)
-    trustedData = ensureTrustedData()
-    if (userMessage) {
-        trustedData.pastChatHistory.push(userMessage)
-    }
-    trustedData.pastChatHistory.push(chatMessage)
-
-    // stream trusted state to client, replacing Executions and ChatMessage persistent DB collections holding user data
-    sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
-
-    logger.debug(`[server]: Finished running agentflow ${chatflowid}`)
-
-    await telemetry.sendTelemetry(
-        'prediction_sent',
-        {
-            version: await getAppVersion(),
-            chatflowId: chatflowid,
-            chatId,
-            type: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
-            flowGraph: getTelemetryFlowObj(nodes, edges),
-            productId,
-            subscriptionId
-        },
-        orgId
-    )
-
-    /*** Prepare response ***/
-    let result: ICommonObject = {}
-    result.text = content
-    result.question = incomingInput.question // return the question in the response, this is used when input text is empty but question is in audio format
-    result.form = form
-    result.chatId = chatId
-    result.chatMessageId = chatMessage?.id
-    result.followUpPrompts = JSON.stringify(apiMessage.followUpPrompts)
-    result.executionId = newExecution.id
-    result.agentFlowExecutedData = agentFlowExecutedData
-
-    if (sessionId) result.sessionId = sessionId
-
-    if (shouldAutoPlayTTS(chatflow.textToSpeech) && result.text) {
-        const options = {
-            orgId,
-            chatflowid,
-            chatId,
-            appDataSource,
-            databaseEntities
-        }
-
-        if (sseStreamer) {
-            await generateTTSForResponseStream(
-                result.text,
-                chatflow.textToSpeech,
-                options,
+        if (terminalMetadata.sourceDocuments) apiMessage.sourceDocuments = JSON.stringify(terminalMetadata.sourceDocuments)
+        if (terminalMetadata.usedTools) apiMessage.usedTools = JSON.stringify(terminalMetadata.usedTools)
+        if (terminalMetadata.fileAnnotations) apiMessage.fileAnnotations = JSON.stringify(terminalMetadata.fileAnnotations)
+        if (terminalMetadata.artifacts) apiMessage.artifacts = JSON.stringify(terminalMetadata.artifacts)
+        if (chatflow.followUpPrompts) {
+            const followUpPromptsConfig = JSON.parse(chatflow.followUpPrompts)
+            const followUpPrompts = await generateFollowUpPrompts(followUpPromptsConfig, apiMessage.content, {
+                orgId,
+                workspaceId,
                 chatId,
-                chatMessage?.id,
-                sseStreamer,
-                abortScope.abortController
-            )
+                chatflowid,
+                appDataSource,
+                databaseEntities
+            })
+            if (followUpPrompts?.questions) {
+                apiMessage.followUpPrompts = JSON.stringify(followUpPrompts.questions)
+            }
         }
-    }
+        if (status === 'STOPPED' && primaryStopped.action && Object.keys(primaryStopped.action).length)
+            apiMessage.action = JSON.stringify(primaryStopped.action)
 
-    return result
+        const chatMessage = await utilAddChatMessage(apiMessage, appDataSource, useTrustedState)
+        trustedData = ensureTrustedData()
+        if (userMessage) {
+            trustedData.pastChatHistory.push(userMessage)
+        }
+        trustedData.pastChatHistory.push(chatMessage)
+
+        // stream trusted state to client, replacing Executions and ChatMessage persistent DB collections holding user data
+        sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
+
+        logger.debug(`[server]: Finished running agentflow ${chatflowid}`)
+
+        await telemetry.sendTelemetry(
+            'prediction_sent',
+            {
+                version: await getAppVersion(),
+                chatflowId: chatflowid,
+                chatId,
+                type: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
+                flowGraph: getTelemetryFlowObj(nodes, edges),
+                productId,
+                subscriptionId
+            },
+            orgId
+        )
+
+        /*** Prepare response ***/
+        let result: ICommonObject = {}
+        result.text = content
+        result.question = incomingInput.question // return the question in the response, this is used when input text is empty but question is in audio format
+        result.form = form
+        result.chatId = chatId
+        result.chatMessageId = chatMessage?.id
+        result.followUpPrompts = JSON.stringify(apiMessage.followUpPrompts)
+        result.executionId = newExecution.id
+        result.agentFlowExecutedData = agentFlowExecutedData
+
+        if (sessionId) result.sessionId = sessionId
+
+        if (shouldAutoPlayTTS(chatflow.textToSpeech) && result.text) {
+            const options = {
+                orgId,
+                chatflowid,
+                chatId,
+                appDataSource,
+                databaseEntities
+            }
+
+            if (sseStreamer) {
+                await generateTTSForResponseStream(
+                    result.text,
+                    chatflow.textToSpeech,
+                    options,
+                    chatId,
+                    chatMessage?.id,
+                    sseStreamer,
+                    abortScope.abortController
+                )
+            }
+        }
+
+        return result
     } finally {
         abortScope.cleanup()
         await dbUpdateQueue.drain()

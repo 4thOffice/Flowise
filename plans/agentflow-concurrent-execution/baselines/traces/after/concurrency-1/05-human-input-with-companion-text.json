@@ -1,0 +1,1210 @@
+{
+  "capturedAt": "2026-11-21T01:47:56.742Z",
+  "flow": {
+    "slug": "05-human-input-with-companion-text",
+    "name": "Baseline 05 - HumanInput With Companion Text",
+    "file": "05-human-input-with-companion-text.json",
+    "chatflowId": "bd1f7b08-043c-4652-b250-4ad437e6940f",
+    "validationIssues": [
+      {
+        "id": "agentflow-multiple-terminals",
+        "label": "Multiple Terminal Nodes",
+        "name": "multipleTerminals",
+        "issues": [
+          "Multiple content-producing terminal nodes (Companion Summary, Approved Reply, Rejected Reply) can run in this flow. Active terminals stream consecutively separated by a blank line (\\n\\n); deterministic tie-break order (executionOrder ?? position.y) is Companion Summary -> Approved Reply -> Rejected Reply ('Companion Summary' first if finishing together)."
+        ]
+      }
+    ]
+  },
+  "runs": {
+    "nonStreaming": {
+      "sessionId": "flow05-rest-1795225672291",
+      "turn1_stopped": {
+        "mode": "non-streaming",
+        "request": {
+          "question": "please review",
+          "overrideConfig": {
+            "sessionId": "flow05-rest-1795225672291"
+          },
+          "streaming": false
+        },
+        "httpStatus": 200,
+        "durationMs": 233.42,
+        "timedOut": false,
+        "error": null,
+        "response": {
+          "text": "Review summary: All pre-checks passed\n\n\n\nApprove?",
+          "executionId": "01e5a3dd-4b5a-41cd-b17f-1c5323fd8f5d",
+          "sessionId": "flow05-rest-1795225672291",
+          "chatId": "flow05-rest-1795225672291",
+          "chatMessageId": "291775e0-8d6c-456c-89b5-0add8cdfc9b1",
+          "action": {
+            "id": "e734fbe3-1bea-48c8-a0ca-a560c6ea897d",
+            "mapping": {
+              "approve": "Proceed",
+              "reject": "Reject"
+            },
+            "elements": [
+              {
+                "type": "agentflowv2-approve-button",
+                "label": "Proceed"
+              },
+              {
+                "type": "agentflowv2-reject-button",
+                "label": "Reject"
+              }
+            ],
+            "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Approval Gate",
+              "input": {
+                "messages": [],
+                "humanInputEnableFeedback": true
+              }
+            },
+            "extra": ""
+          },
+          "agentFlowExecutedData": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "please review"
+                },
+                "output": {
+                  "question": "please review"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Prepare Summary (200ms)",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 200));\nreturn 'All pre-checks passed';"
+                },
+                "output": {
+                  "content": "All pre-checks passed"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Companion Summary",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "Review summary: All pre-checks passed"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Approval Gate",
+              "data": {
+                "id": "humanInputAgentflow_0",
+                "name": "humanInputAgentflow",
+                "input": {
+                  "messages": [],
+                  "humanInputEnableFeedback": true
+                },
+                "output": {
+                  "content": "\n\nApprove?",
+                  "humanInputAction": {
+                    "id": "e734fbe3-1bea-48c8-a0ca-a560c6ea897d",
+                    "mapping": {
+                      "approve": "Proceed",
+                      "reject": "Reject"
+                    },
+                    "elements": [
+                      {
+                        "type": "agentflowv2-approve-button",
+                        "label": "Proceed"
+                      },
+                      {
+                        "type": "agentflowv2-reject-button",
+                        "label": "Reject"
+                      }
+                    ],
+                    "data": {
+                      "nodeId": "humanInputAgentflow_0",
+                      "nodeLabel": "Approval Gate",
+                      "input": {
+                        "messages": [],
+                        "humanInputEnableFeedback": true
+                      }
+                    },
+                    "extra": ""
+                  }
+                },
+                "state": {},
+                "chatHistory": [
+                  {
+                    "role": "assistant",
+                    "content": "\n\nApprove?"
+                  }
+                ]
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "STOPPED"
+            }
+          ]
+        }
+      },
+      "turn2_resume": {
+        "mode": "non-streaming",
+        "request": {
+          "humanInput": {
+            "type": "proceed",
+            "startNodeId": "humanInputAgentflow_0",
+            "feedback": "Approved in baseline capture"
+          },
+          "overrideConfig": {
+            "sessionId": "flow05-rest-1795225672291"
+          },
+          "streaming": false
+        },
+        "httpStatus": 200,
+        "durationMs": 14.65,
+        "timedOut": false,
+        "error": null,
+        "response": {
+          "text": "Approved!",
+          "executionId": "01e5a3dd-4b5a-41cd-b17f-1c5323fd8f5d",
+          "sessionId": "flow05-rest-1795225672291",
+          "chatId": "flow05-rest-1795225672291",
+          "chatMessageId": "777d82e8-2b2b-42c3-bee0-e36d993cd9fa",
+          "action": null,
+          "agentFlowExecutedData": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "please review"
+                },
+                "output": {
+                  "question": "please review"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Prepare Summary (200ms)",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 200));\nreturn 'All pre-checks passed';"
+                },
+                "output": {
+                  "content": "All pre-checks passed"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Companion Summary",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "Review summary: All pre-checks passed"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Approval Gate",
+              "data": {
+                "id": "humanInputAgentflow_0",
+                "name": "humanInputAgentflow",
+                "input": {
+                  "type": "proceed",
+                  "startNodeId": "humanInputAgentflow_0",
+                  "feedback": "Approved in baseline capture",
+                  "messages": [
+                    {
+                      "content": "please review",
+                      "role": "user"
+                    },
+                    {
+                      "content": "Review summary: All pre-checks passed\n\n\n\nApprove?",
+                      "role": "assistant"
+                    },
+                    {
+                      "role": "user",
+                      "content": "Approved in baseline capture"
+                    }
+                  ]
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "proceed",
+                      "startNodeId": "humanInputAgentflow_0",
+                      "feedback": "Approved in baseline capture",
+                      "isFulfilled": true
+                    },
+                    {
+                      "type": "reject",
+                      "startNodeId": "humanInputAgentflow_0",
+                      "feedback": "Approved in baseline capture",
+                      "isFulfilled": false
+                    }
+                  ]
+                },
+                "state": {},
+                "chatHistory": [
+                  {
+                    "role": "user",
+                    "content": "Approved in baseline capture"
+                  }
+                ]
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_1",
+              "nodeLabel": "Approved Reply",
+              "data": {
+                "id": "directReplyAgentflow_1",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "Approved!"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "humanInputAgentflow_0"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        }
+      }
+    },
+    "streaming": {
+      "sessionId": "flow05-sse-1795225672291",
+      "turn1_stopped": {
+        "mode": "streaming",
+        "request": {
+          "question": "please review",
+          "overrideConfig": {
+            "sessionId": "flow05-sse-1795225672291"
+          },
+          "streaming": true
+        },
+        "httpStatus": 200,
+        "durationMs": 218.18,
+        "timedOut": false,
+        "error": null,
+        "streamedText": "Review summary: All pre-checks passed\n\n\n\nApprove?",
+        "tokenChunks": [
+          "Review summary: All pre-checks passed",
+          "\n\n",
+          "\n\nApprove?"
+        ],
+        "agentFlowEvents": [
+          {
+            "offsetMs": 8.23,
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 215.14,
+            "status": "STOPPED"
+          }
+        ],
+        "nextAgentFlowEvents": [
+          {
+            "offsetMs": 8.28,
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 8.31,
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 8.32,
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Prepare Summary (200ms)",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 212.64,
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Prepare Summary (200ms)",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 212.68,
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Companion Summary",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 212.72,
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Companion Summary",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 212.73,
+            "nodeId": "humanInputAgentflow_0",
+            "nodeLabel": "Approval Gate",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 212.78,
+            "nodeId": "humanInputAgentflow_0",
+            "nodeLabel": "Approval Gate",
+            "status": "STOPPED"
+          }
+        ],
+        "action": {
+          "id": "2235dc8c-8083-404a-8fd2-267ad21a4f7a",
+          "mapping": {
+            "approve": "Proceed",
+            "reject": "Reject"
+          },
+          "elements": [
+            {
+              "type": "agentflowv2-approve-button",
+              "label": "Proceed"
+            },
+            {
+              "type": "agentflowv2-reject-button",
+              "label": "Reject"
+            }
+          ],
+          "data": {
+            "nodeId": "humanInputAgentflow_0",
+            "nodeLabel": "Approval Gate",
+            "input": {
+              "messages": [],
+              "humanInputEnableFeedback": true
+            }
+          },
+          "extra": ""
+        },
+        "metadata": {
+          "chatId": "flow05-sse-1795225672291",
+          "chatMessageId": "11c400be-fda3-49a6-95ae-5a1f5cabc81a",
+          "question": "please review",
+          "sessionId": "flow05-sse-1795225672291"
+        },
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "please review"
+              },
+              "output": {
+                "question": "please review"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Prepare Summary (200ms)",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 200));\nreturn 'All pre-checks passed';"
+              },
+              "output": {
+                "content": "All pre-checks passed"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Companion Summary",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "Review summary: All pre-checks passed"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "humanInputAgentflow_0",
+            "nodeLabel": "Approval Gate",
+            "data": {
+              "id": "humanInputAgentflow_0",
+              "name": "humanInputAgentflow",
+              "input": {
+                "messages": [],
+                "humanInputEnableFeedback": true
+              },
+              "output": {
+                "content": "\n\nApprove?",
+                "humanInputAction": {
+                  "id": "2235dc8c-8083-404a-8fd2-267ad21a4f7a",
+                  "mapping": {
+                    "approve": "Proceed",
+                    "reject": "Reject"
+                  },
+                  "elements": [
+                    {
+                      "type": "agentflowv2-approve-button",
+                      "label": "Proceed"
+                    },
+                    {
+                      "type": "agentflowv2-reject-button",
+                      "label": "Reject"
+                    }
+                  ],
+                  "data": {
+                    "nodeId": "humanInputAgentflow_0",
+                    "nodeLabel": "Approval Gate",
+                    "input": {
+                      "messages": [],
+                      "humanInputEnableFeedback": true
+                    }
+                  },
+                  "extra": ""
+                }
+              },
+              "state": {},
+              "chatHistory": [
+                {
+                  "role": "assistant",
+                  "content": "\n\nApprove?"
+                }
+              ]
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "STOPPED"
+          }
+        ],
+        "events": [
+          {
+            "offsetMs": 8.23,
+            "event": "agentFlowEvent",
+            "data": "INPROGRESS"
+          },
+          {
+            "offsetMs": 8.28,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 8.31,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 8.32,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Prepare Summary (200ms)",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 212.64,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Prepare Summary (200ms)",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 212.68,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Companion Summary",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 212.7,
+            "event": "token",
+            "data": "Review summary: All pre-checks passed"
+          },
+          {
+            "offsetMs": 212.72,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Companion Summary",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 212.73,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Approval Gate",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 212.75,
+            "event": "token",
+            "data": "\n\n"
+          },
+          {
+            "offsetMs": 212.76,
+            "event": "token",
+            "data": "\n\nApprove?"
+          },
+          {
+            "offsetMs": 212.78,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Approval Gate",
+              "status": "STOPPED"
+            }
+          },
+          {
+            "offsetMs": 215.09,
+            "event": "action",
+            "data": {
+              "id": "2235dc8c-8083-404a-8fd2-267ad21a4f7a",
+              "mapping": {
+                "approve": "Proceed",
+                "reject": "Reject"
+              },
+              "elements": [
+                {
+                  "type": "agentflowv2-approve-button",
+                  "label": "Proceed"
+                },
+                {
+                  "type": "agentflowv2-reject-button",
+                  "label": "Reject"
+                }
+              ],
+              "data": {
+                "nodeId": "humanInputAgentflow_0",
+                "nodeLabel": "Approval Gate",
+                "input": {
+                  "messages": [],
+                  "humanInputEnableFeedback": true
+                }
+              },
+              "extra": ""
+            }
+          },
+          {
+            "offsetMs": 215.14,
+            "event": "agentFlowEvent",
+            "data": "STOPPED"
+          },
+          {
+            "offsetMs": 215.72,
+            "event": "trustedStateData",
+            "data": "dLZPk5LsDkqwWfp6JE4qx544viIaR9SNe1QOPWTS+ohUdaGHf4Tnv2v1BZzSxi1G00pSZEMS//mj9dI9jkslPx8cuzc4wS0iWMsIgMoXwgwfolR9WDQt0IaYN2XgvnHQDIh9olZ0zf/ang+RSOgxbUFF9E5xpgdTH0kSZ9gbQbrLAG8ef0Gb0R4f148BtxDZFtEDdDc/OGtMYDsYqjQdQY0JplYY/piW6gpakJtKdl5/cF3vCooeRbywBlWy4OXxFGUsTlb0M0pik/JBpQY3jtS1w4/XHtpB0W+4JPJAnUamLeISF17Zx6dbqoeGfqfmeazg++1SDUiQB0bu7eZQcnmbN76JUMeU4tEKkair/gpO8kXvz2pLOlyKbLJkx9obJnKkDifQh8FQg54mc8ZpvcBEiBxxJkZ2QMOkbObWKQd/QEiOEabScYukuv54yHIPhNbm1UxITRACHkfgbZPfvHl/fzmkDA/c6grFSRm7mTyZ0bhZchrtVyUvRLZqzbd92eSQ8+W8umi23kThVEy77+2YEWZDW+qpcHw/6KX1oFDjMcyLUrqdOWlCVdzBZR785/ud3uFHYq2F2Pc/se3PgWYTDICBPgro1YHUFh9rEEXswGy6cTkquU9aJRUzAzAL9+tTAvlN+uP6WAS3QodbWB5rLA3sBOb5HPQK5W0ctrVnU3jxY1/XRrf+vBhktOAaVSGc79LVse/hLvgblmRZGFTCHaJ11lsdX1pPbfFUtMM4cmMc+IPS8tnY8jhsXuqWfYvkS39KQicy8WVZ61qFmSPtME5flO8EysEt/PCYiAFQkxX9MT1jesbq62iNxMwSLvFOGrJN6q//90SRPYI8EcdU3/De7yIM0UnhQ896xkJBw+vYGpAJLM5Y0mfZkjQUvpowTJ1EpBK9KsCqye6+G3YU/T0OtbC8V7qx6a0Zaks07UmHaGvIGWu/UiJFUgD5azKKxp/LvIoOs5wRGYcnTTKLGvIHDQS/6xA1SlvFFF0EXkVyBb6kaJaEQJYV3mrX9zvWLB7XJj5XkXB886HGhjt7e8jw6UnlYVLMUPtQ+fOcfKWprY3KSdGvq2pgaYGKpncTonJZFPARsc0jFykc24E/k4QHKLoPttUiVCSDXAt1bQWfKXBRbG9lNUvhubfoxpYXdCbz98ICb71asCNQctUV6gkyzOTMccsH9/pmBofHp2TsGMbAz6DTbHyyu2+8i9pHXI+1E0x4RST4W27LtSNQ7pQFZiFXTHRVXQFstJ6MU6mHTwYsF2aALD0V42REgwg7FSUgYHDPnfbOpnmZTEsRa8CskcEo4zm6C9FFIiHas45AWYyxKEj9ZmaaMtcqol5pvT01lIIzsUbhoQAzOou9x+WXNvRXzfmysQDEg1EU1AU3d7zrDuTpKqzCpLurpkss+bdPnCd9SnPx+1vO2mIRjh2Izwh453S1M1NA6EM="
+          },
+          {
+            "offsetMs": 217.99,
+            "event": "metadata",
+            "data": {
+              "chatId": "flow05-sse-1795225672291",
+              "chatMessageId": "11c400be-fda3-49a6-95ae-5a1f5cabc81a",
+              "question": "please review",
+              "sessionId": "flow05-sse-1795225672291"
+            }
+          },
+          {
+            "offsetMs": 218.05,
+            "event": "agentFlowExecutedData",
+            "data": [
+              {
+                "nodeId": "startAgentflow_0",
+                "nodeLabel": "Start",
+                "data": {
+                  "id": "startAgentflow_0",
+                  "name": "startAgentflow",
+                  "input": {
+                    "question": "please review"
+                  },
+                  "output": {
+                    "question": "please review"
+                  },
+                  "state": {}
+                },
+                "previousNodeIds": [],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "nodeLabel": "Prepare Summary (200ms)",
+                "data": {
+                  "id": "customFunctionAgentflow_0",
+                  "name": "customFunctionAgentflow",
+                  "input": {
+                    "inputVariables": "",
+                    "code": "await new Promise((r) => setTimeout(r, 200));\nreturn 'All pre-checks passed';"
+                  },
+                  "output": {
+                    "content": "All pre-checks passed"
+                  },
+                  "state": {}
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "directReplyAgentflow_0",
+                "nodeLabel": "Companion Summary",
+                "data": {
+                  "id": "directReplyAgentflow_0",
+                  "name": "directReplyAgentflow",
+                  "input": {},
+                  "output": {
+                    "content": "Review summary: All pre-checks passed"
+                  },
+                  "state": {}
+                },
+                "previousNodeIds": [
+                  "customFunctionAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "humanInputAgentflow_0",
+                "nodeLabel": "Approval Gate",
+                "data": {
+                  "id": "humanInputAgentflow_0",
+                  "name": "humanInputAgentflow",
+                  "input": {
+                    "messages": [],
+                    "humanInputEnableFeedback": true
+                  },
+                  "output": {
+                    "content": "\n\nApprove?",
+                    "humanInputAction": {
+                      "id": "2235dc8c-8083-404a-8fd2-267ad21a4f7a",
+                      "mapping": {
+                        "approve": "Proceed",
+                        "reject": "Reject"
+                      },
+                      "elements": [
+                        {
+                          "type": "agentflowv2-approve-button",
+                          "label": "Proceed"
+                        },
+                        {
+                          "type": "agentflowv2-reject-button",
+                          "label": "Reject"
+                        }
+                      ],
+                      "data": {
+                        "nodeId": "humanInputAgentflow_0",
+                        "nodeLabel": "Approval Gate",
+                        "input": {
+                          "messages": [],
+                          "humanInputEnableFeedback": true
+                        }
+                      },
+                      "extra": ""
+                    }
+                  },
+                  "state": {},
+                  "chatHistory": [
+                    {
+                      "role": "assistant",
+                      "content": "\n\nApprove?"
+                    }
+                  ]
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "STOPPED"
+              }
+            ]
+          },
+          {
+            "offsetMs": 218.08,
+            "event": "end",
+            "data": "[DONE]"
+          }
+        ]
+      },
+      "turn2_resume": {
+        "mode": "streaming",
+        "request": {
+          "humanInput": {
+            "type": "proceed",
+            "startNodeId": "humanInputAgentflow_0",
+            "feedback": "Approved in baseline capture"
+          },
+          "overrideConfig": {
+            "sessionId": "flow05-sse-1795225672291"
+          },
+          "streaming": true
+        },
+        "httpStatus": 200,
+        "durationMs": 15.65,
+        "timedOut": false,
+        "error": null,
+        "streamedText": "Approved!",
+        "tokenChunks": [
+          "Approved!"
+        ],
+        "agentFlowEvents": [
+          {
+            "offsetMs": 10.99,
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.48,
+            "status": "FINISHED"
+          }
+        ],
+        "nextAgentFlowEvents": [
+          {
+            "offsetMs": 11.03,
+            "nodeId": "humanInputAgentflow_0",
+            "nodeLabel": "Approval Gate",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 11.05,
+            "nodeId": "humanInputAgentflow_0",
+            "nodeLabel": "Approval Gate",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 11.07,
+            "nodeId": "directReplyAgentflow_1",
+            "nodeLabel": "Approved Reply",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 11.1,
+            "nodeId": "directReplyAgentflow_1",
+            "nodeLabel": "Approved Reply",
+            "status": "FINISHED"
+          }
+        ],
+        "action": null,
+        "metadata": {
+          "chatId": "flow05-sse-1795225672291",
+          "chatMessageId": "e31c5c8a-5c4a-4c0d-97ba-f325ba121b63",
+          "sessionId": "flow05-sse-1795225672291"
+        },
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "please review"
+              },
+              "output": {
+                "question": "please review"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Prepare Summary (200ms)",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 200));\nreturn 'All pre-checks passed';"
+              },
+              "output": {
+                "content": "All pre-checks passed"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Companion Summary",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "Review summary: All pre-checks passed"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "humanInputAgentflow_0",
+            "nodeLabel": "Approval Gate",
+            "data": {
+              "id": "humanInputAgentflow_0",
+              "name": "humanInputAgentflow",
+              "input": {
+                "type": "proceed",
+                "startNodeId": "humanInputAgentflow_0",
+                "feedback": "Approved in baseline capture",
+                "messages": [
+                  {
+                    "content": "please review",
+                    "role": "user"
+                  },
+                  {
+                    "content": "Review summary: All pre-checks passed\n\n\n\nApprove?",
+                    "role": "assistant"
+                  },
+                  {
+                    "role": "user",
+                    "content": "Approved in baseline capture"
+                  }
+                ]
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "proceed",
+                    "startNodeId": "humanInputAgentflow_0",
+                    "feedback": "Approved in baseline capture",
+                    "isFulfilled": true
+                  },
+                  {
+                    "type": "reject",
+                    "startNodeId": "humanInputAgentflow_0",
+                    "feedback": "Approved in baseline capture",
+                    "isFulfilled": false
+                  }
+                ]
+              },
+              "state": {},
+              "chatHistory": [
+                {
+                  "role": "user",
+                  "content": "Approved in baseline capture"
+                }
+              ]
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_1",
+            "nodeLabel": "Approved Reply",
+            "data": {
+              "id": "directReplyAgentflow_1",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "Approved!"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "humanInputAgentflow_0"
+            ],
+            "status": "FINISHED"
+          }
+        ],
+        "events": [
+          {
+            "offsetMs": 10.99,
+            "event": "agentFlowEvent",
+            "data": "INPROGRESS"
+          },
+          {
+            "offsetMs": 11.03,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Approval Gate",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 11.05,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Approval Gate",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 11.07,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_1",
+              "nodeLabel": "Approved Reply",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 11.09,
+            "event": "token",
+            "data": "Approved!"
+          },
+          {
+            "offsetMs": 11.1,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_1",
+              "nodeLabel": "Approved Reply",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 13.48,
+            "event": "agentFlowEvent",
+            "data": "FINISHED"
+          },
+          {
+            "offsetMs": 14.1,
+            "event": "trustedStateData",
+            "data": "qeGHm30x4ER+8uw3wIUunjS+yvYuKt9WK2BjAvSHs22EnXIKq7zaZNYUKB+x6l/updvr8+mUWLZcZymxAJY8gSBReafbgDM57dYEvBuIHNEseiskrTFmBi2BuMifpsOAHp+XJn7nyJbKYtWej8wrW2dp+WX21LTsQjC36nDZX+Y0HZJrAZ0W44m/C2B/r7uqLwyN560KB0MGLp51iMFib1WeDD/Pk1jhiZjw0f2FSOcj9/TgdNBacVTYt2NLMLXz6zh1k8xjl2YjJNekVcO6aGX3B8amF2r5b1yiPCz0OC7c7KJGIKP4iIoBTs+DasoK2cYqoe7B81hYOHZIuoIVz9KlObNzALRlyfyCO2QJI4zjtpOnfuaBpErpaRgaS6NEbqLXuKi9jGcHe5YNcuO2pu4RrlijiOO4FDB5r5CqS3kiAaOKMVzCeJ2hQDOuz3bQi/eVYrV+5tuQo51Bejd0bEVm1zwpD7R7pYdqOdf1HQbZaCrksO2qR1xm6w8RTdbCoZFZV2bLpAxKjtL+BQ5hdygMpFALZNftmBy+90K/pEXBnPKDPkmSsKjqLCZmvFrdhFL/x3iWOiNkYFiXFaKXySialkI9W1WGi0Ns9joBQYYKefroSuAaNYNBB8CIWVEncd7SfmF8m5nV/U5pcWOoNN+FTm0Q4Sima1nl+0a8PYbnhVv5B0H0RaokytJbPfRjrzp06ceFDCVqZwUic1aoNfxhxq4mJqORFKlOwGYLXzUuwqKUoTn7SFzX/5ILFljTjzepPLnFueRIJQpv97P+CNMQEyQtTCJ0FErxFu7zJE1XfDi9k9Cm92uaRB4v6z0Q9aPkZExuKrKGuS3Moiz80EfocDFc/U4XZvaZyX+358lFoKTocXrO9eAylHOp2idyEpxaeBKbG8kqyfuqNOHYU+jG+ptcPNPB6/xwfSldFh2f9MU3RW2jw9uLgwEnOrTJ/FHGkx7/9SyiVjQ5zXTuGgqYIF9yl6ErqHjiKWc15mhaJh8JAz7s+1NhCN/8IC5xAghA1YB3Ev3No5V9OzKkgCK7rLeETD3aISFT7kk/I6dKYH3IbIxFPCzU6tKO88jvhsLc337ApDLSDC4qrQFR0sKmCoU2GJMMXWdpuzxBvVYyZqmeF+MnHtgPDYLblJWZI8lLxO8q2IiNP6MO0IH5720fHnoWc0w+mM20s1kucz7lwWau9TJl8cOAo/IMdNkLdqdWW0yFL7o8lyLQQ60a4TSJPpAJHVRPvvpWfp9/z6frAwJgfKYfXfou91CzFKLzSZnHIJbc88vUp11hoq2YqkH/miyunPhIExKjzzTEzujYORdhLyoJowOwLncGZHmX/qBAvKDMY0hHGJWfAwSeLblga2x3XccRPK4="
+          },
+          {
+            "offsetMs": 15.54,
+            "event": "metadata",
+            "data": {
+              "chatId": "flow05-sse-1795225672291",
+              "chatMessageId": "e31c5c8a-5c4a-4c0d-97ba-f325ba121b63",
+              "sessionId": "flow05-sse-1795225672291"
+            }
+          },
+          {
+            "offsetMs": 15.57,
+            "event": "agentFlowExecutedData",
+            "data": [
+              {
+                "nodeId": "startAgentflow_0",
+                "nodeLabel": "Start",
+                "data": {
+                  "id": "startAgentflow_0",
+                  "name": "startAgentflow",
+                  "input": {
+                    "question": "please review"
+                  },
+                  "output": {
+                    "question": "please review"
+                  },
+                  "state": {}
+                },
+                "previousNodeIds": [],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "nodeLabel": "Prepare Summary (200ms)",
+                "data": {
+                  "id": "customFunctionAgentflow_0",
+                  "name": "customFunctionAgentflow",
+                  "input": {
+                    "inputVariables": "",
+                    "code": "await new Promise((r) => setTimeout(r, 200));\nreturn 'All pre-checks passed';"
+                  },
+                  "output": {
+                    "content": "All pre-checks passed"
+                  },
+                  "state": {}
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "directReplyAgentflow_0",
+                "nodeLabel": "Companion Summary",
+                "data": {
+                  "id": "directReplyAgentflow_0",
+                  "name": "directReplyAgentflow",
+                  "input": {},
+                  "output": {
+                    "content": "Review summary: All pre-checks passed"
+                  },
+                  "state": {}
+                },
+                "previousNodeIds": [
+                  "customFunctionAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "humanInputAgentflow_0",
+                "nodeLabel": "Approval Gate",
+                "data": {
+                  "id": "humanInputAgentflow_0",
+                  "name": "humanInputAgentflow",
+                  "input": {
+                    "type": "proceed",
+                    "startNodeId": "humanInputAgentflow_0",
+                    "feedback": "Approved in baseline capture",
+                    "messages": [
+                      {
+                        "content": "please review",
+                        "role": "user"
+                      },
+                      {
+                        "content": "Review summary: All pre-checks passed\n\n\n\nApprove?",
+                        "role": "assistant"
+                      },
+                      {
+                        "role": "user",
+                        "content": "Approved in baseline capture"
+                      }
+                    ]
+                  },
+                  "output": {
+                    "conditions": [
+                      {
+                        "type": "proceed",
+                        "startNodeId": "humanInputAgentflow_0",
+                        "feedback": "Approved in baseline capture",
+                        "isFulfilled": true
+                      },
+                      {
+                        "type": "reject",
+                        "startNodeId": "humanInputAgentflow_0",
+                        "feedback": "Approved in baseline capture",
+                        "isFulfilled": false
+                      }
+                    ]
+                  },
+                  "state": {},
+                  "chatHistory": [
+                    {
+                      "role": "user",
+                      "content": "Approved in baseline capture"
+                    }
+                  ]
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "directReplyAgentflow_1",
+                "nodeLabel": "Approved Reply",
+                "data": {
+                  "id": "directReplyAgentflow_1",
+                  "name": "directReplyAgentflow",
+                  "input": {},
+                  "output": {
+                    "content": "Approved!"
+                  },
+                  "state": {}
+                },
+                "previousNodeIds": [
+                  "humanInputAgentflow_0"
+                ],
+                "status": "FINISHED"
+              }
+            ]
+          },
+          {
+            "offsetMs": 15.6,
+            "event": "end",
+            "data": "[DONE]"
+          }
+        ]
+      }
+    }
+  }
+}

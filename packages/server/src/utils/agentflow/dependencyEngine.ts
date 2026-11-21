@@ -199,8 +199,7 @@ export function computeTopologicalLevels(
         adjacency.get(edge.source)!.push(edge.target)
     }
 
-    const activeNodeIds =
-        startingNodeIds !== undefined ? computeReachableNodes(startingNodeIds, adjacency, allNodeIds) : allNodeIds
+    const activeNodeIds = startingNodeIds !== undefined ? computeReachableNodes(startingNodeIds, adjacency, allNodeIds) : allNodeIds
 
     const inDegree = new Map<string, number>()
     const activeAdjacency = new Map<string, string[]>()
@@ -262,11 +261,7 @@ function compareNodeIdsCodePoint(aId: string, bId: string): number {
 /**
  * Deterministic comparator: `(executionOrder ?? position.y ?? 0)`, then topological `level`, then code-point `node.id`.
  */
-export function compareNodesDeterministically(
-    a: IReactFlowNode,
-    b: IReactFlowNode,
-    levels: Record<string, number> = {}
-): number {
+export function compareNodesDeterministically(a: IReactFlowNode, b: IReactFlowNode, levels: Record<string, number> = {}): number {
     const orderDiff = getExplicitOrCanvasOrder(a) - getExplicitOrCanvasOrder(b)
     if (orderDiff !== 0) {
         return orderDiff
@@ -387,8 +382,7 @@ export class AgentflowDependencyEngine {
         }
 
         for (const indexed of this.indexedEdges) {
-            const isReachableEdge =
-                this.reachableNodes.has(indexed.edge.source) && this.reachableNodes.has(indexed.edge.target)
+            const isReachableEdge = this.reachableNodes.has(indexed.edge.source) && this.reachableNodes.has(indexed.edge.target)
             if (isReachableEdge) {
                 this.edgeStatus.set(indexed.key, 'PENDING')
                 this.pendingInCount.set(indexed.edge.target, (this.pendingInCount.get(indexed.edge.target) ?? 0) + 1)
@@ -421,11 +415,7 @@ export class AgentflowDependencyEngine {
                     this.pendingLoopPayloads.delete(record.nodeId)
                     this.nodeState.set(record.nodeId, 'EXECUTED')
 
-                    const { settlementItems } = this.classifyNodeOutgoingSettlement(
-                        record.nodeId,
-                        node.data?.name || '',
-                        record.data
-                    )
+                    const { settlementItems } = this.classifyNodeOutgoingSettlement(record.nodeId, node.data?.name || '', record.data)
                     const { newlyReadyNodeIds } = this.settleWorklist(settlementItems)
                     for (const readyId of newlyReadyNodeIds) {
                         replayReadySet.add(readyId)
@@ -838,11 +828,7 @@ export class AgentflowDependencyEngine {
         return cached
     }
 
-    private classifyNodeOutgoingSettlement(
-        nodeId: string,
-        nodeName: string,
-        result: any
-    ): { settlementItems: IEdgeSettlementItem[] } {
+    private classifyNodeOutgoingSettlement(nodeId: string, nodeName: string, result: any): { settlementItems: IEdgeSettlementItem[] } {
         const indexedOutgoing = this.outgoingEdges.get(nodeId) || []
         const { activatedEdges } = classifyDecisionOutgoingEdges(
             nodeId,
@@ -973,9 +959,7 @@ export class AgentflowDependencyEngine {
         for (const candidateId of this.reachableNodes) {
             if (candidateId === loopId) continue
             if (this.nodeState.get(candidateId) !== 'EXECUTED') continue
-            const hasSkippedOutgoing = (this.outgoingEdges.get(candidateId) || []).some(
-                (out) => this.edgeStatus.get(out.key) === 'SKIPPED'
-            )
+            const hasSkippedOutgoing = (this.outgoingEdges.get(candidateId) || []).some((out) => this.edgeStatus.get(out.key) === 'SKIPPED')
             if (!hasSkippedOutgoing) continue
             const candidateReach = this.getForwardReach(candidateId)
             if (candidateReach.has(loopId) && skippedSources.some((src) => candidateReach.has(src))) {

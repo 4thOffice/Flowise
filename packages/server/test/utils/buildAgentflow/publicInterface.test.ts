@@ -32,7 +32,6 @@ function loadLocalAgentflowComponentNodes(): IComponentNodes {
     const componentNodes: IComponentNodes = {}
     for (const [name, relPath] of specs) {
         const filePath = path.join(AGENTFLOW_NODES_DIR, relPath)
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const mod = require(filePath)
         const instance = new mod.nodeClass()
         componentNodes[name] = Object.assign(instance, { filePath })
@@ -349,7 +348,12 @@ describe('Agentflow V2 public interface contract', () => {
 
         const events = getEvents()
         expect(events.filter((e) => e.event === 'agentFlowEvent').map((e) => e.data)).toEqual(['INPROGRESS', 'FINISHED'])
-        expect(events.filter((e) => e.event === 'token').map((e) => e.data).join('')).toBe(result.text)
+        expect(
+            events
+                .filter((e) => e.event === 'token')
+                .map((e) => e.data)
+                .join('')
+        ).toBe(result.text)
         expect(events.some((e) => e.event === 'agentFlowExecutedData')).toBe(true)
         expect(events[events.length - 1]).toEqual({ event: 'end', data: '[DONE]' })
     })
@@ -533,10 +537,7 @@ describe('Agentflow V2 public interface contract', () => {
                     fallbackMessage: 'Loop limit hit'
                 })
             ],
-            edges: [
-                createEdge('startAgentflow_0', 'customFunctionAgentflow_0'),
-                createEdge('customFunctionAgentflow_0', 'loopAgentflow_0')
-            ]
+            edges: [createEdge('startAgentflow_0', 'customFunctionAgentflow_0'), createEdge('customFunctionAgentflow_0', 'loopAgentflow_0')]
         }
 
         const cappedRes = await runFlow({
@@ -695,9 +696,9 @@ describe('Agentflow V2 public interface contract', () => {
             ],
             edges: []
         }
-        await expect(
-            runFlow({ chatflow: makeChatflow(multiStart), incomingInput: { question: 'go' }, appDataSource })
-        ).rejects.toThrow(/Multiple starting nodes are not allowed/i)
+        await expect(runFlow({ chatflow: makeChatflow(multiStart), incomingInput: { question: 'go' }, appDataSource })).rejects.toThrow(
+            /Multiple starting nodes are not allowed/i
+        )
 
         // Invalid history schema rejected
         await expect(
@@ -823,7 +824,17 @@ describe('Agentflow V2 public interface contract', () => {
                 state: { color: 'blue' },
                 vars: { API_MODE: 'override-mode' }
             } as any,
-            [{ id: 'v-1', name: 'API_MODE', type: 'static', value: 'default-mode', workspaceId: 'ws-1', createdDate: new Date(), updatedDate: new Date() }],
+            [
+                {
+                    id: 'v-1',
+                    name: 'API_MODE',
+                    type: 'static',
+                    value: 'default-mode',
+                    workspaceId: 'ws-1',
+                    createdDate: new Date(),
+                    updatedDate: new Date()
+                }
+            ],
             [{ id: 'v-1', name: 'API_MODE', type: 'static', enabled: true }],
             '',
             [],
@@ -848,9 +859,7 @@ describe('Agentflow V2 public interface contract', () => {
             new Map([['loopAgentflow_0', 3]])
         )
 
-        expect(resolved.inputs?.msg).toBe(
-            'q=hello|s=blue|f=alice|v=override-mode|l=3|n=upstream-val|p=upstream-val'
-        )
+        expect(resolved.inputs?.msg).toBe('q=hello|s=blue|f=alice|v=override-mode|l=3|n=upstream-val|p=upstream-val')
         expect(resolved.inputs?.code).toBe('return "{{ question }}";')
         expect(resolved.inputs?.customFunctionUpdateState).toEqual([{ key: 'saved', value: '{{ output }}' }])
     })

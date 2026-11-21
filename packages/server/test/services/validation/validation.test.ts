@@ -13,7 +13,6 @@ const AGENTFLOW_NODES_DIR = path.join(REPO_ROOT, 'packages/components/dist/nodes
 const BASELINE_FLOWS_DIR = path.join(REPO_ROOT, 'plans/agentflow-concurrent-execution/baselines/flows')
 
 function loadCompiledNodeInstance(relPath: string) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const mod = require(path.join(AGENTFLOW_NODES_DIR, relPath))
     return new mod.nodeClass()
 }
@@ -118,7 +117,12 @@ describe('validationService.checkFlowValidation', () => {
     })
 
     it('throws InternalFlowiseError when flow is not found or outside workspace', async () => {
-        storedFlows.set('flow-other-ws', { id: 'flow-other-ws', type: 'AGENTFLOW', workspaceId: 'ws-2', flowData: '{"nodes":[],"edges":[]}' })
+        storedFlows.set('flow-other-ws', {
+            id: 'flow-other-ws',
+            type: 'AGENTFLOW',
+            workspaceId: 'ws-2',
+            flowData: '{"nodes":[],"edges":[]}'
+        })
 
         await expect(validationService.checkFlowValidation('missing-id', 'ws-1')).rejects.toThrow(InternalFlowiseError)
         await expect(validationService.checkFlowValidation('missing-id', 'ws-1')).rejects.toThrow(/flow not found/i)
@@ -284,7 +288,10 @@ describe('validationService.checkFlowValidation', () => {
     })
 
     it('finds zero structural or missing-input errors across all 6 baseline flow fixtures', async () => {
-        const fixtureFiles = fs.readdirSync(BASELINE_FLOWS_DIR).filter((f) => f.endsWith('.json')).sort()
+        const fixtureFiles = fs
+            .readdirSync(BASELINE_FLOWS_DIR)
+            .filter((f) => f.endsWith('.json'))
+            .sort()
         expect(fixtureFiles).toHaveLength(6)
 
         for (const file of fixtureFiles) {

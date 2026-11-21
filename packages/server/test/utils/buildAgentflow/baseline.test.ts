@@ -75,10 +75,7 @@ describe('Agentflow V2 Task 01: schedulerHelpers unit seam', () => {
             createNode('yes_0', 'directReplyAgentflow'),
             createNode('no_0', 'directReplyAgentflow')
         ]
-        const edges = [
-            createEdge('cond_0', 'yes_0', 'cond_0-output-0'),
-            createEdge('cond_0', 'no_0', 'cond_0-output-1')
-        ]
+        const edges = [createEdge('cond_0', 'yes_0', 'cond_0-output-0'), createEdge('cond_0', 'no_0', 'cond_0-output-1')]
         const result = {
             output: {
                 conditions: [{ isFulfilled: true }, { isFulfilled: false }]
@@ -123,7 +120,14 @@ describe('Agentflow V2 Task 01: schedulerHelpers unit seam', () => {
             text: 'first\nsecond'
         })
         expect(combineNodeInputs(new Map())).toBeNull()
-        expect(combineNodeInputs(new Map([['a', null], ['b', undefined]]))).toBeNull()
+        expect(
+            combineNodeInputs(
+                new Map([
+                    ['a', null],
+                    ['b', undefined]
+                ])
+            )
+        ).toBeNull()
         expect(combineNodeInputs(new Map([['only', { text: 'solo' }]]))).toEqual({ text: 'solo' })
         expect(
             combineNodeInputs(
@@ -138,7 +142,14 @@ describe('Agentflow V2 Task 01: schedulerHelpers unit seam', () => {
             binary: { b: { buf: 2 } },
             error: new Error('e1')
         })
-        expect(combineNodeInputs(new Map<string, any>([['n1', 'p1'], ['n2', 42]]))).toEqual({
+        expect(
+            combineNodeInputs(
+                new Map<string, any>([
+                    ['n1', 'p1'],
+                    ['n2', 42]
+                ])
+            )
+        ).toEqual({
             json: { n1: 'p1', n2: 42 }
         })
     })
@@ -158,14 +169,9 @@ describe('Agentflow V2 Task 01: schedulerHelpers unit seam', () => {
             createEdge('condAgent_0', 'branchB', 'condAgent_0-output-1')
         ]
 
-        expect(
-            await determineNodesToIgnore(
-                nodes[0],
-                { output: { conditions: [{ isFulfilled: true }, {}] } },
-                edges,
-                'human_0'
-            )
-        ).toEqual(['branchB'])
+        expect(await determineNodesToIgnore(nodes[0], { output: { conditions: [{ isFulfilled: true }, {}] } }, edges, 'human_0')).toEqual([
+            'branchB'
+        ])
         expect(
             await determineNodesToIgnore(
                 nodes[1],
@@ -439,7 +445,12 @@ describe('Agentflow V2 Task 01: baseline scenarios via test harness', () => {
             [
                 createNode('start_0', 'startAgentflow', { inputs: { startInputType: 'chatInput' } }, realComponentNodes),
                 createNode('setA', 'mockSetter'),
-                createNode('readA', 'directReplyAgentflow', { inputs: { directReplyMessage: 'val={{$flow.state.token}}' } }, realComponentNodes)
+                createNode(
+                    'readA',
+                    'directReplyAgentflow',
+                    { inputs: { directReplyMessage: 'val={{$flow.state.token}}' } },
+                    realComponentNodes
+                )
             ],
             [createEdge('start_0', 'setA'), createEdge('setA', 'readA')]
         )

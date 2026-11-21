@@ -1,12 +1,5 @@
-import {
-    determineNodesToIgnore,
-    processNodeOutputs
-} from '../../../src/utils/agentflow/schedulerHelpers'
-import {
-    defaultSelectTerminalOutput,
-    getMaxNodeConcurrency,
-    runConcurrentNodeScheduler
-} from '../../../src/utils/agentflow/scheduler'
+import { determineNodesToIgnore, processNodeOutputs } from '../../../src/utils/agentflow/schedulerHelpers'
+import { defaultSelectTerminalOutput, getMaxNodeConcurrency, runConcurrentNodeScheduler } from '../../../src/utils/agentflow/scheduler'
 import { INodeQueue, IWaitingNode } from '../../../src/utils/agentflow/types'
 import {
     ConcurrencyTracker,
@@ -50,15 +43,8 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
     })
 
     it('runs determineNodesToIgnore and processNodeOutputs strictly synchronously without returning Promises', () => {
-        const nodes = [
-            createNode('cond_0', 'conditionAgentflow'),
-            createNode('yes_0', 'mockNode'),
-            createNode('no_0', 'mockNode')
-        ]
-        const edges = [
-            createEdge('cond_0', 'yes_0', 'cond_0-output-0'),
-            createEdge('cond_0', 'no_0', 'cond_0-output-1')
-        ]
+        const nodes = [createNode('cond_0', 'conditionAgentflow'), createNode('yes_0', 'mockNode'), createNode('no_0', 'mockNode')]
+        const edges = [createEdge('cond_0', 'yes_0', 'cond_0-output-0'), createEdge('cond_0', 'no_0', 'cond_0-output-1')]
         const result = { output: { conditions: [{ isFulfilled: true }, { isFulfilled: false }] } }
 
         const ignored = determineNodesToIgnore(nodes[0], result, edges, 'cond_0')
@@ -682,11 +668,7 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
                 createNode('afterHuman', 'mockAfter'),
                 createNode('branchB', 'mockBranch')
             ],
-            [
-                createEdge('start_0', 'human_0'),
-                createEdge('start_0', 'branchB'),
-                createEdge('human_0', 'afterHuman', 'human_0-output-0')
-            ]
+            [createEdge('start_0', 'human_0'), createEdge('start_0', 'branchB'), createEdge('human_0', 'afterHuman', 'human_0-output-0')]
         )
 
         const bothStarted = createBarrier(2, 1000)
@@ -962,9 +944,7 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
 
         await slowEntered.promise
         // Wait deterministically until fastClearing finishes and commits reconcileRuntimeCommit (ephemeralMemory clears shared pastChatHistory)
-        await waitUntil(() =>
-            getEvents('nextAgentFlow').some((e) => e.data?.nodeId === 'fastClearing' && e.data?.status === 'FINISHED')
-        )
+        await waitUntil(() => getEvents('nextAgentFlow').some((e) => e.data?.nodeId === 'fastClearing' && e.data?.status === 'FINISHED'))
         fastCommitted.resolve()
 
         const res = await runPromise
@@ -977,13 +957,13 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
         const flow = createFlow(
             [
                 createNode('start_0', 'startAgentflow', { inputs: { startInputType: 'chatInput' } }, realComponentNodes),
+                createNode('iter_0', 'iterationAgentflow', { inputs: { iterationInput: '["item0","item1"]' } }, realComponentNodes),
                 createNode(
-                    'iter_0',
-                    'iterationAgentflow',
-                    { inputs: { iterationInput: '["item0","item1"]' } },
+                    'subStart',
+                    'startAgentflow',
+                    { inputs: { startInputType: 'chatInput' }, parentNode: 'iter_0', extent: 'parent' },
                     realComponentNodes
                 ),
-                createNode('subStart', 'startAgentflow', { inputs: { startInputType: 'chatInput' }, parentNode: 'iter_0', extent: 'parent' }, realComponentNodes),
                 createNode('subA', 'mockSub', { parentNode: 'iter_0', extent: 'parent' }),
                 createNode('subB', 'mockSub', { parentNode: 'iter_0', extent: 'parent' }),
                 createNode('subJoin', 'mockJoin', { parentNode: 'iter_0', extent: 'parent' })

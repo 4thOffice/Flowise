@@ -1,0 +1,646 @@
+{
+  "capturedAt": "2026-11-21T01:47:30.076Z",
+  "flow": {
+    "slug": "04-multi-terminal-streaming-and-silent-leaf",
+    "name": "Baseline 04 - Multi-Terminal Streaming & Silent Leaf",
+    "file": "04-multi-terminal-streaming-and-silent-leaf.json",
+    "chatflowId": "8c5ee07a-f6c9-4a7d-8ffc-edd3e16afa29",
+    "validationIssues": [
+      {
+        "id": "agentflow-multiple-terminals",
+        "label": "Multiple Terminal Nodes",
+        "name": "multipleTerminals",
+        "issues": [
+          "Multiple content-producing terminal nodes (Fast Ack, Final Result) can run in this flow. Active terminals stream consecutively separated by a blank line (\\n\\n); deterministic tie-break order (executionOrder ?? position.y) is Fast Ack -> Final Result ('Fast Ack' first if finishing together)."
+        ]
+      }
+    ]
+  },
+  "runs": {
+    "nonStreaming": {
+      "mode": "non-streaming",
+      "request": {
+        "question": "lookup data",
+        "streaming": false
+      },
+      "httpStatus": 200,
+      "durationMs": 495.32,
+      "timedOut": false,
+      "error": null,
+      "response": {
+        "text": "I'm looking up the data...\n\nHere is the result.",
+        "executionId": "1f1e3e8c-696e-44c2-8f65-e46ec7643063",
+        "sessionId": "40410db0-f3a2-4828-960a-2b0be95b8b28",
+        "chatId": "40410db0-f3a2-4828-960a-2b0be95b8b28",
+        "chatMessageId": "a6b15f3f-230c-4b3e-bf7c-21bc41596a75",
+        "action": null,
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "lookup data"
+              },
+              "output": {
+                "question": "lookup data"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Fast Ack",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "I'm looking up the data..."
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Telemetry Prep (50ms)",
+            "data": {
+              "id": "customFunctionAgentflow_1",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 50));\nreturn 'prep-ok';"
+              },
+              "output": {
+                "content": "prep-ok"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Lookup Worker (300ms)",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 300));\nreturn 'lookup-complete';"
+              },
+              "output": {
+                "content": "lookup-complete"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_1",
+            "nodeLabel": "Final Result",
+            "data": {
+              "id": "directReplyAgentflow_1",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "Here is the result."
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Silent Leaf (400ms)",
+            "data": {
+              "id": "customFunctionAgentflow_2",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 400));\nreturn '';"
+              },
+              "output": {
+                "content": ""
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_1"
+            ],
+            "status": "FINISHED"
+          }
+        ]
+      }
+    },
+    "streaming": {
+      "mode": "streaming",
+      "request": {
+        "question": "lookup data",
+        "streaming": true
+      },
+      "httpStatus": 200,
+      "durationMs": 472.45,
+      "timedOut": false,
+      "error": null,
+      "streamedText": "I'm looking up the data...\n\nHere is the result.",
+      "tokenChunks": [
+        "I'm looking up the data...",
+        "\n\n",
+        "Here is the result."
+      ],
+      "agentFlowEvents": [
+        {
+          "offsetMs": 12.59,
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 469.32,
+          "status": "FINISHED"
+        }
+      ],
+      "nextAgentFlowEvents": [
+        {
+          "offsetMs": 12.66,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 12.68,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 12.7,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Fast Ack",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 12.72,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Lookup Worker (300ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 12.73,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Telemetry Prep (50ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 12.76,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Fast Ack",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 66.47,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Telemetry Prep (50ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 66.51,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Silent Leaf (400ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 310.5,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Lookup Worker (300ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 310.54,
+          "nodeId": "directReplyAgentflow_1",
+          "nodeLabel": "Final Result",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 310.58,
+          "nodeId": "directReplyAgentflow_1",
+          "nodeLabel": "Final Result",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 467,
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Silent Leaf (400ms)",
+          "status": "FINISHED"
+        }
+      ],
+      "action": null,
+      "metadata": {
+        "chatId": "2e1b89b0-2894-4e22-b06a-6a4919815027",
+        "chatMessageId": "e5c4c40e-bb5e-4c95-9c0e-424c3acf958d",
+        "question": "lookup data",
+        "sessionId": "2e1b89b0-2894-4e22-b06a-6a4919815027"
+      },
+      "agentFlowExecutedData": [
+        {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+            "id": "startAgentflow_0",
+            "name": "startAgentflow",
+            "input": {
+              "question": "lookup data"
+            },
+            "output": {
+              "question": "lookup data"
+            },
+            "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Fast Ack",
+          "data": {
+            "id": "directReplyAgentflow_0",
+            "name": "directReplyAgentflow",
+            "input": {},
+            "output": {
+              "content": "I'm looking up the data..."
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Telemetry Prep (50ms)",
+          "data": {
+            "id": "customFunctionAgentflow_1",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 50));\nreturn 'prep-ok';"
+            },
+            "output": {
+              "content": "prep-ok"
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Lookup Worker (300ms)",
+          "data": {
+            "id": "customFunctionAgentflow_0",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 300));\nreturn 'lookup-complete';"
+            },
+            "output": {
+              "content": "lookup-complete"
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "directReplyAgentflow_1",
+          "nodeLabel": "Final Result",
+          "data": {
+            "id": "directReplyAgentflow_1",
+            "name": "directReplyAgentflow",
+            "input": {},
+            "output": {
+              "content": "Here is the result."
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_2",
+          "nodeLabel": "Silent Leaf (400ms)",
+          "data": {
+            "id": "customFunctionAgentflow_2",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 400));\nreturn '';"
+            },
+            "output": {
+              "content": ""
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_1"
+          ],
+          "status": "FINISHED"
+        }
+      ],
+      "events": [
+        {
+          "offsetMs": 12.59,
+          "event": "agentFlowEvent",
+          "data": "INPROGRESS"
+        },
+        {
+          "offsetMs": 12.66,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 12.68,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 12.7,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Fast Ack",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 12.72,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Lookup Worker (300ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 12.73,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Telemetry Prep (50ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 12.74,
+          "event": "token",
+          "data": "I'm looking up the data..."
+        },
+        {
+          "offsetMs": 12.76,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Fast Ack",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 66.47,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Telemetry Prep (50ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 66.51,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Silent Leaf (400ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 310.5,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Lookup Worker (300ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 310.54,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_1",
+            "nodeLabel": "Final Result",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 310.56,
+          "event": "token",
+          "data": "\n\n"
+        },
+        {
+          "offsetMs": 310.57,
+          "event": "token",
+          "data": "Here is the result."
+        },
+        {
+          "offsetMs": 310.58,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_1",
+            "nodeLabel": "Final Result",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 467,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "Silent Leaf (400ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 469.32,
+          "event": "agentFlowEvent",
+          "data": "FINISHED"
+        },
+        {
+          "offsetMs": 470.08,
+          "event": "trustedStateData",
+          "data": "cg50T3vWYuNgAuZvfuZSBUYEIBtbdlVPkOdy4yjH7+JiananNoF5EiRD8IiOCb3SQyhb0vnmoWq8TmVwte3wsIO7odTcGlkmkPjXVRPXVYwtcGoQucCTt1ms2Na8KbrRopwIjtMsxhsfkShIcbRFNK89rT6wX8p/BmabybvbLAC4QBMKlhz7OHKKd+my2ipza/8+8F4Sz8lLkgNEHDz7GCwlADc6sxZ9ak8QCu7VtMpNtesEv+sYNFVPpNHQM5KoQXwENp+RKDtyO3VLq3HqDqJ0AL/CrGYVbIikScNkWfTBClE8wNpi9iHgbhDmcKVfa1K5AjEHdcDsx1Un8JEqE6sCXX761IDp/1T0GVQH7YpUoOmcrb0m/E+NeO/c0LLdXo/qvnHSLMs6Hswqx8nxdPJOv5l5xW5mZfLEwT3jFBTWHSTNI+LOyYv8kcMwsWtERZNRhTfI2C5J2rU23NvqhSJSinIt6+Se5Ib/OAXk3f2D+bcva7u8dvvUjwuRQyRVo8TCZPd6nsDPICArd8v9A0P2RBUp/cOaQzQbtgk1l1halhM+XksqHn+ScDGNwVBThRYeWbO3nCkI/GIIIbXzZihdH03bHlFoTGtMPWNW6u2a4Nk6+f9UXT0xTtHmMyCqQ9C7ksJDLiZIammO0E6i6MPjC54KO0mRZqpYjJiFU5L07H2oTUHJ0t98SxQ9wZL6bUK5uwLolt1Oeklxs8R1O0F2xUwyjNG+HouhgOZXEvVa00HFPJ55hpIC8lidVErN39REQIDAYOiZxZNGw6cjb3x+gRDDK6Ifpy1uAzdti1mKkJrD0/fm5acYXVBe+TA60pmkL3VXxJP/ste7EmyAL4CTVRq6FaW3aQuEWevyoXetemSIXMoBy58Yq+RI1cCpDPu4Cvf/TPe9vU4E+gCPNpIMERYGuVI7MZq5URLbfIt3SZussWopofqFWCHHrWbX1xydDmTkmuB3DZBvxNlETK1cQI++GojZsFrBAPP20w+jxH8qkfbnXX5XBhEgTOtzSMrZnmIBFJSEpHh5Nzbg6wzjiyQxHxoqE7u5XQh41Wt2v1ORGSkQV4/TYXJxWwAK5dsH3F5hroKW8DHR1tG02lG2Pm40iwGGpqdX+53sw5IhvTT5QBmobAZb5RfoZqT6VZmSJBGxlLRDhTNqHuhrUMc2RpDvdxwg8gpxx83YCyhqlHQVZDbIC2bM3h5Z1SLcnsfNONCsDySeN3IxuYFdeNv3bIMhh1OEWt+9+YJBD3q/kaOTOHkBEpBVpjY9"
+        },
+        {
+          "offsetMs": 472.33,
+          "event": "metadata",
+          "data": {
+            "chatId": "2e1b89b0-2894-4e22-b06a-6a4919815027",
+            "chatMessageId": "e5c4c40e-bb5e-4c95-9c0e-424c3acf958d",
+            "question": "lookup data",
+            "sessionId": "2e1b89b0-2894-4e22-b06a-6a4919815027"
+          }
+        },
+        {
+          "offsetMs": 472.37,
+          "event": "agentFlowExecutedData",
+          "data": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "lookup data"
+                },
+                "output": {
+                  "question": "lookup data"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Fast Ack",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "I'm looking up the data..."
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "nodeLabel": "Telemetry Prep (50ms)",
+              "data": {
+                "id": "customFunctionAgentflow_1",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 50));\nreturn 'prep-ok';"
+                },
+                "output": {
+                  "content": "prep-ok"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Lookup Worker (300ms)",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 300));\nreturn 'lookup-complete';"
+                },
+                "output": {
+                  "content": "lookup-complete"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_1",
+              "nodeLabel": "Final Result",
+              "data": {
+                "id": "directReplyAgentflow_1",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "Here is the result."
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "nodeLabel": "Silent Leaf (400ms)",
+              "data": {
+                "id": "customFunctionAgentflow_2",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 400));\nreturn '';"
+                },
+                "output": {
+                  "content": ""
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_1"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        },
+        {
+          "offsetMs": 472.39,
+          "event": "end",
+          "data": "[DONE]"
+        }
+      ]
+    }
+  }
+}

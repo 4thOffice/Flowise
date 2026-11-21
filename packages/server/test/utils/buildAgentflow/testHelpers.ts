@@ -1,14 +1,13 @@
 import fs from 'fs'
 import path from 'path'
+import { Response } from 'express'
 import { cloneDeep } from 'lodash'
 import { DataSource } from 'typeorm'
 import { v4 as uuidv4 } from 'uuid'
 import { ICommonObject, IServerSideEventStreamer } from 'flowise-components'
 import { executeAgentFlow } from '../../../src/utils/buildAgentflow'
-import {
-    IAgentflowNodeInstance,
-    NodeInstanceFactory
-} from '../../../src/utils/agentflow/types'
+import { SSEStreamer } from '../../../src/utils/SSEStreamer'
+import { IAgentflowNodeInstance, NodeInstanceFactory } from '../../../src/utils/agentflow/types'
 import {
     IComponentNodes,
     IncomingAgentflowInput,
@@ -366,6 +365,54 @@ export function createMockSSEStreamer() {
     }
 }
 
+export interface RecordedWireEvent {
+    event: string
+    data: any
+}
+
+export function createRealSSERecorder(chatId: string, sseStreamer: SSEStreamer = new SSEStreamer()) {
+    const rawChunks: string[] = []
+    const mockRes = {
+        write: (chunk: string) => {
+            rawChunks.push(chunk)
+            return true
+        },
+        end: (chunk?: string) => {
+            if (chunk) rawChunks.push(chunk)
+        }
+    } as unknown as Response
+    sseStreamer.addClient(chatId, mockRes)
+
+    const getEvents = (): RecordedWireEvent[] => {
+        const events: RecordedWireEvent[] = []
+        for (const frame of rawChunks.join('').split('\n\n')) {
+            if (!frame.trim()) continue
+            for (const line of frame.split('\n')) {
+                if (!line.startsWith('data:')) continue
+                const payload = line.slice(5).trim()
+                if (payload) {
+                    events.push(JSON.parse(payload))
+                }
+            }
+        }
+        return events
+    }
+
+    const getTokens = () =>
+        getEvents()
+            .filter((e) => e.event === 'token')
+            .map((e) => String(e.data))
+
+    return {
+        sseStreamer,
+        getEvents,
+        getTokens,
+        getStreamedText: () => getTokens().join(''),
+        getRawWire: () => rawChunks.join(''),
+        close: () => sseStreamer.removeClient(chatId)
+    }
+}
+
 export function loadRealComponentNodes(): IComponentNodes {
     const specs: Array<[string, string]> = [
         ['startAgentflow', 'Start/Start.js'],
@@ -380,7 +427,6 @@ export function loadRealComponentNodes(): IComponentNodes {
     const componentNodes: IComponentNodes = {}
     for (const [name, relPath] of specs) {
         const filePath = path.join(AGENTFLOW_NODES_DIR, relPath)
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const mod = require(filePath)
         const instance = new mod.nodeClass()
         componentNodes[name] = Object.assign(instance, { filePath })
@@ -398,12 +444,7 @@ export interface CreateNodeOptions {
     outputs?: Record<string, any>
 }
 
-export function createNode(
-    id: string,
-    name: string,
-    options: CreateNodeOptions = {},
-    componentNodes?: IComponentNodes
-): IReactFlowNode {
+export function createNode(id: string, name: string, options: CreateNodeOptions = {}, componentNodes?: IComponentNodes): IReactFlowNode {
     const comp = componentNodes?.[name]
     const defaultInputs: Record<string, any> = {}
     const inputParams =
@@ -496,7 +537,6 @@ export function createMockNodeFactory(
 
         const targetComponent = componentNodes?.[nodeName] ?? fallbackComponentNodes?.[nodeName]
         if (targetComponent?.filePath) {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const mod = require(targetComponent.filePath)
             return new mod.nodeClass()
         }

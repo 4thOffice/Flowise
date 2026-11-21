@@ -1,0 +1,436 @@
+{
+  "capturedAt": "2026-11-21T01:47:29.107Z",
+  "flow": {
+    "slug": "03-condition-multi-edge-fanout",
+    "name": "Baseline 03 - Condition Multi-Edge Fanout",
+    "file": "03-condition-multi-edge-fanout.json",
+    "chatflowId": "e31f52af-fbcc-4df1-8cf4-ce4b39742c34",
+    "validationIssues": [
+      {
+        "id": "agentflow-multiple-terminals",
+        "label": "Multiple Terminal Nodes",
+        "name": "multipleTerminals",
+        "issues": [
+          "Multiple content-producing terminal nodes (Else Target A, Else Target B) can run in this flow. Active terminals stream consecutively separated by a blank line (\\n\\n); deterministic tie-break order (executionOrder ?? position.y) is Else Target A -> Else Target B ('Else Target A' first if finishing together)."
+        ]
+      }
+    ]
+  },
+  "runs": {
+    "nonStreaming": {
+      "mode": "non-streaming",
+      "request": {
+        "question": "go-true",
+        "streaming": false
+      },
+      "httpStatus": 200,
+      "durationMs": 27.91,
+      "timedOut": false,
+      "error": null,
+      "response": {
+        "text": "True branch executed cleanly.",
+        "executionId": "5af2ef8a-ba0a-4fa8-b38a-4d0d2f090bdc",
+        "sessionId": "336acb52-d605-4256-a39a-8729e461477c",
+        "chatId": "336acb52-d605-4256-a39a-8729e461477c",
+        "chatMessageId": "b2ec3c79-b253-42f1-b4fd-cbfaea3ffec5",
+        "action": null,
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "go-true"
+              },
+              "output": {
+                "question": "go-true"
+              },
+              "state": {}
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Condition",
+            "data": {
+              "id": "conditionAgentflow_0",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "string",
+                    "value1": "go-true",
+                    "operation": "equal",
+                    "value2": "go-true"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "string",
+                    "value1": "go-true",
+                    "operation": "equal",
+                    "value2": "go-true",
+                    "isFulfilled": true
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": false
+                  }
+                ]
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "True Reply",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "True branch executed cleanly."
+              },
+              "state": {}
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          }
+        ]
+      }
+    },
+    "streaming": {
+      "mode": "streaming",
+      "request": {
+        "question": "go-true",
+        "streaming": true
+      },
+      "httpStatus": 200,
+      "durationMs": 37.86,
+      "timedOut": false,
+      "error": null,
+      "streamedText": "True branch executed cleanly.",
+      "tokenChunks": [
+        "True branch executed cleanly."
+      ],
+      "agentFlowEvents": [
+        {
+          "offsetMs": 18.18,
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 33.8,
+          "status": "FINISHED"
+        }
+      ],
+      "nextAgentFlowEvents": [
+        {
+          "offsetMs": 18.3,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 18.33,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 18.34,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Condition",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 18.35,
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Condition",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 18.36,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "True Reply",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 18.38,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "True Reply",
+          "status": "FINISHED"
+        }
+      ],
+      "action": null,
+      "metadata": {
+        "chatId": "653372f4-eee5-42f6-bb25-ca47962484ed",
+        "chatMessageId": "c38d5306-ef70-4032-93f9-9d18ab79a1d0",
+        "question": "go-true",
+        "sessionId": "653372f4-eee5-42f6-bb25-ca47962484ed"
+      },
+      "agentFlowExecutedData": [
+        {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+            "id": "startAgentflow_0",
+            "name": "startAgentflow",
+            "input": {
+              "question": "go-true"
+            },
+            "output": {
+              "question": "go-true"
+            },
+            "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "conditionAgentflow_0",
+          "nodeLabel": "Condition",
+          "data": {
+            "id": "conditionAgentflow_0",
+            "name": "conditionAgentflow",
+            "input": {
+              "conditions": {
+                "0": {
+                  "type": "string",
+                  "value1": "go-true",
+                  "operation": "equal",
+                  "value2": "go-true"
+                }
+              }
+            },
+            "output": {
+              "conditions": [
+                {
+                  "type": "string",
+                  "value1": "go-true",
+                  "operation": "equal",
+                  "value2": "go-true",
+                  "isFulfilled": true
+                },
+                {
+                  "type": "string",
+                  "value1": "",
+                  "operation": "equal",
+                  "value2": "",
+                  "isFulfilled": false
+                }
+              ]
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "True Reply",
+          "data": {
+            "id": "directReplyAgentflow_0",
+            "name": "directReplyAgentflow",
+            "input": {},
+            "output": {
+              "content": "True branch executed cleanly."
+            },
+            "state": {}
+          },
+          "previousNodeIds": [
+            "conditionAgentflow_0"
+          ],
+          "status": "FINISHED"
+        }
+      ],
+      "events": [
+        {
+          "offsetMs": 18.18,
+          "event": "agentFlowEvent",
+          "data": "INPROGRESS"
+        },
+        {
+          "offsetMs": 18.3,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 18.33,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 18.34,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Condition",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 18.35,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Condition",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 18.36,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "True Reply",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 18.37,
+          "event": "token",
+          "data": "True branch executed cleanly."
+        },
+        {
+          "offsetMs": 18.38,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "True Reply",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 33.8,
+          "event": "agentFlowEvent",
+          "data": "FINISHED"
+        },
+        {
+          "offsetMs": 33.86,
+          "event": "trustedStateData",
+          "data": "FCmIce1MG6NtQFJ3GkOp1s6uwJfu/1Lj6dNcyjO6QJBDMqUHFHEWjqvF0sT6ZW0bROrAXM29t59xh/Vm2ud8/6w5hex3pX0ahYJA+/FGBcNHBZXGsBsOHCsnfyZeV++mbWrQt3H3u7I/r1Y6N9TENhVU+lDQ+Tc4OsE/gJ50KT3nRIqEpl3jsQhqmAdY+2r0OrrBKJJMGggPjZnV9LewVojFMezryA3siYMY7dA7bMpRVnL1IWK2MiBARTqS+ory4IrfY7UrpB+PLuyfn3a723P/Emo4pRYEMJrRmQdXq/yRgebk+SBx2Fp+l9S5JL3550e3w0K8l94B6IkCP6pE7n/wrN1xoGeRGRO7IwBMcGcc1ak4WsFTZc+Wi0V3LXnqw1b1wUC0mT2mwcXIQVy6Z9ShijBR/N5stJgfM41MQ5UoSdSYaE7uT7az4bW1i47CUtXiMomOzp3A+1XYlKP8gYEoAJCLkiQYKQXEeGgMlZ/84JUWsAoLO/DGZ7wpEveY0XmHZG83JOaF9jnM92V338wP6//7c4wedQ3gil6VBxB/34U/tjMBgwu0Z+L4rx0ToYOwXLPqLkxcTcvHFFcI6ILh9drBUwubtjAcNuVWJZFUspsfcSmeYnN+daDs7NiWHjNaEVy/ch2i/HY9ud4Zto568oKke45aQaKRMvM8z9cDenOFcvrrPnj4G0ZOawuwsbf+V0WLswMDmkr6v0tt25xwi3+fzmoIx9SDcXU1ZpCVKjhGAjVt9d76hIGPqyYCurMTkfyqP16TXUzH/WDzNN0QvIwYoorF3DFkm6UKiiXTeVBz5C9vJpfVWZ+RRodwLYcGFt9K3mprVuHlhTVrL/uvx2CqrtG1C18x5WUnfPo5RSAyZ/YaLAcl5ZZyWQV2BDRh9aE0iE0EulWjdH3tTN55PdzFW29J/v0SOrLp9JMyNpTpwAajAbIOgt3ziEkJaGT+pajRqpqJ7VpyJ9j2MaZ/+gjQoo1vWhsiERqDEFlrwLTh0tqskTmeiDUVWPORXMP9B0ZJlsO0tCEqNXI4DvSByt3/TFBaYfCtYGjWa75wfIKmHyZo0A=="
+        },
+        {
+          "offsetMs": 37.73,
+          "event": "metadata",
+          "data": {
+            "chatId": "653372f4-eee5-42f6-bb25-ca47962484ed",
+            "chatMessageId": "c38d5306-ef70-4032-93f9-9d18ab79a1d0",
+            "question": "go-true",
+            "sessionId": "653372f4-eee5-42f6-bb25-ca47962484ed"
+          }
+        },
+        {
+          "offsetMs": 37.78,
+          "event": "agentFlowExecutedData",
+          "data": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "go-true"
+                },
+                "output": {
+                  "question": "go-true"
+                },
+                "state": {}
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Condition",
+              "data": {
+                "id": "conditionAgentflow_0",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "string",
+                      "value1": "go-true",
+                      "operation": "equal",
+                      "value2": "go-true"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "string",
+                      "value1": "go-true",
+                      "operation": "equal",
+                      "value2": "go-true",
+                      "isFulfilled": true
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": false
+                    }
+                  ]
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "True Reply",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "True branch executed cleanly."
+                },
+                "state": {}
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        },
+        {
+          "offsetMs": 37.8,
+          "event": "end",
+          "data": "[DONE]"
+        }
+      ]
+    }
+  }
+}

@@ -440,6 +440,25 @@ describe('Agentflow V2 Concurrency Validation (Task 08)', () => {
             })
         })
 
+        it('counts Tool, Retriever, and Iteration leaves as content-bearing terminals', () => {
+            const start = createNode('startAgentflow_0', 'startAgentflow', { label: 'Start' })
+            const tool = createNode('toolAgentflow_0', 'toolAgentflow', { label: 'Lookup Tool', position: { x: 200, y: 0 } })
+            const retriever = createNode('retrieverAgentflow_0', 'retrieverAgentflow', { label: 'Docs', position: { x: 200, y: 100 } })
+            const iteration = createNode('iterationAgentflow_0', 'iterationAgentflow', { label: 'Per Item', position: { x: 200, y: 200 } })
+
+            const results = validateAgentflowConcurrency(
+                [start, tool, retriever, iteration],
+                [
+                    createEdge('startAgentflow_0', 'toolAgentflow_0'),
+                    createEdge('startAgentflow_0', 'retrieverAgentflow_0'),
+                    createEdge('startAgentflow_0', 'iterationAgentflow_0')
+                ]
+            )
+
+            expect(results).toHaveLength(1)
+            expect(results[0].issues[0]).toContain('(Lookup Tool, Docs, Per Item)')
+        })
+
         it('stays silent for single terminal, silent non-content leaves, mutually exclusive condition terminals, and unreachable terminals', () => {
             const start = createNode('startAgentflow_0', 'startAgentflow', { label: 'Start' })
             const cond = createNode('conditionAgentflow_0', 'conditionAgentflow', { label: 'Cond' })

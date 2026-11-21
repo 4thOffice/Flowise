@@ -120,6 +120,7 @@ export interface IExecuteNodeParams {
     nodeInstanceFactory?: NodeInstanceFactory
     maxNodeConcurrency?: number
     enqueueDbUpdate?: <T>(task: () => Promise<T>) => Promise<T>
+    getExecutedData?: () => IAgentflowExecutedData[]
 }
 
 export interface IExecuteNodeResult {

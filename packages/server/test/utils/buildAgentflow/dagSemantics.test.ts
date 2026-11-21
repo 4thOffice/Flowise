@@ -106,7 +106,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     T1: async (nd, _inp, options) => {
                         executedTrue.push(nd.id)
                         await new Promise((r) => setTimeout(r, 15))
-                        return { id: nd.id, name: nd.name, output: { content: 'T1' }, state: { ...options.agentflowRuntime.state, branch: 'T1' } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: 'T1' },
+                            state: { ...options.agentflowRuntime.state, branch: 'T1' }
+                        }
                     },
                     F1: async (nd) => {
                         executedTrue.push(nd.id)
@@ -122,7 +127,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     },
                     par_0: async (nd, _inp, options) => {
                         executedTrue.push(nd.id)
-                        return { id: nd.id, name: nd.name, output: { content: 'PAR' }, state: { ...options.agentflowRuntime.state, par: 'ok' } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: 'PAR' },
+                            state: { ...options.agentflowRuntime.state, par: 'ok' }
+                        }
                     },
                     join_0: async (nd, input, options) => {
                         executedTrue.push(nd.id)
@@ -166,12 +176,22 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     },
                     F3: async (nd, _inp, options) => {
                         executedFalse.push(nd.id)
-                        return { id: nd.id, name: nd.name, output: { content: 'F3' }, state: { ...options.agentflowRuntime.state, branch: 'F3' } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: 'F3' },
+                            state: { ...options.agentflowRuntime.state, branch: 'F3' }
+                        }
                     },
                     par_0: async (nd, _inp, options) => {
                         await new Promise((r) => setTimeout(r, 20))
                         executedFalse.push(nd.id)
-                        return { id: nd.id, name: nd.name, output: { content: 'PAR' }, state: { ...options.agentflowRuntime.state, par: 'slow' } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: 'PAR' },
+                            state: { ...options.agentflowRuntime.state, par: 'slow' }
+                        }
                     },
                     join_0: async (nd, _input, options) => {
                         executedFalse.push(nd.id)
@@ -242,11 +262,21 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     createMockNodeFactory({
                         A: async (nd, _inp, options) => {
                             executed.push(nd.id)
-                            return { id: nd.id, name: nd.name, output: { content: 'A' }, state: { ...options.agentflowRuntime.state, a: 'A' } }
+                            return {
+                                id: nd.id,
+                                name: nd.name,
+                                output: { content: 'A' },
+                                state: { ...options.agentflowRuntime.state, a: 'A' }
+                            }
                         },
                         B: async (nd, _inp, options) => {
                             executed.push(nd.id)
-                            return { id: nd.id, name: nd.name, output: { content: 'B' }, state: { ...options.agentflowRuntime.state, b: 'B' } }
+                            return {
+                                id: nd.id,
+                                name: nd.name,
+                                output: { content: 'B' },
+                                state: { ...options.agentflowRuntime.state, b: 'B' }
+                            }
                         },
                         M: async (nd, _input, options) => {
                             executed.push(nd.id)
@@ -260,7 +290,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         },
                         C: async (nd, _inp, options) => {
                             executed.push(nd.id)
-                            return { id: nd.id, name: nd.name, output: { content: 'C' }, state: { ...options.agentflowRuntime.state, c: 'C' } }
+                            return {
+                                id: nd.id,
+                                name: nd.name,
+                                output: { content: 'C' },
+                                state: { ...options.agentflowRuntime.state, c: 'C' }
+                            }
                         },
                         join_0: async (nd, _input, options) => {
                             executed.push(nd.id)
@@ -658,7 +693,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         },
                         join_0: async (nd, _inp, options) => {
                             executed.push(nd.id)
-                            return { id: nd.id, name: nd.name, output: { content: `J:${options.agentflowRuntime.state.picked}` }, state: {} }
+                            return {
+                                id: nd.id,
+                                name: nd.name,
+                                output: { content: `J:${options.agentflowRuntime.state.picked}` },
+                                state: {}
+                            }
                         }
                     })
                 })
@@ -760,7 +800,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 nodeInstanceFactory: createMockNodeFactory({
                     extPre: async (nd, _inp, options) => {
                         extCount += 1
-                        return { id: nd.id, name: nd.name, output: { content: 'ext-val' }, state: { ...options.agentflowRuntime.state, ext: 'settled' } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: 'ext-val' },
+                            state: { ...options.agentflowRuntime.state, ext: 'settled' }
+                        }
                     },
                     entry: async (nd) => {
                         iterCount += 1
@@ -776,7 +821,10 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         id: nd.id,
                         name: 'conditionAgentflow',
                         output: {
-                            conditions: iterCount === 1 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }]
+                            conditions:
+                                iterCount === 1
+                                    ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                    : [{ isFulfilled: false }, { isFulfilled: true }]
                         }
                     }),
                     innerT: async (nd, _inp, options) => ({
@@ -804,13 +852,18 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         id: nd.id,
                         name: 'conditionAgentflow',
                         output: {
-                            conditions: iterCount < 2 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }]
+                            conditions:
+                                iterCount < 2
+                                    ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                    : [{ isFulfilled: false }, { isFulfilled: true }]
                         }
                     }),
                     exitReply: async (nd, _inp, options) => ({
                         id: nd.id,
                         name: nd.name,
-                        output: { content: `done:${iterCount}:${options.agentflowRuntime.state.ext}:${options.agentflowRuntime.state.inner}` }
+                        output: {
+                            content: `done:${iterCount}:${options.agentflowRuntime.state.ext}:${options.agentflowRuntime.state.inner}`
+                        }
                     })
                 })
             })
@@ -1073,9 +1126,19 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     createNode('outerEntry', 'mockOuter'),
                     createNode('innerEntry', 'mockInner'),
                     createNode('innerCond', 'conditionAgentflow'),
-                    createNode('innerLoop', 'loopAgentflow', { inputs: { loopBackToNode: 'innerEntry-Inner', maxLoopCount: 10 } }, realComponentNodes),
+                    createNode(
+                        'innerLoop',
+                        'loopAgentflow',
+                        { inputs: { loopBackToNode: 'innerEntry-Inner', maxLoopCount: 10 } },
+                        realComponentNodes
+                    ),
                     createNode('outerCond', 'conditionAgentflow'),
-                    createNode('outerLoop', 'loopAgentflow', { inputs: { loopBackToNode: 'outerEntry-Outer', maxLoopCount: 10 } }, realComponentNodes),
+                    createNode(
+                        'outerLoop',
+                        'loopAgentflow',
+                        { inputs: { loopBackToNode: 'outerEntry-Outer', maxLoopCount: 10 } },
+                        realComponentNodes
+                    ),
                     createNode('finalReply', 'mockFinal')
                 ],
                 [
@@ -1111,14 +1174,20 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         id: nd.id,
                         name: 'conditionAgentflow',
                         output: {
-                            conditions: innerRunsThisOuter < 2 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }]
+                            conditions:
+                                innerRunsThisOuter < 2
+                                    ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                    : [{ isFulfilled: false }, { isFulfilled: true }]
                         }
                     }),
                     outerCond: async (nd) => ({
                         id: nd.id,
                         name: 'conditionAgentflow',
                         output: {
-                            conditions: outerRuns < 2 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }]
+                            conditions:
+                                outerRuns < 2
+                                    ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                    : [{ isFulfilled: false }, { isFulfilled: true }]
                         }
                     }),
                     finalReply: async (nd) => ({
@@ -1164,21 +1233,41 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 nodeInstanceFactory: createMockNodeFactory({
                     body1: async (nd, _inp, options) => {
                         b1Count += 1
-                        return { id: nd.id, name: nd.name, output: { content: `b1-${b1Count}` }, state: { ...options.agentflowRuntime.state, b1: b1Count } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: `b1-${b1Count}` },
+                            state: { ...options.agentflowRuntime.state, b1: b1Count }
+                        }
                     },
                     cond1: async (nd) => ({
                         id: nd.id,
                         name: 'conditionAgentflow',
-                        output: { conditions: b1Count < 2 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }] }
+                        output: {
+                            conditions:
+                                b1Count < 2
+                                    ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                    : [{ isFulfilled: false }, { isFulfilled: true }]
+                        }
                     }),
                     body2: async (nd, _inp, options) => {
                         b2Count += 1
-                        return { id: nd.id, name: nd.name, output: { content: `b2-${b2Count}` }, state: { ...options.agentflowRuntime.state, b2: b2Count } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: `b2-${b2Count}` },
+                            state: { ...options.agentflowRuntime.state, b2: b2Count }
+                        }
                     },
                     cond2: async (nd) => ({
                         id: nd.id,
                         name: 'conditionAgentflow',
-                        output: { conditions: b2Count < 3 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }] }
+                        output: {
+                            conditions:
+                                b2Count < 3
+                                    ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                    : [{ isFulfilled: false }, { isFulfilled: true }]
+                        }
                     }),
                     join_0: async (nd, _inp, options) => {
                         joinCount += 1
@@ -1256,7 +1345,10 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                             id: nd.id,
                             name: 'conditionAgentflow',
                             output: {
-                                conditions: iter === 1 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }]
+                                conditions:
+                                    iter === 1
+                                        ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                        : [{ isFulfilled: false }, { isFulfilled: true }]
                             }
                         }),
                         loop_0: async (nd) => ({
@@ -1320,7 +1412,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     createNode('slowExt', 'mockSlow'),
                     createNode('fastTrigger', 'mockFast'),
                     createNode('target_0', 'mockTarget'),
-                    createNode('loop_0', 'loopAgentflow', { inputs: { loopBackToNode: 'target_0-Target', maxLoopCount: 2 } }, realComponentNodes)
+                    createNode(
+                        'loop_0',
+                        'loopAgentflow',
+                        { inputs: { loopBackToNode: 'target_0-Target', maxLoopCount: 2 } },
+                        realComponentNodes
+                    )
                 ],
                 [
                     createEdge('start_0', 'slowExt'),
@@ -1390,7 +1487,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     createNode('fast', 'mockFast'),
                     createNode('slowSide', 'mockSlow'),
                     createNode('cond_0', 'conditionAgentflow'),
-                    createNode('loop_0', 'loopAgentflow', { inputs: { loopBackToNode: 'entry-Entry', maxLoopCount: 3 } }, realComponentNodes),
+                    createNode(
+                        'loop_0',
+                        'loopAgentflow',
+                        { inputs: { loopBackToNode: 'entry-Entry', maxLoopCount: 3 } },
+                        realComponentNodes
+                    ),
                     createNode('exitReply', 'mockExit')
                 ],
                 [
@@ -1416,7 +1518,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     entry: async (nd, _inp, options) => {
                         entryIter += 1
                         if (entryIter === 2) iter2Started.resolve()
-                        return { id: nd.id, name: nd.name, output: { content: `iter-${entryIter}` }, state: { ...options.agentflowRuntime.state, iter: entryIter } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: `iter-${entryIter}` },
+                            state: { ...options.agentflowRuntime.state, iter: entryIter }
+                        }
                     },
                     fast: async (nd) => ({ id: nd.id, name: nd.name, output: { content: 'fast' } }),
                     slowSide: async (nd, _inp, options) => {
@@ -1442,7 +1549,10 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         id: nd.id,
                         name: 'conditionAgentflow',
                         output: {
-                            conditions: entryIter === 1 ? [{ isFulfilled: true }, { isFulfilled: false }] : [{ isFulfilled: false }, { isFulfilled: true }]
+                            conditions:
+                                entryIter === 1
+                                    ? [{ isFulfilled: true }, { isFulfilled: false }]
+                                    : [{ isFulfilled: false }, { isFulfilled: true }]
                         }
                     }),
                     exitReply: async (nd, _inp, options) => ({
@@ -1588,7 +1698,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
             const factory = createMockNodeFactory({
                 parSibling: async (nd, _inp, options) => {
                     parRuns += 1
-                    return { id: nd.id, name: nd.name, output: { content: 'par-data' }, state: { ...options.agentflowRuntime.state, par: 'fromPar' } }
+                    return {
+                        id: nd.id,
+                        name: nd.name,
+                        output: { content: 'par-data' },
+                        state: { ...options.agentflowRuntime.state, par: 'fromPar' }
+                    }
                 },
                 skippedRoute: async (nd) => ({ id: nd.id, name: nd.name, output: { content: 'bad' } }),
                 approved_0: async (nd, _inp, options) => ({
@@ -1688,7 +1803,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 ]
             )
 
-            const { appDataSource, executions } = createMockDataSource()
+            const { appDataSource } = createMockDataSource()
             const ranOnResume: string[] = []
             let parRan = 0
 
@@ -1696,11 +1811,21 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 parSibling: async (nd, _inp, options) => {
                     parRan += 1
                     ranOnResume.push(nd.id)
-                    return { id: nd.id, name: nd.name, output: { content: 'par' }, state: { ...options.agentflowRuntime.state, par: 'ran' } }
+                    return {
+                        id: nd.id,
+                        name: nd.name,
+                        output: { content: 'par' },
+                        state: { ...options.agentflowRuntime.state, par: 'ran' }
+                    }
                 },
                 afterHuman: async (nd, _inp, options) => {
                     ranOnResume.push(nd.id)
-                    return { id: nd.id, name: nd.name, output: { content: 'aft' }, state: { ...options.agentflowRuntime.state, aft: 'ran' } }
+                    return {
+                        id: nd.id,
+                        name: nd.name,
+                        output: { content: 'aft' },
+                        state: { ...options.agentflowRuntime.state, aft: 'ran' }
+                    }
                 },
                 join_0: async (nd, _inp, options) => {
                     ranOnResume.push(nd.id)
@@ -1768,7 +1893,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         realComponentNodes
                     ),
                     createNode('exit_0', 'mockExit'),
-                    createNode('loop_0', 'loopAgentflow', { inputs: { loopBackToNode: 'body_0-Body', maxLoopCount: 4 } }, realComponentNodes),
+                    createNode(
+                        'loop_0',
+                        'loopAgentflow',
+                        { inputs: { loopBackToNode: 'body_0-Body', maxLoopCount: 4 } },
+                        realComponentNodes
+                    ),
                     createNode('iterChild', 'mockIterChild', { parentNode: 'body_0', extent: 'parent' })
                 ],
                 [
@@ -1908,7 +2038,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         if (mode === 'human0First') {
                             await parCanFinish.promise
                         }
-                        return { id: nd.id, name: nd.name, output: { content: 'par' }, state: { ...options.agentflowRuntime.state, par: 'done' } }
+                        return {
+                            id: nd.id,
+                            name: nd.name,
+                            output: { content: 'par' },
+                            state: { ...options.agentflowRuntime.state, par: 'done' }
+                        }
                     },
                     afterH0: async (nd, _inp, options) => ({
                         id: nd.id,
@@ -1986,7 +2121,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         },
                         parSibling: async (nd, _inp, options) => {
                             if (mode === 'human0First') await parCanFinish.promise
-                            return { id: nd.id, name: nd.name, output: { content: 'par' }, state: { ...options.agentflowRuntime.state, par: 'done' } }
+                            return {
+                                id: nd.id,
+                                name: nd.name,
+                                output: { content: 'par' },
+                                state: { ...options.agentflowRuntime.state, par: 'done' }
+                            }
                         },
                         afterH0: async (nd, _inp, options) => ({
                             id: nd.id,
@@ -2056,7 +2196,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     ),
                     createNode('parSibling', 'mockPar'),
                     createNode('fastLoop', 'mockFast'),
-                    createNode('loop_0', 'loopAgentflow', { inputs: { loopBackToNode: 'branch_0-Branch', maxLoopCount: 3 } }, realComponentNodes),
+                    createNode(
+                        'loop_0',
+                        'loopAgentflow',
+                        { inputs: { loopBackToNode: 'branch_0-Branch', maxLoopCount: 3 } },
+                        realComponentNodes
+                    ),
                     createNode('afterH0', 'mockAfter'),
                     createNode('join_0', 'mockJoin')
                 ],
@@ -2192,9 +2337,24 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                         name: 'conditionAgentAgentflow',
                         output: { conditions: [{ isFulfilled: true }, { isFulfilled: true }] }
                     }),
-                    b0A: async (nd, _i, o) => ({ id: nd.id, name: nd.name, output: { content: '0A' }, state: { ...o.agentflowRuntime.state, a: 1 } }),
-                    b0B: async (nd, _i, o) => ({ id: nd.id, name: nd.name, output: { content: '0B' }, state: { ...o.agentflowRuntime.state, b: 1 } }),
-                    b1: async (nd, _i, o) => ({ id: nd.id, name: nd.name, output: { content: '1' }, state: { ...o.agentflowRuntime.state, c: 1 } }),
+                    b0A: async (nd, _i, o) => ({
+                        id: nd.id,
+                        name: nd.name,
+                        output: { content: '0A' },
+                        state: { ...o.agentflowRuntime.state, a: 1 }
+                    }),
+                    b0B: async (nd, _i, o) => ({
+                        id: nd.id,
+                        name: nd.name,
+                        output: { content: '0B' },
+                        state: { ...o.agentflowRuntime.state, b: 1 }
+                    }),
+                    b1: async (nd, _i, o) => ({
+                        id: nd.id,
+                        name: nd.name,
+                        output: { content: '1' },
+                        state: { ...o.agentflowRuntime.state, c: 1 }
+                    }),
                     join_0: async (nd, _i, o) => {
                         joinCount += 1
                         const s = o.agentflowRuntime.state
@@ -2331,12 +2491,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
         })
 
         it('handles edge-ID #idx collisions and duplicate edge object references without deadlocking', () => {
-            const nodes = [
-                createNode('A', 'startAgentflow'),
-                createNode('B', 'mock'),
-                createNode('C', 'mock'),
-                createNode('D', 'mock')
-            ]
+            const nodes = [createNode('A', 'startAgentflow'), createNode('B', 'mock'), createNode('C', 'mock'), createNode('D', 'mock')]
             const dupEdge = createEdge('A', 'C', 'A-output', 'e')
             const edges: IReactFlowEdge[] = [
                 createEdge('A', 'B', 'A-output', 'e#2_1'),
@@ -2527,10 +2682,19 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                                   name: 'conditionAgentflow',
                                   output: { conditions: spec.conditionResults[item.nodeId].map((flag) => ({ isFulfilled: flag })) }
                               }
-                            : { id: item.nodeId, name: item.nodeId === 'start_0' ? 'startAgentflow' : 'mockWorker', output: { content: item.nodeId } }
+                            : {
+                                  id: item.nodeId,
+                                  name: item.nodeId === 'start_0' ? 'startAgentflow' : 'mockWorker',
+                                  output: { content: item.nodeId }
+                              }
                     unitEngine.processNodeCompletion({
                         nodeId: item.nodeId,
-                        nodeName: item.nodeId === 'start_0' ? 'startAgentflow' : item.nodeId in spec.conditionResults ? 'conditionAgentflow' : 'mockWorker',
+                        nodeName:
+                            item.nodeId === 'start_0'
+                                ? 'startAgentflow'
+                                : item.nodeId in spec.conditionResults
+                                ? 'conditionAgentflow'
+                                : 'mockWorker',
                         result: nodeResult,
                         epoch: item.epoch,
                         nodeExecutionQueue: unitQueue,

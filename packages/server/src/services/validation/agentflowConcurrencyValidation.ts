@@ -30,7 +30,10 @@ const CONTENT_BEARING_TERMINAL_NODE_NAMES = new Set<string>([
     'directReplyAgentflow',
     'llmAgentflow',
     'agentAgentflow',
-    'executeFlowAgentflow'
+    'executeFlowAgentflow',
+    'toolAgentflow',
+    'retrieverAgentflow',
+    'iterationAgentflow'
 ])
 
 interface ISubgraphContext {

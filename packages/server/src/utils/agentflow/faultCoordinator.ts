@@ -297,7 +297,9 @@ export function selectPrimaryStoppedAction(
 
     if (orderedStopped.length > 1) {
         logger.warn(
-            `[agentflow]: Multiple concurrent branches stopped (${stoppedNodeIds.join(', ')}); selecting "${primary.nodeId}" as primary ChatMessage.action while preserving all STOPPED checkpoints`
+            `[agentflow]: Multiple concurrent branches stopped (${stoppedNodeIds.join(', ')}); selecting "${
+                primary.nodeId
+            }" as primary ChatMessage.action while preserving all STOPPED checkpoints`
         )
     }
 

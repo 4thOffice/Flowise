@@ -1,0 +1,1572 @@
+{
+  "capturedAt": "2026-11-21T01:47:29.039Z",
+  "flow": {
+    "slug": "02-multi-hop-and-nested-conditions",
+    "name": "Baseline 02 - Multi-Hop & Nested Conditions",
+    "file": "02-multi-hop-and-nested-conditions.json",
+    "chatflowId": "74e8112d-8ae8-4aae-9c89-d0314bcf6162",
+    "validationIssues": []
+  },
+  "runs": {
+    "cond1_true": {
+      "nonStreaming": {
+        "mode": "non-streaming",
+        "request": {
+          "question": "true-branchA",
+          "streaming": false
+        },
+        "httpStatus": 200,
+        "durationMs": 179.33,
+        "timedOut": false,
+        "error": null,
+        "response": {
+          "text": "Join reached: parallel=parallel-ok, branch=cond1-true-cond2-A",
+          "executionId": "66f2afe5-fdb0-4224-815c-fcdc44f3ce71",
+          "sessionId": "3b023d50-b3ee-4132-8d6d-3d01149dcc96",
+          "chatId": "3b023d50-b3ee-4132-8d6d-3d01149dcc96",
+          "chatMessageId": "84a94fce-1fbe-4f26-a446-a63aee653884",
+          "action": null,
+          "agentFlowExecutedData": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "true-branchA"
+                },
+                "output": {
+                  "question": "true-branchA"
+                },
+                "state": {
+                  "parallel": "",
+                  "branch": ""
+                }
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Cond1",
+              "data": {
+                "id": "conditionAgentflow_0",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "string",
+                      "value1": "true-branchA",
+                      "operation": "startsWith",
+                      "value2": "true"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "string",
+                      "value1": "true-branchA",
+                      "operation": "startsWith",
+                      "value2": "true",
+                      "isFulfilled": true
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": false
+                    }
+                  ]
+                },
+                "state": {
+                  "parallel": "",
+                  "branch": ""
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_1",
+              "nodeLabel": "Cond2",
+              "data": {
+                "id": "conditionAgentflow_1",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "string",
+                      "value1": "true-branchA",
+                      "operation": "contains",
+                      "value2": "branchA"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "string",
+                      "value1": "true-branchA",
+                      "operation": "contains",
+                      "value2": "branchA",
+                      "isFulfilled": true
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": false
+                    }
+                  ]
+                },
+                "state": {
+                  "parallel": "",
+                  "branch": ""
+                }
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Branch A",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 100));\nreturn 'cond1-true-cond2-A';"
+                },
+                "output": {
+                  "content": "cond1-true-cond2-A"
+                },
+                "state": {
+                  "parallel": "",
+                  "branch": "cond1-true-cond2-A"
+                }
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_1"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_4",
+              "nodeLabel": "ParallelNode",
+              "data": {
+                "id": "customFunctionAgentflow_4",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nreturn 'parallel-ok';"
+                },
+                "output": {
+                  "content": "parallel-ok"
+                },
+                "state": {
+                  "parallel": "parallel-ok",
+                  "branch": "cond1-true-cond2-A"
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Join Reply",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "Join reached: parallel=parallel-ok, branch=cond1-true-cond2-A"
+                },
+                "state": {
+                  "parallel": "parallel-ok",
+                  "branch": "cond1-true-cond2-A"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0",
+                "customFunctionAgentflow_1",
+                "customFunctionAgentflow_3",
+                "customFunctionAgentflow_4"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        }
+      },
+      "streaming": {
+        "mode": "streaming",
+        "request": {
+          "question": "true-branchA",
+          "streaming": true
+        },
+        "httpStatus": 200,
+        "durationMs": 171.71,
+        "timedOut": false,
+        "error": null,
+        "streamedText": "Join reached: parallel=parallel-ok, branch=cond1-true-cond2-A",
+        "tokenChunks": [
+          "Join reached: parallel=parallel-ok, branch=cond1-true-cond2-A"
+        ],
+        "agentFlowEvents": [
+          {
+            "offsetMs": 13.51,
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 167.71,
+            "status": "FINISHED"
+          }
+        ],
+        "nextAgentFlowEvents": [
+          {
+            "offsetMs": 13.56,
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.58,
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 13.59,
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Cond1",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.61,
+            "nodeId": "customFunctionAgentflow_4",
+            "nodeLabel": "ParallelNode",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.63,
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Cond1",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 13.65,
+            "nodeId": "conditionAgentflow_1",
+            "nodeLabel": "Cond2",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.67,
+            "nodeId": "conditionAgentflow_1",
+            "nodeLabel": "Cond2",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 13.68,
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Branch A",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 113.9,
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Branch A",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 162.52,
+            "nodeId": "customFunctionAgentflow_4",
+            "nodeLabel": "ParallelNode",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 162.59,
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 162.64,
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "status": "FINISHED"
+          }
+        ],
+        "action": null,
+        "metadata": {
+          "chatId": "a81e651d-c802-48c0-b497-f98d44299ddb",
+          "chatMessageId": "8275356d-b667-4fa3-85f7-99bba4a0d0da",
+          "question": "true-branchA",
+          "sessionId": "a81e651d-c802-48c0-b497-f98d44299ddb"
+        },
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "true-branchA"
+              },
+              "output": {
+                "question": "true-branchA"
+              },
+              "state": {
+                "parallel": "",
+                "branch": ""
+              }
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Cond1",
+            "data": {
+              "id": "conditionAgentflow_0",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "string",
+                    "value1": "true-branchA",
+                    "operation": "startsWith",
+                    "value2": "true"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "string",
+                    "value1": "true-branchA",
+                    "operation": "startsWith",
+                    "value2": "true",
+                    "isFulfilled": true
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": false
+                  }
+                ]
+              },
+              "state": {
+                "parallel": "",
+                "branch": ""
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_1",
+            "nodeLabel": "Cond2",
+            "data": {
+              "id": "conditionAgentflow_1",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "string",
+                    "value1": "true-branchA",
+                    "operation": "contains",
+                    "value2": "branchA"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "string",
+                    "value1": "true-branchA",
+                    "operation": "contains",
+                    "value2": "branchA",
+                    "isFulfilled": true
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": false
+                  }
+                ]
+              },
+              "state": {
+                "parallel": "",
+                "branch": ""
+              }
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Branch A",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 100));\nreturn 'cond1-true-cond2-A';"
+              },
+              "output": {
+                "content": "cond1-true-cond2-A"
+              },
+              "state": {
+                "parallel": "",
+                "branch": "cond1-true-cond2-A"
+              }
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_1"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_4",
+            "nodeLabel": "ParallelNode",
+            "data": {
+              "id": "customFunctionAgentflow_4",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nreturn 'parallel-ok';"
+              },
+              "output": {
+                "content": "parallel-ok"
+              },
+              "state": {
+                "parallel": "parallel-ok",
+                "branch": "cond1-true-cond2-A"
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "Join reached: parallel=parallel-ok, branch=cond1-true-cond2-A"
+              },
+              "state": {
+                "parallel": "parallel-ok",
+                "branch": "cond1-true-cond2-A"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0",
+              "customFunctionAgentflow_1",
+              "customFunctionAgentflow_3",
+              "customFunctionAgentflow_4"
+            ],
+            "status": "FINISHED"
+          }
+        ],
+        "events": [
+          {
+            "offsetMs": 13.51,
+            "event": "agentFlowEvent",
+            "data": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.56,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 13.58,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 13.59,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Cond1",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 13.61,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_4",
+              "nodeLabel": "ParallelNode",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 13.63,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Cond1",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 13.65,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "conditionAgentflow_1",
+              "nodeLabel": "Cond2",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 13.67,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "conditionAgentflow_1",
+              "nodeLabel": "Cond2",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 13.68,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Branch A",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 113.9,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Branch A",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 162.52,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_4",
+              "nodeLabel": "ParallelNode",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 162.59,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Join Reply",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 162.61,
+            "event": "token",
+            "data": "Join reached: parallel=parallel-ok, branch=cond1-true-cond2-A"
+          },
+          {
+            "offsetMs": 162.64,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Join Reply",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 167.71,
+            "event": "agentFlowEvent",
+            "data": "FINISHED"
+          },
+          {
+            "offsetMs": 169.14,
+            "event": "trustedStateData",
+            "data": "zOf+fb+e168KvEDysHluj+2+3Xy7Zi1/chennm2h379jDcXRv4QeuNAolqKZF5IlB7skiqBWi1S8LBbgH3+2wPfyxKmHIWXj34uXoZyvDYZq31ONm4v5fVmkdlfPG7Db13vBjYgjYuuWkoGKK5yTlQfKnF8AyWTUlL5+w8cfntG4cvt3W78jE0kfmAKV90tvvihIWOWiSEgQTWbXsuL2NAWOp3L6TqwRo+c/x9l5aL6bzNDCWh03RkEFVn/W6qWKfm1/XstYn1+1/DlDRR4lWZfrtH70SfZCRwKFNVBdvB/OYBpFNuTsn9Y3LP3K2hOU1YSZqch62iIcgg19fPx/DOPfvtrQIpkCc0tScx30QvXJ9C73AhYq+KiUVVl7qPZKnkPhnzKKAHuzlgUGH1/wdKeHA+o9k0UgAKibAFQYj5by+R3wl8OLkiZMiOVn1A+u6Jm1Y84elI8A3PzkGkj0keoc98Svw40W42TA6NWl3BBuX1PvXjGrX950vDo3Oo8Gw2pm4jOr3xwqsHDf6EN9CigAbHRTTM7zmE/PmHuhAzvXOw+oftBeIDSvuR2vKgnufIpGUYU3fugnJRTH6WFXpSVUH4UdfUPndx1l12NScY7pbA0nhuRy/mn8epT3cIXiepkrl8lbr1WxXnFWF7KNKmsz44Nr/SWrI/fd3b5kxPrhYiNBVWd0Pu735aUZoPNJtCTynEW9IcyUUIRTHFOWdzW8iXunsMyRZde1HtW10kfRwRAxNCTAGZz34eKHoVY3KqIiEz0yWQd1KbHfh//Fs6w725yMkKOoCek4I3Ikza3JQaIzxd6V8jhmkhh6y5OTXMV4eybgei1ZKDZR2NklidbUdkT7GjAVVpEPZ4D46Gkq4krov60TZv0pPLA/GKLeWGGBrJ9qIZUFZIJrSlxkAx3tP190XtoArZsovPe9EWPN0qMGAmqgHybE7rmDKdhYl2y2b3ucxlT7H9PS7vRbzbLJCX4OX4kkpzlSOA+VTSg7k4PxsOwxt+f/Hkk7+veD6FeXdAbvqMW7pGgLmPPNgFHo6oOfLshMxT9M0Zc9NsmkZATmx/94eifbnZ6O1yIzvg/4LzL27/VGY1AvyTrp2ZYknTQ+riCVO8JKEQmtEW60WZJNTr4V8ueqrWJcNr2RcMuOiqkHb9+k1lbODUYhiGNRvpByUGKnGr/ZXShE4PkUVjxjzj2F87/0oTJEjw2aDkY0vMrddOtMUg+EGW6yy0n5PrtAjmBImhUBqRiB+8gNgYhZdc//YFxMSKXDp3w6o46tQAs+QGHdPPrIORcN7ZLFaa9FHctBoF4q5ug5EGQ0K19UifOvyCG+CD8UxqBR36dbWvr8kUTBIhtXkGUHXl7ZcjyjsAukI9/nS6Wqw4TAiVPy5vBz7S/N"
+          },
+          {
+            "offsetMs": 171.54,
+            "event": "metadata",
+            "data": {
+              "chatId": "a81e651d-c802-48c0-b497-f98d44299ddb",
+              "chatMessageId": "8275356d-b667-4fa3-85f7-99bba4a0d0da",
+              "question": "true-branchA",
+              "sessionId": "a81e651d-c802-48c0-b497-f98d44299ddb"
+            }
+          },
+          {
+            "offsetMs": 171.6,
+            "event": "agentFlowExecutedData",
+            "data": [
+              {
+                "nodeId": "startAgentflow_0",
+                "nodeLabel": "Start",
+                "data": {
+                  "id": "startAgentflow_0",
+                  "name": "startAgentflow",
+                  "input": {
+                    "question": "true-branchA"
+                  },
+                  "output": {
+                    "question": "true-branchA"
+                  },
+                  "state": {
+                    "parallel": "",
+                    "branch": ""
+                  }
+                },
+                "previousNodeIds": [],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_0",
+                "nodeLabel": "Cond1",
+                "data": {
+                  "id": "conditionAgentflow_0",
+                  "name": "conditionAgentflow",
+                  "input": {
+                    "conditions": {
+                      "0": {
+                        "type": "string",
+                        "value1": "true-branchA",
+                        "operation": "startsWith",
+                        "value2": "true"
+                      }
+                    }
+                  },
+                  "output": {
+                    "conditions": [
+                      {
+                        "type": "string",
+                        "value1": "true-branchA",
+                        "operation": "startsWith",
+                        "value2": "true",
+                        "isFulfilled": true
+                      },
+                      {
+                        "type": "string",
+                        "value1": "",
+                        "operation": "equal",
+                        "value2": "",
+                        "isFulfilled": false
+                      }
+                    ]
+                  },
+                  "state": {
+                    "parallel": "",
+                    "branch": ""
+                  }
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_1",
+                "nodeLabel": "Cond2",
+                "data": {
+                  "id": "conditionAgentflow_1",
+                  "name": "conditionAgentflow",
+                  "input": {
+                    "conditions": {
+                      "0": {
+                        "type": "string",
+                        "value1": "true-branchA",
+                        "operation": "contains",
+                        "value2": "branchA"
+                      }
+                    }
+                  },
+                  "output": {
+                    "conditions": [
+                      {
+                        "type": "string",
+                        "value1": "true-branchA",
+                        "operation": "contains",
+                        "value2": "branchA",
+                        "isFulfilled": true
+                      },
+                      {
+                        "type": "string",
+                        "value1": "",
+                        "operation": "equal",
+                        "value2": "",
+                        "isFulfilled": false
+                      }
+                    ]
+                  },
+                  "state": {
+                    "parallel": "",
+                    "branch": ""
+                  }
+                },
+                "previousNodeIds": [
+                  "conditionAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_0",
+                "nodeLabel": "Branch A",
+                "data": {
+                  "id": "customFunctionAgentflow_0",
+                  "name": "customFunctionAgentflow",
+                  "input": {
+                    "inputVariables": "",
+                    "code": "await new Promise((r) => setTimeout(r, 100));\nreturn 'cond1-true-cond2-A';"
+                  },
+                  "output": {
+                    "content": "cond1-true-cond2-A"
+                  },
+                  "state": {
+                    "parallel": "",
+                    "branch": "cond1-true-cond2-A"
+                  }
+                },
+                "previousNodeIds": [
+                  "conditionAgentflow_1"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_4",
+                "nodeLabel": "ParallelNode",
+                "data": {
+                  "id": "customFunctionAgentflow_4",
+                  "name": "customFunctionAgentflow",
+                  "input": {
+                    "inputVariables": "",
+                    "code": "await new Promise((r) => setTimeout(r, 150));\nreturn 'parallel-ok';"
+                  },
+                  "output": {
+                    "content": "parallel-ok"
+                  },
+                  "state": {
+                    "parallel": "parallel-ok",
+                    "branch": "cond1-true-cond2-A"
+                  }
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "directReplyAgentflow_0",
+                "nodeLabel": "Join Reply",
+                "data": {
+                  "id": "directReplyAgentflow_0",
+                  "name": "directReplyAgentflow",
+                  "input": {},
+                  "output": {
+                    "content": "Join reached: parallel=parallel-ok, branch=cond1-true-cond2-A"
+                  },
+                  "state": {
+                    "parallel": "parallel-ok",
+                    "branch": "cond1-true-cond2-A"
+                  }
+                },
+                "previousNodeIds": [
+                  "customFunctionAgentflow_0",
+                  "customFunctionAgentflow_1",
+                  "customFunctionAgentflow_3",
+                  "customFunctionAgentflow_4"
+                ],
+                "status": "FINISHED"
+              }
+            ]
+          },
+          {
+            "offsetMs": 171.63,
+            "event": "end",
+            "data": "[DONE]"
+          }
+        ]
+      }
+    },
+    "cond1_false": {
+      "nonStreaming": {
+        "mode": "non-streaming",
+        "request": {
+          "question": "false",
+          "streaming": false
+        },
+        "httpStatus": 200,
+        "durationMs": 174.77,
+        "timedOut": false,
+        "error": null,
+        "response": {
+          "text": "Join reached: parallel=parallel-ok, branch=cond1-false-F1-F2",
+          "executionId": "737790dd-a81c-40b3-908d-b0349902cc58",
+          "sessionId": "a9876a1c-6627-4257-86e3-7f7aaa58a1c5",
+          "chatId": "a9876a1c-6627-4257-86e3-7f7aaa58a1c5",
+          "chatMessageId": "d77b0ea3-8d63-46e6-81a8-749bd3d1e94f",
+          "action": null,
+          "agentFlowExecutedData": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "false"
+                },
+                "output": {
+                  "question": "false"
+                },
+                "state": {
+                  "parallel": "",
+                  "branch": ""
+                }
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Cond1",
+              "data": {
+                "id": "conditionAgentflow_0",
+                "name": "conditionAgentflow",
+                "input": {
+                  "conditions": {
+                    "0": {
+                      "type": "string",
+                      "value1": "false",
+                      "operation": "startsWith",
+                      "value2": "true"
+                    }
+                  }
+                },
+                "output": {
+                  "conditions": [
+                    {
+                      "type": "string",
+                      "value1": "false",
+                      "operation": "startsWith",
+                      "value2": "true"
+                    },
+                    {
+                      "type": "string",
+                      "value1": "",
+                      "operation": "equal",
+                      "value2": "",
+                      "isFulfilled": true
+                    }
+                  ]
+                },
+                "state": {
+                  "parallel": "",
+                  "branch": ""
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_2",
+              "nodeLabel": "F1",
+              "data": {
+                "id": "customFunctionAgentflow_2",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 50));\nreturn 'F1-done';"
+                },
+                "output": {
+                  "content": "F1-done"
+                },
+                "state": {
+                  "parallel": "",
+                  "branch": ""
+                }
+              },
+              "previousNodeIds": [
+                "conditionAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_4",
+              "nodeLabel": "ParallelNode",
+              "data": {
+                "id": "customFunctionAgentflow_4",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 150));\nreturn 'parallel-ok';"
+                },
+                "output": {
+                  "content": "parallel-ok"
+                },
+                "state": {
+                  "parallel": "parallel-ok",
+                  "branch": ""
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_3",
+              "nodeLabel": "F2",
+              "data": {
+                "id": "customFunctionAgentflow_3",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 100));\nreturn 'cond1-false-F1-F2';"
+                },
+                "output": {
+                  "content": "cond1-false-F1-F2"
+                },
+                "state": {
+                  "parallel": "parallel-ok",
+                  "branch": "cond1-false-F1-F2"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_2"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Join Reply",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "Join reached: parallel=parallel-ok, branch=cond1-false-F1-F2"
+                },
+                "state": {
+                  "parallel": "parallel-ok",
+                  "branch": "cond1-false-F1-F2"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0",
+                "customFunctionAgentflow_1",
+                "customFunctionAgentflow_3",
+                "customFunctionAgentflow_4"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        }
+      },
+      "streaming": {
+        "mode": "streaming",
+        "request": {
+          "question": "false",
+          "streaming": true
+        },
+        "httpStatus": 200,
+        "durationMs": 196.46,
+        "timedOut": false,
+        "error": null,
+        "streamedText": "Join reached: parallel=parallel-ok, branch=cond1-false-F1-F2",
+        "tokenChunks": [
+          "Join reached: parallel=parallel-ok, branch=cond1-false-F1-F2"
+        ],
+        "agentFlowEvents": [
+          {
+            "offsetMs": 13.82,
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 179.02,
+            "status": "FINISHED"
+          }
+        ],
+        "nextAgentFlowEvents": [
+          {
+            "offsetMs": 13.85,
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.87,
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 13.88,
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Cond1",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.89,
+            "nodeId": "customFunctionAgentflow_4",
+            "nodeLabel": "ParallelNode",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.91,
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Cond1",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 13.92,
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "F1",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 67.85,
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "F1",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 67.9,
+            "nodeId": "customFunctionAgentflow_3",
+            "nodeLabel": "F2",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 162.99,
+            "nodeId": "customFunctionAgentflow_4",
+            "nodeLabel": "ParallelNode",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 175.12,
+            "nodeId": "customFunctionAgentflow_3",
+            "nodeLabel": "F2",
+            "status": "FINISHED"
+          },
+          {
+            "offsetMs": 175.16,
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "status": "INPROGRESS"
+          },
+          {
+            "offsetMs": 175.19,
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "status": "FINISHED"
+          }
+        ],
+        "action": null,
+        "metadata": {
+          "chatId": "43c821e4-198f-4b5a-8528-f041a272a1c8",
+          "chatMessageId": "bfa8e170-5e98-4f93-86f7-4d27aba18e7c",
+          "question": "false",
+          "sessionId": "43c821e4-198f-4b5a-8528-f041a272a1c8"
+        },
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "false"
+              },
+              "output": {
+                "question": "false"
+              },
+              "state": {
+                "parallel": "",
+                "branch": ""
+              }
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "conditionAgentflow_0",
+            "nodeLabel": "Cond1",
+            "data": {
+              "id": "conditionAgentflow_0",
+              "name": "conditionAgentflow",
+              "input": {
+                "conditions": {
+                  "0": {
+                    "type": "string",
+                    "value1": "false",
+                    "operation": "startsWith",
+                    "value2": "true"
+                  }
+                }
+              },
+              "output": {
+                "conditions": [
+                  {
+                    "type": "string",
+                    "value1": "false",
+                    "operation": "startsWith",
+                    "value2": "true"
+                  },
+                  {
+                    "type": "string",
+                    "value1": "",
+                    "operation": "equal",
+                    "value2": "",
+                    "isFulfilled": true
+                  }
+                ]
+              },
+              "state": {
+                "parallel": "",
+                "branch": ""
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_2",
+            "nodeLabel": "F1",
+            "data": {
+              "id": "customFunctionAgentflow_2",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 50));\nreturn 'F1-done';"
+              },
+              "output": {
+                "content": "F1-done"
+              },
+              "state": {
+                "parallel": "",
+                "branch": ""
+              }
+            },
+            "previousNodeIds": [
+              "conditionAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_4",
+            "nodeLabel": "ParallelNode",
+            "data": {
+              "id": "customFunctionAgentflow_4",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 150));\nreturn 'parallel-ok';"
+              },
+              "output": {
+                "content": "parallel-ok"
+              },
+              "state": {
+                "parallel": "parallel-ok",
+                "branch": ""
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_3",
+            "nodeLabel": "F2",
+            "data": {
+              "id": "customFunctionAgentflow_3",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 100));\nreturn 'cond1-false-F1-F2';"
+              },
+              "output": {
+                "content": "cond1-false-F1-F2"
+              },
+              "state": {
+                "parallel": "parallel-ok",
+                "branch": "cond1-false-F1-F2"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_2"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "Join reached: parallel=parallel-ok, branch=cond1-false-F1-F2"
+              },
+              "state": {
+                "parallel": "parallel-ok",
+                "branch": "cond1-false-F1-F2"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0",
+              "customFunctionAgentflow_1",
+              "customFunctionAgentflow_3",
+              "customFunctionAgentflow_4"
+            ],
+            "status": "FINISHED"
+          }
+        ],
+        "events": [
+          {
+            "offsetMs": 13.82,
+            "event": "agentFlowEvent",
+            "data": "INPROGRESS"
+          },
+          {
+            "offsetMs": 13.85,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 13.87,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 13.88,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Cond1",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 13.89,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_4",
+              "nodeLabel": "ParallelNode",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 13.91,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "conditionAgentflow_0",
+              "nodeLabel": "Cond1",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 13.92,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_2",
+              "nodeLabel": "F1",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 67.85,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_2",
+              "nodeLabel": "F1",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 67.9,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_3",
+              "nodeLabel": "F2",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 162.99,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_4",
+              "nodeLabel": "ParallelNode",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 175.12,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "customFunctionAgentflow_3",
+              "nodeLabel": "F2",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 175.16,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Join Reply",
+              "status": "INPROGRESS"
+            }
+          },
+          {
+            "offsetMs": 175.18,
+            "event": "token",
+            "data": "Join reached: parallel=parallel-ok, branch=cond1-false-F1-F2"
+          },
+          {
+            "offsetMs": 175.19,
+            "event": "nextAgentFlow",
+            "data": {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Join Reply",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "offsetMs": 179.02,
+            "event": "agentFlowEvent",
+            "data": "FINISHED"
+          },
+          {
+            "offsetMs": 184.88,
+            "event": "trustedStateData",
+            "data": "u97WSHNJ9JifYcPl8jgu80r7z1dQbtVzMZ/QqvaPPrOtDAOo/1uZkGoZGFWMuXftnsDAcH+fq+jbTvmkKpo3IdYNSJX6KU8iDZQD1nmrY7DqGGss8JI+INulDZ5dShxoDhr8mKQ7hILW9sT9fjEBD2EOa8LCvuiWewM8/5PO2ITBCZjPuCdJ8zCaZfLSo5tNy9ufV4FVZlMe6Xgmw0UFtQA1pbclhjjhyrjBy0nX/a7OULLh+3e1o0700JONe+XI08/ywsu+zi/ldYIandpYOihYyqMckt3Z2UlEq2JbWZvR7nyenH79rDlWf46Dn6FWFqTkXlbAgVUFM8dxHHCV0125TWLuJ/Zkqw71eACXDMlBhtIkGLIBNZgirAgKsnXoD2dWp2mRAYPQLdFBDSvjB2X0yGRXtd9J/fpn94rOeF3R1Lp1pDmHoLd44im/LviD+gnfOqWvv/CyAVNFF7VyhrAWep9VVUJDSeXviSx1HtZwavT9prZgUad6VL6hUH+cpR5kIaCopV278jRD9VY/q/VAktH9pXMEEJ3xt0jBDObdjd6HXmmJplwNOPTrKfn/NEq7ILScae9KDsmDfymmMBKEiYuOW5ACM4kpPnGSXWf+CL0Xe/CIobmnQtnRnLIWEqwm47nIUuFe2GZlcHcd9uD/LnORAz7TM4Fzw64VX7Xs9LOGBHnwdYwuPXFn1UAL+aLo/m83Vr7/3rfjLH8tvBmAqnYyB5JI6jgV2SOa+w3cqnO6Tn46BiFbD4cU73c4hzwhvT8FfxczcVpGtRpX2TBlTL1/cbKUbrJRmhyV096ecr73VDqoVr1uva33AvfO2j0IunYZgmycgMaZGPe0sebL/5XNn1nuVGAf+ge12IEKM5ndb9p8d0dK0RsDtUa3aXjUrBYSzhK2DdXJM9KCWbp7XJmHoT57INAtock1H1EyskZ8p+UZlaUZ5Zd8szLF8gxalHpupLka15RdssrUEa2vlTxbfSNGEJ6kf7dRYA4OhASgeHlCbQ2C0yxSBXexOOM8c3Z2pLPgOFILOyveKvKQDY3/1WklmCdEn8QylNk56OgI9/nyNpREAetrOC4B6aIR7G2gXOaWavQeyaJzKbYJlDDCNwI6A33+fetAgBCRQd2E4OkBVTx/Sq6+6YwjVt+qYVNqoRunPj+KTtW+7CkSI4ofTzw8Qno1G1cGR3mgAq0Sxgl4HWzfxatyQ+JtjCfwNL0bRp6Gvw7kr7FmI+X/lhnso76g0HL4nrIiXxcrEC5WY3s7d6GKyc6EKzuiL/RG861VSrUM3JyCtpooCfr7iVipKMJ0ZQtYFxyeXP/RvD8qOCCVMSRqDKMkv3MQwaHE8BYPGqa1pu5v3YuzzhYdvXqRQbp7IJz8RA=="
+          },
+          {
+            "offsetMs": 196.26,
+            "event": "metadata",
+            "data": {
+              "chatId": "43c821e4-198f-4b5a-8528-f041a272a1c8",
+              "chatMessageId": "bfa8e170-5e98-4f93-86f7-4d27aba18e7c",
+              "question": "false",
+              "sessionId": "43c821e4-198f-4b5a-8528-f041a272a1c8"
+            }
+          },
+          {
+            "offsetMs": 196.33,
+            "event": "agentFlowExecutedData",
+            "data": [
+              {
+                "nodeId": "startAgentflow_0",
+                "nodeLabel": "Start",
+                "data": {
+                  "id": "startAgentflow_0",
+                  "name": "startAgentflow",
+                  "input": {
+                    "question": "false"
+                  },
+                  "output": {
+                    "question": "false"
+                  },
+                  "state": {
+                    "parallel": "",
+                    "branch": ""
+                  }
+                },
+                "previousNodeIds": [],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "conditionAgentflow_0",
+                "nodeLabel": "Cond1",
+                "data": {
+                  "id": "conditionAgentflow_0",
+                  "name": "conditionAgentflow",
+                  "input": {
+                    "conditions": {
+                      "0": {
+                        "type": "string",
+                        "value1": "false",
+                        "operation": "startsWith",
+                        "value2": "true"
+                      }
+                    }
+                  },
+                  "output": {
+                    "conditions": [
+                      {
+                        "type": "string",
+                        "value1": "false",
+                        "operation": "startsWith",
+                        "value2": "true"
+                      },
+                      {
+                        "type": "string",
+                        "value1": "",
+                        "operation": "equal",
+                        "value2": "",
+                        "isFulfilled": true
+                      }
+                    ]
+                  },
+                  "state": {
+                    "parallel": "",
+                    "branch": ""
+                  }
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_2",
+                "nodeLabel": "F1",
+                "data": {
+                  "id": "customFunctionAgentflow_2",
+                  "name": "customFunctionAgentflow",
+                  "input": {
+                    "inputVariables": "",
+                    "code": "await new Promise((r) => setTimeout(r, 50));\nreturn 'F1-done';"
+                  },
+                  "output": {
+                    "content": "F1-done"
+                  },
+                  "state": {
+                    "parallel": "",
+                    "branch": ""
+                  }
+                },
+                "previousNodeIds": [
+                  "conditionAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_4",
+                "nodeLabel": "ParallelNode",
+                "data": {
+                  "id": "customFunctionAgentflow_4",
+                  "name": "customFunctionAgentflow",
+                  "input": {
+                    "inputVariables": "",
+                    "code": "await new Promise((r) => setTimeout(r, 150));\nreturn 'parallel-ok';"
+                  },
+                  "output": {
+                    "content": "parallel-ok"
+                  },
+                  "state": {
+                    "parallel": "parallel-ok",
+                    "branch": ""
+                  }
+                },
+                "previousNodeIds": [
+                  "startAgentflow_0"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "customFunctionAgentflow_3",
+                "nodeLabel": "F2",
+                "data": {
+                  "id": "customFunctionAgentflow_3",
+                  "name": "customFunctionAgentflow",
+                  "input": {
+                    "inputVariables": "",
+                    "code": "await new Promise((r) => setTimeout(r, 100));\nreturn 'cond1-false-F1-F2';"
+                  },
+                  "output": {
+                    "content": "cond1-false-F1-F2"
+                  },
+                  "state": {
+                    "parallel": "parallel-ok",
+                    "branch": "cond1-false-F1-F2"
+                  }
+                },
+                "previousNodeIds": [
+                  "customFunctionAgentflow_2"
+                ],
+                "status": "FINISHED"
+              },
+              {
+                "nodeId": "directReplyAgentflow_0",
+                "nodeLabel": "Join Reply",
+                "data": {
+                  "id": "directReplyAgentflow_0",
+                  "name": "directReplyAgentflow",
+                  "input": {},
+                  "output": {
+                    "content": "Join reached: parallel=parallel-ok, branch=cond1-false-F1-F2"
+                  },
+                  "state": {
+                    "parallel": "parallel-ok",
+                    "branch": "cond1-false-F1-F2"
+                  }
+                },
+                "previousNodeIds": [
+                  "customFunctionAgentflow_0",
+                  "customFunctionAgentflow_1",
+                  "customFunctionAgentflow_3",
+                  "customFunctionAgentflow_4"
+                ],
+                "status": "FINISHED"
+              }
+            ]
+          },
+          {
+            "offsetMs": 196.38,
+            "event": "end",
+            "data": "[DONE]"
+          }
+        ]
+      }
+    }
+  }
+}

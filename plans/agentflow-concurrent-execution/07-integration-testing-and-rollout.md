@@ -1,6 +1,6 @@
 # Task 07: Integration Testing, Hardening, & Rollout
 
-- **Status**: Pending
+- **Status**: Done (verification matrix implemented, baselines replayed, rollout checklist complete)
 - **Design Status**: Executes after Tasks 00b, 01–06, and 08 are complete
 - **Depends On**:
   - [00b-baseline-flows-and-traces.md](./00b-baseline-flows-and-traces.md)
@@ -53,16 +53,40 @@ Validate the complete concurrent Agentflow V2 execution engine across realistic 
   - Parity verification with `AGENTFLOW_MAX_NODE_CONCURRENCY=1`.
 
 ### 2.2 Infrastructure, UI, & Mode Checks
-- [ ] **SSE Streaming**: Verify live `nextAgentFlow` events (multiple nodes `INPROGRESS` simultaneously -> `FINISHED`), consecutive non-interleaved `\n\n` `token` events, final `agentFlowExecutedData`, `trustedStateData`, and `end` (`[DONE]`).
-- [ ] **Database Persistence**: Verify `Execution` and `ChatMessage` writes with default TypeORM path AND serialized `updateExecution` updates with `EXECUTIONS_DB_THREAD=1`.
-- [ ] **Zero-Retention / Trusted State**: Verify `useTrustedState` / `zeroRetention` flows produce valid encrypted state payload on `FINISHED`, `STOPPED`, and `ERROR`.
-- [ ] **Queue Mode (`MODE=queue`)**: Verify `PredictionQueue` worker execution path (`packages/server/src/queue/PredictionQueue.ts`) works seamlessly with concurrent node scheduling.
-- [ ] **Analytics / Tracing**: Verify `analyticHandlers` (`onChainStart`, `onChainEnd`, `onChainError`) receive clean lifecycle calls even under parallel branches.
-- [ ] **Canvas UX & Validation**: Verify wave badges render cleanly in UI without setting dirty state, and `checkFlowValidation` catches unlinked `{{node}}` references and parallel state-key write conflicts.
+- [x] **SSE Streaming**: Verify live `nextAgentFlow` events (multiple nodes `INPROGRESS` simultaneously -> `FINISHED`), consecutive non-interleaved `\n\n` `token` events, final `agentFlowExecutedData`, `trustedStateData`, and `end` (`[DONE]`).
+- [x] **Database Persistence**: Verify `Execution` and `ChatMessage` writes with default TypeORM path AND serialized `updateExecution` updates with `EXECUTIONS_DB_THREAD=1`.
+- [x] **Zero-Retention / Trusted State**: Verify `useTrustedState` / `zeroRetention` flows produce valid encrypted state payload on `FINISHED`, `STOPPED`, and `ERROR`.
+- [x] **Queue Mode (`MODE=queue`)**: Verify `PredictionQueue` worker execution path (`packages/server/src/queue/PredictionQueue.ts`) works seamlessly with concurrent node scheduling.
+- [x] **Analytics / Tracing**: Verify `analyticHandlers` (`onChainStart`, `onChainEnd`, `onChainError`) receive clean lifecycle calls even under parallel branches.
+- [x] **Canvas UX & Validation**: Verify wave badges render cleanly in UI without setting dirty state, and `checkFlowValidation` catches unlinked `{{node}}` references and parallel state-key write conflicts.
 
 ### 2.3 Documentation & Rollout Checklist
-- [ ] Confirm `AGENTFLOW_MAX_NODE_CONCURRENCY` is documented in `packages/server/.env.example` (including default value and `=1` sequential fallback note).
-- [ ] Remove any temporary debug logs or dead legacy helpers (e.g., unused `findConditionParent`, `setupNodeDependencies`, `hasReceivedRequiredInputs` once superseded by `dependencyEngine.ts`).
-- [ ] Full workspace build succeeds: `pnpm build` (covers `flowise` server and `flowise-ui` touched in Task 08).
-- [ ] Full server test suite passes with zero open handles: `pnpm --filter flowise test`.
-- [ ] Update `plans/agentflow-concurrent-execution/PLAN.md` task statuses to `Done`.
+- [x] Confirm `AGENTFLOW_MAX_NODE_CONCURRENCY` is documented in `packages/server/.env.example` (including default value and `=1` sequential fallback note).
+- [x] Remove any temporary debug logs or dead legacy helpers (e.g., unused `findConditionParent`, `setupNodeDependencies`, `hasReceivedRequiredInputs` once superseded by `dependencyEngine.ts`).
+- [x] Full workspace build succeeds: `pnpm build` (covers `flowise` server and `flowise-ui` touched in Task 08).
+- [x] Full server test suite passes with zero open handles: `pnpm --filter flowise test`.
+- [x] Update `plans/agentflow-concurrent-execution/PLAN.md` task statuses to `Done`.
+
+---
+
+## 3. Verification Results
+
+- **`integration.test.ts`** (39 tests): 60 seeded fuzz runs over a 5-wide fan-out -> nested/multi-hop conditions -> join -> `loopAgentflow` (1–3 passes) -> 4 terminal leaves (1 silent) with `AGENTFLOW_MAX_NODE_CONCURRENCY` cycling `1, 2, 3, 4, 6, 10` and streaming on/off; `=1` vs `=10` parity on the fuzz DAG and baseline Flows 01–06; fast `DirectReply` + slow `LLM` streams; companion + `HumanInput` (`proceed`/`reject`, REST/SSE); fail-fast abort (`concurrency 3/10`, REST/SSE); 3-item `iterationAgentflow` with a concurrent inner subflow; 9 concurrent requests on a shared `SSEStreamer` + datasource; default TypeORM vs `EXECUTIONS_DB_THREAD=1` (real `executionsWorker`); `zeroRetention` on `FINISHED` / `STOPPED` (+ stateless resume) / `ERROR` and `useTrustedState`-only; `PredictionQueue.processJob` (env limit + `AbortControllerPool` cancellation); `analyticHandlers` on `FINISHED` / `ERROR` / `STOPPED` plus the real `AnalyticHandler` with overlapping LLM spans; a failing final `Execution` write; iteration checkpoint freshness; Flow 04 SSE lifecycle on the wire.
+- **Mutation check**: 7 deliberately injected engine regressions (whole-state overwrite instead of delta merge, stream lock bypass, DPE treating skipped joins as activated, ignored concurrency limit, rejecting before in-flight siblings settle, unserialized DB queue, child abort scope not passed to nodes) each failed the suite.
+- **Baseline replay**: [`baselines/traces/after/`](./baselines/traces/after/) (`=10`) and [`baselines/traces/after/concurrency-1/`](./baselines/traces/after/concurrency-1/) (`=1`), compared in [`baselines/README.md`](./baselines/README.md).
+- **Canvas UX**: on the built UI, the Flow 01 overlay toggles `Step 1` -> `Step 2.1/2.2 (Parallel)` -> `Step 3` badges on and off without setting the unsaved-changes marker; validation counts from the replay (`0, 0, 1, 1, 1, 0`) match Task 08.
+- **Legacy helpers**: `findConditionParent`, `setupNodeDependencies`, `hasReceivedRequiredInputs`, `determineNodesToIgnore`, and `processNodeOutputs` are no longer called by the scheduler but are kept because `baseline.test.ts`, `concurrentScheduler.test.ts`, and `dagSemantics.test.ts` still import them; their `@deprecated` notes say so. Four dead imports were removed from `buildAgentflow.ts`; no stray debug logging was found.
+- **Test infrastructure**: `pnpm --filter flowise test` runs the server suite twice in parallel (root `turbo run test` + the package script). `test/setupEnv.ts` now pre-creates the shared log directory, and `test/index.test.ts` boots its server on a free port with a throwaway data directory instead of `:3000` and `~/.flowise`.
+- **Independent review** (static reviewer over `git diff master -- packages/`). Fixed:
+  - Parallel LLM/tool spans evicted each other in the per-chat `AnalyticHandler` (`packages/components/src/handler.ts`). Run maps are now additive and finished LLM/tool entries are removed; this also stops langWatch LLM spans from evicting the chain span, and adds the missing `opik` key in `onLLMStart`.
+  - A failed final `Execution` write no longer fails an already-produced answer or replaces the root node error.
+  - Iteration checkpoints serialize the committed records when the queued write runs, so records from parallel siblings are no longer dropped.
+  - The multi-terminal validation notice now also counts `toolAgentflow`, `retrieverAgentflow`, and `iterationAgentflow` leaves.
+  - `.env.example` states that `=1` keeps the new scheduling semantics and that each iteration subflow gets its own budget.
+- **Known limitations and deliberate choices** (unchanged):
+  - The final `Execution` write is still awaited before the response, as §4.3 of Task 06 requires. With `EXECUTIONS_DB_THREAD=1` that waits on the process-wide single worker thread, whereas master fired and forgot it.
+  - A streaming leaf inside a loop body that is still running when the loop restarts can stream text that is then dropped as a stale completion, so the wire text differs from the saved content. Master also streamed every pass, so this is not a regression.
+  - Disconnected non-start nodes are skipped instead of rejected (Task 04); structural validation still flags them.
+  - Nodes inside `iterationAgentflow` subflows get no SSE streamer (Task 05), which also drops their tool and metadata events.
+  - Wave badges default to on (allowed by Task 08) and are recomputed on every node change.
+  - Two Execute Flow nodes calling the same sub-flow in parallel share one `${chatflowId}_${chatId}` abort-controller key in `buildChatflow.ts`, so a stop request can miss one of them.

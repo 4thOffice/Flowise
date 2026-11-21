@@ -133,11 +133,13 @@ export class StreamCoordinator {
             streamFileAnnotationsEvent: (chatId: string, data: any) => {
                 this.handleMetadataEvent(nodeId, 'fileAnnotations', chatId, data)
             },
-            streamCustomEvent: (chatId: string, eventType: string, data: any) => this.baseStreamer.streamCustomEvent(chatId, eventType, data),
+            streamCustomEvent: (chatId: string, eventType: string, data: any) =>
+                this.baseStreamer.streamCustomEvent(chatId, eventType, data),
             streamCalledToolsEvent: (chatId: string, data: any) => this.baseStreamer.streamCalledToolsEvent(chatId, data),
             streamToolEvent: (chatId: string, data: any) => this.baseStreamer.streamToolEvent(chatId, data),
             streamAgentReasoningEvent: (chatId: string, data: any) => this.baseStreamer.streamAgentReasoningEvent(chatId, data),
-            streamAgentFlowExecutedDataEvent: (chatId: string, data: any) => this.baseStreamer.streamAgentFlowExecutedDataEvent(chatId, data),
+            streamAgentFlowExecutedDataEvent: (chatId: string, data: any) =>
+                this.baseStreamer.streamAgentFlowExecutedDataEvent(chatId, data),
             streamTrustedStateDataEvent: (chatId: string, data: any) => this.baseStreamer.streamTrustedStateDataEvent(chatId, data),
             streamAgentFlowEvent: (chatId: string, data: any) => this.baseStreamer.streamAgentFlowEvent(chatId, data),
             streamNextAgentEvent: (chatId: string, data: any) => this.baseStreamer.streamNextAgentEvent(chatId, data),

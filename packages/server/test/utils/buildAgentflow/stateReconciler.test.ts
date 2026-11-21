@@ -456,11 +456,7 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
                 ),
                 createNode('done_0', 'directReplyAgentflow', { inputs: { directReplyMessage: 'done' } }, realComponentNodes)
             ],
-            [
-                createEdge('start_0', 'prep_0'),
-                createEdge('prep_0', 'human_0'),
-                createEdge('human_0', 'done_0', 'human_0-output-0')
-            ]
+            [createEdge('start_0', 'prep_0'), createEdge('prep_0', 'human_0'), createEdge('human_0', 'done_0', 'human_0-output-0')]
         )
 
         const { appDataSource, executions } = createMockDataSource()
@@ -711,10 +707,7 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
             chatId: 'chat-a1'
         })
         await waitUntil(() => executions[0]?.state === 'STOPPED')
-        expect(paused.agentFlowExecutedData.map((d: any) => `${d.nodeId}:${d.status}`)).toEqual([
-            'start_0:FINISHED',
-            'agent_0:STOPPED'
-        ])
+        expect(paused.agentFlowExecutedData.map((d: any) => `${d.nodeId}:${d.status}`)).toEqual(['start_0:FINISHED', 'agent_0:STOPPED'])
 
         const resumed = await runTestAgentFlow({
             flow,

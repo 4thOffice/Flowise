@@ -1,0 +1,493 @@
+{
+  "capturedAt": "2026-11-21T01:47:53.419Z",
+  "flow": {
+    "slug": "01-parallel-fork-join-timing-and-state",
+    "name": "Baseline 01 - Parallel Fork-Join Timing & State",
+    "file": "01-parallel-fork-join-timing-and-state.json",
+    "chatflowId": "5bfba516-6919-47d2-8d84-009511cd1e2d",
+    "validationIssues": []
+  },
+  "runs": {
+    "nonStreaming": {
+      "mode": "non-streaming",
+      "request": {
+        "question": "run flow 01",
+        "streaming": false
+      },
+      "httpStatus": 200,
+      "durationMs": 598.13,
+      "timedOut": false,
+      "error": null,
+      "response": {
+        "text": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))",
+        "executionId": "4cec1155-697a-48c9-832b-16412ebb636d",
+        "sessionId": "ff8779d6-be9b-4a14-9067-d294c518880f",
+        "chatId": "ff8779d6-be9b-4a14-9067-d294c518880f",
+        "chatMessageId": "8da10982-5216-435f-945d-476a65ce76bc",
+        "action": null,
+        "agentFlowExecutedData": [
+          {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "data": {
+              "id": "startAgentflow_0",
+              "name": "startAgentflow",
+              "input": {
+                "question": "run flow 01"
+              },
+              "output": {
+                "question": "run flow 01"
+              },
+              "state": {
+                "a": "",
+                "b": ""
+              }
+            },
+            "previousNodeIds": [],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Branch A (250ms)",
+            "data": {
+              "id": "customFunctionAgentflow_0",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 250));\nreturn 'A(saw_b=' + ($flow.state?.b || 'empty') + ')';"
+              },
+              "output": {
+                "content": "A(saw_b=empty)"
+              },
+              "state": {
+                "a": "A(saw_b=empty)",
+                "b": ""
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Branch B (250ms)",
+            "data": {
+              "id": "customFunctionAgentflow_1",
+              "name": "customFunctionAgentflow",
+              "input": {
+                "inputVariables": "",
+                "code": "await new Promise((r) => setTimeout(r, 250));\nreturn 'B(saw_a=' + ($flow.state?.a || 'empty') + ')';"
+              },
+              "output": {
+                "content": "B(saw_a=A(saw_b=empty))"
+              },
+              "state": {
+                "a": "A(saw_b=empty)",
+                "b": "B(saw_a=A(saw_b=empty))"
+              }
+            },
+            "previousNodeIds": [
+              "startAgentflow_0"
+            ],
+            "status": "FINISHED"
+          },
+          {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "data": {
+              "id": "directReplyAgentflow_0",
+              "name": "directReplyAgentflow",
+              "input": {},
+              "output": {
+                "content": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))"
+              },
+              "state": {
+                "a": "A(saw_b=empty)",
+                "b": "B(saw_a=A(saw_b=empty))"
+              }
+            },
+            "previousNodeIds": [
+              "customFunctionAgentflow_0",
+              "customFunctionAgentflow_1"
+            ],
+            "status": "FINISHED"
+          }
+        ]
+      }
+    },
+    "streaming": {
+      "mode": "streaming",
+      "request": {
+        "question": "run flow 01",
+        "streaming": true
+      },
+      "httpStatus": 200,
+      "durationMs": 528.4,
+      "timedOut": false,
+      "error": null,
+      "streamedText": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))",
+      "tokenChunks": [
+        "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))"
+      ],
+      "agentFlowEvents": [
+        {
+          "offsetMs": 11.83,
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 524.48,
+          "status": "FINISHED"
+        }
+      ],
+      "nextAgentFlowEvents": [
+        {
+          "offsetMs": 11.89,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 11.94,
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 11.96,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Branch A (250ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 267.75,
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Branch A (250ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 267.82,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Branch B (250ms)",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 519.83,
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Branch B (250ms)",
+          "status": "FINISHED"
+        },
+        {
+          "offsetMs": 519.88,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Join Reply",
+          "status": "INPROGRESS"
+        },
+        {
+          "offsetMs": 519.92,
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Join Reply",
+          "status": "FINISHED"
+        }
+      ],
+      "action": null,
+      "metadata": {
+        "chatId": "6f72556a-73ee-41d5-9872-80768612e7ea",
+        "chatMessageId": "73b911cc-9fd8-4226-a95a-3d89a14204bb",
+        "question": "run flow 01",
+        "sessionId": "6f72556a-73ee-41d5-9872-80768612e7ea"
+      },
+      "agentFlowExecutedData": [
+        {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+            "id": "startAgentflow_0",
+            "name": "startAgentflow",
+            "input": {
+              "question": "run flow 01"
+            },
+            "output": {
+              "question": "run flow 01"
+            },
+            "state": {
+              "a": "",
+              "b": ""
+            }
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_0",
+          "nodeLabel": "Branch A (250ms)",
+          "data": {
+            "id": "customFunctionAgentflow_0",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 250));\nreturn 'A(saw_b=' + ($flow.state?.b || 'empty') + ')';"
+            },
+            "output": {
+              "content": "A(saw_b=empty)"
+            },
+            "state": {
+              "a": "A(saw_b=empty)",
+              "b": ""
+            }
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "customFunctionAgentflow_1",
+          "nodeLabel": "Branch B (250ms)",
+          "data": {
+            "id": "customFunctionAgentflow_1",
+            "name": "customFunctionAgentflow",
+            "input": {
+              "inputVariables": "",
+              "code": "await new Promise((r) => setTimeout(r, 250));\nreturn 'B(saw_a=' + ($flow.state?.a || 'empty') + ')';"
+            },
+            "output": {
+              "content": "B(saw_a=A(saw_b=empty))"
+            },
+            "state": {
+              "a": "A(saw_b=empty)",
+              "b": "B(saw_a=A(saw_b=empty))"
+            }
+          },
+          "previousNodeIds": [
+            "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+        },
+        {
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Join Reply",
+          "data": {
+            "id": "directReplyAgentflow_0",
+            "name": "directReplyAgentflow",
+            "input": {},
+            "output": {
+              "content": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))"
+            },
+            "state": {
+              "a": "A(saw_b=empty)",
+              "b": "B(saw_a=A(saw_b=empty))"
+            }
+          },
+          "previousNodeIds": [
+            "customFunctionAgentflow_0",
+            "customFunctionAgentflow_1"
+          ],
+          "status": "FINISHED"
+        }
+      ],
+      "events": [
+        {
+          "offsetMs": 11.83,
+          "event": "agentFlowEvent",
+          "data": "INPROGRESS"
+        },
+        {
+          "offsetMs": 11.89,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 11.94,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "startAgentflow_0",
+            "nodeLabel": "Start",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 11.96,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Branch A (250ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 267.75,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_0",
+            "nodeLabel": "Branch A (250ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 267.82,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Branch B (250ms)",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 519.83,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "customFunctionAgentflow_1",
+            "nodeLabel": "Branch B (250ms)",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 519.88,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "status": "INPROGRESS"
+          }
+        },
+        {
+          "offsetMs": 519.9,
+          "event": "token",
+          "data": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))"
+        },
+        {
+          "offsetMs": 519.92,
+          "event": "nextAgentFlow",
+          "data": {
+            "nodeId": "directReplyAgentflow_0",
+            "nodeLabel": "Join Reply",
+            "status": "FINISHED"
+          }
+        },
+        {
+          "offsetMs": 524.48,
+          "event": "agentFlowEvent",
+          "data": "FINISHED"
+        },
+        {
+          "offsetMs": 525.36,
+          "event": "trustedStateData",
+          "data": "jQ8JABcqU12nN4Pp59XAv6MpNhrItuV5RCF1TU3Ne8W+nouHbbyiwf6YSRMoyCYMgnb0nYN7WybQtrGKHn9HiHc8KD2atqyozyH0FMMtCsdijQeCKX5LnRwvQJ0ZYgIdvd2yKxAug18fDCskXKxCogT+xeQTcfJyUDtxtGFxscA27RJDl0pLr322nvfoWPNxOtTPuDeUk+iou2KweBT0wauOb1UkayujyyMj8i7aisE5I+/Ig+u8iTa+kCvOMZMZWSjeKgcN95lPlE0FRZ8+oOYukk5rML2NJNeBnSeX2maWLeObqXEzn5dErpW1bwan/aUiuz44Akr0rFBjuaHeEvEy4vDVGuQLvZnVnzNFdwgujz7IGdFNIfhFuZg7xXO6AFm1Dm0zIe039rz4x5vvxuHudDrefheY1Pn/fnOyZz/jfGW+zc2186CJfHzCuKo6T5h35D9JuIeEZzNoofE0bL7j4tXnw4ojl+QdyBRKCDfxoU+NWWXLpkD0zz69gQDjGvDkMuFV9BnxHyGNuhlSlNS7wPHoIJpdrvN4g7AmTi6oVq5uClghtHQZ6gW728l9+HZgQ1+Uklv0U6tk+coyAS+xJ//C6rGxsnkEIQz03AXfCmD6cSTmFK5hhi4GeHGkDYT9hLGode/ztrfof9nLui5maiuGkLwy6bGXE+4wv0JgT2YWhvPViCH4fSrT9OnegmjYTmPZm2cxYQC5NAZOkOj1WXcB67BMXctS529k/ss4F5mhwmKOu02RycBn/Al3sVHkExtLuqOPM0n6Wb5AyRLUt2yhY8Dc2YIokB0u76wGUg1eusAOUemDa6ZzhQ8V+GM1soG2AdJN5NZzVL64/8ycDEscyOMpPnCBZVrMFJZceD31hFno66LN31lrC2GRPBnOIDq/iNAFKh1jj9dSaYy0epTnrUNSEB8Z70VsRXCYgVTopyGfDzY2+qTVhbnuGSDkCPwZgIrDLQuDuQMgeagJ3ZL35vA5cB18VVQVw/j+khnXFcS68+10gr/KXAMuFgMdtmVath2rKayW6pLTEtcIu3Vrc+wSOlhLnniKTomOo4Y0Zel044dGBY1VJk+hJtwud6DEBcMkenDywY7R3TvwRpK/FHYA2IPJoUcLKemqwGPg8x/XQYtzgc6XU97qQxZHLtsXV6mpl/gWSpr5wOgqMrsRzcYkZdIbe/OgRDI6WZhQiXOOWBfbqNP/5D+xToYoD5oE5g=="
+        },
+        {
+          "offsetMs": 528.14,
+          "event": "metadata",
+          "data": {
+            "chatId": "6f72556a-73ee-41d5-9872-80768612e7ea",
+            "chatMessageId": "73b911cc-9fd8-4226-a95a-3d89a14204bb",
+            "question": "run flow 01",
+            "sessionId": "6f72556a-73ee-41d5-9872-80768612e7ea"
+          }
+        },
+        {
+          "offsetMs": 528.25,
+          "event": "agentFlowExecutedData",
+          "data": [
+            {
+              "nodeId": "startAgentflow_0",
+              "nodeLabel": "Start",
+              "data": {
+                "id": "startAgentflow_0",
+                "name": "startAgentflow",
+                "input": {
+                  "question": "run flow 01"
+                },
+                "output": {
+                  "question": "run flow 01"
+                },
+                "state": {
+                  "a": "",
+                  "b": ""
+                }
+              },
+              "previousNodeIds": [],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_0",
+              "nodeLabel": "Branch A (250ms)",
+              "data": {
+                "id": "customFunctionAgentflow_0",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 250));\nreturn 'A(saw_b=' + ($flow.state?.b || 'empty') + ')';"
+                },
+                "output": {
+                  "content": "A(saw_b=empty)"
+                },
+                "state": {
+                  "a": "A(saw_b=empty)",
+                  "b": ""
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "customFunctionAgentflow_1",
+              "nodeLabel": "Branch B (250ms)",
+              "data": {
+                "id": "customFunctionAgentflow_1",
+                "name": "customFunctionAgentflow",
+                "input": {
+                  "inputVariables": "",
+                  "code": "await new Promise((r) => setTimeout(r, 250));\nreturn 'B(saw_a=' + ($flow.state?.a || 'empty') + ')';"
+                },
+                "output": {
+                  "content": "B(saw_a=A(saw_b=empty))"
+                },
+                "state": {
+                  "a": "A(saw_b=empty)",
+                  "b": "B(saw_a=A(saw_b=empty))"
+                }
+              },
+              "previousNodeIds": [
+                "startAgentflow_0"
+              ],
+              "status": "FINISHED"
+            },
+            {
+              "nodeId": "directReplyAgentflow_0",
+              "nodeLabel": "Join Reply",
+              "data": {
+                "id": "directReplyAgentflow_0",
+                "name": "directReplyAgentflow",
+                "input": {},
+                "output": {
+                  "content": "State: a=A(saw_b=empty) / b=B(saw_a=A(saw_b=empty))"
+                },
+                "state": {
+                  "a": "A(saw_b=empty)",
+                  "b": "B(saw_a=A(saw_b=empty))"
+                }
+              },
+              "previousNodeIds": [
+                "customFunctionAgentflow_0",
+                "customFunctionAgentflow_1"
+              ],
+              "status": "FINISHED"
+            }
+          ]
+        },
+        {
+          "offsetMs": 528.28,
+          "event": "end",
+          "data": "[DONE]"
+        }
+      ]
+    }
+  }
+}
