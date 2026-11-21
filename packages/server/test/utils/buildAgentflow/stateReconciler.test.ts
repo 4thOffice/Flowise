@@ -243,6 +243,86 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
         expect(liveRuntime.chatHistory?.map((m) => m.content)).toEqual(['seed', 'fromA', 'fromB'])
     })
 
+    it('keeps the user input once when parallel nodes that both launched with empty chatHistory commit', () => {
+        const liveRuntime: IAgentFlowRuntime = { state: {}, chatHistory: [], form: {} }
+        const snapA = createNodeRuntimeSnapshot(liveRuntime)
+        const snapB = createNodeRuntimeSnapshot(liveRuntime)
+        expect(snapA.startChatHistoryLength).toBe(0)
+
+        const commit = (snap: ReturnType<typeof createNodeRuntimeSnapshot>, chatHistory: any[]) =>
+            reconcileRuntimeCommit({
+                agentflowRuntime: liveRuntime,
+                startStateSnapshot: snap.startStateSnapshot,
+                startChatHistoryLength: snap.startChatHistoryLength,
+                nodeResult: { chatHistory },
+                pastChatHistory: [],
+                incomingInput: {}
+            })
+
+        commit(snapA, [
+            { role: 'user', content: 'hi' },
+            { role: 'assistant', content: 'fromA', name: 'llm_a' }
+        ])
+        commit(snapB, [
+            { role: 'user', content: 'hi' },
+            { role: 'assistant', content: 'fromB', name: 'llm_b' }
+        ])
+
+        expect(liveRuntime.chatHistory).toEqual([
+            { role: 'user', content: 'hi' },
+            { role: 'assistant', content: 'fromA', name: 'llm_a' },
+            { role: 'assistant', content: 'fromB', name: 'llm_b' }
+        ])
+    })
+
+    it('keeps a parallel node input that differs from what a sibling already committed', () => {
+        const liveRuntime: IAgentFlowRuntime = { state: {}, chatHistory: [], form: {} }
+        const snapA = createNodeRuntimeSnapshot(liveRuntime)
+        const snapB = createNodeRuntimeSnapshot(liveRuntime)
+
+        for (const [snap, input, answer] of [
+            [snapA, 'hi', 'fromA'],
+            [snapB, 'custom prompt', 'fromB']
+        ] as const) {
+            reconcileRuntimeCommit({
+                agentflowRuntime: liveRuntime,
+                startStateSnapshot: snap.startStateSnapshot,
+                startChatHistoryLength: snap.startChatHistoryLength,
+                nodeResult: {
+                    chatHistory: [
+                        { role: 'user', content: input },
+                        { role: 'assistant', content: answer }
+                    ]
+                },
+                pastChatHistory: [],
+                incomingInput: {}
+            })
+        }
+
+        expect(liveRuntime.chatHistory?.map((m) => m.content)).toEqual(['hi', 'fromA', 'custom prompt', 'fromB'])
+    })
+
+    it('does not drop a repeated message from a node that launched after history already existed', () => {
+        const liveRuntime: IAgentFlowRuntime = {
+            state: {},
+            chatHistory: [{ role: 'user', content: 'hi' } as any],
+            form: {}
+        }
+        const snap = createNodeRuntimeSnapshot(liveRuntime)
+        expect(snap.startChatHistoryLength).toBe(1)
+
+        reconcileRuntimeCommit({
+            agentflowRuntime: liveRuntime,
+            startStateSnapshot: snap.startStateSnapshot,
+            startChatHistoryLength: snap.startChatHistoryLength,
+            nodeResult: { chatHistory: [{ role: 'user', content: 'hi' }] },
+            pastChatHistory: [],
+            incomingInput: {}
+        })
+
+        expect(liveRuntime.chatHistory?.map((m) => m.content)).toEqual(['hi', 'hi'])
+    })
+
     it('mutates canonical agentFlowExecutedData in place via commitExecutedDataDelta without dropping sibling entries', () => {
         const canonical: IAgentflowExecutedData[] = [
             { nodeId: 'start_0', nodeLabel: 'Start', previousNodeIds: [], status: 'FINISHED', data: {} as any },

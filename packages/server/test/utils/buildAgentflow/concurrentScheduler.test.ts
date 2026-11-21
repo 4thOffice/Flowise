@@ -569,6 +569,59 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
         })
     })
 
+    it('adds the user input to runtime chatHistory once when parallel first nodes each return it', async () => {
+        process.env.AGENTFLOW_MAX_NODE_CONCURRENCY = '2'
+
+        const flow = createFlow(
+            [
+                createNode('start_0', 'startAgentflow', { inputs: { startInputType: 'chatInput' } }, realComponentNodes),
+                createNode('branchA', 'mockBranch'),
+                createNode('branchB', 'mockBranch'),
+                createNode('join_0', 'mockJoin')
+            ],
+            [
+                createEdge('start_0', 'branchA'),
+                createEdge('start_0', 'branchB'),
+                createEdge('branchA', 'join_0'),
+                createEdge('branchB', 'join_0')
+            ]
+        )
+
+        const barrier = createBarrier(2, 1000)
+        const firstNodeLikeBranch = (answer: string) => async (nodeData: any, input: any, options: any) => {
+            const runtimeChatHistory = options.agentflowRuntime.chatHistory ?? []
+            const inputMessages = runtimeChatHistory.length ? [] : [{ role: 'user', content: input }]
+            await barrier.arrive()
+            return {
+                id: nodeData.id,
+                name: nodeData.name,
+                output: { content: answer },
+                chatHistory: [...inputMessages, { role: 'assistant', content: answer, name: nodeData.id }]
+            }
+        }
+
+        const nodeInstanceFactory = createMockNodeFactory({
+            branchA: firstNodeLikeBranch('A'),
+            branchB: firstNodeLikeBranch('B'),
+            join_0: async (nodeData, _input, options) => ({
+                id: nodeData.id,
+                name: nodeData.name,
+                output: { content: JSON.stringify(options.agentflowRuntime.chatHistory.map((m: any) => `${m.role}:${m.content}`)) }
+            })
+        })
+
+        const res = await runTestAgentFlow({
+            flow,
+            incomingInput: { question: 'hi' },
+            componentNodes: realComponentNodes,
+            nodeInstanceFactory
+        })
+
+        const history: string[] = JSON.parse(res.text)
+        expect(history.filter((entry) => entry === 'user:hi')).toHaveLength(1)
+        expect([...history].sort()).toEqual(['assistant:A', 'assistant:B', 'user:hi'])
+    })
+
     it('waits for all in-flight tasks to settle on error before rejecting (zero orphaned promises)', async () => {
         process.env.AGENTFLOW_MAX_NODE_CONCURRENCY = '2'
 

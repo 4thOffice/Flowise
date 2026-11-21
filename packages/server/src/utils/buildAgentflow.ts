@@ -1708,7 +1708,7 @@ export const executeAgentFlow = async ({
                     logger.debug(`   🎯 Executing node: ${reactFlowNode?.data.label}`)
 
                     // Capture immutable start state snapshot and isolated runtime clone at actual launch time
-                    const { startStateSnapshot, nodeRuntimeSnapshot } = createNodeRuntimeSnapshot(agentflowRuntime)
+                    const { startStateSnapshot, startChatHistoryLength, nodeRuntimeSnapshot } = createNodeRuntimeSnapshot(agentflowRuntime)
                     const nodeSseStreamer = streamCoordinator ? streamCoordinator.createNodeStreamer(currentNode.nodeId) : sseStreamer
 
                     const executionResult = await executeNode({
@@ -1765,11 +1765,15 @@ export const executeAgentFlow = async ({
                     return {
                         executionResult,
                         startStateSnapshot,
+                        startChatHistoryLength,
                         reactFlowNode,
                         nodeSseStreamer
                     }
                 },
-                onNodeComplete: (currentNode, { executionResult, startStateSnapshot, reactFlowNode, nodeSseStreamer }) => {
+                onNodeComplete: (
+                    currentNode,
+                    { executionResult, startStateSnapshot, startChatHistoryLength, reactFlowNode, nodeSseStreamer }
+                ) => {
                     let isStale = false
                     try {
                         if (currentNode.epoch !== undefined && currentNode.epoch !== dependencyEngine.getNodeEpoch(currentNode.nodeId)) {
@@ -1828,6 +1832,7 @@ export const executeAgentFlow = async ({
                         const commitResult = reconcileRuntimeCommit({
                             agentflowRuntime,
                             startStateSnapshot,
+                            startChatHistoryLength,
                             nodeResult,
                             pastChatHistory,
                             trustedData,

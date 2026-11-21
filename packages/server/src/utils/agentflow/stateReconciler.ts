@@ -10,6 +10,7 @@ export interface IStateDelta {
 
 export interface INodeRuntimeSnapshot {
     startStateSnapshot: ICommonObject
+    startChatHistoryLength: number
     nodeRuntimeSnapshot: IAgentFlowRuntime
 }
 
@@ -22,6 +23,7 @@ export interface IExecutedDataDelta {
 export interface IReconcileRuntimeCommitParams {
     agentflowRuntime: IAgentFlowRuntime
     startStateSnapshot: ICommonObject
+    startChatHistoryLength?: number
     nodeResult: any
     pastChatHistory: IMessage[]
     trustedData?: TrustedState
@@ -53,8 +55,26 @@ export function createNodeRuntimeSnapshot(agentflowRuntime: IAgentFlowRuntime): 
 
     return {
         startStateSnapshot,
+        startChatHistoryLength: agentflowRuntime.chatHistory?.length ?? 0,
         nodeRuntimeSnapshot
     }
+}
+
+// A node returns the user's input only when it launches with an empty runtime history. Parallel nodes all
+// launch that way, so each one after the first to commit leads with input messages the live history already holds.
+function countAlreadyCommittedInputMessages(
+    liveChatHistory: IMessage[],
+    nodeChatHistory: IMessage[],
+    startChatHistoryLength: number | undefined
+): number {
+    if (startChatHistoryLength !== 0 || liveChatHistory.length === 0) {
+        return 0
+    }
+    let count = 0
+    while (count < nodeChatHistory.length && liveChatHistory.some((message) => isEqual(message, nodeChatHistory[count]))) {
+        count += 1
+    }
+    return count
 }
 
 /**
@@ -139,6 +159,7 @@ export function commitExecutedDataDelta(
 export function reconcileRuntimeCommit({
     agentflowRuntime,
     startStateSnapshot,
+    startChatHistoryLength,
     nodeResult,
     pastChatHistory,
     trustedData,
@@ -148,7 +169,10 @@ export function reconcileRuntimeCommit({
     let updatedQuestion = question
 
     if (nodeResult && nodeResult.chatHistory) {
-        agentflowRuntime.chatHistory = [...(agentflowRuntime.chatHistory ?? []), ...cloneDeep(nodeResult.chatHistory)]
+        const liveChatHistory = agentflowRuntime.chatHistory ?? []
+        const nodeChatHistory: IMessage[] = [...nodeResult.chatHistory]
+        const duplicatedInputCount = countAlreadyCommittedInputMessages(liveChatHistory, nodeChatHistory, startChatHistoryLength)
+        agentflowRuntime.chatHistory = [...liveChatHistory, ...cloneDeep(nodeChatHistory.slice(duplicatedInputCount))]
     }
 
     if (nodeResult && nodeResult.output && nodeResult.output.form) {
