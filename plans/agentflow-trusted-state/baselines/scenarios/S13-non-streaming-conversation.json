@@ -1,0 +1,25 @@
+{
+    "id": "S13",
+    "title": "S01's flow over non-streaming requests",
+    "flow": "S01-single-agent-memory",
+    "findings": ["F14"],
+    "modes": ["M1"],
+    "streaming": false,
+    "note": "before/: the JSON response has no token, so turns 2 and 3 start without one.",
+    "turns": [
+        { "id": "t1", "question": "Hi, my order ORD-3003 is late." },
+        { "id": "t2", "question": "Which order did I mention?" },
+        { "id": "t3", "question": "Please compute 5 times 4 for me." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "t1", "route": "S01-agent", "turn": "t1", "reply": { "content": "Sorry to hear that. Order ORD-3003 is delayed at the depot." } },
+            { "id": "t2", "route": "S01-agent", "turn": "t2", "reply": { "content": "You mentioned order ORD-3003." } },
+            { "id": "t3-tool", "route": "S01-agent", "turn": "t3", "call": 0, "reply": { "toolCalls": [{ "name": "calculator", "args": { "input": "5*4" } }] } },
+            { "id": "t3-answer", "route": "S01-agent", "turn": "t3", "call": 1, "reply": { "content": "5 times 4 is 20." } }
+        ]
+    },
+    "expectedAfter": {
+        "F14": "The JSON response carries trustedState, so t2 and t3 continue the conversation: t2's model input holds t1's exchange."
+    }
+}

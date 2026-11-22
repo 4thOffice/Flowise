@@ -1,6 +1,6 @@
 # Task 00b: Scenario Suite, Fake LLM & Baseline Capture
 
-- **Status**: Not started
+- **Status**: Done. Baseline commit `99e8d4b0`; suite, traces and results in [baselines/README.md](./baselines/README.md); repeatability in [baselines/reports/00b-before-repeatability.md](./baselines/reports/00b-before-repeatability.md). Beyond §3.1, modes M1-reqflag and M3-envflags make F15 and F16 visible.
 - **Depends On**: [00-current-implementation.md](./00-current-implementation.md), [00c-findings.md](./00c-findings.md)
 - **Runs on**: a detached worktree at a recorded commit (no production edits, no branch)
 - **Primary Outputs** (under `plans/agentflow-trusted-state/baselines/`):
@@ -114,10 +114,10 @@ Removes or stabilises UUIDs, dates, durations, `timeMetadata`, execution and act
 
 ## 7. Acceptance Criteria
 
-- [ ] All scenarios and modes capture without timeouts on the baseline commit.
-- [ ] Two captures compare clean on class A.
-- [ ] Every trace has model requests, decoded tokens, size metrics and sentinel counts per turn.
-- [ ] Every finding in 00c is visible in at least one trace (listed in the README).
-- [ ] *Verify* findings confirmed or dropped in 00c.
-- [ ] `compare.config.json` drafted with an entry per finding the fixes will change (expected behaviour filled in from TS decisions).
-- [ ] No files outside `plans/agentflow-trusted-state/` changed.
+- [x] All scenarios and modes capture without timeouts on the baseline commit.
+- [x] Two captures compare clean on class A (30 traces, 134 turns, 0 differences).
+- [x] Every trace has model requests, decoded tokens, size metrics and sentinel counts per turn (S13 has no token to decode: the F14 baseline result, §6).
+- [x] Every finding in 00c is visible in at least one trace (listed in the README §5; F17 only through its precondition, since it is UI behaviour).
+- [x] *Verify* findings confirmed or dropped in 00c (F04 and F07 confirmed; F07 with a correction on where the empty bot message appears).
+- [x] `compare.config.json` drafted with an entry per finding the fixes will change (expected behaviour filled in from TS decisions; checks that need Task 04's field names or Task 03's TS-O1 result are marked pending).
+- [x] No files outside `plans/agentflow-trusted-state/` changed.

@@ -108,8 +108,8 @@ flowchart LR
 | # | Task File | Status | Parallel with | Fixes | Summary |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 00 | [00-current-implementation.md](./00-current-implementation.md) | Done | — | — | How the token and payloads work today. |
-| 00c | [00c-findings.md](./00c-findings.md) | Done (verify items in 00b/01) | — | — | Incorrect handling to fix, F01–F17. |
-| 00b | [00b-scenario-suite-and-baseline-capture.md](./00b-scenario-suite-and-baseline-capture.md) | Not started | — | — | Fake LLM, scenarios S01–S13 (with variants), capture & compare tooling, `before/` traces. |
+| 00c | [00c-findings.md](./00c-findings.md) | Done (F04, F07 confirmed in 00b) | — | — | Incorrect handling to fix, F01–F19. |
+| 00b | [00b-scenario-suite-and-baseline-capture.md](./00b-scenario-suite-and-baseline-capture.md) | Done | — | — | Fake LLM, scenarios S01–S13 (with variants), capture & compare tooling, `before/` traces. |
 | 01 | [01-test-harness-and-characterization-tests.md](./01-test-harness-and-characterization-tests.md) | Not started | 02 | — | Jest multi-turn harness; tests pinning today's behaviour; failing tests for the findings. |
 | 02 | [02-field-inventory-and-size-anatomy.md](./02-field-inventory-and-size-anatomy.md) | Not started | 01 | — | Field and client inventory (incl. `history` usage), size report. |
 | 03 | [03-field-removal-tests.md](./03-field-removal-tests.md) | Not started | — | — | Prove that the token fields suffice for normal turns; measure and resolve TS-O1. |

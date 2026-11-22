@@ -1,0 +1,34 @@
+{
+    "id": "S03",
+    "title": "Parallel researcher and critic joined by a composer",
+    "flow": "S03-parallel-agents-join",
+    "findings": ["F13"],
+    "modes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "What does the warranty cover for a broken zipper on my winter jacket?" },
+        { "id": "t2", "question": "And what if I bought the jacket second-hand from another customer?" },
+        { "id": "t3", "question": "How do I send the jacket in for the repair, and who pays for the shipping?" },
+        { "id": "t4", "question": "Thanks, that answers everything I wanted to know about the repair." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "summarizer", "anyMessageIncludes": "Progressively summarize the conversation", "reply": { "content": "The customer asked about warranty cover for a broken zipper and about second-hand purchases." } },
+            { "id": "researcher-t1", "route": "S03-researcher", "turn": "t1", "reply": { "content": "Research: zippers are covered for 24 months when the defect is not caused by misuse." } },
+            { "id": "researcher-t2", "route": "S03-researcher", "turn": "t2", "reply": { "content": "Research: the warranty follows the jacket, so second-hand owners need the original receipt." } },
+            { "id": "researcher-t3", "route": "S03-researcher", "turn": "t3", "reply": { "content": "Research: repairs are booked online and the prepaid label is free inside the EU." } },
+            { "id": "researcher-t4", "route": "S03-researcher", "turn": "t4", "reply": { "content": "Research: nothing further to add." } },
+            { "id": "critic-t1", "route": "S03-critic", "turn": "t1", "reply": { "content": "Critique: the answer should mention that proof of purchase is required for every warranty claim." } },
+            { "id": "critic-t2", "route": "S03-critic", "turn": "t2", "reply": { "content": "Critique: explain what happens when the first owner cannot share the receipt." } },
+            { "id": "critic-t3", "route": "S03-critic", "turn": "t3", "reply": { "content": "Critique: say that shipping outside the EU is paid by the customer." } },
+            { "id": "critic-t4", "route": "S03-critic", "turn": "t4", "reply": { "content": "Critique: a short closing is enough here." } },
+            { "id": "composer-t1", "route": "S03-composer", "turn": "t1", "reply": { "content": "Your jacket warranty covers a broken zipper for 24 months, as long as it was not misused. Please keep your proof of purchase, because every claim needs it." } },
+            { "id": "composer-t2", "route": "S03-composer", "turn": "t2", "reply": { "content": "The warranty stays with the jacket, so you can claim it second-hand, but you need the original receipt from the first owner; without it we can only offer a paid repair." } },
+            { "id": "composer-t3", "route": "S03-composer", "turn": "t3", "reply": { "content": "Book the repair online and print the prepaid label; shipping is free inside the EU, and customers outside the EU pay for the shipping themselves." } },
+            { "id": "composer-t4", "route": "S03-composer", "turn": "t4", "reply": { "content": "You are welcome. Good luck with the repair!" } }
+        ]
+    },
+    "expectedAfter": {
+        "F13": "The token keeps no copies of the three prompts or of the critic prompt with the resolved {{chat_history}}; the history appears once."
+    }
+}

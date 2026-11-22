@@ -1,0 +1,2235 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S10b",
+  "file": "S10b-ephemeral-with-state.json",
+  "title": "Ephemeral memory with carried state",
+  "findings": [
+   "F11"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mws6myyp-M1-S10b",
+ "runTag": "mws6myyp",
+ "resumedFrom": null,
+ "flows": [
+  {
+   "slug": "S10b-ephemeral-with-state",
+   "chatflowId": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+   "name": "TS00b M1 S10b-ephemeral-with-state",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-22T18:40:50.316Z",
+ "turns": [
+  {
+   "id": "t1",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S10b",
+     "streaming": true,
+     "question": "Remember that my favourite colour is green."
+    }
+   },
+   "tokenSent": null,
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 26.51,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 5.59,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 5.61,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 5.63,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 5.63,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ephemeral Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 24.6,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ephemeral Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 24.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Counter",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 24.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Counter",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 24.66,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 24.67,
+      "event": "token",
+      "data": "Noted for this message, but I do not keep memory between messages.\n\n(turn counter 1)"
+     },
+     {
+      "offsetMs": 24.67,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 24.68,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 25.62,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 14760,
+       "sha256": "c6c92b9d641807e99d280420691115a081877deba6f125df8c049ae907b7e5f4"
+      }
+     },
+     {
+      "offsetMs": 26.34,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "chatMessageId": "162ae8c6-c9a2-4259-b8a2-702f40eecaaf",
+       "question": "Remember that my favourite colour is green.",
+       "sessionId": "ts00b-mws6myyp-M1-S10b"
+      }
+     },
+     {
+      "offsetMs": 26.37,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 26.47,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Noted for this message, but I do not keep memory between messages.\n\n(turn counter 1)",
+   "tokens": [
+    "Noted for this message, but I do not keep memory between messages.\n\n(turn counter 1)"
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "Remember that my favourite colour is green."
+      },
+      "output": {
+       "question": "Remember that my favourite colour is green.",
+       "ephemeralMemory": true,
+       "persistState": true
+      },
+      "state": {
+       "counter": "0"
+      }
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Ephemeral Agent",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+          "length": 41104,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S10b_agent"
+          ],
+          "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Remember that my favourite colour is green."
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Noted for this message, but I do not keep memory between messages.",
+       "timeMetadata": {
+        "start": 1795372850227,
+        "end": 1795372850241,
+        "delta": 14
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10327,
+        "output_tokens": 17,
+        "total_tokens": 10344,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8937,
+         "completionTokens": 15,
+         "totalTokens": 8952
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10327,
+         "completion_tokens": 17,
+         "total_tokens": 10344
+        }
+       }
+      },
+      "state": {
+       "counter": "0"
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Remember that my favourite colour is green."
+       },
+       {
+        "role": "user",
+        "content": "Noted for this message, but I do not keep memory between messages.",
+        "name": "ephemeral_agent"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Counter",
+     "data": {
+      "id": "customFunctionAgentflow_0",
+      "name": "customFunctionAgentflow",
+      "input": {
+       "inputVariables": "",
+       "code": "return String(Number($flow.state.counter || 0) + 1);"
+      },
+      "output": {
+       "content": "1"
+      },
+      "state": {
+       "counter": "1"
+      }
+     },
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Reply",
+     "data": {
+      "id": "directReplyAgentflow_0",
+      "name": "directReplyAgentflow",
+      "input": {},
+      "output": {
+       "content": "Noted for this message, but I do not keep memory between messages.\n\n(turn counter 1)"
+      },
+      "state": {
+       "counter": "1"
+      }
+     },
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "counter": "1"
+   },
+   "modelRequests": [
+    {
+     "seq": 798,
+     "route": "S10b-agent",
+     "callIndex": 0,
+     "ruleId": "t1",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+         "length": 41104,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10b_agent"
+         ],
+         "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Remember that my favourite colour is green."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Noted for this message, but I do not keep memory between messages.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 14760,
+    "sha256": "c6c92b9d641807e99d280420691115a081877deba6f125df8c049ae907b7e5f4",
+    "sizes": {
+     "base64Length": 14760,
+     "payloadBytes": 11068,
+     "gzipBytes": 11040,
+     "rawJsonBytes": 45568,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 751,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 44776,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 44478,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 349,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42968,
+       "inputMessagesBytes": 41306,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "customFunctionAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 335,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "directReplyAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 337,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 45568
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 751
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 44776
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 44478,
+      "parsedBytes": 43994,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 43994
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42968
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42842
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41984
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41306
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41232
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41204
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.output",
+      "bytes": 558
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "Remember that my favourite colour is green.",
+       "chatflowid": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "sessionId": "ts00b-mws6myyp-M1-S10b",
+       "createdDate": "2026-11-22T18:40:50.224Z",
+       "executionId": "mock-1795372850224-fdd8z9hny",
+       "id": "2b18d7ab-459a-4d89-b553-7f7ceb62831a"
+      },
+      {
+       "id": "162ae8c6-c9a2-4259-b8a2-702f40eecaaf",
+       "role": "apiMessage",
+       "content": "Noted for this message, but I do not keep memory between messages.\n\n(turn counter 1)",
+       "chatflowid": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "sessionId": "ts00b-mws6myyp-M1-S10b",
+       "executionId": "mock-1795372850224-fdd8z9hny",
+       "createdDate": "2026-11-22T18:40:50.245Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372850224-fdd8z9hny",
+      "state": "FINISHED",
+      "agentflowId": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+      "sessionId": "ts00b-mws6myyp-M1-S10b",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "Remember that my favourite colour is green."
+          },
+          "output": {
+           "question": "Remember that my favourite colour is green.",
+           "ephemeralMemory": true,
+           "persistState": true
+          },
+          "state": {
+           "counter": "0"
+          }
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Ephemeral Agent",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+              "length": 41104,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S10b_agent"
+              ],
+              "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Remember that my favourite colour is green."
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Noted for this message, but I do not keep memory between messages.",
+           "timeMetadata": {
+            "start": 1795372850227,
+            "end": 1795372850241,
+            "delta": 14
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10327,
+            "output_tokens": 17,
+            "total_tokens": 10344,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8937,
+             "completionTokens": 15,
+             "totalTokens": 8952
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10327,
+             "completion_tokens": 17,
+             "total_tokens": 10344
+            }
+           }
+          },
+          "state": {
+           "counter": "0"
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Remember that my favourite colour is green."
+           },
+           {
+            "role": "user",
+            "content": "Noted for this message, but I do not keep memory between messages.",
+            "name": "ephemeral_agent"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "customFunctionAgentflow_0",
+         "nodeLabel": "Counter",
+         "data": {
+          "id": "customFunctionAgentflow_0",
+          "name": "customFunctionAgentflow",
+          "input": {
+           "inputVariables": "",
+           "code": "return String(Number($flow.state.counter || 0) + 1);"
+          },
+          "output": {
+           "content": "1"
+          },
+          "state": {
+           "counter": "1"
+          }
+         },
+         "previousNodeIds": [
+          "agentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "directReplyAgentflow_0",
+         "nodeLabel": "Reply",
+         "data": {
+          "id": "directReplyAgentflow_0",
+          "name": "directReplyAgentflow",
+          "input": {},
+          "output": {
+           "content": "Noted for this message, but I do not keep memory between messages.\n\n(turn counter 1)"
+          },
+          "state": {
+           "counter": "1"
+          }
+         },
+         "previousNodeIds": [
+          "customFunctionAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:50.224Z",
+      "updatedDate": "2026-11-22T18:40:50.224Z"
+     }
+    },
+    "sentinels": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    },
+    "executedData": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 44057,
+    "executedDataGzipBytes": 10590,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t2",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S10b",
+     "streaming": true,
+     "question": "What is my favourite colour?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14760,
+      "sha256": "c6c92b9d641807e99d280420691115a081877deba6f125df8c049ae907b7e5f4"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14760,
+    "sha256": "c6c92b9d641807e99d280420691115a081877deba6f125df8c049ae907b7e5f4"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 28.65,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.28,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.3,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.31,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.32,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ephemeral Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 26.66,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ephemeral Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 26.69,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Counter",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 26.7,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Counter",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 26.7,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 26.71,
+      "event": "token",
+      "data": "Sorry, I do not know your favourite colour.\n\n(turn counter 2)"
+     },
+     {
+      "offsetMs": 26.72,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 26.72,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 27.7,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 14696,
+       "sha256": "702d6f0d36cb8f814d345efbbb71724793a7089c16feff1131e4c1cb1dbf6795"
+      }
+     },
+     {
+      "offsetMs": 28.52,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "chatMessageId": "58da3706-4cbe-431d-8383-2e877289a340",
+       "question": "What is my favourite colour?",
+       "sessionId": "ts00b-mws6myyp-M1-S10b"
+      }
+     },
+     {
+      "offsetMs": 28.55,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 28.6,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Sorry, I do not know your favourite colour.\n\n(turn counter 2)",
+   "tokens": [
+    "Sorry, I do not know your favourite colour.\n\n(turn counter 2)"
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "What is my favourite colour?"
+      },
+      "output": {
+       "question": "What is my favourite colour?",
+       "ephemeralMemory": true,
+       "persistState": true
+      },
+      "state": {
+       "counter": "1"
+      }
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Ephemeral Agent",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+          "length": 41104,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S10b_agent"
+          ],
+          "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+         }
+        },
+        {
+         "role": "user",
+         "content": "What is my favourite colour?"
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Sorry, I do not know your favourite colour.",
+       "timeMetadata": {
+        "start": 1795372850260,
+        "end": 1795372850273,
+        "delta": 13
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10323,
+        "output_tokens": 12,
+        "total_tokens": 10335,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8935,
+         "completionTokens": 10,
+         "totalTokens": 8945
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10323,
+         "completion_tokens": 12,
+         "total_tokens": 10335
+        }
+       }
+      },
+      "state": {
+       "counter": "1"
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "What is my favourite colour?"
+       },
+       {
+        "role": "user",
+        "content": "Sorry, I do not know your favourite colour.",
+        "name": "ephemeral_agent"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Counter",
+     "data": {
+      "id": "customFunctionAgentflow_0",
+      "name": "customFunctionAgentflow",
+      "input": {
+       "inputVariables": "",
+       "code": "return String(Number($flow.state.counter || 0) + 1);"
+      },
+      "output": {
+       "content": "2"
+      },
+      "state": {
+       "counter": "2"
+      }
+     },
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Reply",
+     "data": {
+      "id": "directReplyAgentflow_0",
+      "name": "directReplyAgentflow",
+      "input": {},
+      "output": {
+       "content": "Sorry, I do not know your favourite colour.\n\n(turn counter 2)"
+      },
+      "state": {
+       "counter": "2"
+      }
+     },
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "counter": "2"
+   },
+   "modelRequests": [
+    {
+     "seq": 800,
+     "route": "S10b-agent",
+     "callIndex": 0,
+     "ruleId": "t2",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+         "length": 41104,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10b_agent"
+         ],
+         "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+        }
+       },
+       {
+        "role": "user",
+        "content": "What is my favourite colour?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Sorry, I do not know your favourite colour.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 14696,
+    "sha256": "702d6f0d36cb8f814d345efbbb71724793a7089c16feff1131e4c1cb1dbf6795",
+    "sizes": {
+     "base64Length": 14696,
+     "payloadBytes": 11021,
+     "gzipBytes": 10993,
+     "rawJsonBytes": 45401,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 713,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 44647,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 44349,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 319,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42892,
+       "inputMessagesBytes": 41291,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "customFunctionAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 335,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "directReplyAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 314,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 45401
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 713
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 44647
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 44349,
+      "parsedBytes": 43865,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 43865
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42892
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42766
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41969
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41291
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41232
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41204
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.output",
+      "bytes": 535
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "What is my favourite colour?",
+       "chatflowid": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "sessionId": "ts00b-mws6myyp-M1-S10b",
+       "createdDate": "2026-11-22T18:40:50.254Z",
+       "executionId": "mock-1795372850255-r3r8pxul4",
+       "id": "fecfd94d-40b3-4be4-8628-2a1070c32f56"
+      },
+      {
+       "id": "58da3706-4cbe-431d-8383-2e877289a340",
+       "role": "apiMessage",
+       "content": "Sorry, I do not know your favourite colour.\n\n(turn counter 2)",
+       "chatflowid": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "sessionId": "ts00b-mws6myyp-M1-S10b",
+       "executionId": "mock-1795372850255-r3r8pxul4",
+       "createdDate": "2026-11-22T18:40:50.278Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372850255-r3r8pxul4",
+      "state": "FINISHED",
+      "agentflowId": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+      "sessionId": "ts00b-mws6myyp-M1-S10b",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "What is my favourite colour?"
+          },
+          "output": {
+           "question": "What is my favourite colour?",
+           "ephemeralMemory": true,
+           "persistState": true
+          },
+          "state": {
+           "counter": "1"
+          }
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Ephemeral Agent",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+              "length": 41104,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S10b_agent"
+              ],
+              "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+             }
+            },
+            {
+             "role": "user",
+             "content": "What is my favourite colour?"
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Sorry, I do not know your favourite colour.",
+           "timeMetadata": {
+            "start": 1795372850260,
+            "end": 1795372850273,
+            "delta": 13
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10323,
+            "output_tokens": 12,
+            "total_tokens": 10335,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8935,
+             "completionTokens": 10,
+             "totalTokens": 8945
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10323,
+             "completion_tokens": 12,
+             "total_tokens": 10335
+            }
+           }
+          },
+          "state": {
+           "counter": "1"
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "What is my favourite colour?"
+           },
+           {
+            "role": "user",
+            "content": "Sorry, I do not know your favourite colour.",
+            "name": "ephemeral_agent"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "customFunctionAgentflow_0",
+         "nodeLabel": "Counter",
+         "data": {
+          "id": "customFunctionAgentflow_0",
+          "name": "customFunctionAgentflow",
+          "input": {
+           "inputVariables": "",
+           "code": "return String(Number($flow.state.counter || 0) + 1);"
+          },
+          "output": {
+           "content": "2"
+          },
+          "state": {
+           "counter": "2"
+          }
+         },
+         "previousNodeIds": [
+          "agentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "directReplyAgentflow_0",
+         "nodeLabel": "Reply",
+         "data": {
+          "id": "directReplyAgentflow_0",
+          "name": "directReplyAgentflow",
+          "input": {},
+          "output": {
+           "content": "Sorry, I do not know your favourite colour.\n\n(turn counter 2)"
+          },
+          "state": {
+           "counter": "2"
+          }
+         },
+         "previousNodeIds": [
+          "customFunctionAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:50.255Z",
+      "updatedDate": "2026-11-22T18:40:50.255Z"
+     }
+    },
+    "sentinels": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    },
+    "executedData": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 43928,
+    "executedDataGzipBytes": 10555,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t3",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S10b",
+     "streaming": true,
+     "question": "Thanks anyway.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14696,
+      "sha256": "702d6f0d36cb8f814d345efbbb71724793a7089c16feff1131e4c1cb1dbf6795"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14696,
+    "sha256": "702d6f0d36cb8f814d345efbbb71724793a7089c16feff1131e4c1cb1dbf6795"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 28.51,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.24,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.26,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.27,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.28,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ephemeral Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 24.91,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ephemeral Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 24.94,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Counter",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 24.95,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Counter",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 24.96,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 24.97,
+      "event": "token",
+      "data": "You are welcome.\n\n(turn counter 3)"
+     },
+     {
+      "offsetMs": 24.98,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 24.99,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 27.48,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 14632,
+       "sha256": "a995f64516f35abba2126d326d387dbb1dee30d9824acfc0e81e4967f3ddf353"
+      }
+     },
+     {
+      "offsetMs": 28.28,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "chatMessageId": "e3c38959-e03c-4d3a-afe9-eab6a997d893",
+       "question": "Thanks anyway.",
+       "sessionId": "ts00b-mws6myyp-M1-S10b"
+      }
+     },
+     {
+      "offsetMs": 28.32,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 28.41,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "You are welcome.\n\n(turn counter 3)",
+   "tokens": [
+    "You are welcome.\n\n(turn counter 3)"
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "Thanks anyway."
+      },
+      "output": {
+       "question": "Thanks anyway.",
+       "ephemeralMemory": true,
+       "persistState": true
+      },
+      "state": {
+       "counter": "2"
+      }
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Ephemeral Agent",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+          "length": 41104,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S10b_agent"
+          ],
+          "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Thanks anyway."
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "You are welcome.",
+       "timeMetadata": {
+        "start": 1795372850291,
+        "end": 1795372850304,
+        "delta": 13
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10320,
+        "output_tokens": 5,
+        "total_tokens": 10325,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8932,
+         "completionTokens": 4,
+         "totalTokens": 8936
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10320,
+         "completion_tokens": 5,
+         "total_tokens": 10325
+        }
+       }
+      },
+      "state": {
+       "counter": "2"
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Thanks anyway."
+       },
+       {
+        "role": "user",
+        "content": "You are welcome.",
+        "name": "ephemeral_agent"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Counter",
+     "data": {
+      "id": "customFunctionAgentflow_0",
+      "name": "customFunctionAgentflow",
+      "input": {
+       "inputVariables": "",
+       "code": "return String(Number($flow.state.counter || 0) + 1);"
+      },
+      "output": {
+       "content": "3"
+      },
+      "state": {
+       "counter": "3"
+      }
+     },
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Reply",
+     "data": {
+      "id": "directReplyAgentflow_0",
+      "name": "directReplyAgentflow",
+      "input": {},
+      "output": {
+       "content": "You are welcome.\n\n(turn counter 3)"
+      },
+      "state": {
+       "counter": "3"
+      }
+     },
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "counter": "3"
+   },
+   "modelRequests": [
+    {
+     "seq": 802,
+     "route": "S10b-agent",
+     "callIndex": 0,
+     "ruleId": "t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+         "length": 41104,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10b_agent"
+         ],
+         "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Thanks anyway."
+       }
+      ]
+     },
+     "reply": {
+      "content": "You are welcome.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 14632,
+    "sha256": "a995f64516f35abba2126d326d387dbb1dee30d9824acfc0e81e4967f3ddf353",
+    "sizes": {
+     "base64Length": 14632,
+     "payloadBytes": 10972,
+     "gzipBytes": 10944,
+     "rawJsonBytes": 45220,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 672,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 44507,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 44209,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 291,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42807,
+       "inputMessagesBytes": 41277,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "customFunctionAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 335,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      },
+      {
+       "nodeId": "directReplyAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 287,
+       "inputMessagesBytes": 0,
+       "stateBytes": 15
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 45220
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 672
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 44507
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 44209,
+      "parsedBytes": 43725,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 43725
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42807
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42681
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41955
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41277
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41232
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41204
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "Thanks anyway.",
+       "chatflowid": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "sessionId": "ts00b-mws6myyp-M1-S10b",
+       "createdDate": "2026-11-22T18:40:50.286Z",
+       "executionId": "mock-1795372850287-iy07dkzn9",
+       "id": "7be976fd-96af-40a2-a35d-b1555184719b"
+      },
+      {
+       "id": "e3c38959-e03c-4d3a-afe9-eab6a997d893",
+       "role": "apiMessage",
+       "content": "You are welcome.\n\n(turn counter 3)",
+       "chatflowid": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S10b",
+       "sessionId": "ts00b-mws6myyp-M1-S10b",
+       "executionId": "mock-1795372850287-iy07dkzn9",
+       "createdDate": "2026-11-22T18:40:50.308Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372850287-iy07dkzn9",
+      "state": "FINISHED",
+      "agentflowId": "61d34ef2-636c-4b1b-86f3-6c555ffcce92",
+      "sessionId": "ts00b-mws6myyp-M1-S10b",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "Thanks anyway."
+          },
+          "output": {
+           "question": "Thanks anyway.",
+           "ephemeralMemory": true,
+           "persistState": true
+          },
+          "state": {
+           "counter": "2"
+          }
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Ephemeral Agent",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "bb3557d5ffbf23145a0b0226f2298e4a757bd05d6580c4acad1239f5d51a1499",
+              "length": 41104,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S10b_agent"
+              ],
+              "head": "\\[\\[route:S10b-agent\\]\\] SYSPROMPT_SENTINEL_S10b_agent\n\nYou are a stateless Northwind Outfitters helper.\n\nSection 1 - Pa"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Thanks anyway."
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "You are welcome.",
+           "timeMetadata": {
+            "start": 1795372850291,
+            "end": 1795372850304,
+            "delta": 13
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10320,
+            "output_tokens": 5,
+            "total_tokens": 10325,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8932,
+             "completionTokens": 4,
+             "totalTokens": 8936
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10320,
+             "completion_tokens": 5,
+             "total_tokens": 10325
+            }
+           }
+          },
+          "state": {
+           "counter": "2"
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Thanks anyway."
+           },
+           {
+            "role": "user",
+            "content": "You are welcome.",
+            "name": "ephemeral_agent"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "customFunctionAgentflow_0",
+         "nodeLabel": "Counter",
+         "data": {
+          "id": "customFunctionAgentflow_0",
+          "name": "customFunctionAgentflow",
+          "input": {
+           "inputVariables": "",
+           "code": "return String(Number($flow.state.counter || 0) + 1);"
+          },
+          "output": {
+           "content": "3"
+          },
+          "state": {
+           "counter": "3"
+          }
+         },
+         "previousNodeIds": [
+          "agentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "directReplyAgentflow_0",
+         "nodeLabel": "Reply",
+         "data": {
+          "id": "directReplyAgentflow_0",
+          "name": "directReplyAgentflow",
+          "input": {},
+          "output": {
+           "content": "You are welcome.\n\n(turn counter 3)"
+          },
+          "state": {
+           "counter": "3"
+          }
+         },
+         "previousNodeIds": [
+          "customFunctionAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:50.287Z",
+      "updatedDate": "2026-11-22T18:40:50.287Z"
+     }
+    },
+    "sentinels": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    },
+    "executedData": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10b_agent": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 43788,
+    "executedDataGzipBytes": 10519,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "99e8d4b0d3806d95aeb29fedd4432843b190eaba",
+  "label": "before-run1",
+  "serverEnv": null,
+  "variant": null
+ }
+}

@@ -1,0 +1,1464 @@
+{
+  "nodes": [
+    {
+      "id": "startAgentflow_0",
+      "type": "agentFlow",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "positionAbsolute": {
+        "x": 0,
+        "y": 0
+      },
+      "width": 200,
+      "height": 72,
+      "selected": false,
+      "dragging": false,
+      "data": {
+        "id": "startAgentflow_0",
+        "label": "Start",
+        "version": 1.1,
+        "name": "startAgentflow",
+        "type": "Start",
+        "color": "#7EE787",
+        "hideInput": true,
+        "baseClasses": [
+          "Start"
+        ],
+        "category": "Agent Flows",
+        "description": "Starting point of the agentflow",
+        "inputParams": [
+          {
+            "label": "Input Type",
+            "name": "startInputType",
+            "type": "options",
+            "options": [
+              {
+                "label": "Chat Input",
+                "name": "chatInput",
+                "description": "Start the conversation with chat input"
+              },
+              {
+                "label": "Form Input",
+                "name": "formInput",
+                "description": "Start the workflow with form inputs"
+              }
+            ],
+            "default": "chatInput",
+            "id": "startAgentflow_0-input-startInputType-options"
+          },
+          {
+            "label": "Form Title",
+            "name": "formTitle",
+            "type": "string",
+            "placeholder": "Please Fill Out The Form",
+            "show": {
+              "startInputType": "formInput"
+            },
+            "id": "startAgentflow_0-input-formTitle-string"
+          },
+          {
+            "label": "Form Description",
+            "name": "formDescription",
+            "type": "string",
+            "placeholder": "Complete all fields below to continue",
+            "show": {
+              "startInputType": "formInput"
+            },
+            "id": "startAgentflow_0-input-formDescription-string"
+          },
+          {
+            "label": "Form Input Types",
+            "name": "formInputTypes",
+            "description": "Specify the type of form input",
+            "type": "array",
+            "show": {
+              "startInputType": "formInput"
+            },
+            "array": [
+              {
+                "label": "Type",
+                "name": "type",
+                "type": "options",
+                "options": [
+                  {
+                    "label": "String",
+                    "name": "string"
+                  },
+                  {
+                    "label": "Number",
+                    "name": "number"
+                  },
+                  {
+                    "label": "Boolean",
+                    "name": "boolean"
+                  },
+                  {
+                    "label": "Options",
+                    "name": "options"
+                  }
+                ],
+                "default": "string"
+              },
+              {
+                "label": "Label",
+                "name": "label",
+                "type": "string",
+                "placeholder": "Label for the input"
+              },
+              {
+                "label": "Variable Name",
+                "name": "name",
+                "type": "string",
+                "placeholder": "Variable name for the input (must be camel case)",
+                "description": "Variable name must be camel case. For example: firstName, lastName, etc."
+              },
+              {
+                "label": "Add Options",
+                "name": "addOptions",
+                "type": "array",
+                "show": {
+                  "formInputTypes[$index].type": "options"
+                },
+                "array": [
+                  {
+                    "label": "Option",
+                    "name": "option",
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "id": "startAgentflow_0-input-formInputTypes-array"
+          },
+          {
+            "label": "Ephemeral Memory",
+            "name": "startEphemeralMemory",
+            "type": "boolean",
+            "description": "Start fresh for every execution without past chat history",
+            "optional": true,
+            "id": "startAgentflow_0-input-startEphemeralMemory-boolean"
+          },
+          {
+            "label": "Flow State",
+            "name": "startState",
+            "description": "Runtime state during the execution of the workflow",
+            "type": "array",
+            "optional": true,
+            "array": [
+              {
+                "label": "Key",
+                "name": "key",
+                "type": "string",
+                "placeholder": "Foo"
+              },
+              {
+                "label": "Value",
+                "name": "value",
+                "type": "string",
+                "placeholder": "Bar",
+                "optional": true
+              }
+            ],
+            "id": "startAgentflow_0-input-startState-array"
+          },
+          {
+            "label": "Persist State",
+            "name": "startPersistState",
+            "type": "boolean",
+            "description": "Persist the state in the same session",
+            "optional": true,
+            "id": "startAgentflow_0-input-startPersistState-boolean"
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "startInputType": "chatInput",
+          "formTitle": "",
+          "formDescription": "",
+          "formInputTypes": "",
+          "startEphemeralMemory": "",
+          "startState": [
+            {
+              "key": "b_note",
+              "value": ""
+            }
+          ],
+          "startPersistState": true
+        },
+        "outputAnchors": [
+          {
+            "id": "startAgentflow_0-output-startAgentflow",
+            "label": "Start",
+            "name": "startAgentflow"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      }
+    },
+    {
+      "id": "agentAgentflow_0",
+      "type": "agentFlow",
+      "position": {
+        "x": 300,
+        "y": -100
+      },
+      "positionAbsolute": {
+        "x": 300,
+        "y": -100
+      },
+      "width": 200,
+      "height": 72,
+      "selected": false,
+      "dragging": false,
+      "data": {
+        "id": "agentAgentflow_0",
+        "label": "Agent A",
+        "version": 3.2,
+        "name": "agentAgentflow",
+        "type": "Agent",
+        "color": "#4DD0E1",
+        "baseClasses": [
+          "Agent"
+        ],
+        "category": "Agent Flows",
+        "description": "Dynamically choose and utilize tools during runtime, enabling multi-step reasoning",
+        "inputParams": [
+          {
+            "label": "Model",
+            "name": "agentModel",
+            "type": "asyncOptions",
+            "loadMethod": "listModels",
+            "loadConfig": true,
+            "id": "agentAgentflow_0-input-agentModel-asyncOptions"
+          },
+          {
+            "label": "Messages",
+            "name": "agentMessages",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Role",
+                "name": "role",
+                "type": "options",
+                "options": [
+                  {
+                    "label": "System",
+                    "name": "system"
+                  },
+                  {
+                    "label": "Assistant",
+                    "name": "assistant"
+                  },
+                  {
+                    "label": "Developer",
+                    "name": "developer"
+                  },
+                  {
+                    "label": "User",
+                    "name": "user"
+                  }
+                ]
+              },
+              {
+                "label": "Content",
+                "name": "content",
+                "type": "string",
+                "acceptVariable": true,
+                "generateInstruction": true,
+                "rows": 4
+              }
+            ],
+            "id": "agentAgentflow_0-input-agentMessages-array"
+          },
+          {
+            "label": "OpenAI Built-in Tools",
+            "name": "agentToolsBuiltInOpenAI",
+            "type": "multiOptions",
+            "optional": true,
+            "options": [
+              {
+                "label": "Web Search",
+                "name": "web_search_preview",
+                "description": "Search the web for the latest information"
+              },
+              {
+                "label": "Code Interpreter",
+                "name": "code_interpreter",
+                "description": "Write and run Python code in a sandboxed environment"
+              },
+              {
+                "label": "Image Generation",
+                "name": "image_generation",
+                "description": "Generate images based on a text prompt"
+              }
+            ],
+            "show": {
+              "agentModel": "chatOpenAI"
+            },
+            "id": "agentAgentflow_0-input-agentToolsBuiltInOpenAI-multiOptions"
+          },
+          {
+            "label": "Gemini Built-in Tools",
+            "name": "agentToolsBuiltInGemini",
+            "type": "multiOptions",
+            "optional": true,
+            "options": [
+              {
+                "label": "URL Context",
+                "name": "urlContext",
+                "description": "Extract content from given URLs"
+              },
+              {
+                "label": "Google Search",
+                "name": "googleSearch",
+                "description": "Search real-time web content"
+              },
+              {
+                "label": "Code Execution",
+                "name": "codeExecution",
+                "description": "Write and run Python code in a sandboxed environment"
+              }
+            ],
+            "show": {
+              "agentModel": "chatGoogleGenerativeAI"
+            },
+            "id": "agentAgentflow_0-input-agentToolsBuiltInGemini-multiOptions"
+          },
+          {
+            "label": "Anthropic Built-in Tools",
+            "name": "agentToolsBuiltInAnthropic",
+            "type": "multiOptions",
+            "optional": true,
+            "options": [
+              {
+                "label": "Web Search",
+                "name": "web_search_20250305",
+                "description": "Search the web for the latest information"
+              },
+              {
+                "label": "Web Fetch",
+                "name": "web_fetch_20250910",
+                "description": "Retrieve full content from specified web pages"
+              }
+            ],
+            "show": {
+              "agentModel": "chatAnthropic"
+            },
+            "id": "agentAgentflow_0-input-agentToolsBuiltInAnthropic-multiOptions"
+          },
+          {
+            "label": "Tools",
+            "name": "agentTools",
+            "type": "array",
+            "optional": true,
+            "array": [
+              {
+                "label": "Tool",
+                "name": "agentSelectedTool",
+                "type": "asyncOptions",
+                "loadMethod": "listTools",
+                "loadConfig": true
+              },
+              {
+                "label": "Require Human Input",
+                "name": "agentSelectedToolRequiresHumanInput",
+                "type": "boolean",
+                "optional": true
+              }
+            ],
+            "id": "agentAgentflow_0-input-agentTools-array"
+          },
+          {
+            "label": "Knowledge (Document Stores)",
+            "name": "agentKnowledgeDocumentStores",
+            "type": "array",
+            "description": "Give your agent context about different document sources. Document stores must be upserted in advance.",
+            "array": [
+              {
+                "label": "Document Store",
+                "name": "documentStore",
+                "type": "asyncOptions",
+                "loadMethod": "listStores"
+              },
+              {
+                "label": "Describe Knowledge",
+                "name": "docStoreDescription",
+                "type": "string",
+                "generateDocStoreDescription": true,
+                "placeholder": "Describe what the knowledge base is about, this is useful for the AI to know when and how to search for correct information",
+                "rows": 4
+              },
+              {
+                "label": "Return Source Documents",
+                "name": "returnSourceDocuments",
+                "type": "boolean",
+                "optional": true
+              }
+            ],
+            "optional": true,
+            "id": "agentAgentflow_0-input-agentKnowledgeDocumentStores-array"
+          },
+          {
+            "label": "Knowledge (Vector Embeddings)",
+            "name": "agentKnowledgeVSEmbeddings",
+            "type": "array",
+            "description": "Give your agent context about different document sources from existing vector stores and embeddings",
+            "array": [
+              {
+                "label": "Vector Store",
+                "name": "vectorStore",
+                "type": "asyncOptions",
+                "loadMethod": "listVectorStores",
+                "loadConfig": true
+              },
+              {
+                "label": "Embedding Model",
+                "name": "embeddingModel",
+                "type": "asyncOptions",
+                "loadMethod": "listEmbeddings",
+                "loadConfig": true
+              },
+              {
+                "label": "Knowledge Name",
+                "name": "knowledgeName",
+                "type": "string",
+                "placeholder": "A short name for the knowledge base, this is useful for the AI to know when and how to search for correct information"
+              },
+              {
+                "label": "Describe Knowledge",
+                "name": "knowledgeDescription",
+                "type": "string",
+                "placeholder": "Describe what the knowledge base is about, this is useful for the AI to know when and how to search for correct information",
+                "rows": 4
+              },
+              {
+                "label": "Return Source Documents",
+                "name": "returnSourceDocuments",
+                "type": "boolean",
+                "optional": true
+              }
+            ],
+            "optional": true,
+            "id": "agentAgentflow_0-input-agentKnowledgeVSEmbeddings-array"
+          },
+          {
+            "label": "Enable Memory",
+            "name": "agentEnableMemory",
+            "type": "boolean",
+            "description": "Enable memory for the conversation thread",
+            "default": true,
+            "optional": true,
+            "id": "agentAgentflow_0-input-agentEnableMemory-boolean"
+          },
+          {
+            "label": "Memory Type",
+            "name": "agentMemoryType",
+            "type": "options",
+            "options": [
+              {
+                "label": "All Messages",
+                "name": "allMessages",
+                "description": "Retrieve all messages from the conversation"
+              },
+              {
+                "label": "Window Size",
+                "name": "windowSize",
+                "description": "Uses a fixed window size to surface the last N messages"
+              },
+              {
+                "label": "Conversation Summary",
+                "name": "conversationSummary",
+                "description": "Summarizes the whole conversation"
+              },
+              {
+                "label": "Conversation Summary Buffer",
+                "name": "conversationSummaryBuffer",
+                "description": "Summarize conversations once token limit is reached. Default to 2000"
+              }
+            ],
+            "optional": true,
+            "default": "allMessages",
+            "show": {
+              "agentEnableMemory": true
+            },
+            "id": "agentAgentflow_0-input-agentMemoryType-options"
+          },
+          {
+            "label": "Window Size",
+            "name": "agentMemoryWindowSize",
+            "type": "number",
+            "default": "20",
+            "description": "Uses a fixed window size to surface the last N messages",
+            "show": {
+              "agentMemoryType": "windowSize"
+            },
+            "id": "agentAgentflow_0-input-agentMemoryWindowSize-number"
+          },
+          {
+            "label": "Max Token Limit",
+            "name": "agentMemoryMaxTokenLimit",
+            "type": "number",
+            "default": "2000",
+            "description": "Summarize conversations once token limit is reached. Default to 2000",
+            "show": {
+              "agentMemoryType": "conversationSummaryBuffer"
+            },
+            "id": "agentAgentflow_0-input-agentMemoryMaxTokenLimit-number"
+          },
+          {
+            "label": "Input Message",
+            "name": "agentUserMessage",
+            "type": "string",
+            "description": "Add an input message as user message at the end of the conversation",
+            "rows": 4,
+            "optional": true,
+            "acceptVariable": true,
+            "show": {
+              "agentEnableMemory": true
+            },
+            "id": "agentAgentflow_0-input-agentUserMessage-string"
+          },
+          {
+            "label": "Return Response As",
+            "name": "agentReturnResponseAs",
+            "type": "options",
+            "options": [
+              {
+                "label": "User Message",
+                "name": "userMessage"
+              },
+              {
+                "label": "Assistant Message",
+                "name": "assistantMessage"
+              },
+              {
+                "label": "Do not append to chat history",
+                "name": "ignore"
+              }
+            ],
+            "default": "userMessage",
+            "id": "agentAgentflow_0-input-agentReturnResponseAs-options"
+          },
+          {
+            "label": "JSON Structured Output",
+            "name": "agentStructuredOutput",
+            "description": "Instruct the Agent to give output in a JSON structured schema",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Key",
+                "name": "key",
+                "type": "string"
+              },
+              {
+                "label": "Type",
+                "name": "type",
+                "type": "options",
+                "options": [
+                  {
+                    "label": "String",
+                    "name": "string"
+                  },
+                  {
+                    "label": "String Array",
+                    "name": "stringArray"
+                  },
+                  {
+                    "label": "Number",
+                    "name": "number"
+                  },
+                  {
+                    "label": "Boolean",
+                    "name": "boolean"
+                  },
+                  {
+                    "label": "Enum",
+                    "name": "enum"
+                  },
+                  {
+                    "label": "JSON Array",
+                    "name": "jsonArray"
+                  }
+                ]
+              },
+              {
+                "label": "Enum Values",
+                "name": "enumValues",
+                "type": "string",
+                "placeholder": "value1, value2, value3",
+                "description": "Enum values. Separated by comma",
+                "optional": true,
+                "acceptVariable": true,
+                "show": {
+                  "agentStructuredOutput[$index].type": "enum"
+                }
+              },
+              {
+                "label": "JSON Schema",
+                "name": "jsonSchema",
+                "type": "code",
+                "placeholder": "{\n    \"answer\": {\n        \"type\": \"string\",\n        \"description\": \"Value of the answer\"\n    },\n    \"reason\": {\n        \"type\": \"string\",\n        \"description\": \"Reason for the answer\"\n    },\n    \"optional\": {\n        \"type\": \"boolean\"\n    },\n    \"count\": {\n        \"type\": \"number\"\n    },\n    \"children\": {\n        \"type\": \"array\",\n        \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"value\": {\n                    \"type\": \"string\",\n                    \"description\": \"Value of the children's answer\"\n                }\n            }\n        }\n    }\n}",
+                "description": "JSON schema for the structured output",
+                "optional": true,
+                "hideCodeExecute": true,
+                "show": {
+                  "agentStructuredOutput[$index].type": "jsonArray"
+                }
+              },
+              {
+                "label": "Description",
+                "name": "description",
+                "type": "string",
+                "placeholder": "Description of the key"
+              }
+            ],
+            "id": "agentAgentflow_0-input-agentStructuredOutput-array"
+          },
+          {
+            "label": "Update Flow State",
+            "name": "agentUpdateState",
+            "description": "Update runtime state during the execution of the workflow",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Key",
+                "name": "key",
+                "type": "asyncOptions",
+                "loadMethod": "listRuntimeStateKeys"
+              },
+              {
+                "label": "Value",
+                "name": "value",
+                "type": "string",
+                "acceptVariable": true,
+                "acceptNodeOutputAsVariable": true
+              }
+            ],
+            "id": "agentAgentflow_0-input-agentUpdateState-array"
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "agentModel": "chatOpenAI",
+          "agentMessages": [
+            {
+              "role": "system",
+              "content": "<p>[[route:S11-agentA]] SYSPROMPT_SENTINEL_S11_agentA</p>\n<p>You draft the main Northwind Outfitters answer.</p>\n<p>Section 1 - Warranty for LATAM. A reviewer is allowed to waive the store credit after the carrier scan (SKU 35-5475, 52% of the value); check fragile credit, confirmed locker, bulky courier, domestic postcode, damaged postcode, sealed collar. A reviewer cannot change the restocking fee when the parcel is marked lost (26 days, 26 days); check regional photo, unsigned warranty, confirmed sole, damaged zipper, fragile charger. The billing team cannot change the shipping address if the address is outside the zone (case NW-32507, case NW-32507); check early chargeback, verified repair, partial lining. A premium member is allowed to waive the return label once the identity check passes (limit 461.55 EUR, case NW-25628); check archived depot, missing postcode, standard profile.</p>\n<p>Section 2 - Privacy for UK. The legal contact should never promise the price match before closing the case (case NW-46667, region Benelux); check fragile quote, archived collar, foreign cable, priority barcode, confirmed slot. The finance desk can offer the size exchange in the language the customer used (34 days, limit 714.30 EUR); check pending mandate, annual depot, regional timestamp. The store manager should look up the tax receipt after checking the latest note (region APAC, 4 days); check duplicate claim, urgent chargeback, urgent inspection, domestic signature. A corporate client is expected to explain the warranty status unless a supervisor approves otherwise (limit 135.50 EUR, 33% of the value); check early window, duplicate note, automatic lining, sealed window, pending surcharge.</p>\n<p>Section 3 - Tone of voice for APAC. The carrier cannot change the tax receipt before the cut-off at noon (30 days, case NW-49063); check unsealed window, archived battery, express strap, unsealed invoice, duplicate postcode, signed hood. The quality team is required to cancel the payment authorisation without sharing internal codes (SKU 65-1704, case NW-83384); check annual serial, domestic battery, refurbished quote, previous carton, damaged parcel. The account owner ought to summarise the delivery window if the payment is still pending (33% of the value, SKU 68-6085); check domestic pocket, express inspection, regional zipper, annual cable, domestic chargeback, standard part, bulky hood. A corporate client needs approval to adjust the subscription renewal unless a supervisor approves otherwise (case NW-73317, region EU-West); check regional refund, confirmed window, late ledger. The billing team has to document the bundle discount if the address is outside the zone (SKU 78-2217, case NW-95054); check standard part, signed lining, open slot.</p>\n<p>Section 4 - Customs for LATAM. The courier hub will escalate the bundle discount when a voucher was applied (37 days, SKU 70-7306); check recent battery, flagged collar, domestic barcode, urgent surcharge, urgent lining. The night shift needs approval to adjust the backorder estimate for business accounts (region EU-North, 22 days); check unsigned zipper, refurbished repair, missing manifest, annual courier, upcoming battery, urgent battery. The finance desk ought to summarise the loyalty balance whenever stock is reserved (limit 540.99 EUR, 16 days); check sealed ticket, signed permit, manual collar, late postcode, duplicate charger, verified carton, unsealed fee.</p>\n<p>Section 5 - Accessibility for EU-West. The account owner is expected to explain the pickup slot unless a supervisor approves otherwise (22% of the value, 26 days); check local claim, annual claim, pending serial, duplicate parcel, missing sleeve, priority fee, refurbished battery. The fraud desk can split the payment authorisation for orders above the regional threshold (36 days, SKU 31-7987); check unsigned pocket, internal repair, unsealed sole, open voucher, flagged voucher, fragile surcharge. The account owner has to document the bundle discount for business accounts (57% of the value, 57% of the value); check late declaration, priority manifest, unsealed quote, fragile photo, automatic pallet. A regional partner may request the tracking history whenever stock is reserved (limit 214.12 EUR, 10 days); check cleared credit, upcoming pocket, late sleeve, local fee. The support lead needs approval to adjust the service level after the carrier scan (8 days, 35% of the value); check late consent, standard discount, annual label, unsealed manifest, economy note, external consent, domestic repair. A regional partner must attach the invoice date for orders above the regional threshold (SKU 09-5185, 49% of the value); check local manifest, express estimate, flagged parcel, foreign battery.</p>\n<p>Section 6 - Accessibility for Iberia. A marketplace seller has to document the restocking fee for marketplace orders only (7 days, SKU 46-2240); check foreign permit, upcoming estimate, cleared part, domestic warranty, partial parcel, annual invoice. The billing team should restate the payment authorisation within one business day (SKU 92-7724, case NW-11419); check bulky consent, weekly locker, economy pallet, recent strap. The returns clerk must attach the return label unless a supervisor approves otherwise (2% of the value, limit 417.41 EUR); check unsigned refund, domestic ticket, unsealed pallet. A corporate client will escalate the order reference before the cut-off at noon (38 days, 38 days); check written note, expired courier, refurbished cable, pending sleeve. The courier hub must attach the damage photos if the address is outside the zone (case NW-14290, limit 254.45 EUR); check signed part, urgent signature, express seam, early inspection, partial zipper.</p>\n<p>Section 7 - Invoices for APAC. The logistics planner should verify the store credit when the parcel is marked lost (case NW-05085, 36% of the value); check cleared discount, disputed claim, fragile buckle. The legal contact needs to record the shipping address in the language the customer used (42% of the value, 42% of the value); check unsealed photo, regional photo, priority voucher. The logistics planner may postpone the tax receipt before the cut-off at noon (region US-East, region US-East); check annual receipt, upcoming strap, late serial, refurbished discount, priority photo, written voucher.</p>\n<p>Section 8 - Repairs for EU-North. The quality team has to reconcile the order reference after the carrier scan (50% of the value, case NW-46753); check priority address, domestic credit, reserved carton, standard slot, pending inspection, late zipper. A first-time buyer must confirm the backorder estimate after checking the latest note (case NW-21472, SKU 76-8122); check urgent zipper, damaged depot, external voucher. The auditor needs to record the price match when the parcel is marked lost (case NW-98465, region LATAM); check external locker, unsigned photo, partial profile. The billing team ought to summarise the return label if the item was opened (case NW-12796, 36 days); check verified contract, external sleeve, written hood, pending contract, weekly lining. The duty manager will escalate the damage photos in the language the customer used (limit 642.28 EUR, region EU-North); check duplicate inspection, recent sole, foreign consent, weekly parcel, standard quote, previous estimate. The logistics planner is expected to explain the tracking history when a voucher was applied (55% of the value, SKU 29-7950); check regional estimate, sealed depot, signed pocket, foreign ticket.</p>\n<p>Section 9 - Customs for Benelux. A regional partner is expected to explain the bundle discount after the carrier scan (29% of the value, 11 days); check signed lining, open permit, automatic collar. The quality team cannot change the store credit after the carrier scan (SKU 51-7224, region EU-North); check reserved charger, seasonal fee, cleared button, refurbished address, fragile strap, late repair, refurbished courier. The carrier can offer the order reference if the address is outside the zone (region EU-North, 18% of the value); check fragile serial, bulky refund, bulky manifest, flagged zipper, automatic receipt, priority refund. A first-time buyer can offer the refund amount after checking the latest note (limit 589.27 EUR, region Nordics); check weekly balance, manual estimate, external locker. The returns clerk should never promise the restocking fee when the parcel is marked lost (case NW-47566, SKU 20-3477); check archived ledger, flagged balance, flagged voucher, pending zipper.</p>\n<p>Section 10 - Subscriptions for LATAM. A reviewer needs to record the store credit in the language the customer used (33 days, region US-West); check missing signature, unsigned courier, early note, upcoming receipt, annual postcode, priority receipt. The night shift is required to cancel the backorder estimate before closing the case (13 days, 22% of the value); check written strap, domestic zipper, priority contract, missing chargeback, verified pallet, previous surcharge, pending depot. The billing team must double-check the bundle discount without sharing internal codes (9 days, case NW-78787); check archived label, standard barcode, archived repair, confirmed refund, confirmed warranty, seasonal depot.</p>\n<p>Section 11 - Payments for APAC. The quality team should restate the replacement part after checking the latest note (region LATAM, region LATAM); check bulky surcharge, missing signature, recent route, unsigned zipper, refurbished chargeback, external cable. The logistics planner is required to cancel the damage photos within one business day (16% of the value, 39 days); check weekly repair, annual ledger, weekly route, expired claim. The account owner needs to record the return label after the carrier scan (case NW-07965, SKU 39-0262); check flagged pocket, seasonal contract, unsigned consent.</p>\n<p>Section 12 - Pickups for Nordics. The duty manager must double-check the subscription renewal without sharing internal codes (13% of the value, region UK); check cleared postcode, partial claim, fragile warranty, flagged claim, refurbished declaration, urgent contract. A customer should verify the pickup slot after checking the latest note (SKU 67-3197, 4% of the value); check open part, duplicate quote, early ledger, duplicate fee, unsigned address. The legal contact should restate the tax receipt in the language the customer used (SKU 65-6737, SKU 65-6737); check open parcel, automatic button, bulky charger, archived address, bulky estimate. The returns clerk must not disclose the restocking fee if the address is outside the zone (limit 484.54 EUR, SKU 42-5953); check reserved repair, bulky declaration, economy slot. The duty manager can split the tax receipt if the item was opened (limit 203.56 EUR, limit 203.56 EUR); check confirmed contract, economy fee, signed postcode, damaged parcel, regional carton, expired barcode.</p>\n<p>Section 13 - Subscriptions for US-West. A reviewer has to reconcile the shipping address for marketplace orders only (limit 066.60 EUR, SKU 39-7653); check pending hood, duplicate sole, seasonal serial, foreign discount, fragile route, automatic lining, early strap. The billing team must not disclose the subscription renewal in the language the customer used (limit 310.49 EUR, limit 310.49 EUR); check missing battery, domestic sole, upcoming pallet, archived part, confirmed strap, priority balance, reserved ticket. The duty manager may postpone the backorder estimate within one business day (region LATAM, case NW-70267); check express signature, economy route, external quote, upcoming address, cleared invoice, bulky fee, fragile strap. The store manager should restate the delivery window before the cut-off at noon (32 days, 32 days); check economy depot, refurbished estimate, urgent pocket, weekly quote, disputed seam, cleared timestamp, duplicate surcharge.</p>\n<p>Section 14 - Refunds for EU-North. The fraud desk must attach the loyalty balance before closing the case (region EU-West, case NW-21054); check standard claim, manual strap, sealed inspection, automatic discount, automatic profile. A reviewer must attach the tracking history within one business day (case NW-23341, limit 238.59 EUR); check monthly courier, priority invoice, cleared credit, early depot, disputed depot, written slot, refurbished profile. The carrier is expected to explain the backorder estimate once the identity check passes (limit 801.64 EUR, SKU 17-8611); check weekly inspection, regional ticket, annual profile, cleared ledger, pending fee, recent balance. The logistics planner will escalate the tracking history for marketplace orders only (limit 261.08 EUR, case NW-12982); check duplicate pallet, flagged serial, express parcel, written profile.</p>\n<p>Section 15 - Pickups for EU-West. The billing team is allowed to waive the damage photos if the payment is still pending (limit 505.01 EUR, region Iberia); check duplicate balance, disputed mandate, reserved receipt, unsigned inspection, weekly credit, open balance. The quality team should never promise the invoice date during the holiday peak (limit 797.14 EUR, SKU 33-9152); check flagged carton, fragile cable, early postcode, verified button, priority chargeback. The billing team must attach the customs declaration if the item was opened (26% of the value, limit 896.89 EUR); check verified permit, manual button, duplicate repair. The carrier is expected to explain the shipping address when a voucher was applied (region US-West, limit 993.86 EUR); check domestic fee, internal slot, cleared mandate, urgent inspection, unsigned parcel. The duty manager may request the size exchange if the item was opened (region LATAM, 8% of the value); check disputed claim, verified barcode, previous window, written locker, missing ledger.</p>\n<p>Section 16 - Refunds for Nordics. A regional partner ought to summarise the payment authorisation unless a supervisor approves otherwise (52% of the value, 52% of the value); check flagged manifest, flagged contract, express surcharge, refurbished refund, economy lining. The billing team should restate the tax receipt after the carrier scan (SKU 98-2464, SKU 98-2464); check domestic collar, automatic strap, sealed mandate, seasonal pallet. The account owner is required to cancel the customs declaration whenever stock is reserved (region Benelux, case NW-55989); check written cable, fragile credit, duplicate inspection, recent address, fragile lining. The agent is allowed to waive the delivery window when a voucher was applied (limit 577.62 EUR, limit 577.62 EUR); check written manifest, pending fee, refurbished chargeback, upcoming sleeve. A first-time buyer may postpone the replacement part when a voucher was applied (SKU 96-4206, case NW-63566); check automatic locker, damaged profile, early invoice, duplicate pallet. The auditor ought to summarise the pickup slot before closing the case (limit 094.84 EUR, 50% of the value); check expired charger, unsigned fee, open ledger, late cable.</p>\n<p>Section 17 - Fraud for EU-West. The warehouse is required to cancel the delivery window once the identity check passes (43% of the value, region US-West); check duplicate declaration, express depot, seasonal lining, monthly carton, open manifest. The agent must double-check the customs declaration after the carrier scan (region US-West, limit 144.70 EUR); check seasonal courier, early pallet, weekly collar. The logistics planner is expected to explain the backorder estimate if the address is outside the zone (24 days, case NW-45393); check external claim, foreign chargeback, signed seam, reserved hood, refurbished quote, upcoming slot. A regional partner cannot change the bundle discount after checking the latest note (region LATAM, case NW-58451); check archived refund, urgent courier, open claim, annual profile. The duty manager is allowed to waive the restocking fee during the holiday peak (SKU 49-2765, 50% of the value); check sealed postcode, bulky credit, manual lining, local fee. The billing team must not disclose the price match when the customer asks twice (region EU-West, case NW-62933); check weekly lining, recent barcode, reserved chargeback, internal surcharge, early fee, refurbished window, internal part.</p>\n<p>Section 18 - Exchanges for EU-North. The carrier is required to cancel the service level if the payment is still pending (case NW-06263, case NW-06263); check unsealed contract, previous strap, written receipt. A reviewer must not disclose the tracking history before the cut-off at noon (46% of the value, SKU 03-0142); check upcoming locker, standard window, automatic chargeback, cleared note, early manifest, missing address, missing lining. The store manager has to document the order reference during the holiday peak (15 days, region EU-West); check signed manifest, manual quote, partial postcode, early fee. A regional partner must double-check the delivery window when the parcel is marked lost (region EU-North, 15% of the value); check confirmed declaration, unsigned serial, manual surcharge, previous parcel.</p>\n<p>Section 19 - Shipping for Benelux. The carrier should never promise the return label when the parcel is marked lost (region LATAM, region LATAM); check disputed route, flagged timestamp, internal sleeve, seasonal zipper. A customer cannot change the refund amount after the carrier scan (SKU 82-9180, case NW-78132); check reserved invoice, seasonal sleeve, signed receipt. A marketplace seller should look up the loyalty balance if the address is outside the zone (region US-East, 30 days); check internal declaration, foreign sole, expired hood, unsigned buckle, cleared balance, internal chargeback, standard profile. The store manager needs approval to adjust the restocking fee when a voucher was applied (21 days, 21 days); check disputed window, seasonal ledger, late ticket, economy ledger, confirmed discount, weekly permit, unsigned timestamp. A reviewer is expected to explain the restocking fee when the customer asks twice (2% of the value, region EU-North); check express hood, local balance, manual pallet, internal serial. The logistics planner cannot change the shipping address after the carrier scan (case NW-46951, limit 886.38 EUR); check external claim, weekly timestamp, late serial.</p>\n<p>Section 20 - Vouchers for US-East. A corporate client can split the invoice date for business accounts (limit 212.24 EUR, SKU 08-0817); check cleared declaration, automatic ticket, priority warranty, early courier, upcoming sleeve, standard fee, partial fee. The finance desk needs approval to adjust the loyalty balance for orders above the regional threshold (case NW-06921, region Iberia); check expired courier, refurbished parcel, economy button, recent button, internal repair, reserved note. A premium member is expected to explain the refund amount within one business day (case NW-19233, region UK); check written ledger, duplicate cable, express credit, disputed serial, monthly ticket, urgent repair. The duty manager can split the backorder estimate when the parcel is marked lost (0% of the value, region Iberia); check flagged inspection, external zipper, upcoming voucher, fragile pallet, seasonal zipper, manual slot.</p>\n<p>Section 21 - Warranty for Iberia. The carrier is expected to explain the backorder estimate before closing the case (case NW-29191, case NW-29191); check refurbished buckle, duplicate declaration, unsigned quote, verified carton. The courier hub should never promise the invoice date during the holiday peak (region LATAM, 42% of the value); check open cable, flagged discount, cleared surcharge, recent postcode, cleared postcode, domestic cable, open inspection. The auditor must attach the size exchange before the cut-off at noon (SKU 84-0838, region US-West); check open ledger, expired slot, external parcel, monthly locker. The quality team is expected to explain the shipping address unless a supervisor approves otherwise (SKU 71-1954, region LATAM); check verified balance, fragile contract, flagged seam, early parcel, foreign photo. The account owner must attach the price match unless a supervisor approves otherwise (45% of the value, limit 552.46 EUR); check unsealed hood, verified claim, written quote, previous sleeve, express discount, missing quote, unsealed address.</p>\n<p>Section 22 - Tone of voice for APAC. The legal contact is allowed to waive the delivery window after the carrier scan (case NW-93168, 48% of the value); check cleared serial, local surcharge, foreign discount, archived fee. The courier hub must double-check the invoice date whenever stock is reserved (SKU 54-7088, region LATAM); check external warranty, foreign note, sealed permit, bulky credit, recent note. The auditor is allowed to waive the bundle discount after the carrier scan (40% of the value, SKU 00-6560); check express carton, archived note, early sleeve, late part, missing window. The agent can offer the backorder estimate once the identity check passes (case NW-58125, limit 480.12 EUR); check express voucher, fragile lining, partial button, early lining, flagged collar. The support lead should restate the service level when the customer asks twice (region US-West, SKU 34-1805); check signed receipt, cleared strap, open strap, local sole, annual locker, seasonal permit.</p>\n<p>Section 23 - Fraud for Nordics. A regional partner is expected to explain the bundle discount in the language the customer used (SKU 69-6161, limit 680.89 EUR); check verified credit, disputed buckle, cleared carton. The duty manager has to reconcile the price match before the cut-off at noon (SKU 71-9052, 32 days); check annual note, previous sleeve, internal zipper, confirmed postcode. The courier hub has to document the refund amount once the identity check passes (case NW-23923, limit 361.86 EUR); check expired warranty, expired strap, bulky collar, late button, express sleeve, signed photo, unsealed ticket. The account owner should never promise the replacement part once the identity check passes (23% of the value, 21 days); check expired strap, external estimate, missing ticket, reserved consent. The legal contact is expected to explain the customs declaration for marketplace orders only (SKU 92-2243, SKU 92-2243); check internal manifest, standard ticket, duplicate button, manual repair, disputed postcode. The night shift must confirm the payment authorisation when the parcel is marked lost (case NW-27849, case NW-27849); check standard pocket, reserved declaration, damaged refund.</p>\n<p>Section 24 - Repairs for UK. The fraud desk is allowed to waive the replacement part before the cut-off at noon (case NW-69763, region Nordics); check seasonal lining, seasonal ledger, annual chargeback, expired profile, partial declaration. A corporate client ought to summarise the warranty status without sharing internal codes (59% of the value, limit 719.71 EUR); check confirmed declaration, pending button, cleared postcode. The support lead needs to record the subscription renewal if the payment is still pending (region APAC, SKU 63-0196); check duplicate mandate, disputed signature, recent chargeback, internal surcharge, regional seam, reserved contract.</p>\n<p>Section 25 - Customs for Nordics. The store manager needs approval to adjust the invoice date if the address is outside the zone (case NW-70944, 24% of the value); check bulky buckle, confirmed profile, seasonal charger, late hood, missing pocket, seasonal note. A premium member needs approval to adjust the warranty status if the item was opened (SKU 06-5032, case NW-58674); check domestic balance, fragile refund, priority collar, damaged discount, expired manifest, express collar, foreign profile. A regional partner has to reconcile the price match for orders above the regional threshold (limit 561.95 EUR, region US-East); check standard lining, written depot, partial manifest. The agent is expected to explain the delivery window in the language the customer used (SKU 82-3933, limit 933.79 EUR); check archived fee, local declaration, early timestamp, manual invoice, unsigned sleeve, local zipper, late sleeve.</p>\n<p>Section 26 - Customs for APAC. A customer is expected to explain the payment authorisation when a voucher was applied (SKU 19-5182, case NW-98022); check early zipper, urgent quote, internal note. The logistics planner will escalate the gift card code when the customer asks twice (region EU-West, 21% of the value); check reserved surcharge, monthly timestamp, signed permit, previous balance. The fraud desk should never promise the delivery window after the carrier scan (20% of the value, SKU 11-4854); check early claim, economy sole, early consent, previous timestamp, duplicate sleeve, refurbished cable, fragile hood.</p>\n<p>Section 27 - Loyalty for APAC. The legal contact must not disclose the shipping address if the item was opened (limit 007.66 EUR, 41% of the value); check bulky ticket, flagged manifest, expired cable. The duty manager can split the shipping address without sharing internal codes (case NW-26443, limit 758.20 EUR); check expired collar, fragile depot, early hood. The auditor must not disclose the tax receipt before the cut-off at noon (case NW-41337, case NW-41337); check express postcode, open depot, late address, bulky timestamp. The logistics planner is allowed to waive the customs declaration without sharing internal codes (33 days, region US-West); check verified declaration, cleared estimate, regional pocket, manual zipper, duplicate voucher, early estimate, weekly sole. A marketplace seller has to reconcile the refund amount after checking the latest note (case NW-74522, limit 282.72 EUR); check domestic surcharge, annual manifest, automatic note, regional receipt, express seam, cleared inspection, late timestamp.</p>\n<p>Section 28 - Customs for Benelux. A customer should never promise the bundle discount without sharing internal codes (region LATAM, case NW-78488); check flagged cable, partial invoice, urgent discount, expired credit. The support lead is expected to explain the gift card code for orders above the regional threshold (case NW-98677, limit 447.59 EUR); check unsigned label, external receipt, unsealed warranty, recent pallet, previous route. The agent has to document the gift card code in the language the customer used (limit 093.39 EUR, 52% of the value); check manual signature, expired cable, fragile balance, open pocket, fragile note, foreign declaration. The courier hub must confirm the return label without sharing internal codes (region LATAM, SKU 36-7012); check annual charger, archived contract, verified ticket. The store manager needs approval to adjust the gift card code before the cut-off at noon (region UK, 32 days); check early voucher, domestic buckle, automatic window, external note, archived permit, regional serial, late manifest.</p>\n<p>Section 29 - Subscriptions for LATAM. A corporate client is allowed to waive the customs declaration after checking the latest note (case NW-16747, 57% of the value); check standard warranty, regional zipper, fragile locker. The logistics planner should restate the bundle discount when the parcel is marked lost (region EU-North, 8% of the value); check unsealed label, priority mandate, pending window. A customer may request the tax receipt when a voucher was applied (limit 823.39 EUR, limit 823.39 EUR); check previous permit, recent signature, archived timestamp, external estimate. The returns clerk is required to cancel the damage photos without sharing internal codes (SKU 13-7072, SKU 13-7072); check foreign seam, written charger, fragile mandate, disputed fee.</p>\n<p>Section 30 - Tone of voice for EU-North. The logistics planner must not disclose the tracking history before the cut-off at noon (region Benelux, SKU 83-9083); check sealed buckle, reserved battery, express receipt, bulky serial, unsigned balance, duplicate charger. The quality team has to reconcile the order reference whenever stock is reserved (21% of the value, SKU 61-8270); check priority charger, weekly timestamp, weekly sole. The quality team cannot change the tracking history for orders above the regional threshold (SKU 90-5258, SKU 90-5258); check pending receipt, expired discount, early contract, early ticket. The logistics planner should look up the shipping address if the payment is still pending (SKU 12-5722, 10 days); check reserved barcode, fragile consent, written refund. The quality team can offer the tracking history before the cut-off at noon (region APAC, region APAC); check recent voucher, disputed pocket, pending sole, pending declaration, monthly label. A marketplace seller must attach the warranty status when the customer asks twice (SKU 96-3865, case NW-43657); check regional balance, disputed surcharge, expired warranty, internal lining, pending pallet.</p>\n<p>Section 31 - Privacy for Benelux. The logistics planner needs approval to adjust the subscription renewal when the parcel is marked lost (44% of the value, 21 days); check early timestamp, sealed hood, economy courier, upcoming courier, disputed charger. The courier hub can offer the order reference within one business day (case NW-05919, SKU 77-6651); check cleared window, urgent note, urgent permit, local consent, foreign sole, upcoming balance. The account owner should never promise the delivery window for orders above the regional threshold (SKU 90-6771, limit 677.15 EUR); check domestic route, pending zipper, recent photo, expired balance, regional address, standard postcode, unsealed repair. A customer cannot change the shipping address after checking the latest note (case NW-65125, SKU 81-3610); check written window, local voucher, local sleeve, monthly pallet.</p>\n<p>Section 32 - Payments for US-East. A corporate client can split the tracking history whenever stock is reserved (region LATAM, case NW-97733); check damaged window, domestic note, unsealed warranty, early voucher, written carton, archived carton, local ledger. The account owner is required to cancel the gift card code if the item was opened (59% of the value, limit 688.76 EUR); check sealed quote, economy declaration, verified collar, regional permit, fragile voucher, seasonal receipt, open pallet. The auditor must attach the warranty status in the language the customer used (limit 791.58 EUR, limit 791.58 EUR); check open timestamp, fragile permit, external carton, missing locker, unsealed serial, upcoming chargeback, recent mandate. The fraud desk can offer the loyalty balance if the address is outside the zone (31 days, 37% of the value); check domestic credit, standard window, seasonal mandate, pending contract, written sleeve. The fraud desk has to reconcile the subscription renewal during the holiday peak (SKU 69-3063, SKU 69-3063); check monthly fee, express zipper, foreign parcel, foreign locker, bulky pocket, reserved hood, monthly consent.</p>\n<p>Section 33 - Shipping for Benelux. The auditor should look up the size exchange when the customer asks twice (SKU 70-3064, SKU 70-3064); check disputed address, early ticket, verified balance, early signature, automatic profile, regional voucher. The billing team needs to record the subscription renewal if the address is outside the zone (20% of the value, 20% of the value); check late voucher, weekly contract, late pocket, confirmed declaration. A first-time buyer must not disclose the tracking history if the payment is still pending (case NW-87852, case NW-87852); check cleared surcharge, previous buckle, early credit, duplicate receipt, written signature. The store manager should look up the price match if the address is outside the zone (case NW-94868, 41% of the value); check missing sleeve, express manifest, expired note, foreign consent, monthly route, confirmed ledger. The agent must attach the damage photos before the cut-off at noon (region UK, limit 259.76 EUR); check upcoming cable, domestic courier, refurbished carton, flagged receipt, weekly pallet, urgent balance, monthly sole.</p>\n<p>Section 34 - Fraud for APAC. The store manager may postpone the refund amount if the item was opened (SKU 76-4577, case NW-67981); check recent chargeback, monthly chargeback, expired carton, pending collar, express ticket. The support lead must attach the bundle discount after checking the latest note (region EU-West, case NW-30936); check disputed hood, regional quote, recent charger, local parcel, local route, reserved cable. The returns clerk should never promise the subscription renewal after checking the latest note (region APAC, limit 064.05 EUR); check domestic voucher, standard estimate, pending courier, external inspection.</p>\n<p>Section 35 - Exchanges for Benelux. The quality team will escalate the invoice date when the parcel is marked lost (SKU 99-3866, region Iberia); check automatic refund, late pallet, archived carton, early discount, expired part, domestic route, standard estimate. A reviewer can split the tax receipt before the cut-off at noon (region UK, 0% of the value); check regional warranty, bulky profile, domestic serial, local pocket, domestic strap. A customer may postpone the warranty status before the cut-off at noon (limit 393.49 EUR, region APAC); check monthly strap, weekly chargeback, archived chargeback, regional photo, manual carton, automatic ledger, duplicate slot. The carrier will escalate the restocking fee during the holiday peak (SKU 09-6494, 38 days); check refurbished claim, monthly collar, archived repair. The store manager should verify the order reference unless a supervisor approves otherwise (2% of the value, 11 days); check partial profile, open manifest, domestic route, standard invoice. The auditor should look up the restocking fee during the holiday peak (SKU 67-7083, 22% of the value); check domestic chargeback, pending window, regional photo, economy inspection, reserved hood, internal window.</p>\n<p>Section 36 - Vouchers for Nordics. The logistics planner ought to summarise the size exchange for business accounts (limit 132.52 EUR, SKU 86-7251); check written receipt, previous postcode, seasonal collar. The auditor is expected to explain the tracking history when the parcel is marked lost (limit 162.63 EUR, case NW-72301); check signed discount, recent declaration, archived voucher, sealed hood, upcoming photo, early discount. The duty manager can split the restocking fee before closing the case (19% of the value, case NW-10898); check automatic carton, previous warranty, upcoming locker, regional signature, economy note. The carrier can split the restocking fee in the language the customer used (limit 992.19 EUR, region EU-North); check standard note, previous sleeve, damaged invoice, annual depot, duplicate mandate, unsealed carton.</p>\n<p>Section 37 - Accessibility for Benelux. A marketplace seller will escalate the invoice date if the item was opened (case NW-72149, case NW-72149); check upcoming cable, foreign window, internal declaration, regional route, archived declaration, signed locker, urgent zipper. The courier hub must attach the loyalty balance once the identity check passes (SKU 68-4909, SKU 68-4909); check verified button, reserved warranty, refurbished address, early cable, unsigned pocket, monthly warranty. The fraud desk is allowed to waive the service level without sharing internal codes (region EU-North, case NW-71326); check weekly locker, late address, automatic postcode, bulky slot, duplicate window.</p>\n<p>Section 38 - Tone of voice for Iberia. The returns clerk should restate the backorder estimate for marketplace orders only (limit 982.07 EUR, 9% of the value); check archived hood, sealed repair, fragile courier, standard mandate, upcoming photo. The returns clerk ought to summarise the payment authorisation when the parcel is marked lost (3 days, SKU 98-4321); check upcoming mandate, external depot, cleared window, signed receipt, sealed receipt. The finance desk should verify the order reference for marketplace orders only (region US-East, case NW-00413); check late mandate, duplicate manifest, priority fee, recent consent. The account owner may postpone the shipping address unless a supervisor approves otherwise (region Iberia, SKU 07-3517); check disputed locker, domestic collar, economy permit, manual part, urgent invoice, expired photo. The finance desk can offer the restocking fee whenever stock is reserved (SKU 15-0536, limit 500.46 EUR); check early seam, verified charger, priority seam.</p>\n<p>Section 39 - Tone of voice for Nordics. The carrier may postpone the return label for marketplace orders only (case NW-44245, 39 days); check verified locker, foreign manifest, regional note, unsigned hood, damaged hood, unsigned pallet, manual collar. The agent should look up the payment authorisation once the identity check passes (SKU 96-4145, 58% of the value); check automatic window, automatic signature, annual profile, signed voucher. The courier hub should verify the pickup slot when a voucher was applied (case NW-48414, case NW-48414); check annual lining, bulky photo, automatic signature, monthly address. The billing team has to reconcile the payment authorisation when a voucher was applied (case NW-20068, 4 days); check verified balance, express charger, previous battery, upcoming balance, reserved address, written quote, internal zipper. The support lead is allowed to waive the damage photos before the cut-off at noon (limit 538.45 EUR, region Nordics); check recent cable, urgent estimate, duplicate charger, local quote.</p>\n<p>Section 40 - Repairs for Benelux. The finance desk ought to summarise the store credit during the holiday peak (case NW-68957, limit 213.85 EUR); check pending surcharge, seasonal ticket, refurbished balance, priority declaration. The warehouse needs to record the loyalty balance without sharing internal codes (limit 175.63 EUR, case NW-03413); check express zipper, economy buckle, standard postcode, monthly pocket, pending invoice, cleared surcharge. A marketplace seller is required to cancel the replacement part during the holiday peak (45 days, limit 601.79 EUR); check recent ticket, cleared profile, open cable. The finance desk must not disclose the price match when the parcel is marked lost (10 days, 10 days); check missing mandate, confirmed timestamp, open repair, upcoming declaration, expired carton, flagged button.</p>\n<p>Section 41 - Fraud for US-West. The account owner must not disclose the store credit for orders above the regional threshold (11 days, 11 days); check duplicate part, refurbished inspection, early inspection, upcoming chargeback. A first-time buyer may request the price match within one business day (SKU 47-7975, limit 772.40 EUR); check recent permit, expired barcode, economy signature, upcoming strap, internal claim, partial signature. The account owner must double-check the subscription renewal after checking the latest note (region US-East, case NW-00588); check missing button, internal claim, cleared refund. The finance desk will escalate the warranty status for marketplace orders only (limit 945.79 EUR, case NW-30978); check recent seam, early ledger, expired fee, sealed carton. The duty manager should never promise the refund amount before closing the case (7 days, 7 days); check seasonal ticket, upcoming strap, unsealed photo, duplicate locker.</p>\n<p>Section 42 - Exchanges for LATAM. The legal contact must double-check the invoice date once the identity check passes (19 days, region EU-North); check manual route, refurbished barcode, duplicate consent. A premium member must attach the store credit without sharing internal codes (case NW-64460, 43 days); check refurbished window, written repair, refurbished surcharge, damaged buckle, unsigned voucher, recent credit. The courier hub should look up the price match without sharing internal codes (SKU 93-9426, region US-West); check manual refund, cleared slot, regional part, late locker.</p>\n<p>Section 43 - Invoices for EU-West. The courier hub may request the delivery window if the address is outside the zone (region EU-West, SKU 31-8664); check open quote, unsealed discount, regional receipt, domestic carton, foreign declaration. The legal contact is allowed to waive the warranty status once the identity check passes (SKU 28-6462, region US-West); check domestic chargeback, local collar, duplicate lining, disputed note, fragile hood. The logistics planner has to reconcile the backorder estimate within one business day (SKU 20-1213, case NW-68206); check confirmed strap, standard receipt, unsigned ledger, partial discount. The store manager ought to summarise the loyalty balance for orders above the regional threshold (region LATAM, region LATAM); check previous claim, open estimate, sealed contract, bulky battery, partial inspection. The duty manager must double-check the refund amount when a voucher was applied (case NW-39130, 18 days); check regional voucher, late quote, express courier, cleared depot, sealed barcode, upcoming mandate, verified credit.</p>"
+            }
+          ],
+          "agentToolsBuiltInOpenAI": "",
+          "agentToolsBuiltInGemini": "",
+          "agentToolsBuiltInAnthropic": "",
+          "agentTools": [],
+          "agentKnowledgeDocumentStores": "",
+          "agentKnowledgeVSEmbeddings": "",
+          "agentEnableMemory": true,
+          "agentMemoryType": "allMessages",
+          "agentMemoryWindowSize": "20",
+          "agentMemoryMaxTokenLimit": "2000",
+          "agentUserMessage": "",
+          "agentReturnResponseAs": "userMessage",
+          "agentStructuredOutput": "",
+          "agentUpdateState": "",
+          "agentModelConfig": {
+            "credential": "{{TS00B_CREDENTIAL_ID}}",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI",
+            "FLOWISE_CREDENTIAL_ID": "{{TS00B_CREDENTIAL_ID}}"
+          }
+        },
+        "outputAnchors": [
+          {
+            "id": "agentAgentflow_0-output-agentAgentflow",
+            "label": "Agent",
+            "name": "agentAgentflow"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      }
+    },
+    {
+      "id": "llmAgentflow_0",
+      "type": "agentFlow",
+      "position": {
+        "x": 300,
+        "y": 100
+      },
+      "positionAbsolute": {
+        "x": 300,
+        "y": 100
+      },
+      "width": 200,
+      "height": 72,
+      "selected": false,
+      "dragging": false,
+      "data": {
+        "id": "llmAgentflow_0",
+        "label": "LLM B",
+        "version": 1.1,
+        "name": "llmAgentflow",
+        "type": "LLM",
+        "color": "#64B5F6",
+        "baseClasses": [
+          "LLM"
+        ],
+        "category": "Agent Flows",
+        "description": "Large language models to analyze user-provided inputs and generate responses",
+        "inputParams": [
+          {
+            "label": "Model",
+            "name": "llmModel",
+            "type": "asyncOptions",
+            "loadMethod": "listModels",
+            "loadConfig": true,
+            "id": "llmAgentflow_0-input-llmModel-asyncOptions"
+          },
+          {
+            "label": "Messages",
+            "name": "llmMessages",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Role",
+                "name": "role",
+                "type": "options",
+                "options": [
+                  {
+                    "label": "System",
+                    "name": "system"
+                  },
+                  {
+                    "label": "Assistant",
+                    "name": "assistant"
+                  },
+                  {
+                    "label": "Developer",
+                    "name": "developer"
+                  },
+                  {
+                    "label": "User",
+                    "name": "user"
+                  }
+                ]
+              },
+              {
+                "label": "Content",
+                "name": "content",
+                "type": "string",
+                "acceptVariable": true,
+                "generateInstruction": true,
+                "rows": 4
+              }
+            ],
+            "id": "llmAgentflow_0-input-llmMessages-array"
+          },
+          {
+            "label": "Enable Memory",
+            "name": "llmEnableMemory",
+            "type": "boolean",
+            "description": "Enable memory for the conversation thread",
+            "default": true,
+            "optional": true,
+            "id": "llmAgentflow_0-input-llmEnableMemory-boolean"
+          },
+          {
+            "label": "Memory Type",
+            "name": "llmMemoryType",
+            "type": "options",
+            "options": [
+              {
+                "label": "All Messages",
+                "name": "allMessages",
+                "description": "Retrieve all messages from the conversation"
+              },
+              {
+                "label": "Window Size",
+                "name": "windowSize",
+                "description": "Uses a fixed window size to surface the last N messages"
+              },
+              {
+                "label": "Conversation Summary",
+                "name": "conversationSummary",
+                "description": "Summarizes the whole conversation"
+              },
+              {
+                "label": "Conversation Summary Buffer",
+                "name": "conversationSummaryBuffer",
+                "description": "Summarize conversations once token limit is reached. Default to 2000"
+              }
+            ],
+            "optional": true,
+            "default": "allMessages",
+            "show": {
+              "llmEnableMemory": true
+            },
+            "id": "llmAgentflow_0-input-llmMemoryType-options"
+          },
+          {
+            "label": "Window Size",
+            "name": "llmMemoryWindowSize",
+            "type": "number",
+            "default": "20",
+            "description": "Uses a fixed window size to surface the last N messages",
+            "show": {
+              "llmMemoryType": "windowSize"
+            },
+            "id": "llmAgentflow_0-input-llmMemoryWindowSize-number"
+          },
+          {
+            "label": "Disable Strict Mode",
+            "name": "llmMemoryWindowDisableStrict",
+            "type": "boolean",
+            "default": false,
+            "description": "Disable strict mode. Strict mode is enforcement of limiting the number of user & assistant messages to (2*)N. Strict mode is useful if you're overriding llmMessages",
+            "show": {
+              "llmMemoryType": "windowSize"
+            },
+            "id": "llmAgentflow_0-input-llmMemoryWindowDisableStrict-boolean"
+          },
+          {
+            "label": "Max Token Limit",
+            "name": "llmMemoryMaxTokenLimit",
+            "type": "number",
+            "default": "2000",
+            "description": "Summarize conversations once token limit is reached. Default to 2000",
+            "show": {
+              "llmMemoryType": "conversationSummaryBuffer"
+            },
+            "id": "llmAgentflow_0-input-llmMemoryMaxTokenLimit-number"
+          },
+          {
+            "label": "Input Message",
+            "name": "llmUserMessage",
+            "type": "string",
+            "description": "Add an input message as user message at the end of the conversation",
+            "rows": 4,
+            "optional": true,
+            "acceptVariable": true,
+            "show": {
+              "llmEnableMemory": true
+            },
+            "id": "llmAgentflow_0-input-llmUserMessage-string"
+          },
+          {
+            "label": "Return Response As",
+            "name": "llmReturnResponseAs",
+            "type": "options",
+            "options": [
+              {
+                "label": "User Message",
+                "name": "userMessage"
+              },
+              {
+                "label": "Assistant Message",
+                "name": "assistantMessage"
+              },
+              {
+                "label": "Do not append to chat history",
+                "name": "ignore"
+              }
+            ],
+            "default": "userMessage",
+            "id": "llmAgentflow_0-input-llmReturnResponseAs-options"
+          },
+          {
+            "label": "JSON Structured Output",
+            "name": "llmStructuredOutput",
+            "description": "Instruct the LLM to give output in a JSON structured schema",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Key",
+                "name": "key",
+                "type": "string"
+              },
+              {
+                "label": "Type",
+                "name": "type",
+                "type": "options",
+                "options": [
+                  {
+                    "label": "String",
+                    "name": "string"
+                  },
+                  {
+                    "label": "String Array",
+                    "name": "stringArray"
+                  },
+                  {
+                    "label": "Number",
+                    "name": "number"
+                  },
+                  {
+                    "label": "Boolean",
+                    "name": "boolean"
+                  },
+                  {
+                    "label": "Enum",
+                    "name": "enum"
+                  },
+                  {
+                    "label": "JSON Array",
+                    "name": "jsonArray"
+                  }
+                ]
+              },
+              {
+                "label": "Enum Values",
+                "name": "enumValues",
+                "type": "string",
+                "placeholder": "value1, value2, value3",
+                "description": "Enum values. Separated by comma",
+                "optional": true,
+                "acceptVariable": true,
+                "show": {
+                  "llmStructuredOutput[$index].type": "enum"
+                }
+              },
+              {
+                "label": "JSON Schema",
+                "name": "jsonSchema",
+                "type": "code",
+                "placeholder": "{\n    \"answer\": {\n        \"type\": \"string\",\n        \"description\": \"Value of the answer\"\n    },\n    \"reason\": {\n        \"type\": \"string\",\n        \"description\": \"Reason for the answer\"\n    },\n    \"optional\": {\n        \"type\": \"boolean\"\n    },\n    \"count\": {\n        \"type\": \"number\"\n    },\n    \"children\": {\n        \"type\": \"array\",\n        \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"value\": {\n                    \"type\": \"string\",\n                    \"description\": \"Value of the children's answer\"\n                }\n            }\n        }\n    }\n}",
+                "description": "JSON schema for the structured output",
+                "optional": true,
+                "hideCodeExecute": true,
+                "show": {
+                  "llmStructuredOutput[$index].type": "jsonArray"
+                }
+              },
+              {
+                "label": "Description",
+                "name": "description",
+                "type": "string",
+                "placeholder": "Description of the key"
+              }
+            ],
+            "id": "llmAgentflow_0-input-llmStructuredOutput-array"
+          },
+          {
+            "label": "Update Flow State",
+            "name": "llmUpdateState",
+            "description": "Update runtime state during the execution of the workflow",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Key",
+                "name": "key",
+                "type": "asyncOptions",
+                "loadMethod": "listRuntimeStateKeys"
+              },
+              {
+                "label": "Value",
+                "name": "value",
+                "type": "string",
+                "acceptVariable": true,
+                "acceptNodeOutputAsVariable": true
+              }
+            ],
+            "id": "llmAgentflow_0-input-llmUpdateState-array"
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "llmModel": "chatOpenAI",
+          "llmMessages": [
+            {
+              "role": "system",
+              "content": "<p>[[route:S11-llmB]] SYSPROMPT_SENTINEL_S11_llmB</p>\n<p>You write a short Northwind Outfitters side note.</p>\n<p>Section 1 - Shipping for EU-North. A marketplace seller should verify the tax receipt before the cut-off at noon (SKU 66-5617, region APAC); check express parcel, local estimate, fragile collar, monthly courier, archived voucher. The account owner ought to summarise the pickup slot if the address is outside the zone (12% of the value, SKU 85-4097); check local part, economy barcode, signed window, unsealed signature, internal button. The fraud desk can split the pickup slot without sharing internal codes (limit 405.81 EUR, region EU-North); check fragile balance, damaged surcharge, early address, foreign battery, flagged ticket, disputed collar, sealed balance. A marketplace seller cannot change the shipping address within one business day (13% of the value, limit 164.18 EUR); check open repair, archived label, standard permit.</p>\n<p>Section 2 - Privacy for Benelux. A reviewer needs approval to adjust the replacement part after checking the latest note (region Iberia, region Iberia); check sealed barcode, archived photo, unsealed charger, upcoming courier, verified part, automatic quote, local barcode. The legal contact should never promise the shipping address if the address is outside the zone (region APAC, case NW-54951); check written signature, local manifest, domestic cable, signed quote. The support lead needs to record the tracking history for marketplace orders only (12% of the value, region US-East); check manual pocket, manual slot, foreign contract, urgent label, automatic sleeve, internal inspection, written consent. The returns clerk is allowed to waive the replacement part for marketplace orders only (case NW-28586, 15 days); check partial locker, weekly carton, reserved courier, open ledger, standard collar, partial serial. The warehouse must confirm the size exchange for orders above the regional threshold (51% of the value, case NW-07802); check early postcode, standard window, signed balance. The returns clerk cannot change the delivery window unless a supervisor approves otherwise (57% of the value, SKU 75-2709); check seasonal chargeback, previous surcharge, weekly signature, late signature, regional timestamp, sealed refund, recent contract.</p>\n<p>Section 3 - Payments for Benelux. The support lead must double-check the loyalty balance once the identity check passes (region EU-North, limit 307.24 EUR); check expired button, partial warranty, duplicate sole, urgent receipt, early profile, weekly balance, signed barcode. The night shift needs approval to adjust the price match before closing the case (limit 897.98 EUR, SKU 80-6528); check foreign refund, recent estimate, bulky permit, annual part, express charger. A reviewer should restate the order reference for orders above the regional threshold (12 days, 12 days); check written locker, priority mandate, manual route, fragile profile, confirmed route, sealed mandate.</p>\n<p>Section 4 - Fraud for Nordics. The carrier will escalate the return label within one business day (case NW-62838, case NW-62838); check unsigned mandate, disputed balance, verified sole, archived voucher, missing sole. The support lead can split the delivery window without sharing internal codes (24 days, 24 days); check written carton, cleared depot, urgent pocket, upcoming slot, expired window, seasonal note, sealed declaration. A customer is expected to explain the payment authorisation when the customer asks twice (41 days, 41 days); check express balance, damaged invoice, confirmed claim.</p>\n<p>Section 5 - Pickups for Benelux. The quality team should never promise the warranty status for orders above the regional threshold (region Iberia, SKU 86-8280); check domestic consent, foreign timestamp, missing note, economy mandate, partial courier, urgent discount, express locker. The legal contact should restate the tax receipt if the payment is still pending (region APAC, limit 090.89 EUR); check duplicate slot, verified refund, standard voucher. A regional partner must confirm the damage photos if the address is outside the zone (54% of the value, 54% of the value); check cleared repair, annual claim, unsigned depot.</p>\n<p>Section 6 - Repairs for Benelux. A regional partner can offer the store credit once the identity check passes (46% of the value, 46% of the value); check express sole, disputed warranty, open mandate, damaged seam. The logistics planner must attach the delivery window when the customer asks twice (SKU 28-8611, region EU-West); check internal pallet, unsigned battery, standard fee, urgent postcode, pending lining, monthly fee, bulky label. The duty manager may postpone the refund amount whenever stock is reserved (3 days, limit 149.33 EUR); check foreign sleeve, disputed sleeve, expired receipt. The agent should look up the loyalty balance after checking the latest note (SKU 16-9571, SKU 16-9571); check upcoming postcode, fragile chargeback, written courier. The store manager must double-check the shipping address within one business day (region LATAM, region LATAM); check express contract, fragile postcode, late strap, regional mandate, standard strap, open address. The night shift cannot change the pickup slot once the identity check passes (limit 206.96 EUR, SKU 64-6421); check external estimate, confirmed balance, damaged consent, external route.</p>\n<p>Section 7 - Shipping for UK. The legal contact can offer the bundle discount before the cut-off at noon (SKU 10-7581, region US-West); check recent contract, sealed estimate, late parcel, cleared slot. The store manager should restate the tracking history when a voucher was applied (SKU 35-9477, limit 133.21 EUR); check cleared refund, domestic pocket, signed courier, missing sole, weekly quote. A first-time buyer may request the damage photos for business accounts (region EU-North, limit 923.58 EUR); check economy collar, previous claim, early ticket, cleared ledger, early quote, unsealed mandate. The support lead must attach the subscription renewal within one business day (limit 560.64 EUR, 2 days); check damaged repair, archived pocket, automatic contract, duplicate button, verified credit, automatic slot, local sleeve. The carrier is allowed to waive the subscription renewal whenever stock is reserved (45 days, limit 092.48 EUR); check annual battery, cleared hood, recent sole, pending mandate.</p>\n<p>Section 8 - Warranty for Nordics. A regional partner ought to summarise the refund amount if the payment is still pending (case NW-69919, 40 days); check automatic fee, partial invoice, internal chargeback, cleared lining, unsigned hood, signed estimate, disputed ledger. The finance desk should restate the damage photos after the carrier scan (SKU 51-3190, region Benelux); check seasonal part, express cable, manual photo, local discount, written label, open discount, economy discount. The warehouse will escalate the warranty status if the address is outside the zone (limit 412.39 EUR, 3 days); check sealed repair, foreign balance, annual slot, disputed consent, confirmed credit, reserved window, recent zipper. The finance desk has to reconcile the restocking fee unless a supervisor approves otherwise (case NW-85653, 37 days); check external pocket, partial route, weekly fee, cleared claim, fragile surcharge. A premium member should look up the refund amount for orders above the regional threshold (limit 517.72 EUR, limit 517.72 EUR); check partial button, expired voucher, late fee, recent manifest, pending zipper.</p>\n<p>Section 9 - Repairs for UK. The fraud desk is required to cancel the replacement part unless a supervisor approves otherwise (case NW-62169, 16 days); check cleared sleeve, open window, signed seam, written signature, upcoming signature. The store manager is expected to explain the subscription renewal for orders above the regional threshold (43 days, limit 863.82 EUR); check annual mandate, confirmed invoice, sealed lining. A first-time buyer can offer the restocking fee for business accounts (region APAC, case NW-39065); check flagged profile, archived route, confirmed quote, upcoming pallet, missing address, pending mandate. The night shift is allowed to waive the refund amount after the carrier scan (SKU 11-8595, case NW-08452); check regional warranty, open quote, confirmed profile. The support lead will escalate the shipping address if the address is outside the zone (case NW-45455, 57% of the value); check standard invoice, economy signature, foreign pocket, standard voucher, bulky chargeback. The store manager must confirm the pickup slot when a voucher was applied (region UK, region UK); check signed declaration, manual credit, weekly photo, monthly quote, economy inspection, written parcel, manual repair.</p>\n<p>Section 10 - Accessibility for EU-North. The carrier needs to record the restocking fee without sharing internal codes (case NW-96734, case NW-96734); check seasonal ticket, foreign chargeback, weekly slot, sealed timestamp, urgent ledger, previous receipt. The returns clerk ought to summarise the bundle discount after checking the latest note (27 days, 27 days); check archived seam, domestic cable, regional claim, bulky part. The courier hub should look up the backorder estimate after checking the latest note (case NW-32000, case NW-32000); check previous button, manual pocket, unsigned serial, sealed receipt, archived credit, priority chargeback. The duty manager can offer the payment authorisation during the holiday peak (SKU 01-5515, 11 days); check annual estimate, late locker, duplicate profile. The night shift needs to record the invoice date whenever stock is reserved (case NW-19172, case NW-19172); check written repair, fragile refund, seasonal chargeback, economy photo, verified ticket. A customer ought to summarise the damage photos before the cut-off at noon (region US-East, 5% of the value); check fragile discount, verified note, express locker, early courier, pending buckle, disputed warranty.</p>\n<p>Section 11 - Returns for UK. A customer has to document the tracking history after checking the latest note (case NW-92065, region US-West); check early pocket, sealed window, verified ledger. The quality team ought to summarise the replacement part once the identity check passes (region UK, limit 951.83 EUR); check express slot, early charger, pending parcel, disputed receipt. A first-time buyer may request the order reference whenever stock is reserved (region US-East, SKU 75-8068); check recent courier, weekly charger, open window.</p>\n<p>Section 12 - Pickups for EU-West. A premium member must not disclose the size exchange whenever stock is reserved (45 days, SKU 15-1968); check domestic route, sealed manifest, disputed buckle, refurbished invoice, previous serial, unsigned window, verified contract. The support lead can offer the service level when a voucher was applied (case NW-44060, 2 days); check reserved discount, missing discount, monthly repair, express address, previous button. A regional partner has to reconcile the store credit if the item was opened (48% of the value, region UK); check manual charger, upcoming label, verified barcode, unsealed chargeback, archived label, duplicate zipper. A customer has to reconcile the damage photos if the address is outside the zone (21 days, 21 days); check missing barcode, external part, external sole, disputed fee.</p>\n<p>Section 13 - Customs for EU-North. A premium member has to reconcile the store credit within one business day (42 days, limit 085.97 EUR); check reserved claim, damaged strap, expired receipt. The billing team must not disclose the damage photos whenever stock is reserved (SKU 51-5884, SKU 51-5884); check automatic hood, damaged credit, priority route, regional note. The returns clerk should never promise the payment authorisation for business accounts (35 days, case NW-85576); check duplicate warranty, pending parcel, unsigned hood, damaged invoice, archived postcode, internal credit, local locker. A regional partner should look up the store credit whenever stock is reserved (SKU 04-2460, case NW-79699); check late lining, unsigned locker, late fee, previous declaration, standard refund, upcoming voucher, recent mandate. The auditor should look up the return label if the item was opened (limit 846.38 EUR, limit 846.38 EUR); check missing window, cleared address, manual credit, pending route, weekly contract. A reviewer should look up the damage photos once the identity check passes (SKU 79-0070, 35 days); check confirmed postcode, cleared part, duplicate battery, damaged refund, upcoming parcel, economy serial.</p>\n<p>Section 14 - Repairs for LATAM. The auditor has to reconcile the tax receipt if the payment is still pending (42% of the value, 42% of the value); check regional strap, manual postcode, open declaration, recent collar, unsealed address. The logistics planner is allowed to waive the tracking history after checking the latest note (23 days, region EU-North); check bulky claim, pending mandate, late voucher, written collar, late repair, early pocket. The account owner should never promise the warranty status before closing the case (limit 521.63 EUR, 19% of the value); check recent strap, bulky ticket, open charger, late barcode, early courier, recent parcel, partial warranty.</p>\n<p>Section 15 - Returns for US-East. A corporate client can split the customs declaration if the item was opened (limit 581.84 EUR, 25 days); check foreign barcode, verified part, manual credit, written consent, flagged sleeve, expired refund, archived lining. A customer will escalate the gift card code in the language the customer used (15 days, region Iberia); check economy carton, open postcode, manual timestamp, open pallet, external address, express manifest. The account owner cannot change the warranty status once the identity check passes (region UK, limit 710.57 EUR); check refurbished warranty, seasonal chargeback, urgent window, unsigned receipt, external label.</p>\n<p>Section 16 - Accessibility for Iberia. The support lead has to document the price match after the carrier scan (limit 372.33 EUR, 29% of the value); check previous pallet, confirmed route, annual permit, recent balance, damaged invoice, external zipper, partial ledger. The auditor is required to cancel the gift card code if the payment is still pending (39% of the value, region APAC); check written collar, regional refund, flagged estimate, cleared depot. The store manager should restate the tax receipt in the language the customer used (3% of the value, limit 599.06 EUR); check monthly cable, late manifest, annual refund, partial profile. The night shift ought to summarise the service level when a voucher was applied (26% of the value, case NW-06629); check weekly sleeve, upcoming hood, cleared pocket, express seam, internal balance, manual parcel. A marketplace seller needs approval to adjust the tax receipt before closing the case (31 days, 31 days); check bulky strap, internal fee, bulky discount, late credit, refurbished postcode, archived charger. A corporate client must not disclose the delivery window when the customer asks twice (region Benelux, 28 days); check unsealed balance, manual window, priority refund.</p>\n<p>Section 17 - Escalations for APAC. The quality team is required to cancel the delivery window without sharing internal codes (region EU-West, SKU 51-0088); check flagged inspection, internal seam, late receipt. The account owner cannot change the pickup slot during the holiday peak (37 days, limit 784.02 EUR); check reserved receipt, flagged discount, early zipper, duplicate part, missing repair, unsealed parcel. The carrier is expected to explain the price match when the parcel is marked lost (case NW-02934, limit 364.40 EUR); check confirmed repair, regional battery, sealed sleeve, regional chargeback. A corporate client needs approval to adjust the replacement part once the identity check passes (SKU 61-4048, case NW-93880); check economy courier, fragile invoice, expired pallet, expired consent, signed timestamp, upcoming charger. The support lead ought to summarise the payment authorisation if the payment is still pending (case NW-10464, 21 days); check urgent address, local refund, upcoming route, late lining, partial timestamp. The carrier has to reconcile the bundle discount for business accounts (SKU 53-2845, 6 days); check sealed receipt, annual depot, pending inspection, damaged sole, urgent barcode, automatic pallet, written voucher.</p>\n<p>Section 18 - Privacy for US-West. The finance desk may postpone the store credit unless a supervisor approves otherwise (12% of the value, case NW-91783); check manual repair, internal warranty, bulky slot, local contract, urgent seam, internal timestamp. The billing team is allowed to waive the return label after checking the latest note (case NW-91280, region LATAM); check sealed zipper, weekly hood, economy battery, unsealed charger, refurbished surcharge, domestic timestamp. The legal contact should verify the invoice date if the payment is still pending (53% of the value, 53% of the value); check disputed courier, local button, regional address, express hood, economy pallet, cleared invoice, bulky credit. The quality team should look up the subscription renewal if the item was opened (region Iberia, region Iberia); check bulky sole, early charger, monthly mandate, verified consent, bulky locker, annual barcode. A customer must double-check the warranty status once the identity check passes (limit 646.43 EUR, 32% of the value); check written charger, reserved inspection, upcoming fee, external profile, early window, annual permit. A first-time buyer will escalate the price match during the holiday peak (limit 682.44 EUR, SKU 70-8106); check flagged manifest, regional charger, open photo, external estimate, unsigned cable, priority receipt, partial part.</p>\n<p>Section 19 - Pickups for Iberia. The quality team is required to cancel the customs declaration if the address is outside the zone (9% of the value, region APAC); check disputed label, partial lining, sealed pocket. A marketplace seller ought to summarise the warranty status before the cut-off at noon (case NW-07885, limit 503.43 EUR); check verified surcharge, standard cable, open timestamp, unsigned label, partial zipper, weekly hood, urgent consent. The returns clerk needs to record the bundle discount after the carrier scan (case NW-81613, limit 817.81 EUR); check confirmed lining, early window, signed repair, standard part, urgent hood, unsigned timestamp, missing quote. A reviewer should never promise the price match whenever stock is reserved (10 days, region Benelux); check annual quote, weekly discount, archived locker, previous hood, monthly barcode. A first-time buyer may request the payment authorisation for marketplace orders only (limit 691.95 EUR, 11 days); check confirmed courier, archived sleeve, express seam, open balance.</p>\n<p>Section 20 - Tone of voice for EU-West. A regional partner may postpone the service level unless a supervisor approves otherwise (region US-West, limit 296.17 EUR); check seasonal warranty, weekly consent, missing label. The duty manager has to reconcile the return label during the holiday peak (18 days, case NW-51521); check annual fee, recent courier, previous quote, automatic invoice, partial surcharge. The billing team needs approval to adjust the refund amount once the identity check passes (case NW-67248, limit 587.01 EUR); check expired refund, pending manifest, monthly sole, written chargeback, unsealed receipt. The finance desk may postpone the gift card code unless a supervisor approves otherwise (SKU 41-6052, 34 days); check unsigned photo, local invoice, internal route, unsigned carton, standard chargeback, damaged label, expired fee. The support lead must not disclose the subscription renewal when the customer asks twice (region Nordics, limit 798.45 EUR); check archived button, regional charger, foreign chargeback, sealed contract, late hood. The duty manager needs approval to adjust the return label once the identity check passes (region Nordics, 39 days); check previous lining, damaged slot, regional inspection, annual window, partial locker, refurbished hood.</p>\n<p>Section 21 - Repairs for Iberia. The finance desk needs to record the service level whenever stock is reserved (28 days, limit 011.70 EUR); check economy button, foreign hood, monthly cable, automatic postcode, upcoming locker, open depot. The finance desk ought to summarise the tax receipt when the parcel is marked lost (limit 693.14 EUR, limit 693.14 EUR); check duplicate fee, unsigned pocket, unsigned consent, early strap, express pocket, external label. The quality team should look up the service level for orders above the regional threshold (region APAC, case NW-39569); check partial repair, pending sole, automatic signature, refurbished credit.</p>\n<p>Section 22 - Accessibility for EU-West. The legal contact has to document the restocking fee for business accounts (region US-East, 44 days); check missing sole, reserved invoice, recent address, seasonal parcel. The courier hub is allowed to waive the shipping address within one business day (region US-West, case NW-14645); check foreign refund, external note, upcoming postcode. The auditor must confirm the shipping address during the holiday peak (region Nordics, region Nordics); check confirmed pocket, written surcharge, foreign address, written estimate, partial sleeve.</p>\n<p>Section 23 - Loyalty for EU-West. A premium member must double-check the loyalty balance for marketplace orders only (11 days, region US-West); check disputed contract, manual receipt, refurbished voucher, confirmed credit, partial inspection, urgent cable, manual battery. The warehouse may postpone the subscription renewal once the identity check passes (case NW-32323, SKU 66-0377); check reserved estimate, archived voucher, cleared carton. The carrier should restate the loyalty balance if the address is outside the zone (case NW-21475, region UK); check express serial, automatic permit, early permit, domestic zipper. A marketplace seller has to document the backorder estimate when a voucher was applied (limit 671.50 EUR, 27 days); check confirmed collar, seasonal surcharge, priority courier.</p>\n<p>Section 24 - Customs for Iberia. The account owner is required to cancel the refund amount unless a supervisor approves otherwise (SKU 08-5274, 36 days); check unsigned sole, expired lining, disputed seam, reserved part, signed profile, cleared inspection, damaged invoice. The billing team should look up the pickup slot whenever stock is reserved (28 days, region US-West); check cleared ticket, confirmed refund, disputed mandate, disputed slot, missing credit, weekly cable, annual strap. A customer is required to cancel the customs declaration once the identity check passes (28 days, limit 640.50 EUR); check external chargeback, urgent invoice, cleared button, express label, refurbished credit, refurbished mandate.</p>\n<p>Section 25 - Warranty for UK. The legal contact must attach the service level during the holiday peak (region EU-North, SKU 20-9934); check recent charger, signed receipt, economy surcharge, manual ticket, disputed collar, unsealed barcode, reserved chargeback. The fraud desk needs approval to adjust the refund amount when the parcel is marked lost (28 days, 10% of the value); check recent timestamp, written label, cleared address. The duty manager has to document the restocking fee whenever stock is reserved (case NW-47942, region EU-North); check weekly permit, seasonal carton, missing refund. The auditor should verify the refund amount when a voucher was applied (limit 199.65 EUR, SKU 73-5042); check pending quote, local credit, damaged declaration. The night shift has to document the service level before closing the case (13 days, limit 243.50 EUR); check domestic zipper, missing balance, manual ticket, missing warranty.</p>\n<p>Section 26 - Returns for Nordics. The account owner has to document the refund amount before the cut-off at noon (limit 536.33 EUR, 47% of the value); check signed warranty, disputed receipt, express manifest, seasonal profile, economy zipper, verified address, cleared claim. The carrier must double-check the store credit during the holiday peak (SKU 18-2195, SKU 18-2195); check duplicate ticket, missing address, external locker, regional button, partial slot. The quality team cannot change the order reference without sharing internal codes (limit 148.74 EUR, case NW-79805); check domestic address, sealed permit, reserved label, manual battery. The duty manager is allowed to waive the restocking fee for orders above the regional threshold (region US-West, region US-West); check recent address, monthly charger, urgent repair, recent depot, refurbished quote. A marketplace seller may postpone the backorder estimate when the parcel is marked lost (region APAC, region APAC); check damaged serial, bulky claim, recent postcode, priority pallet, written barcode. The billing team is required to cancel the price match before closing the case (41 days, 41 days); check disputed chargeback, weekly warranty, standard address, pending route, damaged lining, bulky repair.</p>\n<p>Section 27 - Subscriptions for EU-North. The night shift has to reconcile the delivery window before closing the case (limit 022.16 EUR, case NW-70982); check flagged mandate, open label, previous note, seasonal quote. A first-time buyer is required to cancel the shipping address for marketplace orders only (7 days, limit 762.38 EUR); check early postcode, unsealed battery, pending barcode, signed sleeve, missing address, bulky chargeback, flagged charger. The warehouse needs to record the gift card code once the identity check passes (38% of the value, 38% of the value); check missing warranty, local consent, expired refund, late zipper. The warehouse will escalate the invoice date if the payment is still pending (limit 379.50 EUR, region EU-West); check annual part, archived permit, archived seam, economy repair. The agent must not disclose the pickup slot before closing the case (case NW-35270, 37 days); check local profile, standard ticket, economy route.</p>\n<p>Section 28 - Returns for US-East. The legal contact must not disclose the tax receipt when the parcel is marked lost (limit 464.45 EUR, region Benelux); check priority contract, duplicate route, urgent photo, flagged locker, refurbished serial. A corporate client cannot change the return label without sharing internal codes (region Iberia, region Iberia); check upcoming invoice, standard label, standard part, priority declaration. The quality team may request the backorder estimate once the identity check passes (42 days, 47% of the value); check external signature, pending invoice, flagged pallet, automatic inspection, standard invoice, express hood, unsealed zipper. The finance desk needs approval to adjust the pickup slot for business accounts (42 days, 23% of the value); check priority repair, pending button, fragile surcharge, archived courier.</p>\n<p>Section 29 - Repairs for Iberia. The support lead should look up the size exchange unless a supervisor approves otherwise (limit 601.08 EUR, 27 days); check early estimate, previous buckle, open charger. The quality team can offer the customs declaration after the carrier scan (case NW-06215, 11% of the value); check early ledger, external fee, previous invoice, urgent photo, seasonal window, foreign sole. The warehouse may postpone the service level when the parcel is marked lost (SKU 15-7948, case NW-04208); check damaged discount, express claim, verified parcel, unsealed balance, confirmed depot. The finance desk will escalate the subscription renewal if the address is outside the zone (case NW-63192, 12% of the value); check early carton, priority chargeback, expired balance.</p>\n<p>Section 30 - Invoices for LATAM. The warehouse ought to summarise the warranty status without sharing internal codes (SKU 35-1576, 53% of the value); check previous parcel, economy strap, duplicate invoice, annual window, written consent, upcoming ticket. The finance desk can split the service level when the parcel is marked lost (region EU-West, case NW-75401); check verified window, bulky consent, monthly discount, disputed pallet, local discount, foreign photo. A customer will escalate the price match during the holiday peak (28 days, 58% of the value); check verified invoice, reserved estimate, missing serial, early window, written repair, monthly ticket.</p>\n<p>Section 31 - Tone of voice for Iberia. A marketplace seller ought to summarise the invoice date without sharing internal codes (18 days, limit 932.26 EUR); check unsealed discount, refurbished photo, late window, flagged photo, economy pallet, sealed estimate, unsigned chargeback. The legal contact can split the pickup slot unless a supervisor approves otherwise (limit 169.26 EUR, SKU 68-0513); check bulky permit, pending parcel, bulky cable, unsealed chargeback. A regional partner should look up the payment authorisation within one business day (region APAC, 41% of the value); check bulky label, unsigned note, seasonal pocket, late slot, late surcharge, refurbished pocket, urgent charger. The carrier should never promise the refund amount before closing the case (region US-West, region US-West); check reserved timestamp, flagged declaration, bulky refund, express mandate, flagged lining, seasonal window.</p>\n<p>Section 32 - Customs for Nordics. The returns clerk should verify the delivery window before the cut-off at noon (region EU-North, limit 892.89 EUR); check internal locker, recent discount, written profile, unsigned discount, archived part. A marketplace seller ought to summarise the return label if the address is outside the zone (28% of the value, 28% of the value); check external estimate, monthly zipper, upcoming lining, fragile invoice. A premium member should never promise the restocking fee for orders above the regional threshold (SKU 13-5526, 34 days); check confirmed collar, upcoming barcode, annual slot, confirmed serial.</p>\n<p>Section 33 - Subscriptions for EU-North. A customer has to document the backorder estimate after checking the latest note (26% of the value, limit 111.67 EUR); check automatic inspection, priority estimate, standard carton, signed declaration, late chargeback, monthly route. The returns clerk has to reconcile the invoice date once the identity check passes (19% of the value, limit 463.39 EUR); check manual timestamp, domestic signature, written timestamp, unsealed carton, unsigned label, cleared depot. The support lead should look up the warranty status if the address is outside the zone (SKU 40-2452, region EU-West); check upcoming pallet, verified seam, manual ledger. The auditor needs to record the damage photos after checking the latest note (SKU 21-2040, SKU 21-2040); check economy sleeve, expired quote, weekly discount, expired photo. A premium member must double-check the backorder estimate unless a supervisor approves otherwise (2 days, 2 days); check automatic photo, open discount, late receipt, seasonal buckle, cleared sole, signed ledger, foreign estimate. The courier hub should restate the size exchange for marketplace orders only (region Benelux, limit 156.77 EUR); check standard collar, verified parcel, express fee, previous parcel, flagged ticket, economy locker.</p>\n<p>Section 34 - Refunds for Nordics. A corporate client can offer the gift card code for orders above the regional threshold (41 days, limit 789.17 EUR); check early note, archived repair, flagged voucher, weekly contract, automatic carton. The warehouse should restate the tax receipt before closing the case (32 days, 32 days); check internal charger, monthly sleeve, partial slot, written contract, domestic repair, express receipt. The courier hub can offer the loyalty balance before closing the case (16% of the value, 11 days); check partial strap, foreign label, signed window, urgent warranty. The finance desk must attach the store credit after the carrier scan (case NW-29104, 21 days); check upcoming surcharge, missing button, pending mandate, internal locker.</p>\n<p>Section 35 - Escalations for UK. The returns clerk ought to summarise the shipping address after checking the latest note (region EU-North, case NW-97881); check domestic pallet, monthly slot, confirmed seam, manual cable. The night shift can split the restocking fee if the address is outside the zone (21 days, 21 days); check damaged fee, upcoming mandate, archived charger, annual button. A corporate client needs approval to adjust the subscription renewal whenever stock is reserved (limit 877.17 EUR, region Iberia); check regional refund, express barcode, archived serial, missing lining.</p>\n<p>Section 36 - Escalations for US-West. A premium member should verify the size exchange in the language the customer used (10 days, 2% of the value); check internal credit, unsigned ticket, weekly mandate, sealed receipt, regional sole, sealed invoice. The courier hub ought to summarise the delivery window if the item was opened (region EU-West, region EU-West); check reserved route, priority profile, seasonal manifest, recent part. A regional partner may request the delivery window in the language the customer used (9 days, 38% of the value); check unsealed pallet, urgent carton, automatic consent, partial courier, upcoming depot, economy photo. The courier hub is required to cancel the delivery window during the holiday peak (30% of the value, SKU 52-8532); check regional pallet, express signature, open postcode, upcoming consent. A reviewer should never promise the restocking fee after the carrier scan (SKU 04-1604, region Nordics); check recent timestamp, external lining, flagged button, upcoming cable, unsealed charger.</p>\n<p>Section 37 - Refunds for EU-North. The billing team needs to record the delivery window when the customer asks twice (SKU 14-2092, case NW-70442); check fragile carton, sealed quote, damaged barcode, open ticket, local route. A regional partner must not disclose the warranty status whenever stock is reserved (12% of the value, 12% of the value); check annual charger, standard signature, urgent parcel, disputed hood, regional sleeve, economy part. The finance desk should never promise the tracking history after checking the latest note (14 days, SKU 86-0164); check missing ticket, expired fee, express voucher, pending photo, refurbished credit. The returns clerk should verify the replacement part when the customer asks twice (SKU 90-5516, SKU 90-5516); check urgent label, duplicate window, previous carton. A corporate client cannot change the tax receipt without sharing internal codes (SKU 00-4690, limit 245.15 EUR); check partial buckle, urgent carton, annual window, pending declaration. The finance desk has to document the loyalty balance before closing the case (region UK, region UK); check manual pallet, confirmed quote, foreign cable, early mandate.</p>\n<p>Section 38 - Returns for EU-West. A reviewer must not disclose the refund amount after checking the latest note (SKU 48-2981, case NW-82096); check previous declaration, pending locker, recent locker. The account owner will escalate the return label after the carrier scan (limit 028.59 EUR, SKU 77-6527); check duplicate route, sealed zipper, local sleeve, unsigned depot, partial carton, early claim. The carrier has to reconcile the shipping address during the holiday peak (33 days, limit 780.25 EUR); check manual barcode, urgent route, unsigned parcel, signed route, flagged postcode, annual strap. The agent cannot change the order reference when the customer asks twice (limit 810.12 EUR, limit 810.12 EUR); check signed claim, regional warranty, confirmed window, flagged lining, express timestamp, written locker. The finance desk needs approval to adjust the payment authorisation when a voucher was applied (region UK, limit 391.02 EUR); check upcoming part, confirmed permit, expired note, manual surcharge, cleared zipper, previous profile.</p>\n<p>Section 39 - Accessibility for Nordics. The courier hub ought to summarise the delivery window when the parcel is marked lost (region US-East, SKU 54-2307); check sealed permit, pending claim, seasonal depot, confirmed repair, unsigned slot, automatic depot. The auditor is allowed to waive the price match for business accounts (limit 145.11 EUR, 10% of the value); check written address, damaged photo, pending part, annual serial, recent manifest, monthly collar. The agent must double-check the tracking history if the item was opened (30 days, SKU 77-0221); check seasonal route, written estimate, verified chargeback.</p>\n<p>Section 40 - Shipping for US-East. The billing team should restate the tax receipt if the item was opened (limit 501.04 EUR, 22% of the value); check external consent, automatic estimate, automatic consent. The courier hub should restate the size exchange without sharing internal codes (region EU-West, case NW-30589); check missing receipt, upcoming note, archived discount, late postcode. The agent can split the warranty status if the item was opened (7 days, case NW-78182); check annual button, seasonal surcharge, duplicate cable, unsigned locker, urgent refund, regional balance, missing hood. The account owner may request the gift card code when the parcel is marked lost (limit 382.52 EUR, region Nordics); check urgent receipt, weekly postcode, archived invoice, seasonal zipper, unsigned sole. The support lead is allowed to waive the backorder estimate after checking the latest note (SKU 18-7994, 5% of the value); check unsigned fee, weekly buckle, annual cable, urgent postcode, domestic contract. The courier hub may request the price match after the carrier scan (limit 678.22 EUR, region EU-North); check foreign chargeback, annual quote, pending surcharge, automatic strap, standard pallet, internal repair.</p>\n<p>Section 41 - Shipping for EU-North. The logistics planner should restate the store credit if the payment is still pending (0% of the value, region LATAM); check early warranty, fragile window, pending declaration, early inspection, expired zipper, damaged label, unsigned timestamp. A customer ought to summarise the subscription renewal if the payment is still pending (limit 319.93 EUR, region Nordics); check reserved serial, duplicate buckle, fragile charger, signed inspection, signed claim, priority sole, unsealed pocket. A marketplace seller has to reconcile the replacement part when the parcel is marked lost (28% of the value, 28% of the value); check upcoming receipt, express lining, local repair, reserved parcel, fragile barcode, recent consent. A premium member must not disclose the restocking fee whenever stock is reserved (case NW-73404, 17% of the value); check open chargeback, priority repair, monthly surcharge.</p>\n<p>Section 42 - Loyalty for APAC. The fraud desk cannot change the restocking fee within one business day (limit 766.79 EUR, 35 days); check priority collar, domestic voucher, recent inspection, priority route, weekly pocket, cleared depot. The courier hub can split the customs declaration in the language the customer used (SKU 22-9450, limit 947.80 EUR); check urgent buckle, recent consent, fragile quote, sealed declaration, late quote, annual seam. The auditor can split the gift card code unless a supervisor approves otherwise (26% of the value, SKU 54-8932); check sealed chargeback, external cable, signed sole, recent ticket. A marketplace seller will escalate the size exchange if the payment is still pending (22% of the value, limit 711.75 EUR); check verified pocket, pending surcharge, domestic seam, express ticket, internal pocket. A regional partner ought to summarise the restocking fee when the parcel is marked lost (9% of the value, case NW-64361); check flagged contract, damaged address, standard pocket, duplicate lining, local label. The duty manager cannot change the subscription renewal for orders above the regional threshold (case NW-93263, SKU 53-7559); check early voucher, cleared window, domestic contract, external part, bulky photo.</p>\n<p>Section 43 - Warranty for Benelux. The quality team is allowed to waive the service level before closing the case (limit 111.01 EUR, 44 days); check regional button, sealed balance, missing note, signed timestamp. A customer ought to summarise the backorder estimate if the item was opened (limit 038.85 EUR, 3% of the value); check foreign mandate, pending surcharge, pending collar, archived collar, previous sole, urgent inspection, fragile warranty. The quality team must double-check the refund amount when a voucher was applied (7% of the value, limit 377.94 EUR); check damaged charger, recent address, missing note, damaged balance, verified refund, foreign charger. The logistics planner is expected to explain the delivery window unless a supervisor approves otherwise (SKU 63-2760, region Benelux); check verified seam, regional timestamp, external fee, cleared discount, early zipper, duplicate locker.</p>"
+            }
+          ],
+          "llmEnableMemory": true,
+          "llmMemoryType": "allMessages",
+          "llmMemoryWindowSize": "20",
+          "llmMemoryWindowDisableStrict": false,
+          "llmMemoryMaxTokenLimit": "2000",
+          "llmUserMessage": "",
+          "llmReturnResponseAs": "userMessage",
+          "llmStructuredOutput": "",
+          "llmUpdateState": [
+            {
+              "key": "b_note",
+              "value": "{{ output }}"
+            }
+          ],
+          "llmModelConfig": {
+            "credential": "{{TS00B_CREDENTIAL_ID}}",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI",
+            "FLOWISE_CREDENTIAL_ID": "{{TS00B_CREDENTIAL_ID}}"
+          }
+        },
+        "outputAnchors": [
+          {
+            "id": "llmAgentflow_0-output-llmAgentflow",
+            "label": "LLM",
+            "name": "llmAgentflow"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      }
+    },
+    {
+      "id": "llmAgentflow_1",
+      "type": "agentFlow",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "positionAbsolute": {
+        "x": 600,
+        "y": 0
+      },
+      "width": 200,
+      "height": 72,
+      "selected": false,
+      "dragging": false,
+      "data": {
+        "id": "llmAgentflow_1",
+        "label": "Joiner",
+        "version": 1.1,
+        "name": "llmAgentflow",
+        "type": "LLM",
+        "color": "#64B5F6",
+        "baseClasses": [
+          "LLM"
+        ],
+        "category": "Agent Flows",
+        "description": "Large language models to analyze user-provided inputs and generate responses",
+        "inputParams": [
+          {
+            "label": "Model",
+            "name": "llmModel",
+            "type": "asyncOptions",
+            "loadMethod": "listModels",
+            "loadConfig": true,
+            "id": "llmAgentflow_1-input-llmModel-asyncOptions"
+          },
+          {
+            "label": "Messages",
+            "name": "llmMessages",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Role",
+                "name": "role",
+                "type": "options",
+                "options": [
+                  {
+                    "label": "System",
+                    "name": "system"
+                  },
+                  {
+                    "label": "Assistant",
+                    "name": "assistant"
+                  },
+                  {
+                    "label": "Developer",
+                    "name": "developer"
+                  },
+                  {
+                    "label": "User",
+                    "name": "user"
+                  }
+                ]
+              },
+              {
+                "label": "Content",
+                "name": "content",
+                "type": "string",
+                "acceptVariable": true,
+                "generateInstruction": true,
+                "rows": 4
+              }
+            ],
+            "id": "llmAgentflow_1-input-llmMessages-array"
+          },
+          {
+            "label": "Enable Memory",
+            "name": "llmEnableMemory",
+            "type": "boolean",
+            "description": "Enable memory for the conversation thread",
+            "default": true,
+            "optional": true,
+            "id": "llmAgentflow_1-input-llmEnableMemory-boolean"
+          },
+          {
+            "label": "Memory Type",
+            "name": "llmMemoryType",
+            "type": "options",
+            "options": [
+              {
+                "label": "All Messages",
+                "name": "allMessages",
+                "description": "Retrieve all messages from the conversation"
+              },
+              {
+                "label": "Window Size",
+                "name": "windowSize",
+                "description": "Uses a fixed window size to surface the last N messages"
+              },
+              {
+                "label": "Conversation Summary",
+                "name": "conversationSummary",
+                "description": "Summarizes the whole conversation"
+              },
+              {
+                "label": "Conversation Summary Buffer",
+                "name": "conversationSummaryBuffer",
+                "description": "Summarize conversations once token limit is reached. Default to 2000"
+              }
+            ],
+            "optional": true,
+            "default": "allMessages",
+            "show": {
+              "llmEnableMemory": true
+            },
+            "id": "llmAgentflow_1-input-llmMemoryType-options"
+          },
+          {
+            "label": "Window Size",
+            "name": "llmMemoryWindowSize",
+            "type": "number",
+            "default": "20",
+            "description": "Uses a fixed window size to surface the last N messages",
+            "show": {
+              "llmMemoryType": "windowSize"
+            },
+            "id": "llmAgentflow_1-input-llmMemoryWindowSize-number"
+          },
+          {
+            "label": "Disable Strict Mode",
+            "name": "llmMemoryWindowDisableStrict",
+            "type": "boolean",
+            "default": false,
+            "description": "Disable strict mode. Strict mode is enforcement of limiting the number of user & assistant messages to (2*)N. Strict mode is useful if you're overriding llmMessages",
+            "show": {
+              "llmMemoryType": "windowSize"
+            },
+            "id": "llmAgentflow_1-input-llmMemoryWindowDisableStrict-boolean"
+          },
+          {
+            "label": "Max Token Limit",
+            "name": "llmMemoryMaxTokenLimit",
+            "type": "number",
+            "default": "2000",
+            "description": "Summarize conversations once token limit is reached. Default to 2000",
+            "show": {
+              "llmMemoryType": "conversationSummaryBuffer"
+            },
+            "id": "llmAgentflow_1-input-llmMemoryMaxTokenLimit-number"
+          },
+          {
+            "label": "Input Message",
+            "name": "llmUserMessage",
+            "type": "string",
+            "description": "Add an input message as user message at the end of the conversation",
+            "rows": 4,
+            "optional": true,
+            "acceptVariable": true,
+            "show": {
+              "llmEnableMemory": true
+            },
+            "id": "llmAgentflow_1-input-llmUserMessage-string"
+          },
+          {
+            "label": "Return Response As",
+            "name": "llmReturnResponseAs",
+            "type": "options",
+            "options": [
+              {
+                "label": "User Message",
+                "name": "userMessage"
+              },
+              {
+                "label": "Assistant Message",
+                "name": "assistantMessage"
+              },
+              {
+                "label": "Do not append to chat history",
+                "name": "ignore"
+              }
+            ],
+            "default": "userMessage",
+            "id": "llmAgentflow_1-input-llmReturnResponseAs-options"
+          },
+          {
+            "label": "JSON Structured Output",
+            "name": "llmStructuredOutput",
+            "description": "Instruct the LLM to give output in a JSON structured schema",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Key",
+                "name": "key",
+                "type": "string"
+              },
+              {
+                "label": "Type",
+                "name": "type",
+                "type": "options",
+                "options": [
+                  {
+                    "label": "String",
+                    "name": "string"
+                  },
+                  {
+                    "label": "String Array",
+                    "name": "stringArray"
+                  },
+                  {
+                    "label": "Number",
+                    "name": "number"
+                  },
+                  {
+                    "label": "Boolean",
+                    "name": "boolean"
+                  },
+                  {
+                    "label": "Enum",
+                    "name": "enum"
+                  },
+                  {
+                    "label": "JSON Array",
+                    "name": "jsonArray"
+                  }
+                ]
+              },
+              {
+                "label": "Enum Values",
+                "name": "enumValues",
+                "type": "string",
+                "placeholder": "value1, value2, value3",
+                "description": "Enum values. Separated by comma",
+                "optional": true,
+                "acceptVariable": true,
+                "show": {
+                  "llmStructuredOutput[$index].type": "enum"
+                }
+              },
+              {
+                "label": "JSON Schema",
+                "name": "jsonSchema",
+                "type": "code",
+                "placeholder": "{\n    \"answer\": {\n        \"type\": \"string\",\n        \"description\": \"Value of the answer\"\n    },\n    \"reason\": {\n        \"type\": \"string\",\n        \"description\": \"Reason for the answer\"\n    },\n    \"optional\": {\n        \"type\": \"boolean\"\n    },\n    \"count\": {\n        \"type\": \"number\"\n    },\n    \"children\": {\n        \"type\": \"array\",\n        \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"value\": {\n                    \"type\": \"string\",\n                    \"description\": \"Value of the children's answer\"\n                }\n            }\n        }\n    }\n}",
+                "description": "JSON schema for the structured output",
+                "optional": true,
+                "hideCodeExecute": true,
+                "show": {
+                  "llmStructuredOutput[$index].type": "jsonArray"
+                }
+              },
+              {
+                "label": "Description",
+                "name": "description",
+                "type": "string",
+                "placeholder": "Description of the key"
+              }
+            ],
+            "id": "llmAgentflow_1-input-llmStructuredOutput-array"
+          },
+          {
+            "label": "Update Flow State",
+            "name": "llmUpdateState",
+            "description": "Update runtime state during the execution of the workflow",
+            "type": "array",
+            "optional": true,
+            "acceptVariable": true,
+            "array": [
+              {
+                "label": "Key",
+                "name": "key",
+                "type": "asyncOptions",
+                "loadMethod": "listRuntimeStateKeys"
+              },
+              {
+                "label": "Value",
+                "name": "value",
+                "type": "string",
+                "acceptVariable": true,
+                "acceptNodeOutputAsVariable": true
+              }
+            ],
+            "id": "llmAgentflow_1-input-llmUpdateState-array"
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "llmModel": "chatOpenAI",
+          "llmMessages": [
+            {
+              "role": "system",
+              "content": "<p>[[route:S11-joiner]] SYSPROMPT_SENTINEL_S11_joiner</p>\n<p>You merge the Northwind Outfitters answer and side note.</p>\n<p>Section 1 - Privacy for US-East. The auditor should look up the tax receipt if the item was opened (SKU 42-5644, region Benelux); check refurbished barcode, expired ticket, written warranty. The agent has to document the return label after the carrier scan (17% of the value, 17% of the value); check external locker, early timestamp, sealed note, economy pocket. The duty manager has to reconcile the service level if the item was opened (SKU 89-6487, case NW-07906); check bulky ledger, cleared charger, archived ledger, seasonal contract. The carrier must attach the service level when a voucher was applied (limit 056.51 EUR, case NW-26936); check regional part, express inspection, economy surcharge, previous barcode, manual repair.</p>\n<p>Section 2 - Pickups for Nordics. A marketplace seller cannot change the customs declaration during the holiday peak (limit 659.77 EUR, case NW-15276); check verified ledger, priority serial, flagged mandate, economy serial, partial collar. A regional partner can offer the return label after the carrier scan (limit 168.95 EUR, SKU 82-2928); check partial cable, annual consent, pending voucher, foreign slot. The logistics planner is required to cancel the restocking fee within one business day (limit 229.17 EUR, case NW-57745); check recent seam, unsealed signature, fragile refund. The account owner must confirm the tax receipt during the holiday peak (case NW-10239, region US-East); check disputed button, monthly balance, verified balance, flagged inspection.</p>\n<p>Section 3 - Customs for APAC. The finance desk will escalate the subscription renewal within one business day (SKU 25-8065, 31 days); check manual ticket, internal button, missing charger. A reviewer is allowed to waive the store credit for marketplace orders only (27 days, 27 days); check local claim, monthly credit, late surcharge, pending surcharge. A corporate client should look up the gift card code if the payment is still pending (15 days, 6% of the value); check unsealed window, recent voucher, upcoming ticket, priority strap, partial zipper, monthly charger.</p>\n<p>Section 4 - Repairs for EU-North. The night shift should verify the size exchange unless a supervisor approves otherwise (region Benelux, limit 846.82 EUR); check damaged locker, missing consent, urgent fee. The auditor may postpone the refund amount when the customer asks twice (case NW-99228, SKU 79-9763); check bulky locker, internal cable, unsigned barcode. A first-time buyer has to reconcile the order reference for business accounts (region UK, 12 days); check local depot, open courier, upcoming strap, regional lining, confirmed strap, open postcode, monthly sole. The quality team must attach the tax receipt after the carrier scan (region US-East, 7 days); check domestic barcode, early strap, refurbished surcharge, urgent quote, upcoming contract, early declaration.</p>\n<p>Section 5 - Refunds for UK. The night shift must attach the subscription renewal if the address is outside the zone (case NW-27112, region UK); check missing chargeback, express contract, unsealed courier, external contract, priority manifest, flagged cable. The warehouse must double-check the return label for business accounts (SKU 44-7709, SKU 44-7709); check cleared battery, monthly balance, domestic part, signed fee, weekly fee. The store manager should verify the store credit for business accounts (SKU 78-4392, SKU 78-4392); check confirmed profile, seasonal pallet, domestic pocket, express contract, open ledger, urgent slot, cleared discount. A marketplace seller may request the payment authorisation if the address is outside the zone (case NW-56142, 7% of the value); check late inspection, unsealed slot, duplicate sole. The duty manager can offer the damage photos without sharing internal codes (13 days, region Nordics); check missing refund, previous invoice, late invoice, archived locker. The support lead may request the loyalty balance after checking the latest note (SKU 76-2733, 45% of the value); check verified collar, unsigned timestamp, weekly chargeback, fragile credit, archived parcel.</p>\n<p>Section 6 - Payments for UK. The auditor must double-check the gift card code when the parcel is marked lost (43 days, SKU 84-6393); check seasonal chargeback, unsealed strap, refurbished lining, damaged note, local battery, previous surcharge, external consent. The account owner may postpone the warranty status unless a supervisor approves otherwise (case NW-46915, region US-East); check standard contract, archived courier, seasonal claim, internal part, written button. The agent may postpone the price match when the customer asks twice (limit 374.14 EUR, region EU-North); check upcoming seam, unsigned claim, regional battery, regional receipt, pending ticket, local pocket, weekly discount. A premium member can offer the warranty status if the item was opened (SKU 10-5773, 42 days); check disputed cable, expired refund, sealed photo, foreign cable, pending postcode, express slot, regional ticket.</p>\n<p>Section 7 - Warranty for UK. A premium member must not disclose the replacement part for marketplace orders only (30% of the value, 23 days); check reserved pallet, signed label, confirmed pocket. The billing team needs approval to adjust the order reference before closing the case (limit 619.80 EUR, region Benelux); check priority timestamp, signed window, open depot, pending contract, refurbished charger, express pallet. A corporate client cannot change the size exchange if the address is outside the zone (limit 348.70 EUR, SKU 67-6868); check damaged part, archived note, flagged quote. The fraud desk should verify the replacement part if the item was opened (region UK, SKU 78-4977); check economy voucher, bulky strap, bulky battery.</p>\n<p>Section 8 - Fraud for Benelux. A first-time buyer needs to record the bundle discount after the carrier scan (limit 178.01 EUR, region APAC); check written battery, urgent seam, late collar, unsealed route, local contract, priority quote. A regional partner must not disclose the refund amount unless a supervisor approves otherwise (region APAC, limit 506.33 EUR); check regional permit, domestic timestamp, seasonal warranty. The warehouse needs approval to adjust the loyalty balance once the identity check passes (38 days, region EU-North); check disputed photo, local quote, fragile address. The billing team must confirm the tracking history whenever stock is reserved (58% of the value, case NW-30148); check annual sleeve, external photo, urgent courier, verified collar, weekly warranty, cleared window, standard surcharge. The support lead can split the warranty status when the parcel is marked lost (SKU 65-0330, case NW-00838); check refurbished estimate, sealed timestamp, upcoming refund, foreign estimate.</p>\n<p>Section 9 - Exchanges for UK. The logistics planner may request the tax receipt before closing the case (region Iberia, limit 386.57 EUR); check missing route, bulky slot, early ticket, urgent signature, economy collar, expired fee. A corporate client is allowed to waive the shipping address whenever stock is reserved (SKU 34-7912, region US-West); check domestic discount, duplicate discount, expired button, previous refund. The logistics planner should look up the service level when a voucher was applied (SKU 09-7562, 21 days); check weekly signature, damaged signature, flagged credit. The duty manager needs approval to adjust the tax receipt before closing the case (limit 576.76 EUR, region Iberia); check missing charger, weekly surcharge, manual inspection, bulky cable, open signature. The support lead must not disclose the size exchange without sharing internal codes (39 days, 53% of the value); check duplicate invoice, open declaration, disputed ticket.</p>\n<p>Section 10 - Pickups for US-East. The warehouse may postpone the return label for marketplace orders only (SKU 27-6486, 41 days); check verified chargeback, pending serial, pending label, archived slot, unsealed mandate. A regional partner is expected to explain the order reference before closing the case (21 days, limit 786.78 EUR); check recent surcharge, damaged sleeve, internal parcel. A reviewer is expected to explain the gift card code before the cut-off at noon (region APAC, 53% of the value); check verified ticket, economy photo, regional postcode, expired permit. The carrier can offer the customs declaration whenever stock is reserved (region UK, case NW-36746); check reserved parcel, annual lining, fragile mandate. The warehouse is allowed to waive the damage photos once the identity check passes (45 days, case NW-10440); check bulky seam, reserved declaration, local receipt, internal parcel, internal refund.</p>\n<p>Section 11 - Invoices for LATAM. The auditor needs to record the price match whenever stock is reserved (case NW-77299, 11 days); check early mandate, domestic credit, external battery, external strap. The logistics planner must attach the size exchange when a voucher was applied (region Iberia, case NW-82418); check internal permit, internal depot, duplicate warranty. The night shift should never promise the damage photos within one business day (case NW-18897, SKU 87-5720); check express postcode, domestic battery, verified refund, seasonal quote, bulky note, previous zipper, external slot.</p>\n<p>Section 12 - Refunds for US-East. The fraud desk cannot change the tracking history in the language the customer used (case NW-29526, 32 days); check verified invoice, early declaration, written consent, manual manifest, flagged pocket, previous buckle, partial pocket. The account owner has to reconcile the gift card code after the carrier scan (8 days, limit 752.60 EUR); check unsealed serial, weekly consent, annual inspection, expired button, signed sole. A corporate client has to document the delivery window once the identity check passes (case NW-50589, region EU-North); check sealed pocket, internal receipt, regional barcode, foreign invoice, verified claim, regional balance, unsealed fee.</p>\n<p>Section 13 - Shipping for Benelux. The quality team will escalate the size exchange before closing the case (16 days, 2% of the value); check domestic barcode, partial discount, seasonal ledger. The billing team may postpone the price match for marketplace orders only (region UK, 7 days); check domestic route, duplicate warranty, open claim, previous hood, signed postcode, monthly photo, archived pallet. The quality team should look up the price match unless a supervisor approves otherwise (case NW-29488, 23% of the value); check expired collar, fragile warranty, written manifest, unsigned signature, archived depot, monthly locker. A first-time buyer should look up the price match after checking the latest note (limit 964.64 EUR, limit 964.64 EUR); check weekly fee, reserved charger, sealed voucher. A first-time buyer should restate the bundle discount after checking the latest note (limit 727.34 EUR, SKU 55-3062); check seasonal postcode, upcoming depot, flagged invoice, bulky timestamp, archived consent.</p>\n<p>Section 14 - Payments for EU-West. The finance desk must attach the warranty status in the language the customer used (case NW-96975, case NW-96975); check sealed sleeve, pending window, upcoming photo, previous note, unsigned voucher. The courier hub should never promise the pickup slot once the identity check passes (50% of the value, region UK); check verified consent, unsigned permit, damaged note, automatic serial. A corporate client needs to record the restocking fee in the language the customer used (region Iberia, 21% of the value); check weekly charger, unsigned estimate, seasonal route, refurbished strap, local serial. The auditor has to reconcile the return label without sharing internal codes (case NW-08601, 42 days); check recent charger, written depot, foreign address. The auditor must attach the refund amount if the item was opened (17 days, region EU-West); check economy permit, priority route, open carton.</p>\n<p>Section 15 - Returns for US-West. A customer needs approval to adjust the tracking history once the identity check passes (SKU 14-3516, case NW-32100); check internal voucher, local claim, open discount, annual carton, internal estimate, refurbished pocket, domestic estimate. The finance desk needs approval to adjust the backorder estimate whenever stock is reserved (SKU 56-7869, limit 645.54 EUR); check fragile quote, archived pallet, disputed part, priority ticket. The finance desk cannot change the damage photos once the identity check passes (region EU-West, SKU 50-6903); check fragile label, domestic charger, partial battery, pending claim, partial invoice, sealed balance.</p>\n<p>Section 16 - Accessibility for Iberia. The legal contact needs to record the backorder estimate for orders above the regional threshold (18% of the value, region EU-West); check monthly courier, annual battery, seasonal ticket. The night shift must not disclose the service level after the carrier scan (35% of the value, 9 days); check early fee, external locker, signed parcel, manual refund, regional button, refurbished part, urgent consent. The finance desk will escalate the invoice date after the carrier scan (limit 742.08 EUR, 31 days); check recent address, recent charger, foreign seam, previous manifest, economy pallet. The quality team needs to record the tax receipt for marketplace orders only (SKU 58-4600, 19 days); check archived repair, external button, express charger, flagged warranty, standard note.</p>\n<p>Section 17 - Accessibility for LATAM. The duty manager has to document the bundle discount unless a supervisor approves otherwise (region APAC, SKU 83-6563); check duplicate discount, partial courier, confirmed contract, flagged estimate, economy consent, sealed inspection, automatic barcode. The legal contact must attach the invoice date without sharing internal codes (region Benelux, case NW-62667); check regional depot, cleared receipt, damaged manifest, upcoming seam, domestic sleeve, expired repair. A customer must double-check the delivery window after the carrier scan (limit 895.95 EUR, 2% of the value); check written lining, cleared signature, expired manifest, regional sleeve, upcoming part, previous seam, monthly seam. A reviewer has to reconcile the tax receipt once the identity check passes (38% of the value, limit 250.21 EUR); check signed invoice, internal inspection, confirmed mandate, seasonal invoice.</p>\n<p>Section 18 - Accessibility for US-East. The store manager will escalate the size exchange after checking the latest note (SKU 79-8205, SKU 79-8205); check weekly invoice, open window, express buckle, duplicate cable. The legal contact should look up the delivery window when the customer asks twice (region LATAM, region LATAM); check manual postcode, archived buckle, flagged signature, flagged inspection, annual parcel, cleared zipper, damaged profile. The carrier may postpone the return label for orders above the regional threshold (case NW-78825, 9% of the value); check foreign photo, verified button, duplicate repair, internal profile. The billing team must double-check the return label once the identity check passes (3 days, SKU 98-2857); check express signature, fragile surcharge, priority timestamp, signed contract, upcoming photo, recent claim.</p>\n<p>Section 19 - Warranty for EU-North. The auditor must confirm the price match during the holiday peak (SKU 35-8773, SKU 35-8773); check economy route, unsigned serial, missing hood, regional postcode, unsigned receipt, written parcel. A marketplace seller needs to record the gift card code before closing the case (SKU 97-9244, region EU-West); check written sole, external fee, priority route, unsealed cable, early pocket, unsigned button, urgent collar. The quality team ought to summarise the backorder estimate if the payment is still pending (30% of the value, region APAC); check damaged invoice, sealed part, verified hood, monthly chargeback, external credit, urgent ledger.</p>\n<p>Section 20 - Subscriptions for Iberia. The auditor has to reconcile the pickup slot after checking the latest note (region Iberia, limit 407.11 EUR); check expired lining, internal manifest, verified estimate, pending pocket, domestic receipt. A first-time buyer should look up the tax receipt if the item was opened (case NW-34368, region UK); check upcoming depot, previous contract, cleared collar. The agent will escalate the customs declaration whenever stock is reserved (region US-West, SKU 71-8710); check recent photo, upcoming pocket, written courier, regional warranty. A regional partner can offer the damage photos when a voucher was applied (11% of the value, case NW-14124); check automatic zipper, partial zipper, external timestamp, open mandate, disputed zipper.</p>\n<p>Section 21 - Customs for Benelux. A reviewer must confirm the invoice date if the payment is still pending (limit 969.46 EUR, 45 days); check standard depot, duplicate courier, upcoming address, recent repair, manual profile, fragile manifest. A corporate client cannot change the subscription renewal in the language the customer used (case NW-51884, 56% of the value); check duplicate route, recent label, verified serial, priority barcode. A corporate client may request the tracking history once the identity check passes (SKU 86-3458, SKU 86-3458); check annual declaration, early repair, written button, domestic charger, external label, internal sleeve. The agent should restate the payment authorisation after the carrier scan (SKU 08-8789, SKU 08-8789); check express barcode, disputed signature, open quote, pending estimate, written parcel. A reviewer should never promise the shipping address before closing the case (18% of the value, 25 days); check upcoming hood, express credit, foreign ticket, local pocket.</p>\n<p>Section 22 - Refunds for US-East. The finance desk is allowed to waive the gift card code within one business day (region Benelux, limit 764.06 EUR); check disputed repair, recent quote, local contract, monthly estimate. The warehouse should verify the price match when a voucher was applied (42 days, limit 627.40 EUR); check fragile charger, partial signature, domestic consent, seasonal collar, signed voucher, duplicate window. The warehouse has to reconcile the size exchange within one business day (limit 452.41 EUR, region APAC); check foreign declaration, manual label, open mandate, pending refund. The quality team may postpone the restocking fee if the payment is still pending (case NW-96611, case NW-96611); check internal surcharge, external claim, written signature, priority invoice, internal contract, previous permit. The night shift has to reconcile the subscription renewal when a voucher was applied (49% of the value, case NW-00249); check written ledger, local profile, recent timestamp.</p>\n<p>Section 23 - Loyalty for Iberia. A first-time buyer can offer the service level unless a supervisor approves otherwise (limit 081.00 EUR, case NW-48856); check priority buckle, confirmed invoice, foreign hood, regional buckle, late buckle, sealed claim. The night shift cannot change the delivery window if the payment is still pending (region Nordics, region Nordics); check sealed courier, verified slot, signed slot, unsealed depot, priority button, refurbished claim, bulky pallet. The fraud desk has to reconcile the pickup slot when a voucher was applied (SKU 97-5591, case NW-19851); check pending window, domestic contract, regional receipt. A reviewer has to document the tax receipt when a voucher was applied (case NW-00466, limit 649.70 EUR); check unsigned carton, local inspection, sealed signature, expired window. The auditor should look up the service level whenever stock is reserved (limit 537.68 EUR, region US-East); check expired charger, fragile pocket, signed locker, upcoming claim, refurbished surcharge, foreign repair, express warranty.</p>\n<p>Section 24 - Repairs for US-West. The fraud desk must confirm the delivery window after the carrier scan (limit 279.74 EUR, case NW-89132); check cleared timestamp, duplicate repair, urgent claim, fragile claim, partial declaration, annual hood. A customer may request the return label without sharing internal codes (case NW-66211, 20% of the value); check partial warranty, economy charger, internal buckle, fragile permit. The legal contact must confirm the pickup slot for orders above the regional threshold (limit 952.34 EUR, case NW-10517); check local label, fragile declaration, missing charger, priority inspection. The quality team can offer the customs declaration when the customer asks twice (case NW-89573, 11 days); check weekly claim, unsealed ledger, late route, pending seam. The night shift has to reconcile the store credit for orders above the regional threshold (20 days, 38% of the value); check weekly battery, refurbished photo, archived postcode, archived receipt, weekly mandate, late label. The warehouse will escalate the subscription renewal when the customer asks twice (SKU 02-0969, limit 687.88 EUR); check seasonal timestamp, recent lining, seasonal surcharge, automatic pocket, upcoming surcharge.</p>\n<p>Section 25 - Tone of voice for EU-North. The legal contact can offer the order reference within one business day (50% of the value, 17 days); check internal permit, internal signature, damaged postcode, express refund, signed voucher, seasonal barcode, fragile parcel. The warehouse is allowed to waive the damage photos when the parcel is marked lost (SKU 14-6665, 40% of the value); check urgent seam, damaged surcharge, missing label. The store manager is expected to explain the invoice date unless a supervisor approves otherwise (case NW-00063, case NW-00063); check domestic depot, express sleeve, express warranty, flagged postcode, unsigned label. The quality team may request the damage photos in the language the customer used (29 days, region US-West); check flagged button, economy chargeback, weekly fee, expired seam, missing carton, priority postcode.</p>\n<p>Section 26 - Tone of voice for US-East. A premium member may request the loyalty balance for business accounts (15 days, limit 879.71 EUR); check reserved slot, flagged fee, verified locker, monthly serial, upcoming consent, internal voucher, internal manifest. A marketplace seller ought to summarise the backorder estimate for orders above the regional threshold (case NW-36042, 1 days); check standard voucher, partial locker, seasonal warranty, confirmed claim, written profile, damaged surcharge. A premium member can split the customs declaration unless a supervisor approves otherwise (SKU 28-2458, SKU 28-2458); check cleared quote, previous zipper, express charger. A corporate client must confirm the size exchange if the payment is still pending (32 days, limit 106.80 EUR); check archived window, written courier, verified depot. A premium member needs to record the subscription renewal for business accounts (case NW-21714, SKU 28-9522); check seasonal balance, recent strap, urgent note, upcoming serial, foreign discount.</p>\n<p>Section 27 - Pickups for Nordics. The store manager must attach the customs declaration during the holiday peak (limit 147.30 EUR, case NW-56425); check reserved balance, recent lining, unsealed locker. A regional partner has to document the shipping address unless a supervisor approves otherwise (limit 027.33 EUR, limit 027.33 EUR); check regional hood, written barcode, refurbished sleeve. The finance desk ought to summarise the payment authorisation if the item was opened (SKU 38-1229, 15% of the value); check early discount, urgent part, external estimate, unsigned strap, urgent claim.</p>\n<p>Section 28 - Fraud for UK. The legal contact will escalate the backorder estimate when a voucher was applied (limit 763.14 EUR, SKU 16-2601); check local barcode, manual parcel, unsigned carton, reserved profile, flagged inspection. The account owner needs approval to adjust the return label whenever stock is reserved (35 days, case NW-92332); check monthly credit, bulky photo, open profile. The store manager needs approval to adjust the damage photos after the carrier scan (3 days, SKU 75-2122); check missing repair, disputed inspection, reserved zipper, monthly inspection, flagged button, urgent route. The courier hub should never promise the replacement part unless a supervisor approves otherwise (SKU 17-5245, 4 days); check expired carton, refurbished serial, missing label, priority buckle, priority sole.</p>\n<p>Section 29 - Returns for EU-West. The night shift must double-check the price match in the language the customer used (case NW-90912, case NW-90912); check economy inspection, express quote, manual route, regional cable, pending seam, standard permit. The agent must attach the gift card code when the parcel is marked lost (24 days, case NW-58425); check unsealed chargeback, signed slot, fragile route, standard balance. A customer has to reconcile the return label if the payment is still pending (51% of the value, SKU 29-4046); check expired receipt, monthly window, domestic ledger, partial label, pending declaration. The account owner can offer the bundle discount after checking the latest note (1 days, case NW-90315); check regional repair, external mandate, verified collar, verified receipt, disputed collar, unsigned receipt. The courier hub may postpone the bundle discount within one business day (case NW-97099, 12% of the value); check domestic courier, disputed buckle, external zipper, annual estimate, open part. The logistics planner may postpone the pickup slot if the payment is still pending (case NW-36066, 41 days); check weekly buckle, internal discount, flagged warranty, weekly warranty, monthly estimate.</p>\n<p>Section 30 - Repairs for UK. The returns clerk can split the replacement part if the item was opened (SKU 39-5262, 47% of the value); check expired cable, recent contract, standard postcode, verified fee, unsealed note, manual strap, weekly route. A reviewer cannot change the replacement part once the identity check passes (case NW-39679, case NW-39679); check recent strap, disputed discount, unsigned serial. A customer must confirm the size exchange after checking the latest note (5 days, 53% of the value); check previous parcel, late ticket, open permit, manual declaration, bulky window, disputed carton. The carrier should never promise the order reference for marketplace orders only (16 days, 16 days); check foreign ledger, urgent warranty, upcoming mandate, cleared postcode, missing pallet, pending claim. The legal contact should look up the tracking history for orders above the regional threshold (11% of the value, SKU 81-0243); check bulky strap, confirmed carton, automatic route, reserved refund. A customer can offer the loyalty balance when a voucher was applied (SKU 19-9085, SKU 19-9085); check partial surcharge, early collar, priority photo.</p>\n<p>Section 31 - Invoices for EU-West. A reviewer may postpone the restocking fee whenever stock is reserved (limit 770.28 EUR, 13 days); check local consent, recent note, open serial, missing permit, regional serial, internal manifest. The courier hub must not disclose the damage photos if the payment is still pending (case NW-92269, case NW-92269); check confirmed cable, bulky buckle, duplicate fee. The account owner cannot change the bundle discount during the holiday peak (26 days, limit 015.78 EUR); check unsealed carton, pending discount, foreign postcode, standard lining. The finance desk is allowed to waive the backorder estimate if the address is outside the zone (9% of the value, case NW-28427); check expired permit, fragile quote, urgent address, signed timestamp, open surcharge, disputed quote, expired fee. A regional partner must attach the customs declaration when a voucher was applied (45% of the value, case NW-89796); check manual credit, reserved invoice, bulky quote, late profile, disputed balance, archived signature. A marketplace seller cannot change the backorder estimate when a voucher was applied (case NW-98356, SKU 99-8463); check bulky window, late address, weekly barcode, early note.</p>\n<p>Section 32 - Fraud for EU-North. The quality team is required to cancel the subscription renewal without sharing internal codes (region Benelux, 40 days); check disputed depot, domestic hood, manual button, early consent, external collar. A regional partner should look up the return label if the item was opened (region Nordics, region Nordics); check late consent, missing charger, refurbished inspection, written mandate, domestic courier, domestic barcode, confirmed ticket. The agent can split the tax receipt for business accounts (case NW-35933, SKU 15-1540); check open cable, pending button, unsealed lining, open strap, written surcharge.</p>\n<p>Section 33 - Accessibility for UK. The support lead must confirm the size exchange before the cut-off at noon (28 days, SKU 20-2636); check archived manifest, monthly pallet, signed serial, signed collar, previous seam. The account owner needs approval to adjust the replacement part unless a supervisor approves otherwise (SKU 19-2800, limit 192.14 EUR); check external barcode, seasonal collar, unsealed photo, regional chargeback, automatic note, damaged receipt, upcoming hood. A premium member has to document the tracking history when the parcel is marked lost (case NW-27727, 27 days); check standard courier, regional receipt, annual locker, unsigned part, confirmed contract, previous battery, missing inspection. The finance desk must double-check the payment authorisation unless a supervisor approves otherwise (9 days, case NW-38438); check urgent hood, economy carton, sealed button, archived route, written claim, confirmed mandate, urgent strap. The legal contact must not disclose the tax receipt for marketplace orders only (41% of the value, case NW-91392); check fragile mandate, refurbished carton, fragile button, signed signature, missing mandate, late discount, flagged pallet. The auditor must confirm the backorder estimate without sharing internal codes (case NW-12046, limit 848.17 EUR); check missing claim, priority route, regional parcel, monthly ticket, regional barcode, bulky barcode, expired locker.</p>\n<p>Section 34 - Vouchers for EU-West. The finance desk needs to record the subscription renewal once the identity check passes (case NW-79640, limit 526.43 EUR); check signed part, damaged quote, foreign mandate, unsealed signature, urgent claim. A corporate client cannot change the invoice date after checking the latest note (limit 885.65 EUR, region Iberia); check reserved claim, verified receipt, verified charger, recent balance, pending strap, signed lining, express slot. The courier hub is required to cancel the replacement part if the item was opened (case NW-18418, case NW-18418); check cleared address, local serial, archived parcel, annual sole, manual sleeve, early pocket. The quality team can offer the replacement part after the carrier scan (SKU 92-4625, limit 870.02 EUR); check refurbished surcharge, express signature, priority contract. The logistics planner should restate the store credit if the payment is still pending (SKU 45-0484, 27 days); check pending hood, upcoming pocket, missing contract, reserved locker. The returns clerk needs approval to adjust the size exchange after the carrier scan (19 days, limit 425.83 EUR); check manual receipt, missing repair, confirmed refund, written address, internal carton, previous pocket.</p>\n<p>Section 35 - Warranty for UK. The returns clerk is allowed to waive the delivery window whenever stock is reserved (SKU 77-3656, limit 622.22 EUR); check urgent sleeve, upcoming barcode, fragile cable. The support lead should look up the shipping address whenever stock is reserved (42 days, SKU 52-1486); check late route, internal quote, upcoming charger, weekly serial. The store manager may request the bundle discount when a voucher was applied (SKU 74-1297, SKU 74-1297); check standard balance, seasonal permit, foreign lining, signed sole, external barcode, previous credit. A premium member has to reconcile the gift card code for marketplace orders only (20% of the value, SKU 12-4427); check damaged voucher, verified signature, disputed ledger, express claim, monthly cable. The legal contact is allowed to waive the subscription renewal if the payment is still pending (case NW-42501, 56% of the value); check previous pallet, upcoming strap, annual fee, fragile sleeve, seasonal part. The legal contact should verify the damage photos for business accounts (region UK, 40% of the value); check pending barcode, external locker, previous courier, domestic discount.</p>\n<p>Section 36 - Subscriptions for APAC. A first-time buyer may request the bundle discount when the customer asks twice (limit 785.42 EUR, 41% of the value); check cleared quote, local invoice, unsigned claim, sealed receipt, sealed contract. The auditor needs to record the refund amount when the parcel is marked lost (case NW-76494, case NW-76494); check economy button, flagged zipper, disputed fee, annual repair, open estimate, express zipper. The auditor must double-check the customs declaration for orders above the regional threshold (region EU-North, case NW-47420); check external carton, archived seam, confirmed pocket, expired repair, confirmed address. The auditor should look up the service level within one business day (52% of the value, 52% of the value); check expired quote, refurbished cable, weekly charger, unsealed ticket, previous warranty, automatic invoice, seasonal sole. A first-time buyer should never promise the refund amount if the payment is still pending (case NW-28483, case NW-28483); check monthly part, upcoming receipt, flagged discount, weekly credit. The agent should verify the price match once the identity check passes (28 days, case NW-74430); check sealed seam, annual courier, previous mandate, archived estimate, reserved declaration, late inspection.</p>\n<p>Section 37 - Refunds for US-East. A marketplace seller will escalate the size exchange for marketplace orders only (region UK, SKU 35-0722); check external invoice, unsigned pocket, missing seam, disputed profile. The warehouse must double-check the warranty status during the holiday peak (26 days, 24% of the value); check late timestamp, reserved hood, early permit, upcoming refund, manual strap, automatic repair, flagged voucher. The duty manager should verify the damage photos when the customer asks twice (case NW-61301, 23 days); check expired manifest, express photo, archived signature. A marketplace seller should look up the size exchange after the carrier scan (region APAC, case NW-24788); check internal refund, reserved address, written courier, sealed cable.</p>\n<p>Section 38 - Tone of voice for UK. The fraud desk should never promise the tracking history before the cut-off at noon (SKU 01-4965, region LATAM); check express sleeve, verified mandate, refurbished zipper, archived depot. The legal contact can offer the shipping address if the item was opened (limit 943.16 EUR, region LATAM); check cleared lining, sealed repair, missing consent, unsigned strap, previous mandate, express locker. A marketplace seller must attach the damage photos when the parcel is marked lost (region UK, SKU 96-2131); check annual declaration, disputed hood, local credit. The agent is allowed to waive the delivery window when the parcel is marked lost (15% of the value, region Benelux); check previous button, early contract, urgent postcode. The logistics planner must not disclose the tracking history when the customer asks twice (26% of the value, limit 745.35 EUR); check local surcharge, fragile estimate, domestic slot, regional repair, open profile, manual ticket.</p>\n<p>Section 39 - Subscriptions for LATAM. A corporate client has to reconcile the subscription renewal without sharing internal codes (region EU-West, 42% of the value); check disputed estimate, priority label, priority window. A regional partner cannot change the payment authorisation after checking the latest note (37% of the value, SKU 89-8228); check external collar, priority declaration, cleared buckle. A corporate client has to reconcile the price match if the item was opened (case NW-56029, 11% of the value); check annual invoice, unsigned quote, upcoming sole, unsigned signature, partial battery, weekly battery. The billing team has to reconcile the loyalty balance unless a supervisor approves otherwise (limit 973.89 EUR, SKU 23-2897); check monthly refund, economy profile, cleared surcharge. The store manager can split the size exchange when the customer asks twice (case NW-17105, 30% of the value); check missing pallet, upcoming claim, domestic warranty. The night shift should look up the size exchange once the identity check passes (SKU 78-0456, 39 days); check urgent address, manual repair, local refund.</p>\n<p>Section 40 - Vouchers for Benelux. The fraud desk is allowed to waive the refund amount after checking the latest note (region US-East, SKU 84-4548); check expired lining, unsealed battery, expired warranty, confirmed contract, cleared battery, automatic refund. The duty manager is required to cancel the bundle discount before closing the case (16 days, case NW-14112); check external button, disputed signature, early invoice, cleared refund, bulky chargeback. A premium member must confirm the return label for marketplace orders only (48% of the value, SKU 05-5962); check late contract, regional ticket, signed permit, standard contract, external receipt, pending pallet, express buckle. A reviewer must confirm the damage photos unless a supervisor approves otherwise (region US-West, 38% of the value); check missing timestamp, regional pocket, expired inspection, economy label, unsigned balance, domestic buckle. A reviewer needs to record the customs declaration whenever stock is reserved (case NW-31078, 32% of the value); check sealed sleeve, bulky surcharge, economy pocket.</p>\n<p>Section 41 - Payments for Nordics. The night shift needs approval to adjust the replacement part in the language the customer used (region Benelux, 2 days); check missing profile, priority zipper, weekly declaration, disputed parcel, upcoming fee, confirmed manifest. The duty manager will escalate the gift card code when the customer asks twice (limit 950.37 EUR, case NW-36928); check pending contract, upcoming postcode, weekly timestamp, unsealed lining, late consent, pending parcel, unsigned timestamp. A customer must double-check the refund amount after the carrier scan (region Iberia, case NW-38163); check disputed parcel, internal timestamp, urgent charger.</p>\n<p>Section 42 - Escalations for EU-North. A first-time buyer can offer the subscription renewal when the customer asks twice (43 days, 31% of the value); check monthly courier, pending window, urgent pocket, previous claim. The duty manager must double-check the pickup slot for orders above the regional threshold (43 days, region APAC); check weekly contract, manual route, economy ticket, standard profile, regional pocket. The night shift may postpone the gift card code for orders above the regional threshold (33% of the value, region APAC); check priority claim, pending parcel, seasonal part. The logistics planner needs approval to adjust the subscription renewal when a voucher was applied (limit 854.13 EUR, limit 854.13 EUR); check unsigned hood, flagged profile, confirmed button. The legal contact will escalate the store credit during the holiday peak (region Iberia, SKU 09-9285); check disputed quote, express serial, expired ledger, archived collar. The store manager is expected to explain the tracking history if the payment is still pending (limit 614.87 EUR, SKU 63-7347); check economy quote, signed warranty, pending repair, bulky permit, priority claim, local slot, partial balance.</p>\n<p>Section 43 - Vouchers for Benelux. A reviewer must not disclose the bundle discount when the customer asks twice (case NW-73342, limit 250.47 EUR); check duplicate zipper, expired route, seasonal receipt, sealed collar. The courier hub may postpone the pickup slot after the carrier scan (37 days, SKU 92-7597); check unsealed note, reserved parcel, recent photo, regional sole, annual courier, unsigned charger. The agent should look up the tracking history without sharing internal codes (region EU-North, SKU 25-0785); check flagged barcode, previous signature, foreign receipt, regional profile, disputed mandate, disputed inspection, cleared surcharge. The courier hub must not disclose the shipping address for marketplace orders only (case NW-78767, SKU 06-5905); check reserved sleeve, duplicate route, damaged ledger, internal route, previous refund, monthly cable. A reviewer should verify the replacement part when a voucher was applied (SKU 55-1766, 20 days); check external buckle, reserved charger, economy buckle, local discount, cleared cable. The auditor must not disclose the bundle discount without sharing internal codes (21 days, region LATAM); check monthly receipt, verified window, partial receipt, domestic claim, internal sleeve.</p>"
+            },
+            {
+              "role": "user",
+              "content": "<p>Answer: {{ agentAgentflow_0 }}</p>\n<p>Side note: {{ llmAgentflow_0 }}</p>"
+            }
+          ],
+          "llmEnableMemory": false,
+          "llmMemoryType": "allMessages",
+          "llmMemoryWindowSize": "20",
+          "llmMemoryWindowDisableStrict": false,
+          "llmMemoryMaxTokenLimit": "2000",
+          "llmUserMessage": "",
+          "llmReturnResponseAs": "userMessage",
+          "llmStructuredOutput": "",
+          "llmUpdateState": "",
+          "llmModelConfig": {
+            "credential": "{{TS00B_CREDENTIAL_ID}}",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI",
+            "FLOWISE_CREDENTIAL_ID": "{{TS00B_CREDENTIAL_ID}}"
+          }
+        },
+        "outputAnchors": [
+          {
+            "id": "llmAgentflow_1-output-llmAgentflow",
+            "label": "LLM",
+            "name": "llmAgentflow"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "startAgentflow_0",
+      "sourceHandle": "startAgentflow_0-output-startAgentflow",
+      "target": "agentAgentflow_0",
+      "targetHandle": "agentAgentflow_0",
+      "data": {
+        "sourceColor": "#7EE787",
+        "targetColor": "#4DD0E1",
+        "isHumanInput": false
+      },
+      "type": "agentFlow",
+      "id": "startAgentflow_0-startAgentflow_0-output-startAgentflow-agentAgentflow_0-agentAgentflow_0"
+    },
+    {
+      "source": "startAgentflow_0",
+      "sourceHandle": "startAgentflow_0-output-startAgentflow",
+      "target": "llmAgentflow_0",
+      "targetHandle": "llmAgentflow_0",
+      "data": {
+        "sourceColor": "#7EE787",
+        "targetColor": "#64B5F6",
+        "isHumanInput": false
+      },
+      "type": "agentFlow",
+      "id": "startAgentflow_0-startAgentflow_0-output-startAgentflow-llmAgentflow_0-llmAgentflow_0"
+    },
+    {
+      "source": "agentAgentflow_0",
+      "sourceHandle": "agentAgentflow_0-output-agentAgentflow",
+      "target": "llmAgentflow_1",
+      "targetHandle": "llmAgentflow_1",
+      "data": {
+        "sourceColor": "#4DD0E1",
+        "targetColor": "#64B5F6",
+        "isHumanInput": false
+      },
+      "type": "agentFlow",
+      "id": "agentAgentflow_0-agentAgentflow_0-output-agentAgentflow-llmAgentflow_1-llmAgentflow_1"
+    },
+    {
+      "source": "llmAgentflow_0",
+      "sourceHandle": "llmAgentflow_0-output-llmAgentflow",
+      "target": "llmAgentflow_1",
+      "targetHandle": "llmAgentflow_1",
+      "data": {
+        "sourceColor": "#64B5F6",
+        "targetColor": "#64B5F6",
+        "isHumanInput": false
+      },
+      "type": "agentFlow",
+      "id": "llmAgentflow_0-llmAgentflow_0-output-llmAgentflow-llmAgentflow_1-llmAgentflow_1"
+    }
+  ],
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 0.8
+  }
+}

@@ -1,0 +1,28 @@
+{
+    "id": "S08",
+    "title": "Two parallel stops: Agent tool approval and a HumanInput gate",
+    "flow": "S08-parallel-stops",
+    "findings": ["F05", "F07", "F08", "F09"],
+    "modes": ["M1", "M2"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "I want a refund of 120 euros minus the 15 percent restocking fee.", "note": "Both branches stop" },
+        { "id": "t2", "humanInput": { "type": "proceed" }, "note": "Resumes the primary stopped node (from the action event)" },
+        { "id": "t3", "humanInput": { "type": "proceed", "feedback": "Approved by the store manager." }, "note": "Resumes the remaining stopped node" },
+        { "id": "t4", "question": "Can I also get free return shipping?", "note": "New question: the gate stops again" }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "policy-tool", "route": "S08-policy", "turn": "t1", "reply": { "toolCalls": [{ "name": "calculator", "args": { "input": "120*0.85" } }] } },
+            { "id": "policy-after-tool", "route": "S08-policy", "hasToolResult": true, "reply": { "content": "Policy check: a refund of 102 euros is within policy." } },
+            { "id": "policy-t4", "route": "S08-policy", "turn": "t4", "reply": { "content": "Free return shipping is available for premium members." } },
+            { "id": "summary", "route": "S08-summary", "reply": { "content": "Refund approved: 102 euros will go back to the original payment method." } }
+        ]
+    },
+    "expectedAfter": {
+        "F05": "t2 saves 'Proceed' (tool approval) and t3 saves 'Approved by the store manager.' as user messages; the Summary and t4 see them.",
+        "F07": "The t2 resume, which ends with no terminal output while the gate stays stopped, does not add a ' ' bot message.",
+        "F08": "Pending resume data for both stopped nodes lives in the pending field, not in history messages.",
+        "F09": "The token does not grow from t1 to t2 to t3 by copying earlier records."
+    }
+}

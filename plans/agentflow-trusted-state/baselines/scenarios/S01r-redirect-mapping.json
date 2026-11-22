@@ -1,0 +1,24 @@
+{
+    "id": "S01r",
+    "title": "Mapping flow that redirects to S01",
+    "flow": "S01r-redirect-mapping",
+    "extraFlows": ["S01-single-agent-memory"],
+    "findings": [],
+    "modes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "Hello, is my order ORD-2002 on its way?" },
+        { "id": "t2", "question": "What was the order number again?" },
+        { "id": "t3", "question": "Thanks, bye." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "t1", "route": "S01-agent", "turn": "t1", "reply": { "content": "Yes, order ORD-2002 shipped yesterday and should arrive on Thursday." } },
+            { "id": "t2", "route": "S01-agent", "turn": "t2", "reply": { "content": "Your order number is ORD-2002." } },
+            { "id": "t3", "route": "S01-agent", "turn": "t3", "reply": { "content": "Bye, have a nice day." } }
+        ]
+    },
+    "expectedAfter": {
+        "-": "Same as S01: the token passes through the redirect and continues the target flow's conversation."
+    }
+}

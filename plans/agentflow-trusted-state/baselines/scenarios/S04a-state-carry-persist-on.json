@@ -1,0 +1,24 @@
+{
+    "id": "S04a",
+    "title": "State carry-over with Persist State on and a startState override",
+    "flow": "S04a-state-carry-persist-on",
+    "findings": [],
+    "modes": ["M1"],
+    "streaming": true,
+    "note": "Persist State on: state carries over; turn 3 resets stage through the startState override.",
+    "turns": [
+        { "id": "t1", "question": "I would like to open a business account for my shop." },
+        { "id": "t2", "question": "What are the next steps?" },
+        { "id": "t3", "question": "Please restart the intake for my second shop.", "overrideConfig": { "startState": [{ "key": "stage", "value": "new" }] }, "note": "startState override (enabled for the Start node in the API config)" },
+        { "id": "t4", "question": "How long does the approval take?" }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "intake", "route": "S04a-intake", "reply": { "content": "Intake ({turn}): I have recorded the shop details and marked the request as qualified." } },
+            { "id": "followup", "route": "S04a-followup", "reply": { "content": "Follow-up ({turn}): our onboarding team will call you within two business days." } }
+        ]
+    },
+    "expectedAfter": {
+        "-": "Unchanged: state already carries over (through the token field instead of the last node record)."
+    }
+}

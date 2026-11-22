@@ -1,0 +1,5359 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S02",
+  "file": "S02-router-mixed-memory.json",
+  "title": "Condition Agent router with different memory per branch",
+  "findings": [
+   "F13"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mws6myyp-M1-S02",
+ "runTag": "mws6myyp",
+ "resumedFrom": null,
+ "flows": [
+  {
+   "slug": "S02-router-mixed-memory",
+   "chatflowId": "f058a473-41ff-473e-847e-96df05ec90b4",
+   "name": "TS00b M1 S02-router-mixed-memory",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-22T18:40:48.343Z",
+ "turns": [
+  {
+   "id": "t1",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S02",
+     "streaming": true,
+     "question": "I was charged twice for my last invoice."
+    }
+   },
+   "tokenSent": null,
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 337.46,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 9.2,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 9.24,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.26,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.27,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 322.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 322.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Billing Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 333.16,
+      "event": "token",
+      "data": "I can see two"
+     },
+     {
+      "offsetMs": 333.2,
+      "event": "token",
+      "data": " charges for invoice INV-77."
+     },
+     {
+      "offsetMs": 333.21,
+      "event": "token",
+      "data": " I have started a"
+     },
+     {
+      "offsetMs": 333.22,
+      "event": "token",
+      "data": " refund for the duplicate."
+     },
+     {
+      "offsetMs": 334.26,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 334.27,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10453,
+       "output_tokens": 22,
+       "total_tokens": 10475
+      }
+     },
+     {
+      "offsetMs": 334.29,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Billing Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 334.32,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 336.26,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 25656,
+       "sha256": "9642c36bf90d57c3c71536a6fa9e959dd71e006c88770457b2c9b205e66c95c3"
+      }
+     },
+     {
+      "offsetMs": 337.2,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "chatMessageId": "7ca8de35-11fe-487b-ab28-7e07c2552b82",
+       "question": "I was charged twice for my last invoice.",
+       "sessionId": "ts00b-mws6myyp-M1-S02"
+      }
+     },
+     {
+      "offsetMs": 337.3,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 337.39,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+   "tokens": [
+    "I can see two",
+    " charges for invoice INV-77.",
+    " I have started a",
+    " refund for the duplicate."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "I was charged twice for my last invoice."
+      },
+      "output": {
+       "question": "I was charged twice for my last invoice."
+      },
+      "state": {}
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Router",
+     "data": {
+      "id": "conditionAgentAgentflow_0",
+      "name": "conditionAgentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+          "length": 40908,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_router"
+          ],
+          "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+         }
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+        },
+        {
+         "role": "assistant",
+         "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": I was charged twice for my last invoice., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+        }
+       ]
+      },
+      "output": {
+       "conditions": [
+        {
+         "output": "billing question",
+         "isFulfilled": true
+        },
+        {
+         "output": "technical issue",
+         "isFulfilled": false
+        },
+        {
+         "output": "anything else",
+         "isFulfilled": false
+        }
+       ],
+       "content": "```json\n{\"output\": \"billing question\"}\n```",
+       "timeMetadata": {
+        "start": 1795372847817,
+        "end": 1795372848125,
+        "delta": 308
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "I was charged twice for my last invoice."
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Billing Agent",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+          "length": 41616,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_billing"
+          ],
+          "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+         }
+        },
+        {
+         "role": "user",
+         "content": "I was charged twice for my last invoice."
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+       "timeMetadata": {
+        "start": 1795372848137,
+        "end": 1795372848140,
+        "delta": 3
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10453,
+        "output_tokens": 22,
+        "total_tokens": 10475,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "prompt": 0,
+        "completion": 0,
+        "usage": {
+         "prompt_tokens": 10453,
+         "completion_tokens": 22,
+         "total_tokens": 10475
+        },
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model"
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+        "name": "billing_agent"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 651,
+     "route": "S02-router",
+     "callIndex": 0,
+     "ruleId": "router-billing",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+         "length": 40908,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_router"
+         ],
+         "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": I was charged twice for my last invoice., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"billing question\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 652,
+     "route": "S02-billing",
+     "callIndex": 0,
+     "ruleId": "billing-t1",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+         "length": 41616,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_billing"
+         ],
+         "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I was charged twice for my last invoice."
+       }
+      ]
+     },
+     "reply": {
+      "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 25656,
+    "sha256": "9642c36bf90d57c3c71536a6fa9e959dd71e006c88770457b2c9b205e66c95c3",
+    "sizes": {
+     "base64Length": 25656,
+     "payloadBytes": 19240,
+     "gzipBytes": 19212,
+     "rawJsonBytes": 87547,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 742,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 86764,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 86467,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 287,
+       "inputMessagesBytes": 0,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "conditionAgentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42187,
+       "inputMessagesBytes": 41573,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 43343,
+       "inputMessagesBytes": 41811,
+       "stateBytes": 2
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 87547
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 742
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 86764
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 86467,
+      "parsedBytes": 85821,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 85821
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42187
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42061
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41586
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41573
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41034
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41006
+     },
+     {
+      "path": "previousExecution.executionData<json>[2]",
+      "bytes": 43343
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data",
+      "bytes": 43210
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input",
+      "bytes": 42489
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages",
+      "bytes": 41811
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0]",
+      "bytes": 41740
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0].content",
+      "bytes": 41712
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "I was charged twice for my last invoice.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:47.810Z",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "id": "1af8451e-2301-4860-8023-6c55f46b26ec"
+      },
+      {
+       "id": "7ca8de35-11fe-487b-ab28-7e07c2552b82",
+       "role": "apiMessage",
+       "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "createdDate": "2026-11-22T18:40:48.141Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372847810-9uel5h4qw",
+      "state": "FINISHED",
+      "agentflowId": "f058a473-41ff-473e-847e-96df05ec90b4",
+      "sessionId": "ts00b-mws6myyp-M1-S02",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "I was charged twice for my last invoice."
+          },
+          "output": {
+           "question": "I was charged twice for my last invoice."
+          },
+          "state": {}
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "conditionAgentAgentflow_0",
+         "nodeLabel": "Router",
+         "data": {
+          "id": "conditionAgentAgentflow_0",
+          "name": "conditionAgentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+              "length": 40908,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_router"
+              ],
+              "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+             }
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+            },
+            {
+             "role": "assistant",
+             "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": I was charged twice for my last invoice., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+            }
+           ]
+          },
+          "output": {
+           "conditions": [
+            {
+             "output": "billing question",
+             "isFulfilled": true
+            },
+            {
+             "output": "technical issue",
+             "isFulfilled": false
+            },
+            {
+             "output": "anything else",
+             "isFulfilled": false
+            }
+           ],
+           "content": "```json\n{\"output\": \"billing question\"}\n```",
+           "timeMetadata": {
+            "start": 1795372847817,
+            "end": 1795372848125,
+            "delta": 308
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "I was charged twice for my last invoice."
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Billing Agent",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+              "length": 41616,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_billing"
+              ],
+              "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+             }
+            },
+            {
+             "role": "user",
+             "content": "I was charged twice for my last invoice."
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+           "timeMetadata": {
+            "start": 1795372848137,
+            "end": 1795372848140,
+            "delta": 3
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10453,
+            "output_tokens": 22,
+            "total_tokens": 10475,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "prompt": 0,
+            "completion": 0,
+            "usage": {
+             "prompt_tokens": 10453,
+             "completion_tokens": 22,
+             "total_tokens": 10475
+            },
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model"
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+            "name": "billing_agent"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "conditionAgentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:47.810Z",
+      "updatedDate": "2026-11-22T18:40:47.810Z"
+     }
+    },
+    "sentinels": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    },
+    "executedData": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 85884,
+    "executedDataGzipBytes": 18752,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t2",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S02",
+     "streaming": true,
+     "question": "The app crashes when I open my order history.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 25656,
+      "sha256": "9642c36bf90d57c3c71536a6fa9e959dd71e006c88770457b2c9b205e66c95c3"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 25656,
+    "sha256": "9642c36bf90d57c3c71536a6fa9e959dd71e006c88770457b2c9b205e66c95c3"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 36.3,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.78,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.81,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.83,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.84,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 28.17,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 28.21,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Tech Support",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 32.03,
+      "event": "token",
+      "data": "Please update the app"
+     },
+     {
+      "offsetMs": 32.06,
+      "event": "token",
+      "data": " to version 5.2 and"
+     },
+     {
+      "offsetMs": 32.09,
+      "event": "token",
+      "data": " clear its cache; that"
+     },
+     {
+      "offsetMs": 32.12,
+      "event": "token",
+      "data": " fixes the crash."
+     },
+     {
+      "offsetMs": 33.33,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 33.35,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10490,
+       "output_tokens": 21,
+       "total_tokens": 10511
+      }
+     },
+     {
+      "offsetMs": 33.37,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Tech Support",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 33.38,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 35.13,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 25836,
+       "sha256": "0b05babdbc9640ab5d014614ee05273d115db991afaa4b4eaa6cef491ee78c22"
+      }
+     },
+     {
+      "offsetMs": 36.06,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "chatMessageId": "43341b5e-0aef-47e1-8192-391c8e611a6e",
+       "question": "The app crashes when I open my order history.",
+       "sessionId": "ts00b-mws6myyp-M1-S02"
+      }
+     },
+     {
+      "offsetMs": 36.17,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 36.25,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+   "tokens": [
+    "Please update the app",
+    " to version 5.2 and",
+    " clear its cache; that",
+    " fixes the crash."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "The app crashes when I open my order history."
+      },
+      "output": {
+       "question": "The app crashes when I open my order history."
+      },
+      "state": {}
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Router",
+     "data": {
+      "id": "conditionAgentAgentflow_0",
+      "name": "conditionAgentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+          "length": 40908,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_router"
+          ],
+          "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+         }
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+        },
+        {
+         "role": "assistant",
+         "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": The app crashes when I open my order history., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+        }
+       ]
+      },
+      "output": {
+       "conditions": [
+        {
+         "output": "billing question",
+         "isFulfilled": false
+        },
+        {
+         "output": "technical issue",
+         "isFulfilled": true
+        },
+        {
+         "output": "anything else",
+         "isFulfilled": false
+        }
+       ],
+       "content": "```json\n{\"output\": \"technical issue\"}\n```",
+       "timeMetadata": {
+        "start": 1795372848159,
+        "end": 1795372848175,
+        "delta": 16
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "The app crashes when I open my order history."
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Tech Support",
+     "data": {
+      "id": "llmAgentflow_0",
+      "name": "llmAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "e527f5bfa6e41285fdd2a21d750e09e5e5cb14ba5900f53fcbff4005a06e4007",
+          "length": 41569,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_tech"
+          ],
+          "head": "\\[\\[route:S02-tech\\]\\] SYSPROMPT_SENTINEL_S02_tech\n\nYou are Northwind Outfitters technical support. Keep answers short.\n"
+         }
+        },
+        {
+         "role": "user",
+         "content": "I was charged twice for my last invoice."
+        },
+        {
+         "role": "assistant",
+         "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+        },
+        {
+         "role": "user",
+         "content": "The app crashes when I open my order history."
+        }
+       ],
+       "llmModel": "chatOpenAI",
+       "llmEnableMemory": true,
+       "llmMemoryType": "windowSize",
+       "llmMemoryWindowSize": 2,
+       "llmMemoryWindowDisableStrict": false,
+       "llmMemoryMaxTokenLimit": "2000",
+       "llmReturnResponseAs": "userMessage",
+       "llmModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "llmModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+       "timeMetadata": {
+        "start": 1795372848180,
+        "end": 1795372848183,
+        "delta": 3
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10490,
+        "output_tokens": 21,
+        "total_tokens": 10511
+       },
+       "responseMetadata": {
+        "prompt": 0,
+        "completion": 0,
+        "usage": {
+         "prompt_tokens": 10490,
+         "completion_tokens": 21,
+         "total_tokens": 10511
+        },
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model"
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+        "name": "tech_support"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 654,
+     "route": "S02-router",
+     "callIndex": 0,
+     "ruleId": "router-tech",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+         "length": 40908,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_router"
+         ],
+         "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": The app crashes when I open my order history., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"technical issue\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 655,
+     "route": "S02-tech",
+     "callIndex": 0,
+     "ruleId": "tech-t2",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "e527f5bfa6e41285fdd2a21d750e09e5e5cb14ba5900f53fcbff4005a06e4007",
+         "length": 41569,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_tech"
+         ],
+         "head": "\\[\\[route:S02-tech\\]\\] SYSPROMPT_SENTINEL_S02_tech\n\nYou are Northwind Outfitters technical support. Keep answers short.\n"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I was charged twice for my last invoice."
+       },
+       {
+        "role": "assistant",
+        "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+       },
+       {
+        "role": "user",
+        "content": "The app crashes when I open my order history."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 25836,
+    "sha256": "0b05babdbc9640ab5d014614ee05273d115db991afaa4b4eaa6cef491ee78c22",
+    "sizes": {
+     "base64Length": 25836,
+     "payloadBytes": 19375,
+     "gzipBytes": 19347,
+     "rawJsonBytes": 88429,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 1483,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 86905,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 86608,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 297,
+       "inputMessagesBytes": 0,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "conditionAgentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42195,
+       "inputMessagesBytes": 41578,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "llmAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 43452,
+       "inputMessagesBytes": 41958,
+       "stateBytes": 2
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 88429
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 1483
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 86905
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 86608,
+      "parsedBytes": 85948,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 85948
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42195
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42069
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41591
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41578
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41034
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41006
+     },
+     {
+      "path": "previousExecution.executionData<json>[2]",
+      "bytes": 43452
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data",
+      "bytes": 43322
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input",
+      "bytes": 42637
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages",
+      "bytes": 41958
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0]",
+      "bytes": 41695
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0].content",
+      "bytes": 41667
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "I was charged twice for my last invoice.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:47.810Z",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "id": "1af8451e-2301-4860-8023-6c55f46b26ec"
+      },
+      {
+       "id": "7ca8de35-11fe-487b-ab28-7e07c2552b82",
+       "role": "apiMessage",
+       "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "createdDate": "2026-11-22T18:40:48.141Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "The app crashes when I open my order history.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.154Z",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "id": "c4411183-4742-4527-96f7-9849e256e855"
+      },
+      {
+       "id": "43341b5e-0aef-47e1-8192-391c8e611a6e",
+       "role": "apiMessage",
+       "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "createdDate": "2026-11-22T18:40:48.184Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372848155-vcqq5xk3d",
+      "state": "FINISHED",
+      "agentflowId": "f058a473-41ff-473e-847e-96df05ec90b4",
+      "sessionId": "ts00b-mws6myyp-M1-S02",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "The app crashes when I open my order history."
+          },
+          "output": {
+           "question": "The app crashes when I open my order history."
+          },
+          "state": {}
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "conditionAgentAgentflow_0",
+         "nodeLabel": "Router",
+         "data": {
+          "id": "conditionAgentAgentflow_0",
+          "name": "conditionAgentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+              "length": 40908,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_router"
+              ],
+              "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+             }
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+            },
+            {
+             "role": "assistant",
+             "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": The app crashes when I open my order history., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+            }
+           ]
+          },
+          "output": {
+           "conditions": [
+            {
+             "output": "billing question",
+             "isFulfilled": false
+            },
+            {
+             "output": "technical issue",
+             "isFulfilled": true
+            },
+            {
+             "output": "anything else",
+             "isFulfilled": false
+            }
+           ],
+           "content": "```json\n{\"output\": \"technical issue\"}\n```",
+           "timeMetadata": {
+            "start": 1795372848159,
+            "end": 1795372848175,
+            "delta": 16
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "The app crashes when I open my order history."
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "llmAgentflow_0",
+         "nodeLabel": "Tech Support",
+         "data": {
+          "id": "llmAgentflow_0",
+          "name": "llmAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "e527f5bfa6e41285fdd2a21d750e09e5e5cb14ba5900f53fcbff4005a06e4007",
+              "length": 41569,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_tech"
+              ],
+              "head": "\\[\\[route:S02-tech\\]\\] SYSPROMPT_SENTINEL_S02_tech\n\nYou are Northwind Outfitters technical support. Keep answers short.\n"
+             }
+            },
+            {
+             "role": "user",
+             "content": "I was charged twice for my last invoice."
+            },
+            {
+             "role": "assistant",
+             "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+            },
+            {
+             "role": "user",
+             "content": "The app crashes when I open my order history."
+            }
+           ],
+           "llmModel": "chatOpenAI",
+           "llmEnableMemory": true,
+           "llmMemoryType": "windowSize",
+           "llmMemoryWindowSize": 2,
+           "llmMemoryWindowDisableStrict": false,
+           "llmMemoryMaxTokenLimit": "2000",
+           "llmReturnResponseAs": "userMessage",
+           "llmModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+           "timeMetadata": {
+            "start": 1795372848180,
+            "end": 1795372848183,
+            "delta": 3
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10490,
+            "output_tokens": 21,
+            "total_tokens": 10511
+           },
+           "responseMetadata": {
+            "prompt": 0,
+            "completion": 0,
+            "usage": {
+             "prompt_tokens": 10490,
+             "completion_tokens": 21,
+             "total_tokens": 10511
+            },
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model"
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+            "name": "tech_support"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "conditionAgentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:48.155Z",
+      "updatedDate": "2026-11-22T18:40:48.155Z"
+     }
+    },
+    "sentinels": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    },
+    "executedData": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 86011,
+    "executedDataGzipBytes": 18715,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t3",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S02",
+     "streaming": true,
+     "question": "When will the duplicate charge be refunded?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 25836,
+      "sha256": "0b05babdbc9640ab5d014614ee05273d115db991afaa4b4eaa6cef491ee78c22"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 25836,
+    "sha256": "0b05babdbc9640ab5d014614ee05273d115db991afaa4b4eaa6cef491ee78c22"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 35.96,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.8,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.83,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.85,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.86,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 28.11,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 28.18,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Billing Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 32.07,
+      "event": "token",
+      "data": "The duplicate charge will"
+     },
+     {
+      "offsetMs": 32.12,
+      "event": "token",
+      "data": " be back on your"
+     },
+     {
+      "offsetMs": 32.13,
+      "event": "token",
+      "data": " card within 5 business"
+     },
+     {
+      "offsetMs": 32.14,
+      "event": "token",
+      "data": " days."
+     },
+     {
+      "offsetMs": 33.14,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 33.16,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10547,
+       "output_tokens": 18,
+       "total_tokens": 10565
+      }
+     },
+     {
+      "offsetMs": 33.17,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Billing Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 33.18,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 34.89,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 26252,
+       "sha256": "4fe94c34270a5d6c2e7371ef7dc5a4aba5f3d20572f0febc24dba381cc5705a9"
+      }
+     },
+     {
+      "offsetMs": 35.72,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "chatMessageId": "11162096-c2ce-4c95-928a-ccf0270ed7c9",
+       "question": "When will the duplicate charge be refunded?",
+       "sessionId": "ts00b-mws6myyp-M1-S02"
+      }
+     },
+     {
+      "offsetMs": 35.82,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 35.9,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "The duplicate charge will be back on your card within 5 business days.",
+   "tokens": [
+    "The duplicate charge will",
+    " be back on your",
+    " card within 5 business",
+    " days."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "When will the duplicate charge be refunded?"
+      },
+      "output": {
+       "question": "When will the duplicate charge be refunded?"
+      },
+      "state": {}
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Router",
+     "data": {
+      "id": "conditionAgentAgentflow_0",
+      "name": "conditionAgentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+          "length": 40908,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_router"
+          ],
+          "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+         }
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+        },
+        {
+         "role": "assistant",
+         "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": When will the duplicate charge be refunded?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+        }
+       ]
+      },
+      "output": {
+       "conditions": [
+        {
+         "output": "billing question",
+         "isFulfilled": true
+        },
+        {
+         "output": "technical issue",
+         "isFulfilled": false
+        },
+        {
+         "output": "anything else",
+         "isFulfilled": false
+        }
+       ],
+       "content": "```json\n{\"output\": \"billing question\"}\n```",
+       "timeMetadata": {
+        "start": 1795372848203,
+        "end": 1795372848217,
+        "delta": 14
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "When will the duplicate charge be refunded?"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Billing Agent",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+          "length": 41616,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_billing"
+          ],
+          "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+         }
+        },
+        {
+         "role": "user",
+         "content": "I was charged twice for my last invoice."
+        },
+        {
+         "role": "assistant",
+         "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+        },
+        {
+         "role": "user",
+         "content": "The app crashes when I open my order history."
+        },
+        {
+         "role": "assistant",
+         "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash."
+        },
+        {
+         "role": "user",
+         "content": "When will the duplicate charge be refunded?"
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "The duplicate charge will be back on your card within 5 business days.",
+       "timeMetadata": {
+        "start": 1795372848221,
+        "end": 1795372848224,
+        "delta": 3
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10547,
+        "output_tokens": 18,
+        "total_tokens": 10565,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "prompt": 0,
+        "completion": 0,
+        "usage": {
+         "prompt_tokens": 10547,
+         "completion_tokens": 18,
+         "total_tokens": 10565
+        },
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model"
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "The duplicate charge will be back on your card within 5 business days.",
+        "name": "billing_agent"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 657,
+     "route": "S02-router",
+     "callIndex": 0,
+     "ruleId": "router-billing",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+         "length": 40908,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_router"
+         ],
+         "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": When will the duplicate charge be refunded?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"billing question\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 658,
+     "route": "S02-billing",
+     "callIndex": 0,
+     "ruleId": "billing-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+         "length": 41616,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_billing"
+         ],
+         "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I was charged twice for my last invoice."
+       },
+       {
+        "role": "assistant",
+        "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+       },
+       {
+        "role": "user",
+        "content": "The app crashes when I open my order history."
+       },
+       {
+        "role": "assistant",
+        "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash."
+       },
+       {
+        "role": "user",
+        "content": "When will the duplicate charge be refunded?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "The duplicate charge will be back on your card within 5 business days.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 26252,
+    "sha256": "4fe94c34270a5d6c2e7371ef7dc5a4aba5f3d20572f0febc24dba381cc5705a9",
+    "sizes": {
+     "base64Length": 26252,
+     "payloadBytes": 19689,
+     "gzipBytes": 19661,
+     "rawJsonBytes": 89410,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 2213,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 87156,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 86859,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 293,
+       "inputMessagesBytes": 0,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "conditionAgentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42192,
+       "inputMessagesBytes": 41576,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 43692,
+       "inputMessagesBytes": 42188,
+       "stateBytes": 2
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 89410
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 2213
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 87156
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 86859,
+      "parsedBytes": 86181,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 86181
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42192
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42066
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41589
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41576
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41034
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41006
+     },
+     {
+      "path": "previousExecution.executionData<json>[2]",
+      "bytes": 43692
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data",
+      "bytes": 43559
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input",
+      "bytes": 42866
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages",
+      "bytes": 42188
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0]",
+      "bytes": 41740
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0].content",
+      "bytes": 41712
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "I was charged twice for my last invoice.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:47.810Z",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "id": "1af8451e-2301-4860-8023-6c55f46b26ec"
+      },
+      {
+       "id": "7ca8de35-11fe-487b-ab28-7e07c2552b82",
+       "role": "apiMessage",
+       "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "createdDate": "2026-11-22T18:40:48.141Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "The app crashes when I open my order history.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.154Z",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "id": "c4411183-4742-4527-96f7-9849e256e855"
+      },
+      {
+       "id": "43341b5e-0aef-47e1-8192-391c8e611a6e",
+       "role": "apiMessage",
+       "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "createdDate": "2026-11-22T18:40:48.184Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "When will the duplicate charge be refunded?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.195Z",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "id": "1550fcde-b195-4f67-87f2-44900e7a6c5a"
+      },
+      {
+       "id": "11162096-c2ce-4c95-928a-ccf0270ed7c9",
+       "role": "apiMessage",
+       "content": "The duplicate charge will be back on your card within 5 business days.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "createdDate": "2026-11-22T18:40:48.225Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372848196-5ladvuh3k",
+      "state": "FINISHED",
+      "agentflowId": "f058a473-41ff-473e-847e-96df05ec90b4",
+      "sessionId": "ts00b-mws6myyp-M1-S02",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "When will the duplicate charge be refunded?"
+          },
+          "output": {
+           "question": "When will the duplicate charge be refunded?"
+          },
+          "state": {}
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "conditionAgentAgentflow_0",
+         "nodeLabel": "Router",
+         "data": {
+          "id": "conditionAgentAgentflow_0",
+          "name": "conditionAgentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+              "length": 40908,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_router"
+              ],
+              "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+             }
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+            },
+            {
+             "role": "assistant",
+             "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": When will the duplicate charge be refunded?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+            }
+           ]
+          },
+          "output": {
+           "conditions": [
+            {
+             "output": "billing question",
+             "isFulfilled": true
+            },
+            {
+             "output": "technical issue",
+             "isFulfilled": false
+            },
+            {
+             "output": "anything else",
+             "isFulfilled": false
+            }
+           ],
+           "content": "```json\n{\"output\": \"billing question\"}\n```",
+           "timeMetadata": {
+            "start": 1795372848203,
+            "end": 1795372848217,
+            "delta": 14
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "When will the duplicate charge be refunded?"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Billing Agent",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+              "length": 41616,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_billing"
+              ],
+              "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+             }
+            },
+            {
+             "role": "user",
+             "content": "I was charged twice for my last invoice."
+            },
+            {
+             "role": "assistant",
+             "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+            },
+            {
+             "role": "user",
+             "content": "The app crashes when I open my order history."
+            },
+            {
+             "role": "assistant",
+             "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash."
+            },
+            {
+             "role": "user",
+             "content": "When will the duplicate charge be refunded?"
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "The duplicate charge will be back on your card within 5 business days.",
+           "timeMetadata": {
+            "start": 1795372848221,
+            "end": 1795372848224,
+            "delta": 3
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10547,
+            "output_tokens": 18,
+            "total_tokens": 10565,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "prompt": 0,
+            "completion": 0,
+            "usage": {
+             "prompt_tokens": 10547,
+             "completion_tokens": 18,
+             "total_tokens": 10565
+            },
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model"
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "The duplicate charge will be back on your card within 5 business days.",
+            "name": "billing_agent"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "conditionAgentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:48.196Z",
+      "updatedDate": "2026-11-22T18:40:48.196Z"
+     }
+    },
+    "sentinels": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    },
+    "executedData": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 86244,
+    "executedDataGzipBytes": 18881,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S02",
+     "streaming": true,
+     "question": "What is the weather like in Lisbon today?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 26252,
+      "sha256": "4fe94c34270a5d6c2e7371ef7dc5a4aba5f3d20572f0febc24dba381cc5705a9"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 26252,
+    "sha256": "4fe94c34270a5d6c2e7371ef7dc5a4aba5f3d20572f0febc24dba381cc5705a9"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 26,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.84,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.87,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.89,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.9,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 22.79,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 22.83,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Fallback Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 22.85,
+      "event": "token",
+      "data": "I can help with billing or technical questions. Could you tell me a bit more?"
+     },
+     {
+      "offsetMs": 22.86,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Fallback Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 22.87,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 24.9,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 14740,
+       "sha256": "d6286e41d09046196bbe0eb06286bceef7f34bc7db7a88cf4452051f518b633e"
+      }
+     },
+     {
+      "offsetMs": 25.88,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "chatMessageId": "9faab67d-b617-409d-af98-f79b17bec901",
+       "question": "What is the weather like in Lisbon today?",
+       "sessionId": "ts00b-mws6myyp-M1-S02"
+      }
+     },
+     {
+      "offsetMs": 25.91,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 25.95,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "I can help with billing or technical questions. Could you tell me a bit more?",
+   "tokens": [
+    "I can help with billing or technical questions. Could you tell me a bit more?"
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "What is the weather like in Lisbon today?"
+      },
+      "output": {
+       "question": "What is the weather like in Lisbon today?"
+      },
+      "state": {}
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Router",
+     "data": {
+      "id": "conditionAgentAgentflow_0",
+      "name": "conditionAgentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+          "length": 40908,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_router"
+          ],
+          "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+         }
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+        },
+        {
+         "role": "assistant",
+         "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": What is the weather like in Lisbon today?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+        }
+       ]
+      },
+      "output": {
+       "conditions": [
+        {
+         "output": "billing question",
+         "isFulfilled": false
+        },
+        {
+         "output": "technical issue",
+         "isFulfilled": false
+        },
+        {
+         "output": "anything else",
+         "isFulfilled": true
+        }
+       ],
+       "content": "```json\n{\"output\": \"anything else\"}\n```",
+       "timeMetadata": {
+        "start": 1795372848242,
+        "end": 1795372848255,
+        "delta": 13
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "What is the weather like in Lisbon today?"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Fallback Reply",
+     "data": {
+      "id": "directReplyAgentflow_0",
+      "name": "directReplyAgentflow",
+      "input": {},
+      "output": {
+       "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+      },
+      "state": {}
+     },
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 660,
+     "route": "S02-router",
+     "callIndex": 0,
+     "ruleId": "router-other",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+         "length": 40908,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_router"
+         ],
+         "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": What is the weather like in Lisbon today?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"anything else\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 14740,
+    "sha256": "d6286e41d09046196bbe0eb06286bceef7f34bc7db7a88cf4452051f518b633e",
+    "sizes": {
+     "base64Length": 14740,
+     "payloadBytes": 11055,
+     "gzipBytes": 11027,
+     "rawJsonBytes": 46448,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 2948,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 43459,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 43162,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 289,
+       "inputMessagesBytes": 0,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "conditionAgentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42185,
+       "inputMessagesBytes": 41574,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "directReplyAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 324,
+       "inputMessagesBytes": 0,
+       "stateBytes": 2
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 46448
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 2948
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 43459
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 43162,
+      "parsedBytes": 42802,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 42802
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42185
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42059
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41587
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41574
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41034
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41006
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "I was charged twice for my last invoice.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:47.810Z",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "id": "1af8451e-2301-4860-8023-6c55f46b26ec"
+      },
+      {
+       "id": "7ca8de35-11fe-487b-ab28-7e07c2552b82",
+       "role": "apiMessage",
+       "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "createdDate": "2026-11-22T18:40:48.141Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "The app crashes when I open my order history.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.154Z",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "id": "c4411183-4742-4527-96f7-9849e256e855"
+      },
+      {
+       "id": "43341b5e-0aef-47e1-8192-391c8e611a6e",
+       "role": "apiMessage",
+       "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "createdDate": "2026-11-22T18:40:48.184Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "When will the duplicate charge be refunded?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.195Z",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "id": "1550fcde-b195-4f67-87f2-44900e7a6c5a"
+      },
+      {
+       "id": "11162096-c2ce-4c95-928a-ccf0270ed7c9",
+       "role": "apiMessage",
+       "content": "The duplicate charge will be back on your card within 5 business days.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "createdDate": "2026-11-22T18:40:48.225Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "What is the weather like in Lisbon today?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.237Z",
+       "executionId": "mock-1795372848238-v8lmpaw0c",
+       "id": "1c054db6-d9b3-4e4a-99f3-5d4caed452b8"
+      },
+      {
+       "id": "9faab67d-b617-409d-af98-f79b17bec901",
+       "role": "apiMessage",
+       "content": "I can help with billing or technical questions. Could you tell me a bit more?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848238-v8lmpaw0c",
+       "createdDate": "2026-11-22T18:40:48.256Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372848238-v8lmpaw0c",
+      "state": "FINISHED",
+      "agentflowId": "f058a473-41ff-473e-847e-96df05ec90b4",
+      "sessionId": "ts00b-mws6myyp-M1-S02",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "What is the weather like in Lisbon today?"
+          },
+          "output": {
+           "question": "What is the weather like in Lisbon today?"
+          },
+          "state": {}
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "conditionAgentAgentflow_0",
+         "nodeLabel": "Router",
+         "data": {
+          "id": "conditionAgentAgentflow_0",
+          "name": "conditionAgentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+              "length": 40908,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_router"
+              ],
+              "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+             }
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+            },
+            {
+             "role": "assistant",
+             "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": What is the weather like in Lisbon today?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+            }
+           ]
+          },
+          "output": {
+           "conditions": [
+            {
+             "output": "billing question",
+             "isFulfilled": false
+            },
+            {
+             "output": "technical issue",
+             "isFulfilled": false
+            },
+            {
+             "output": "anything else",
+             "isFulfilled": true
+            }
+           ],
+           "content": "```json\n{\"output\": \"anything else\"}\n```",
+           "timeMetadata": {
+            "start": 1795372848242,
+            "end": 1795372848255,
+            "delta": 13
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "What is the weather like in Lisbon today?"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "directReplyAgentflow_0",
+         "nodeLabel": "Fallback Reply",
+         "data": {
+          "id": "directReplyAgentflow_0",
+          "name": "directReplyAgentflow",
+          "input": {},
+          "output": {
+           "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+          },
+          "state": {}
+         },
+         "previousNodeIds": [
+          "conditionAgentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:48.238Z",
+      "updatedDate": "2026-11-22T18:40:48.238Z"
+     }
+    },
+    "sentinels": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1
+     }
+    },
+    "executedData": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 42802,
+    "executedDataGzipBytes": 10107,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t5",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S02",
+     "streaming": true,
+     "question": "The crash still happens after the update.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14740,
+      "sha256": "d6286e41d09046196bbe0eb06286bceef7f34bc7db7a88cf4452051f518b633e"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14740,
+    "sha256": "d6286e41d09046196bbe0eb06286bceef7f34bc7db7a88cf4452051f518b633e"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 33.1,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.68,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.73,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.75,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.79,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 25.13,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 25.16,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Tech Support",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 28.98,
+      "event": "token",
+      "data": "Then please reinstall the"
+     },
+     {
+      "offsetMs": 29.02,
+      "event": "token",
+      "data": " app. Your orders are"
+     },
+     {
+      "offsetMs": 29.04,
+      "event": "token",
+      "data": " kept in your account."
+     },
+     {
+      "offsetMs": 30.1,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 30.13,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10513,
+       "output_tokens": 18,
+       "total_tokens": 10531
+      }
+     },
+     {
+      "offsetMs": 30.15,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Tech Support",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 30.17,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 31.96,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 26484,
+       "sha256": "06191f85004d5655e761608a4dd15e957d06edddcbb402acfbc5c231547a115e"
+      }
+     },
+     {
+      "offsetMs": 32.82,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "chatMessageId": "c5ffa59c-2955-4e29-ae66-496376e0049a",
+       "question": "The crash still happens after the update.",
+       "sessionId": "ts00b-mws6myyp-M1-S02"
+      }
+     },
+     {
+      "offsetMs": 32.93,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 33.02,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Then please reinstall the app. Your orders are kept in your account.",
+   "tokens": [
+    "Then please reinstall the",
+    " app. Your orders are",
+    " kept in your account."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "The crash still happens after the update."
+      },
+      "output": {
+       "question": "The crash still happens after the update."
+      },
+      "state": {}
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Router",
+     "data": {
+      "id": "conditionAgentAgentflow_0",
+      "name": "conditionAgentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+          "length": 40908,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_router"
+          ],
+          "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+         }
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+        },
+        {
+         "role": "assistant",
+         "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": The crash still happens after the update., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+        }
+       ]
+      },
+      "output": {
+       "conditions": [
+        {
+         "output": "billing question",
+         "isFulfilled": false
+        },
+        {
+         "output": "technical issue",
+         "isFulfilled": true
+        },
+        {
+         "output": "anything else",
+         "isFulfilled": false
+        }
+       ],
+       "content": "```json\n{\"output\": \"technical issue\"}\n```",
+       "timeMetadata": {
+        "start": 1795372848271,
+        "end": 1795372848285,
+        "delta": 14
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "The crash still happens after the update."
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Tech Support",
+     "data": {
+      "id": "llmAgentflow_0",
+      "name": "llmAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "e527f5bfa6e41285fdd2a21d750e09e5e5cb14ba5900f53fcbff4005a06e4007",
+          "length": 41569,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_tech"
+          ],
+          "head": "\\[\\[route:S02-tech\\]\\] SYSPROMPT_SENTINEL_S02_tech\n\nYou are Northwind Outfitters technical support. Keep answers short.\n"
+         }
+        },
+        {
+         "role": "assistant",
+         "content": "The duplicate charge will be back on your card within 5 business days."
+        },
+        {
+         "role": "user",
+         "content": "What is the weather like in Lisbon today?"
+        },
+        {
+         "role": "assistant",
+         "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+        },
+        {
+         "role": "user",
+         "content": "The crash still happens after the update."
+        }
+       ],
+       "llmModel": "chatOpenAI",
+       "llmEnableMemory": true,
+       "llmMemoryType": "windowSize",
+       "llmMemoryWindowSize": 2,
+       "llmMemoryWindowDisableStrict": false,
+       "llmMemoryMaxTokenLimit": "2000",
+       "llmReturnResponseAs": "userMessage",
+       "llmModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "llmModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Then please reinstall the app. Your orders are kept in your account.",
+       "timeMetadata": {
+        "start": 1795372848289,
+        "end": 1795372848292,
+        "delta": 3
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10513,
+        "output_tokens": 18,
+        "total_tokens": 10531
+       },
+       "responseMetadata": {
+        "prompt": 0,
+        "completion": 0,
+        "usage": {
+         "prompt_tokens": 10513,
+         "completion_tokens": 18,
+         "total_tokens": 10531
+        },
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model"
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Then please reinstall the app. Your orders are kept in your account.",
+        "name": "tech_support"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 662,
+     "route": "S02-router",
+     "callIndex": 0,
+     "ruleId": "router-tech",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+         "length": 40908,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_router"
+         ],
+         "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": The crash still happens after the update., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"technical issue\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 663,
+     "route": "S02-tech",
+     "callIndex": 0,
+     "ruleId": "tech-t5",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "e527f5bfa6e41285fdd2a21d750e09e5e5cb14ba5900f53fcbff4005a06e4007",
+         "length": 41569,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_tech"
+         ],
+         "head": "\\[\\[route:S02-tech\\]\\] SYSPROMPT_SENTINEL_S02_tech\n\nYou are Northwind Outfitters technical support. Keep answers short.\n"
+        }
+       },
+       {
+        "role": "assistant",
+        "content": "The duplicate charge will be back on your card within 5 business days."
+       },
+       {
+        "role": "user",
+        "content": "What is the weather like in Lisbon today?"
+       },
+       {
+        "role": "assistant",
+        "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+       },
+       {
+        "role": "user",
+        "content": "The crash still happens after the update."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Then please reinstall the app. Your orders are kept in your account.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 26484,
+    "sha256": "06191f85004d5655e761608a4dd15e957d06edddcbb402acfbc5c231547a115e",
+    "sizes": {
+     "base64Length": 26484,
+     "payloadBytes": 19861,
+     "gzipBytes": 19833,
+     "rawJsonBytes": 90684,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 10,
+     "historyBytes": 3674,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 86969,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 86672,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 289,
+       "inputMessagesBytes": 0,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "conditionAgentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42187,
+       "inputMessagesBytes": 41574,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "llmAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 43524,
+       "inputMessagesBytes": 42052,
+       "stateBytes": 2
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 90684
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 3674
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 86969
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 86672,
+      "parsedBytes": 86004,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 86004
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42187
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42061
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41587
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41574
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41034
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41006
+     },
+     {
+      "path": "previousExecution.executionData<json>[2]",
+      "bytes": 43524
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data",
+      "bytes": 43394
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input",
+      "bytes": 42731
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages",
+      "bytes": 42052
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0]",
+      "bytes": 41695
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0].content",
+      "bytes": 41667
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "I was charged twice for my last invoice.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:47.810Z",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "id": "1af8451e-2301-4860-8023-6c55f46b26ec"
+      },
+      {
+       "id": "7ca8de35-11fe-487b-ab28-7e07c2552b82",
+       "role": "apiMessage",
+       "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "createdDate": "2026-11-22T18:40:48.141Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "The app crashes when I open my order history.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.154Z",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "id": "c4411183-4742-4527-96f7-9849e256e855"
+      },
+      {
+       "id": "43341b5e-0aef-47e1-8192-391c8e611a6e",
+       "role": "apiMessage",
+       "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "createdDate": "2026-11-22T18:40:48.184Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "When will the duplicate charge be refunded?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.195Z",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "id": "1550fcde-b195-4f67-87f2-44900e7a6c5a"
+      },
+      {
+       "id": "11162096-c2ce-4c95-928a-ccf0270ed7c9",
+       "role": "apiMessage",
+       "content": "The duplicate charge will be back on your card within 5 business days.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "createdDate": "2026-11-22T18:40:48.225Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "What is the weather like in Lisbon today?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.237Z",
+       "executionId": "mock-1795372848238-v8lmpaw0c",
+       "id": "1c054db6-d9b3-4e4a-99f3-5d4caed452b8"
+      },
+      {
+       "id": "9faab67d-b617-409d-af98-f79b17bec901",
+       "role": "apiMessage",
+       "content": "I can help with billing or technical questions. Could you tell me a bit more?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848238-v8lmpaw0c",
+       "createdDate": "2026-11-22T18:40:48.256Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "The crash still happens after the update.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.266Z",
+       "executionId": "mock-1795372848267-lj6y8vt3s",
+       "id": "a423ca7e-2d1f-486c-b331-439249a73f09"
+      },
+      {
+       "id": "c5ffa59c-2955-4e29-ae66-496376e0049a",
+       "role": "apiMessage",
+       "content": "Then please reinstall the app. Your orders are kept in your account.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848267-lj6y8vt3s",
+       "createdDate": "2026-11-22T18:40:48.293Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372848267-lj6y8vt3s",
+      "state": "FINISHED",
+      "agentflowId": "f058a473-41ff-473e-847e-96df05ec90b4",
+      "sessionId": "ts00b-mws6myyp-M1-S02",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "The crash still happens after the update."
+          },
+          "output": {
+           "question": "The crash still happens after the update."
+          },
+          "state": {}
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "conditionAgentAgentflow_0",
+         "nodeLabel": "Router",
+         "data": {
+          "id": "conditionAgentAgentflow_0",
+          "name": "conditionAgentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+              "length": 40908,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_router"
+              ],
+              "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+             }
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+            },
+            {
+             "role": "assistant",
+             "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": The crash still happens after the update., \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+            }
+           ]
+          },
+          "output": {
+           "conditions": [
+            {
+             "output": "billing question",
+             "isFulfilled": false
+            },
+            {
+             "output": "technical issue",
+             "isFulfilled": true
+            },
+            {
+             "output": "anything else",
+             "isFulfilled": false
+            }
+           ],
+           "content": "```json\n{\"output\": \"technical issue\"}\n```",
+           "timeMetadata": {
+            "start": 1795372848271,
+            "end": 1795372848285,
+            "delta": 14
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "The crash still happens after the update."
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "llmAgentflow_0",
+         "nodeLabel": "Tech Support",
+         "data": {
+          "id": "llmAgentflow_0",
+          "name": "llmAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "e527f5bfa6e41285fdd2a21d750e09e5e5cb14ba5900f53fcbff4005a06e4007",
+              "length": 41569,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_tech"
+              ],
+              "head": "\\[\\[route:S02-tech\\]\\] SYSPROMPT_SENTINEL_S02_tech\n\nYou are Northwind Outfitters technical support. Keep answers short.\n"
+             }
+            },
+            {
+             "role": "assistant",
+             "content": "The duplicate charge will be back on your card within 5 business days."
+            },
+            {
+             "role": "user",
+             "content": "What is the weather like in Lisbon today?"
+            },
+            {
+             "role": "assistant",
+             "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+            },
+            {
+             "role": "user",
+             "content": "The crash still happens after the update."
+            }
+           ],
+           "llmModel": "chatOpenAI",
+           "llmEnableMemory": true,
+           "llmMemoryType": "windowSize",
+           "llmMemoryWindowSize": 2,
+           "llmMemoryWindowDisableStrict": false,
+           "llmMemoryMaxTokenLimit": "2000",
+           "llmReturnResponseAs": "userMessage",
+           "llmModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Then please reinstall the app. Your orders are kept in your account.",
+           "timeMetadata": {
+            "start": 1795372848289,
+            "end": 1795372848292,
+            "delta": 3
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10513,
+            "output_tokens": 18,
+            "total_tokens": 10531
+           },
+           "responseMetadata": {
+            "prompt": 0,
+            "completion": 0,
+            "usage": {
+             "prompt_tokens": 10513,
+             "completion_tokens": 18,
+             "total_tokens": 10531
+            },
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model"
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Then please reinstall the app. Your orders are kept in your account.",
+            "name": "tech_support"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "conditionAgentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:48.267Z",
+      "updatedDate": "2026-11-22T18:40:48.267Z"
+     }
+    },
+    "sentinels": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    },
+    "executedData": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_tech": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 86067,
+    "executedDataGzipBytes": 18739,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t6",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S02",
+     "streaming": true,
+     "question": "Can I get the refund as store credit instead?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 26484,
+      "sha256": "06191f85004d5655e761608a4dd15e957d06edddcbb402acfbc5c231547a115e"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 26484,
+    "sha256": "06191f85004d5655e761608a4dd15e957d06edddcbb402acfbc5c231547a115e"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 35.81,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 8.02,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 8.05,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.07,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 8.08,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 27.98,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Router",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 28.02,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Billing Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 31.68,
+      "event": "token",
+      "data": "Yes, I have switched"
+     },
+     {
+      "offsetMs": 31.7,
+      "event": "token",
+      "data": " the refund to store"
+     },
+     {
+      "offsetMs": 31.75,
+      "event": "token",
+      "data": " credit of the same"
+     },
+     {
+      "offsetMs": 31.76,
+      "event": "token",
+      "data": " amount."
+     },
+     {
+      "offsetMs": 32.88,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 32.91,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10680,
+       "output_tokens": 18,
+       "total_tokens": 10698
+      }
+     },
+     {
+      "offsetMs": 32.92,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Billing Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 32.93,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 34.68,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 27096,
+       "sha256": "380541a8f88c601bcaef271d692a0f9197084bd606ae4fe9eae8e74488ecd937"
+      }
+     },
+     {
+      "offsetMs": 35.55,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "chatMessageId": "cfe02337-98a1-401e-9bf1-4d678ae009c4",
+       "question": "Can I get the refund as store credit instead?",
+       "sessionId": "ts00b-mws6myyp-M1-S02"
+      }
+     },
+     {
+      "offsetMs": 35.66,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 35.75,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Yes, I have switched the refund to store credit of the same amount.",
+   "tokens": [
+    "Yes, I have switched",
+    " the refund to store",
+    " credit of the same",
+    " amount."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "Can I get the refund as store credit instead?"
+      },
+      "output": {
+       "question": "Can I get the refund as store credit instead?"
+      },
+      "state": {}
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Router",
+     "data": {
+      "id": "conditionAgentAgentflow_0",
+      "name": "conditionAgentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+          "length": 40908,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_router"
+          ],
+          "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+         }
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+        },
+        {
+         "role": "assistant",
+         "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+        },
+        {
+         "role": "user",
+         "content": "{\"input\": Can I get the refund as store credit instead?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+        }
+       ]
+      },
+      "output": {
+       "conditions": [
+        {
+         "output": "billing question",
+         "isFulfilled": true
+        },
+        {
+         "output": "technical issue",
+         "isFulfilled": false
+        },
+        {
+         "output": "anything else",
+         "isFulfilled": false
+        }
+       ],
+       "content": "```json\n{\"output\": \"billing question\"}\n```",
+       "timeMetadata": {
+        "start": 1795372848311,
+        "end": 1795372848325,
+        "delta": 14
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Can I get the refund as store credit instead?"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Billing Agent",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+          "length": 41616,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S02_billing"
+          ],
+          "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+         }
+        },
+        {
+         "role": "user",
+         "content": "I was charged twice for my last invoice."
+        },
+        {
+         "role": "assistant",
+         "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+        },
+        {
+         "role": "user",
+         "content": "The app crashes when I open my order history."
+        },
+        {
+         "role": "assistant",
+         "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash."
+        },
+        {
+         "role": "user",
+         "content": "When will the duplicate charge be refunded?"
+        },
+        {
+         "role": "assistant",
+         "content": "The duplicate charge will be back on your card within 5 business days."
+        },
+        {
+         "role": "user",
+         "content": "What is the weather like in Lisbon today?"
+        },
+        {
+         "role": "assistant",
+         "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+        },
+        {
+         "role": "user",
+         "content": "The crash still happens after the update."
+        },
+        {
+         "role": "assistant",
+         "content": "Then please reinstall the app. Your orders are kept in your account."
+        },
+        {
+         "role": "user",
+         "content": "Can I get the refund as store credit instead?"
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Yes, I have switched the refund to store credit of the same amount.",
+       "timeMetadata": {
+        "start": 1795372848331,
+        "end": 1795372848334,
+        "delta": 3
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10680,
+        "output_tokens": 18,
+        "total_tokens": 10698,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "prompt": 0,
+        "completion": 0,
+        "usage": {
+         "prompt_tokens": 10680,
+         "completion_tokens": 18,
+         "total_tokens": 10698
+        },
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model"
+       }
+      },
+      "state": {},
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Yes, I have switched the refund to store credit of the same amount.",
+        "name": "billing_agent"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 665,
+     "route": "S02-router",
+     "callIndex": 0,
+     "ruleId": "router-billing",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+         "length": 40908,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_router"
+         ],
+         "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": Can I get the refund as store credit instead?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"billing question\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 666,
+     "route": "S02-billing",
+     "callIndex": 0,
+     "ruleId": "billing-t6",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+         "length": 41616,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S02_billing"
+         ],
+         "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I was charged twice for my last invoice."
+       },
+       {
+        "role": "assistant",
+        "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+       },
+       {
+        "role": "user",
+        "content": "The app crashes when I open my order history."
+       },
+       {
+        "role": "assistant",
+        "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash."
+       },
+       {
+        "role": "user",
+        "content": "When will the duplicate charge be refunded?"
+       },
+       {
+        "role": "assistant",
+        "content": "The duplicate charge will be back on your card within 5 business days."
+       },
+       {
+        "role": "user",
+        "content": "What is the weather like in Lisbon today?"
+       },
+       {
+        "role": "assistant",
+        "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+       },
+       {
+        "role": "user",
+        "content": "The crash still happens after the update."
+       },
+       {
+        "role": "assistant",
+        "content": "Then please reinstall the app. Your orders are kept in your account."
+       },
+       {
+        "role": "user",
+        "content": "Can I get the refund as store credit instead?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Yes, I have switched the refund to store credit of the same amount.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 27096,
+    "sha256": "380541a8f88c601bcaef271d692a0f9197084bd606ae4fe9eae8e74488ecd937",
+    "sizes": {
+     "base64Length": 27096,
+     "payloadBytes": 20322,
+     "gzipBytes": 20294,
+     "rawJsonBytes": 92181,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 12,
+     "historyBytes": 4403,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 87737,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 87440,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 297,
+       "inputMessagesBytes": 0,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "conditionAgentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42196,
+       "inputMessagesBytes": 41578,
+       "stateBytes": 2
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 44217,
+       "inputMessagesBytes": 42719,
+       "stateBytes": 2
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 92181
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 4403
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 87737
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 87440,
+      "parsedBytes": 86714,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 86714
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42196
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42070
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41591
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41578
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41034
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41006
+     },
+     {
+      "path": "previousExecution.executionData<json>[2]",
+      "bytes": 44217
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data",
+      "bytes": 44084
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input",
+      "bytes": 43397
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages",
+      "bytes": 42719
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0]",
+      "bytes": 41740
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0].content",
+      "bytes": 41712
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "I was charged twice for my last invoice.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:47.810Z",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "id": "1af8451e-2301-4860-8023-6c55f46b26ec"
+      },
+      {
+       "id": "7ca8de35-11fe-487b-ab28-7e07c2552b82",
+       "role": "apiMessage",
+       "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372847810-9uel5h4qw",
+       "createdDate": "2026-11-22T18:40:48.141Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "The app crashes when I open my order history.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.154Z",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "id": "c4411183-4742-4527-96f7-9849e256e855"
+      },
+      {
+       "id": "43341b5e-0aef-47e1-8192-391c8e611a6e",
+       "role": "apiMessage",
+       "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848155-vcqq5xk3d",
+       "createdDate": "2026-11-22T18:40:48.184Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "When will the duplicate charge be refunded?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.195Z",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "id": "1550fcde-b195-4f67-87f2-44900e7a6c5a"
+      },
+      {
+       "id": "11162096-c2ce-4c95-928a-ccf0270ed7c9",
+       "role": "apiMessage",
+       "content": "The duplicate charge will be back on your card within 5 business days.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848196-5ladvuh3k",
+       "createdDate": "2026-11-22T18:40:48.225Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "What is the weather like in Lisbon today?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.237Z",
+       "executionId": "mock-1795372848238-v8lmpaw0c",
+       "id": "1c054db6-d9b3-4e4a-99f3-5d4caed452b8"
+      },
+      {
+       "id": "9faab67d-b617-409d-af98-f79b17bec901",
+       "role": "apiMessage",
+       "content": "I can help with billing or technical questions. Could you tell me a bit more?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848238-v8lmpaw0c",
+       "createdDate": "2026-11-22T18:40:48.256Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "The crash still happens after the update.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.266Z",
+       "executionId": "mock-1795372848267-lj6y8vt3s",
+       "id": "a423ca7e-2d1f-486c-b331-439249a73f09"
+      },
+      {
+       "id": "c5ffa59c-2955-4e29-ae66-496376e0049a",
+       "role": "apiMessage",
+       "content": "Then please reinstall the app. Your orders are kept in your account.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848267-lj6y8vt3s",
+       "createdDate": "2026-11-22T18:40:48.293Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "Can I get the refund as store credit instead?",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "createdDate": "2026-11-22T18:40:48.305Z",
+       "executionId": "mock-1795372848306-tcc64jf24",
+       "id": "d1c03702-fe02-47a9-b7e5-7665f93cf80d"
+      },
+      {
+       "id": "cfe02337-98a1-401e-9bf1-4d678ae009c4",
+       "role": "apiMessage",
+       "content": "Yes, I have switched the refund to store credit of the same amount.",
+       "chatflowid": "f058a473-41ff-473e-847e-96df05ec90b4",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S02",
+       "sessionId": "ts00b-mws6myyp-M1-S02",
+       "executionId": "mock-1795372848306-tcc64jf24",
+       "createdDate": "2026-11-22T18:40:48.335Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372848306-tcc64jf24",
+      "state": "FINISHED",
+      "agentflowId": "f058a473-41ff-473e-847e-96df05ec90b4",
+      "sessionId": "ts00b-mws6myyp-M1-S02",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "Can I get the refund as store credit instead?"
+          },
+          "output": {
+           "question": "Can I get the refund as store credit instead?"
+          },
+          "state": {}
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "conditionAgentAgentflow_0",
+         "nodeLabel": "Router",
+         "data": {
+          "id": "conditionAgentAgentflow_0",
+          "name": "conditionAgentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "da5dbc845e5402aaa1b14de23de8fe9c9fb635847e5580fe7b9cc41906f4e364",
+              "length": 40908,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_router"
+              ],
+              "head": "\\[\\[route:S02-router\\]\\] SYSPROMPT_SENTINEL_S02_router\n\nYou route Northwind Outfitters customer messages to the right te"
+             }
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+            },
+            {
+             "role": "assistant",
+             "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+            },
+            {
+             "role": "user",
+             "content": "{\"input\": Can I get the refund as store credit instead?, \"scenarios\": [\"billing question\",\"technical issue\",\"anything else\"], \"instruction\": Decide which team should handle the latest customer message.}"
+            }
+           ]
+          },
+          "output": {
+           "conditions": [
+            {
+             "output": "billing question",
+             "isFulfilled": true
+            },
+            {
+             "output": "technical issue",
+             "isFulfilled": false
+            },
+            {
+             "output": "anything else",
+             "isFulfilled": false
+            }
+           ],
+           "content": "```json\n{\"output\": \"billing question\"}\n```",
+           "timeMetadata": {
+            "start": 1795372848311,
+            "end": 1795372848325,
+            "delta": 14
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Can I get the refund as store credit instead?"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Billing Agent",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "f161a992cc450ef87c7074b04cbc88d15e39a5b4ec6d69f7f41e791d4454c9bc",
+              "length": 41616,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S02_billing"
+              ],
+              "head": "\\[\\[route:S02-billing\\]\\] SYSPROMPT_SENTINEL_S02_billing\n\nYou are the Northwind Outfitters billing agent.\n\nSection 1 - V"
+             }
+            },
+            {
+             "role": "user",
+             "content": "I was charged twice for my last invoice."
+            },
+            {
+             "role": "assistant",
+             "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate."
+            },
+            {
+             "role": "user",
+             "content": "The app crashes when I open my order history."
+            },
+            {
+             "role": "assistant",
+             "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash."
+            },
+            {
+             "role": "user",
+             "content": "When will the duplicate charge be refunded?"
+            },
+            {
+             "role": "assistant",
+             "content": "The duplicate charge will be back on your card within 5 business days."
+            },
+            {
+             "role": "user",
+             "content": "What is the weather like in Lisbon today?"
+            },
+            {
+             "role": "assistant",
+             "content": "I can help with billing or technical questions. Could you tell me a bit more?"
+            },
+            {
+             "role": "user",
+             "content": "The crash still happens after the update."
+            },
+            {
+             "role": "assistant",
+             "content": "Then please reinstall the app. Your orders are kept in your account."
+            },
+            {
+             "role": "user",
+             "content": "Can I get the refund as store credit instead?"
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Yes, I have switched the refund to store credit of the same amount.",
+           "timeMetadata": {
+            "start": 1795372848331,
+            "end": 1795372848334,
+            "delta": 3
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10680,
+            "output_tokens": 18,
+            "total_tokens": 10698,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "prompt": 0,
+            "completion": 0,
+            "usage": {
+             "prompt_tokens": 10680,
+             "completion_tokens": 18,
+             "total_tokens": 10698
+            },
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model"
+           }
+          },
+          "state": {},
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Yes, I have switched the refund to store credit of the same amount.",
+            "name": "billing_agent"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "conditionAgentAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:48.306Z",
+      "updatedDate": "2026-11-22T18:40:48.306Z"
+     }
+    },
+    "sentinels": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    },
+    "executedData": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S02_router": 1,
+      "SYSPROMPT_SENTINEL_S02_billing": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 86777,
+    "executedDataGzipBytes": 19071,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "99e8d4b0d3806d95aeb29fedd4432843b190eaba",
+  "label": "before-run1",
+  "serverEnv": null,
+  "variant": null
+ }
+}

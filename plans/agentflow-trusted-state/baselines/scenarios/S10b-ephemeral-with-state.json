@@ -1,0 +1,23 @@
+{
+    "id": "S10b",
+    "title": "Ephemeral memory with carried state",
+    "flow": "S10b-ephemeral-with-state",
+    "findings": ["F11"],
+    "modes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "Remember that my favourite colour is green." },
+        { "id": "t2", "question": "What is my favourite colour?" },
+        { "id": "t3", "question": "Thanks anyway." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "t1", "route": "S10b-agent", "turn": "t1", "reply": { "content": "Noted for this message, but I do not keep memory between messages." } },
+            { "id": "t2", "route": "S10b-agent", "turn": "t2", "reply": { "content": "Sorry, I do not know your favourite colour." } },
+            { "id": "t3", "route": "S10b-agent", "turn": "t3", "reply": { "content": "You are welcome." } }
+        ]
+    },
+    "expectedAfter": {
+        "F11": "The token keeps no history (not the last exchange); the counter in flow state still carries over (1, 2, 3)."
+    }
+}

@@ -1,0 +1,3614 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S11",
+  "file": "S11-error-and-recovery.json",
+  "title": "A parallel branch fails on turn 2, the conversation continues on turn 3",
+  "findings": [
+   "TS14"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mws6myyp-M1-S11",
+ "runTag": "mws6myyp",
+ "resumedFrom": null,
+ "flows": [
+  {
+   "slug": "S11-error-and-recovery",
+   "chatflowId": "5111932b-5150-4198-8fdd-fbe972606460",
+   "name": "TS00b M1 S11-error-and-recovery",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-22T18:42:15.403Z",
+ "turns": [
+  {
+   "id": "t1",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S11",
+     "streaming": true,
+     "question": "Draft an answer about late deliveries."
+    }
+   },
+   "tokenSent": null,
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 342.22,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.01,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.06,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.08,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.09,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.1,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 22.75,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 332.29,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 332.36,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 337.1,
+      "event": "token",
+      "data": "Joined answer (t1): main"
+     },
+     {
+      "offsetMs": 337.13,
+      "event": "token",
+      "data": " answer plus the side"
+     },
+     {
+      "offsetMs": 337.13,
+      "event": "token",
+      "data": " note."
+     },
+     {
+      "offsetMs": 338.62,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 338.64,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10342,
+       "output_tokens": 14,
+       "total_tokens": 10356
+      }
+     },
+     {
+      "offsetMs": 338.66,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 338.66,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 340.9,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 37344,
+       "sha256": "5c522efaba74966c885fa9576cf5b6be9c5c82b345e9a97223eea3e2f53d8c4e"
+      }
+     },
+     {
+      "offsetMs": 341.81,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "chatMessageId": "6587affb-954f-435c-ba0c-1c50bcb25792",
+       "question": "Draft an answer about late deliveries.",
+       "sessionId": "ts00b-mws6myyp-M1-S11"
+      }
+     },
+     {
+      "offsetMs": 341.92,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 342.17,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Joined answer (t1): main answer plus the side note.",
+   "tokens": [
+    "Joined answer (t1): main",
+    " answer plus the side",
+    " note."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "Draft an answer about late deliveries."
+      },
+      "output": {
+       "question": "Draft an answer about late deliveries.",
+       "persistState": true
+      },
+      "state": {
+       "b_note": ""
+      }
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Agent A",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+          "length": 40915,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S11_agentA"
+          ],
+          "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Draft an answer about late deliveries."
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Late deliveries get the shipping cost refunded.",
+       "timeMetadata": {
+        "start": 1795372850328,
+        "end": 1795372850342,
+        "delta": 14
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10277,
+        "output_tokens": 13,
+        "total_tokens": 10290,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8920,
+         "completionTokens": 9,
+         "totalTokens": 8929
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10277,
+         "completion_tokens": 13,
+         "total_tokens": 10290
+        }
+       }
+      },
+      "state": {
+       "b_note": ""
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "user",
+        "content": "Late deliveries get the shipping cost refunded.",
+        "name": "agent_a"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "LLM B",
+     "data": {
+      "id": "llmAgentflow_0",
+      "name": "llmAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+          "length": 40996,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S11_llmB"
+          ],
+          "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Draft an answer about late deliveries."
+        }
+       ],
+       "llmModel": "chatOpenAI",
+       "llmEnableMemory": true,
+       "llmMemoryType": "allMessages",
+       "llmMemoryWindowSize": "20",
+       "llmMemoryWindowDisableStrict": false,
+       "llmMemoryMaxTokenLimit": "2000",
+       "llmReturnResponseAs": "userMessage",
+       "llmUpdateState": [
+        {
+         "key": "b_note",
+         "value": "{{ output }}"
+        }
+       ],
+       "llmModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "llmModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Side note: the holiday peak adds two days.",
+       "timeMetadata": {
+        "start": 1795372850329,
+        "end": 1795372850649,
+        "delta": 320
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10297,
+        "output_tokens": 11,
+        "total_tokens": 10308
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8857,
+         "completionTokens": 10,
+         "totalTokens": 8867
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10297,
+         "completion_tokens": 11,
+         "total_tokens": 10308
+        }
+       }
+      },
+      "state": {
+       "b_note": "Side note: the holiday peak adds two days."
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "user",
+        "content": "Side note: the holiday peak adds two days.",
+        "name": "llm_b"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "llmAgentflow_1",
+     "nodeLabel": "Joiner",
+     "data": {
+      "id": "llmAgentflow_1",
+      "name": "llmAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+          "length": 41103,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S11_joiner"
+          ],
+          "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Answer: Late deliveries get the shipping cost refunded.\n\nSide note: Side note: the holiday peak adds two days."
+        }
+       ],
+       "llmModel": "chatOpenAI",
+       "llmEnableMemory": false,
+       "llmMemoryType": "allMessages",
+       "llmMemoryWindowSize": "20",
+       "llmMemoryWindowDisableStrict": false,
+       "llmMemoryMaxTokenLimit": "2000",
+       "llmReturnResponseAs": "userMessage",
+       "llmModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "llmModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Joined answer (t1): main answer plus the side note.",
+       "timeMetadata": {
+        "start": 1795372850654,
+        "end": 1795372850657,
+        "delta": 3
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10342,
+        "output_tokens": 14,
+        "total_tokens": 10356
+       },
+       "responseMetadata": {
+        "prompt": 0,
+        "completion": 0,
+        "usage": {
+         "prompt_tokens": 10342,
+         "completion_tokens": 14,
+         "total_tokens": 10356
+        },
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model"
+       }
+      },
+      "state": {
+       "b_note": "Side note: the holiday peak adds two days."
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Joined answer (t1): main answer plus the side note.",
+        "name": "joiner"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "agentAgentflow_0",
+      "llmAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_1:FINISHED"
+   ],
+   "finalState": {
+    "b_note": "Side note: the holiday peak adds two days."
+   },
+   "modelRequests": [
+    {
+     "seq": 805,
+     "route": "S11-agentA",
+     "callIndex": 0,
+     "ruleId": "agentA-t1",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Late deliveries get the shipping cost refunded.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 806,
+     "route": "S11-llmB",
+     "callIndex": 0,
+     "ruleId": "llmB-t1",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+         "length": 40996,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_llmB"
+         ],
+         "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Side note: the holiday peak adds two days.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 807,
+     "route": "S11-joiner",
+     "callIndex": 0,
+     "ruleId": "joiner",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+         "length": 41103,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_joiner"
+         ],
+         "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Answer: Late deliveries get the shipping cost refunded.\n\nSide note: Side note: the holiday peak adds two days."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Joined answer (t1): main answer plus the side note.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 37344,
+    "sha256": "5c522efaba74966c885fa9576cf5b6be9c5c82b345e9a97223eea3e2f53d8c4e",
+    "sizes": {
+     "base64Length": 37344,
+     "payloadBytes": 28007,
+     "gzipBytes": 27979,
+     "rawJsonBytes": 130844,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 707,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 130096,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 129799,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 314,
+       "inputMessagesBytes": 0,
+       "stateBytes": 13
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42706,
+       "inputMessagesBytes": 41106,
+       "stateBytes": 13
+      },
+      {
+       "nodeId": "llmAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42854,
+       "inputMessagesBytes": 41187,
+       "stateBytes": 55
+      },
+      {
+       "nodeId": "llmAgentflow_1",
+       "status": "FINISHED",
+       "bytes": 42860,
+       "inputMessagesBytes": 41368,
+       "stateBytes": 55
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 130844
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 707
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 130096
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 129799,
+      "parsedBytes": 128739,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 128739
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42706
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42588
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41784
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41106
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41037
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41009
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.output",
+      "bytes": 538
+     },
+     {
+      "path": "previousExecution.executionData<json>[2]",
+      "bytes": 42854
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data",
+      "bytes": 42740
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input",
+      "bytes": 41929
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages",
+      "bytes": 41187
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0]",
+      "bytes": 41118
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0].content",
+      "bytes": 41090
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.output",
+      "bytes": 514
+     },
+     {
+      "path": "previousExecution.executionData<json>[3]",
+      "bytes": 42860
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data",
+      "bytes": 42728
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input",
+      "bytes": 42052
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input.messages",
+      "bytes": 41368
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input.messages[0]",
+      "bytes": 41225
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input.messages[0].content",
+      "bytes": 41197
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "Draft an answer about late deliveries.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "createdDate": "2026-11-22T18:40:50.323Z",
+       "executionId": "mock-1795372850323-4f9pz179o",
+       "id": "4ed6b91a-7511-49cc-a1d8-35bd750f67a5"
+      },
+      {
+       "id": "6587affb-954f-435c-ba0c-1c50bcb25792",
+       "role": "apiMessage",
+       "content": "Joined answer (t1): main answer plus the side note.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "executionId": "mock-1795372850323-4f9pz179o",
+       "createdDate": "2026-11-22T18:40:50.658Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372850323-4f9pz179o",
+      "state": "FINISHED",
+      "agentflowId": "5111932b-5150-4198-8fdd-fbe972606460",
+      "sessionId": "ts00b-mws6myyp-M1-S11",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "Draft an answer about late deliveries."
+          },
+          "output": {
+           "question": "Draft an answer about late deliveries.",
+           "persistState": true
+          },
+          "state": {
+           "b_note": ""
+          }
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Agent A",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+              "length": 40915,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S11_agentA"
+              ],
+              "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Draft an answer about late deliveries."
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Late deliveries get the shipping cost refunded.",
+           "timeMetadata": {
+            "start": 1795372850328,
+            "end": 1795372850342,
+            "delta": 14
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10277,
+            "output_tokens": 13,
+            "total_tokens": 10290,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8920,
+             "completionTokens": 9,
+             "totalTokens": 8929
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10277,
+             "completion_tokens": 13,
+             "total_tokens": 10290
+            }
+           }
+          },
+          "state": {
+           "b_note": ""
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Draft an answer about late deliveries."
+           },
+           {
+            "role": "user",
+            "content": "Late deliveries get the shipping cost refunded.",
+            "name": "agent_a"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "llmAgentflow_0",
+         "nodeLabel": "LLM B",
+         "data": {
+          "id": "llmAgentflow_0",
+          "name": "llmAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+              "length": 40996,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S11_llmB"
+              ],
+              "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Draft an answer about late deliveries."
+            }
+           ],
+           "llmModel": "chatOpenAI",
+           "llmEnableMemory": true,
+           "llmMemoryType": "allMessages",
+           "llmMemoryWindowSize": "20",
+           "llmMemoryWindowDisableStrict": false,
+           "llmMemoryMaxTokenLimit": "2000",
+           "llmReturnResponseAs": "userMessage",
+           "llmUpdateState": [
+            {
+             "key": "b_note",
+             "value": "{{ output }}"
+            }
+           ],
+           "llmModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Side note: the holiday peak adds two days.",
+           "timeMetadata": {
+            "start": 1795372850329,
+            "end": 1795372850649,
+            "delta": 320
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10297,
+            "output_tokens": 11,
+            "total_tokens": 10308
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8857,
+             "completionTokens": 10,
+             "totalTokens": 8867
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10297,
+             "completion_tokens": 11,
+             "total_tokens": 10308
+            }
+           }
+          },
+          "state": {
+           "b_note": "Side note: the holiday peak adds two days."
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Draft an answer about late deliveries."
+           },
+           {
+            "role": "user",
+            "content": "Side note: the holiday peak adds two days.",
+            "name": "llm_b"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "llmAgentflow_1",
+         "nodeLabel": "Joiner",
+         "data": {
+          "id": "llmAgentflow_1",
+          "name": "llmAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+              "length": 41103,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S11_joiner"
+              ],
+              "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Answer: Late deliveries get the shipping cost refunded.\n\nSide note: Side note: the holiday peak adds two days."
+            }
+           ],
+           "llmModel": "chatOpenAI",
+           "llmEnableMemory": false,
+           "llmMemoryType": "allMessages",
+           "llmMemoryWindowSize": "20",
+           "llmMemoryWindowDisableStrict": false,
+           "llmMemoryMaxTokenLimit": "2000",
+           "llmReturnResponseAs": "userMessage",
+           "llmModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Joined answer (t1): main answer plus the side note.",
+           "timeMetadata": {
+            "start": 1795372850654,
+            "end": 1795372850657,
+            "delta": 3
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10342,
+            "output_tokens": 14,
+            "total_tokens": 10356
+           },
+           "responseMetadata": {
+            "prompt": 0,
+            "completion": 0,
+            "usage": {
+             "prompt_tokens": 10342,
+             "completion_tokens": 14,
+             "total_tokens": 10356
+            },
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model"
+           }
+          },
+          "state": {
+           "b_note": "Side note: the holiday peak adds two days."
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Joined answer (t1): main answer plus the side note.",
+            "name": "joiner"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "agentAgentflow_0",
+          "llmAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:50.323Z",
+      "updatedDate": "2026-11-22T18:40:50.323Z"
+     }
+    },
+    "sentinels": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    },
+    "executedData": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 128928,
+    "executedDataGzipBytes": 27560,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t2",
+   "note": "Agent A gets HTTP 500 on every attempt (LangChain retries 6 times); LLM B finishes first",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S11",
+     "streaming": true,
+     "question": "Now draft one about damaged items.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 37344,
+      "sha256": "5c522efaba74966c885fa9576cf5b6be9c5c82b345e9a97223eea3e2f53d8c4e"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 37344,
+    "sha256": "5c522efaba74966c885fa9576cf5b6be9c5c82b345e9a97223eea3e2f53d8c4e"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 84361.66,
+    "timedOut": false,
+    "error": "Error: predictionsServices.buildChatflow - Error in Agent node: 500 Injected fake LLM failure for Agent A",
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 9.12,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 9.15,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.19,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.2,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.21,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 333.01,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 84358.26,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "ERROR",
+       "error": "Error in Agent node: 500 Injected fake LLM failure for Agent A"
+      }
+     },
+     {
+      "offsetMs": 84361.37,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 14696,
+       "sha256": "745c680b90893b6b1aca6d13f43b424aca1aae2aeae7fcc2457f4e5f07fedac7"
+      }
+     },
+     {
+      "offsetMs": 84361.44,
+      "event": "agentFlowEvent",
+      "data": "ERROR"
+     },
+     {
+      "offsetMs": 84361.45,
+      "event": "error",
+      "data": "Error: predictionsServices.buildChatflow - Error in Agent node: 500 Injected fake LLM failure for Agent A"
+     },
+     {
+      "offsetMs": 84361.48,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 84361.6,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "ERROR",
+   "statusSource": "sse",
+   "text": "",
+   "tokens": [],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "Now draft one about damaged items."
+      },
+      "output": {
+       "question": "Now draft one about damaged items.",
+       "persistState": true
+      },
+      "state": {
+       "b_note": "Side note: the holiday peak adds two days."
+      }
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "LLM B",
+     "data": {
+      "id": "llmAgentflow_0",
+      "name": "llmAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+          "length": 40996,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S11_llmB"
+          ],
+          "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Draft an answer about late deliveries."
+        },
+        {
+         "role": "assistant",
+         "content": "Joined answer (t1): main answer plus the side note."
+        },
+        {
+         "role": "user",
+         "content": "Now draft one about damaged items."
+        }
+       ],
+       "llmModel": "chatOpenAI",
+       "llmEnableMemory": true,
+       "llmMemoryType": "allMessages",
+       "llmMemoryWindowSize": "20",
+       "llmMemoryWindowDisableStrict": false,
+       "llmMemoryMaxTokenLimit": "2000",
+       "llmReturnResponseAs": "userMessage",
+       "llmUpdateState": [
+        {
+         "key": "b_note",
+         "value": "{{ output }}"
+        }
+       ],
+       "llmModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "llmModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Side note: photos are needed for damage claims.",
+       "timeMetadata": {
+        "start": 1795372850679,
+        "end": 1795372851002,
+        "delta": 323
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10334,
+        "output_tokens": 13,
+        "total_tokens": 10347
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8886,
+         "completionTokens": 10,
+         "totalTokens": 8896
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10334,
+         "completion_tokens": 13,
+         "total_tokens": 10347
+        }
+       }
+      },
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       },
+       {
+        "role": "user",
+        "content": "Side note: photos are needed for damage claims.",
+        "name": "llm_b"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Agent A",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "error": "Error in Agent node: 500 Injected fake LLM failure for Agent A"
+     },
+     "status": "ERROR"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "agentAgentflow_0:ERROR"
+   ],
+   "finalState": {
+    "b_note": "Side note: photos are needed for damage claims."
+   },
+   "modelRequests": [
+    {
+     "seq": 809,
+     "route": "S11-llmB",
+     "callIndex": 0,
+     "ruleId": "llmB-t2",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+         "length": 40996,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_llmB"
+         ],
+         "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Side note: photos are needed for damage claims.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 810,
+     "route": "S11-agentA",
+     "callIndex": 0,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 811,
+     "route": "S11-agentA",
+     "callIndex": 1,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 812,
+     "route": "S11-agentA",
+     "callIndex": 2,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 813,
+     "route": "S11-agentA",
+     "callIndex": 3,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 814,
+     "route": "S11-agentA",
+     "callIndex": 4,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 815,
+     "route": "S11-agentA",
+     "callIndex": 5,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 816,
+     "route": "S11-agentA",
+     "callIndex": 6,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 14696,
+    "sha256": "745c680b90893b6b1aca6d13f43b424aca1aae2aeae7fcc2457f4e5f07fedac7",
+    "sizes": {
+     "base64Length": 14696,
+     "payloadBytes": 11022,
+     "gzipBytes": 10994,
+     "rawJsonBytes": 45151,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 707,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 44403,
+     "previousExecutionState": "ERROR",
+     "executionDataStringBytes": 44109,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 348,
+       "inputMessagesBytes": 0,
+       "stateBytes": 55
+      },
+      {
+       "nodeId": "llmAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 43076,
+       "inputMessagesBytes": 41335,
+       "stateBytes": 60
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "ERROR",
+       "bytes": 237,
+       "inputMessagesBytes": 0,
+       "stateBytes": 0
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 45151
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 707
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 44403
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 44109,
+      "parsedBytes": 43665,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 43665
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 43076
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42962
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 42140
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41335
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41118
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41090
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.output",
+      "bytes": 519
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "Draft an answer about late deliveries.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "createdDate": "2026-11-22T18:40:50.323Z",
+       "executionId": "mock-1795372850323-4f9pz179o",
+       "id": "4ed6b91a-7511-49cc-a1d8-35bd750f67a5"
+      },
+      {
+       "id": "6587affb-954f-435c-ba0c-1c50bcb25792",
+       "role": "apiMessage",
+       "content": "Joined answer (t1): main answer plus the side note.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "executionId": "mock-1795372850323-4f9pz179o",
+       "createdDate": "2026-11-22T18:40:50.658Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372850673-ca1ezger3",
+      "state": "ERROR",
+      "agentflowId": "5111932b-5150-4198-8fdd-fbe972606460",
+      "sessionId": "ts00b-mws6myyp-M1-S11",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "Now draft one about damaged items."
+          },
+          "output": {
+           "question": "Now draft one about damaged items.",
+           "persistState": true
+          },
+          "state": {
+           "b_note": "Side note: the holiday peak adds two days."
+          }
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "llmAgentflow_0",
+         "nodeLabel": "LLM B",
+         "data": {
+          "id": "llmAgentflow_0",
+          "name": "llmAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+              "length": 40996,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S11_llmB"
+              ],
+              "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Draft an answer about late deliveries."
+            },
+            {
+             "role": "assistant",
+             "content": "Joined answer (t1): main answer plus the side note."
+            },
+            {
+             "role": "user",
+             "content": "Now draft one about damaged items."
+            }
+           ],
+           "llmModel": "chatOpenAI",
+           "llmEnableMemory": true,
+           "llmMemoryType": "allMessages",
+           "llmMemoryWindowSize": "20",
+           "llmMemoryWindowDisableStrict": false,
+           "llmMemoryMaxTokenLimit": "2000",
+           "llmReturnResponseAs": "userMessage",
+           "llmUpdateState": [
+            {
+             "key": "b_note",
+             "value": "{{ output }}"
+            }
+           ],
+           "llmModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI",
+            "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+           }
+          },
+          "output": {
+           "content": "Side note: photos are needed for damage claims.",
+           "timeMetadata": {
+            "start": 1795372850679,
+            "end": 1795372851002,
+            "delta": 323
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10334,
+            "output_tokens": 13,
+            "total_tokens": 10347
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8886,
+             "completionTokens": 10,
+             "totalTokens": 8896
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10334,
+             "completion_tokens": 13,
+             "total_tokens": 10347
+            }
+           }
+          },
+          "state": {
+           "b_note": "Side note: photos are needed for damage claims."
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Now draft one about damaged items."
+           },
+           {
+            "role": "user",
+            "content": "Side note: photos are needed for damage claims.",
+            "name": "llm_b"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Agent A",
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "error": "Error in Agent node: 500 Injected fake LLM failure for Agent A"
+         },
+         "status": "ERROR"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:40:50.673Z",
+      "updatedDate": "2026-11-22T18:40:50.673Z"
+     }
+    },
+    "sentinels": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_llmB": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_llmB": 1
+     }
+    },
+    "executedData": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_llmB": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 8,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_agentA": 7
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 43665,
+    "executedDataGzipBytes": 10518,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": [
+    "2026-11-22 19:42:15 [ERROR]: [server]: Error executing node agentAgentflow_0: Error in Agent node: 500 Injected fake LLM failure for Agent A",
+    "2026-11-22 19:42:15 [ERROR]: [server]:d1b988ce-2463-4415-b9db-098377d2d0b2/5111932b-5150-4198-8fdd-fbe972606460/ts00b-mws6myyp-M1-S11 Error: Error in Agent node: 500 Injected fake LLM failure for Agent A",
+    "Error: Error in Agent node: 500 Injected fake LLM failure for Agent A"
+   ]
+  },
+  {
+   "id": "t3",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mws6myyp-M1-S11",
+     "streaming": true,
+     "question": "Try the damaged items answer again.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14696,
+      "sha256": "745c680b90893b6b1aca6d13f43b424aca1aae2aeae7fcc2457f4e5f07fedac7"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14696,
+    "sha256": "745c680b90893b6b1aca6d13f43b424aca1aae2aeae7fcc2457f4e5f07fedac7"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 358.16,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 17.22,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 17.24,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 17.25,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 17.26,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 17.27,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 41.87,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 349.43,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 349.46,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 353.67,
+      "event": "token",
+      "data": "Joined answer (t3): main"
+     },
+     {
+      "offsetMs": 353.69,
+      "event": "token",
+      "data": " answer plus the side"
+     },
+     {
+      "offsetMs": 353.69,
+      "event": "token",
+      "data": " note."
+     },
+     {
+      "offsetMs": 354.45,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 354.46,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10340,
+       "output_tokens": 14,
+       "total_tokens": 10354
+      }
+     },
+     {
+      "offsetMs": 354.47,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 354.48,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 356.98,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 37720,
+       "sha256": "72c5ccbe1cd1c65d60050cf618b88f2e9aec84c8554c126c2127815e5f856303"
+      }
+     },
+     {
+      "offsetMs": 357.83,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "chatMessageId": "824ae181-c4ac-4d62-b931-c3b83980a606",
+       "question": "Try the damaged items answer again.",
+       "sessionId": "ts00b-mws6myyp-M1-S11"
+      }
+     },
+     {
+      "offsetMs": 357.94,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 358.12,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Joined answer (t3): main answer plus the side note.",
+   "tokens": [
+    "Joined answer (t3): main",
+    " answer plus the side",
+    " note."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "data": {
+      "id": "startAgentflow_0",
+      "name": "startAgentflow",
+      "input": {
+       "question": "Try the damaged items answer again."
+      },
+      "output": {
+       "question": "Try the damaged items answer again.",
+       "persistState": true
+      },
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      }
+     },
+     "previousNodeIds": [],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Agent A",
+     "data": {
+      "id": "agentAgentflow_0",
+      "name": "agentAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+          "length": 40915,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S11_agentA"
+          ],
+          "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Draft an answer about late deliveries."
+        },
+        {
+         "role": "assistant",
+         "content": "Joined answer (t1): main answer plus the side note."
+        },
+        {
+         "role": "user",
+         "content": "Try the damaged items answer again."
+        }
+       ],
+       "agentModel": "chatOpenAI",
+       "agentTools": [],
+       "agentEnableMemory": true,
+       "agentMemoryType": "allMessages",
+       "agentMemoryWindowSize": "20",
+       "agentMemoryMaxTokenLimit": "2000",
+       "agentReturnResponseAs": "userMessage",
+       "agentModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "agentModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Damaged items are replaced free of charge.",
+       "timeMetadata": {
+        "start": 1795372935058,
+        "end": 1795372935080,
+        "delta": 22
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10314,
+        "output_tokens": 11,
+        "total_tokens": 10325,
+        "tool_call_tokens": 0
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8949,
+         "completionTokens": 9,
+         "totalTokens": 8958
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10314,
+         "completion_tokens": 11,
+         "total_tokens": 10325
+        }
+       }
+      },
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       },
+       {
+        "role": "user",
+        "content": "Damaged items are replaced free of charge.",
+        "name": "agent_a"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "LLM B",
+     "data": {
+      "id": "llmAgentflow_0",
+      "name": "llmAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+          "length": 40996,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S11_llmB"
+          ],
+          "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Draft an answer about late deliveries."
+        },
+        {
+         "role": "assistant",
+         "content": "Joined answer (t1): main answer plus the side note."
+        },
+        {
+         "role": "user",
+         "content": "Try the damaged items answer again."
+        }
+       ],
+       "llmModel": "chatOpenAI",
+       "llmEnableMemory": true,
+       "llmMemoryType": "allMessages",
+       "llmMemoryWindowSize": "20",
+       "llmMemoryWindowDisableStrict": false,
+       "llmMemoryMaxTokenLimit": "2000",
+       "llmReturnResponseAs": "userMessage",
+       "llmUpdateState": [
+        {
+         "key": "b_note",
+         "value": "{{ output }}"
+        }
+       ],
+       "llmModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "llmModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Side note: photos speed up the claim.",
+       "timeMetadata": {
+        "start": 1795372935056,
+        "end": 1795372935384,
+        "delta": 328
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10334,
+        "output_tokens": 10,
+        "total_tokens": 10344
+       },
+       "responseMetadata": {
+        "estimatedTokenUsage": {
+         "promptTokens": 8886,
+         "completionTokens": 9,
+         "totalTokens": 8895
+        },
+        "prompt": 0,
+        "completion": 0,
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model",
+        "usage": {
+         "prompt_tokens": 10334,
+         "completion_tokens": 10,
+         "total_tokens": 10344
+        }
+       }
+      },
+      "state": {
+       "b_note": "Side note: photos speed up the claim."
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       },
+       {
+        "role": "user",
+        "content": "Side note: photos speed up the claim.",
+        "name": "llm_b"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "status": "FINISHED"
+    },
+    {
+     "nodeId": "llmAgentflow_1",
+     "nodeLabel": "Joiner",
+     "data": {
+      "id": "llmAgentflow_1",
+      "name": "llmAgentflow",
+      "input": {
+       "messages": [
+        {
+         "role": "system",
+         "content": {
+          "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+          "length": 41103,
+          "sentinels": [
+           "SYSPROMPT_SENTINEL_S11_joiner"
+          ],
+          "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+         }
+        },
+        {
+         "role": "user",
+         "content": "Answer: Damaged items are replaced free of charge.\n\nSide note: Side note: photos speed up the claim."
+        }
+       ],
+       "llmModel": "chatOpenAI",
+       "llmEnableMemory": false,
+       "llmMemoryType": "allMessages",
+       "llmMemoryWindowSize": "20",
+       "llmMemoryWindowDisableStrict": false,
+       "llmMemoryMaxTokenLimit": "2000",
+       "llmReturnResponseAs": "userMessage",
+       "llmModelConfig": {
+        "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+        "cache": "",
+        "modelName": "fake-model",
+        "temperature": 0.9,
+        "streaming": true,
+        "maxTokens": "",
+        "topP": "",
+        "frequencyPenalty": "",
+        "presencePenalty": "",
+        "timeout": "",
+        "dontSetStoreParam": "",
+        "strictToolCalling": "",
+        "stopSequence": "",
+        "basepath": "",
+        "proxyUrl": "",
+        "baseOptions": "",
+        "allowImageUploads": "",
+        "imageResolution": "low",
+        "reasoning": "",
+        "reasoningEffort": "",
+        "reasoningSummary": "",
+        "llmModel": "chatOpenAI",
+        "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+       }
+      },
+      "output": {
+       "content": "Joined answer (t3): main answer plus the side note.",
+       "timeMetadata": {
+        "start": 1795372935388,
+        "end": 1795372935392,
+        "delta": 4
+       },
+       "calledTools": [],
+       "usageMetadata": {
+        "input_tokens": 10340,
+        "output_tokens": 14,
+        "total_tokens": 10354
+       },
+       "responseMetadata": {
+        "prompt": 0,
+        "completion": 0,
+        "usage": {
+         "prompt_tokens": 10340,
+         "completion_tokens": 14,
+         "total_tokens": 10354
+        },
+        "finish_reason": "stop",
+        "system_fingerprint": "fp_fake00b",
+        "model_name": "fake-model"
+       }
+      },
+      "state": {
+       "b_note": "Side note: photos speed up the claim."
+      },
+      "chatHistory": [
+       {
+        "role": "user",
+        "content": "Joined answer (t3): main answer plus the side note.",
+        "name": "joiner"
+       }
+      ]
+     },
+     "previousNodeIds": [
+      "agentAgentflow_0",
+      "llmAgentflow_0"
+     ],
+     "status": "FINISHED"
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_1:FINISHED"
+   ],
+   "finalState": {
+    "b_note": "Side note: photos speed up the claim."
+   },
+   "modelRequests": [
+    {
+     "seq": 818,
+     "route": "S11-llmB",
+     "callIndex": 0,
+     "ruleId": "llmB-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+         "length": 40996,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_llmB"
+         ],
+         "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Side note: photos speed up the claim.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 819,
+     "route": "S11-agentA",
+     "callIndex": 0,
+     "ruleId": "agentA-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Damaged items are replaced free of charge.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 820,
+     "route": "S11-joiner",
+     "callIndex": 0,
+     "ruleId": "joiner",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+         "length": 41103,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_joiner"
+         ],
+         "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Answer: Damaged items are replaced free of charge.\n\nSide note: Side note: photos speed up the claim."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Joined answer (t3): main answer plus the side note.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 37720,
+    "sha256": "72c5ccbe1cd1c65d60050cf618b88f2e9aec84c8554c126c2127815e5f856303",
+    "sizes": {
+     "base64Length": 37720,
+     "payloadBytes": 28288,
+     "gzipBytes": 28260,
+     "rawJsonBytes": 131918,
+     "topLevelKeys": [
+      "pastChatHistory",
+      "previousExecution"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 1410,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "previousExecutionBytes": 130467,
+     "previousExecutionState": "FINISHED",
+     "executionDataStringBytes": 130170,
+     "records": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 355,
+       "inputMessagesBytes": 0,
+       "stateBytes": 60
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42889,
+       "inputMessagesBytes": 41255,
+       "stateBytes": 60
+      },
+      {
+       "nodeId": "llmAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 42984,
+       "inputMessagesBytes": 41336,
+       "stateBytes": 50
+      },
+      {
+       "nodeId": "llmAgentflow_1",
+       "status": "FINISHED",
+       "bytes": 42845,
+       "inputMessagesBytes": 41358,
+       "stateBytes": 50
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 131918
+     },
+     {
+      "path": "pastChatHistory",
+      "bytes": 1410
+     },
+     {
+      "path": "previousExecution",
+      "bytes": 130467
+     },
+     {
+      "path": "previousExecution.executionData",
+      "bytes": 130170,
+      "parsedBytes": 129078,
+      "jsonString": true
+     },
+     {
+      "path": "previousExecution.executionData<json>",
+      "bytes": 129078
+     },
+     {
+      "path": "previousExecution.executionData<json>[1]",
+      "bytes": 42889
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data",
+      "bytes": 42771
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input",
+      "bytes": 41933
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages",
+      "bytes": 41255
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0]",
+      "bytes": 41037
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.input.messages[0].content",
+      "bytes": 41009
+     },
+     {
+      "path": "previousExecution.executionData<json>[1].data.output",
+      "bytes": 533
+     },
+     {
+      "path": "previousExecution.executionData<json>[2]",
+      "bytes": 42984
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data",
+      "bytes": 42870
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input",
+      "bytes": 42078
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages",
+      "bytes": 41336
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0]",
+      "bytes": 41118
+     },
+     {
+      "path": "previousExecution.executionData<json>[2].data.input.messages[0].content",
+      "bytes": 41090
+     },
+     {
+      "path": "previousExecution.executionData<json>[3]",
+      "bytes": 42845
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data",
+      "bytes": 42713
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input",
+      "bytes": 42042
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input.messages",
+      "bytes": 41358
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input.messages[0]",
+      "bytes": 41225
+     },
+     {
+      "path": "previousExecution.executionData<json>[3].data.input.messages[0].content",
+      "bytes": 41197
+     }
+    ],
+    "decoded": {
+     "pastChatHistory": [
+      {
+       "role": "userMessage",
+       "content": "Draft an answer about late deliveries.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "createdDate": "2026-11-22T18:40:50.323Z",
+       "executionId": "mock-1795372850323-4f9pz179o",
+       "id": "4ed6b91a-7511-49cc-a1d8-35bd750f67a5"
+      },
+      {
+       "id": "6587affb-954f-435c-ba0c-1c50bcb25792",
+       "role": "apiMessage",
+       "content": "Joined answer (t1): main answer plus the side note.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "executionId": "mock-1795372850323-4f9pz179o",
+       "createdDate": "2026-11-22T18:40:50.658Z"
+      },
+      {
+       "role": "userMessage",
+       "content": "Try the damaged items answer again.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "createdDate": "2026-11-22T18:42:15.043Z",
+       "executionId": "mock-1795372935045-iqsnb80b3",
+       "id": "561ec789-b530-4306-9448-d29649fa6e2e"
+      },
+      {
+       "id": "824ae181-c4ac-4d62-b931-c3b83980a606",
+       "role": "apiMessage",
+       "content": "Joined answer (t3): main answer plus the side note.",
+       "chatflowid": "5111932b-5150-4198-8fdd-fbe972606460",
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mws6myyp-M1-S11",
+       "sessionId": "ts00b-mws6myyp-M1-S11",
+       "executionId": "mock-1795372935045-iqsnb80b3",
+       "createdDate": "2026-11-22T18:42:15.392Z"
+      }
+     ],
+     "previousExecution": {
+      "id": "mock-1795372935045-iqsnb80b3",
+      "state": "FINISHED",
+      "agentflowId": "5111932b-5150-4198-8fdd-fbe972606460",
+      "sessionId": "ts00b-mws6myyp-M1-S11",
+      "workspaceId": "96bc01d5-e224-49eb-8f31-d52755afae9d",
+      "executionData": {
+       "$json": [
+        {
+         "nodeId": "startAgentflow_0",
+         "nodeLabel": "Start",
+         "data": {
+          "id": "startAgentflow_0",
+          "name": "startAgentflow",
+          "input": {
+           "question": "Try the damaged items answer again."
+          },
+          "output": {
+           "question": "Try the damaged items answer again.",
+           "persistState": true
+          },
+          "state": {
+           "b_note": "Side note: photos are needed for damage claims."
+          }
+         },
+         "previousNodeIds": [],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Agent A",
+         "data": {
+          "id": "agentAgentflow_0",
+          "name": "agentAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+              "length": 40915,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S11_agentA"
+              ],
+              "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Draft an answer about late deliveries."
+            },
+            {
+             "role": "assistant",
+             "content": "Joined answer (t1): main answer plus the side note."
+            },
+            {
+             "role": "user",
+             "content": "Try the damaged items answer again."
+            }
+           ],
+           "agentModel": "chatOpenAI",
+           "agentTools": [],
+           "agentEnableMemory": true,
+           "agentMemoryType": "allMessages",
+           "agentMemoryWindowSize": "20",
+           "agentMemoryMaxTokenLimit": "2000",
+           "agentReturnResponseAs": "userMessage",
+           "agentModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "agentModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Damaged items are replaced free of charge.",
+           "timeMetadata": {
+            "start": 1795372935058,
+            "end": 1795372935080,
+            "delta": 22
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10314,
+            "output_tokens": 11,
+            "total_tokens": 10325,
+            "tool_call_tokens": 0
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8949,
+             "completionTokens": 9,
+             "totalTokens": 8958
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10314,
+             "completion_tokens": 11,
+             "total_tokens": 10325
+            }
+           }
+          },
+          "state": {
+           "b_note": "Side note: photos are needed for damage claims."
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Try the damaged items answer again."
+           },
+           {
+            "role": "user",
+            "content": "Damaged items are replaced free of charge.",
+            "name": "agent_a"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "llmAgentflow_0",
+         "nodeLabel": "LLM B",
+         "data": {
+          "id": "llmAgentflow_0",
+          "name": "llmAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+              "length": 40996,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S11_llmB"
+              ],
+              "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Draft an answer about late deliveries."
+            },
+            {
+             "role": "assistant",
+             "content": "Joined answer (t1): main answer plus the side note."
+            },
+            {
+             "role": "user",
+             "content": "Try the damaged items answer again."
+            }
+           ],
+           "llmModel": "chatOpenAI",
+           "llmEnableMemory": true,
+           "llmMemoryType": "allMessages",
+           "llmMemoryWindowSize": "20",
+           "llmMemoryWindowDisableStrict": false,
+           "llmMemoryMaxTokenLimit": "2000",
+           "llmReturnResponseAs": "userMessage",
+           "llmUpdateState": [
+            {
+             "key": "b_note",
+             "value": "{{ output }}"
+            }
+           ],
+           "llmModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Side note: photos speed up the claim.",
+           "timeMetadata": {
+            "start": 1795372935056,
+            "end": 1795372935384,
+            "delta": 328
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10334,
+            "output_tokens": 10,
+            "total_tokens": 10344
+           },
+           "responseMetadata": {
+            "estimatedTokenUsage": {
+             "promptTokens": 8886,
+             "completionTokens": 9,
+             "totalTokens": 8895
+            },
+            "prompt": 0,
+            "completion": 0,
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model",
+            "usage": {
+             "prompt_tokens": 10334,
+             "completion_tokens": 10,
+             "total_tokens": 10344
+            }
+           }
+          },
+          "state": {
+           "b_note": "Side note: photos speed up the claim."
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Try the damaged items answer again."
+           },
+           {
+            "role": "user",
+            "content": "Side note: photos speed up the claim.",
+            "name": "llm_b"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "startAgentflow_0"
+         ],
+         "status": "FINISHED"
+        },
+        {
+         "nodeId": "llmAgentflow_1",
+         "nodeLabel": "Joiner",
+         "data": {
+          "id": "llmAgentflow_1",
+          "name": "llmAgentflow",
+          "input": {
+           "messages": [
+            {
+             "role": "system",
+             "content": {
+              "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+              "length": 41103,
+              "sentinels": [
+               "SYSPROMPT_SENTINEL_S11_joiner"
+              ],
+              "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+             }
+            },
+            {
+             "role": "user",
+             "content": "Answer: Damaged items are replaced free of charge.\n\nSide note: Side note: photos speed up the claim."
+            }
+           ],
+           "llmModel": "chatOpenAI",
+           "llmEnableMemory": false,
+           "llmMemoryType": "allMessages",
+           "llmMemoryWindowSize": "20",
+           "llmMemoryWindowDisableStrict": false,
+           "llmMemoryMaxTokenLimit": "2000",
+           "llmReturnResponseAs": "userMessage",
+           "llmModelConfig": {
+            "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+            "cache": "",
+            "modelName": "fake-model",
+            "temperature": 0.9,
+            "streaming": true,
+            "maxTokens": "",
+            "topP": "",
+            "frequencyPenalty": "",
+            "presencePenalty": "",
+            "timeout": "",
+            "dontSetStoreParam": "",
+            "strictToolCalling": "",
+            "stopSequence": "",
+            "basepath": "",
+            "proxyUrl": "",
+            "baseOptions": "",
+            "allowImageUploads": "",
+            "imageResolution": "low",
+            "reasoning": "",
+            "reasoningEffort": "",
+            "reasoningSummary": "",
+            "llmModel": "chatOpenAI"
+           }
+          },
+          "output": {
+           "content": "Joined answer (t3): main answer plus the side note.",
+           "timeMetadata": {
+            "start": 1795372935388,
+            "end": 1795372935392,
+            "delta": 4
+           },
+           "calledTools": [],
+           "usageMetadata": {
+            "input_tokens": 10340,
+            "output_tokens": 14,
+            "total_tokens": 10354
+           },
+           "responseMetadata": {
+            "prompt": 0,
+            "completion": 0,
+            "usage": {
+             "prompt_tokens": 10340,
+             "completion_tokens": 14,
+             "total_tokens": 10354
+            },
+            "finish_reason": "stop",
+            "system_fingerprint": "fp_fake00b",
+            "model_name": "fake-model"
+           }
+          },
+          "state": {
+           "b_note": "Side note: photos speed up the claim."
+          },
+          "chatHistory": [
+           {
+            "role": "user",
+            "content": "Joined answer (t3): main answer plus the side note.",
+            "name": "joiner"
+           }
+          ]
+         },
+         "previousNodeIds": [
+          "agentAgentflow_0",
+          "llmAgentflow_0"
+         ],
+         "status": "FINISHED"
+        }
+       ]
+      },
+      "createdDate": "2026-11-22T18:42:15.045Z",
+      "updatedDate": "2026-11-22T18:42:15.045Z"
+     }
+    },
+    "sentinels": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    },
+    "executedData": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 129267,
+    "executedDataGzipBytes": 27714,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "99e8d4b0d3806d95aeb29fedd4432843b190eaba",
+  "label": "before-run1",
+  "serverEnv": null,
+  "variant": null
+ }
+}

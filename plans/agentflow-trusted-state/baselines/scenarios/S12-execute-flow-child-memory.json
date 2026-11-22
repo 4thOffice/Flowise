@@ -1,0 +1,27 @@
+{
+    "id": "S12",
+    "title": "Parent flow calls a child flow with memory and a state counter",
+    "flow": "S12-execute-flow-child-memory",
+    "extraFlows": ["S12-child-flow"],
+    "findings": ["F10"],
+    "modes": ["M1", "M3"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "I want to return a pair of boots." },
+        { "id": "t2", "question": "They were worn once, is that a problem?" },
+        { "id": "t3", "question": "What did I want to return again?" },
+        { "id": "t4", "question": "Thanks for the help." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "parent", "route": "S12-parent", "reply": { "content": "Front desk ({turn}): let me ask our returns specialist." } },
+            { "id": "specialist-t1", "route": "S12-specialist", "turn": "t1", "reply": { "content": "Boots can be returned within 30 days if they are unworn." } },
+            { "id": "specialist-t2", "route": "S12-specialist", "turn": "t2", "reply": { "content": "Worn once is fine if the soles show no marks." } },
+            { "id": "specialist-t3", "route": "S12-specialist", "turn": "t3", "reply": { "content": "You wanted to return a pair of boots." } },
+            { "id": "specialist-t4", "route": "S12-specialist", "turn": "t4", "reply": { "content": "Happy to help with your return." } }
+        ]
+    },
+    "expectedAfter": {
+        "F10": "In M1 the child keeps its history and child_count across turns: the parent stores the child's token by node id and sends it with each call (specialist turn 1, 2, 3, 4; the specialist's model input holds the earlier turns)."
+    }
+}

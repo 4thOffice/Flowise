@@ -1,0 +1,25 @@
+{
+    "id": "S09",
+    "title": "Iteration with an LLM per item, aggregate agent and a loop",
+    "flow": "S09-iteration-and-loop",
+    "findings": ["F12"],
+    "modes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "Review the open case items for customer C-881.", "note": "One extra pass" },
+        { "id": "t2", "question": "Re-check only the returns item.", "note": "No extra pass" },
+        { "id": "t3", "question": "Do a full audit of every item.", "note": "Loop hits its max count (2) and returns the fallback message" }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "item", "route": "S09-item", "reply": { "content": "Item analysis {call}: no blocking issue, one note for the aggregator." } },
+            { "id": "aggregator", "route": "S09-aggregator", "reply": { "content": "Aggregate ({turn}, pass {call}): invoice and shipping are fine; returns need a follow-up call." } },
+            { "id": "quality-more-t1", "route": "S09-quality", "turn": "t1", "call": 0, "reply": { "content": "```json\n{\"output\": \"needs another pass\"}\n```" } },
+            { "id": "quality-more-t3", "route": "S09-quality", "turn": "t3", "reply": { "content": "```json\n{\"output\": \"needs another pass\"}\n```" } },
+            { "id": "quality-complete", "route": "S09-quality", "reply": { "content": "```json\n{\"output\": \"complete\"}\n```" } }
+        ]
+    },
+    "expectedAfter": {
+        "F12": "Iteration items get the decoded history and state from the parent run: no per-item token decode and no parent execution lookup (no 'Parent execution ID ... not found' log lines)."
+    }
+}

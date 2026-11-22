@@ -1,0 +1,31 @@
+{
+    "id": "S02",
+    "title": "Condition Agent router with different memory per branch",
+    "flow": "S02-router-mixed-memory",
+    "findings": ["F13"],
+    "modes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "I was charged twice for my last invoice." },
+        { "id": "t2", "question": "The app crashes when I open my order history." },
+        { "id": "t3", "question": "When will the duplicate charge be refunded?" },
+        { "id": "t4", "question": "What is the weather like in Lisbon today?" },
+        { "id": "t5", "question": "The crash still happens after the update." },
+        { "id": "t6", "question": "Can I get the refund as store credit instead?" }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "router-billing", "route": "S02-router", "turn": ["t1", "t3", "t6"], "reply": { "content": "```json\n{\"output\": \"billing question\"}\n```" } },
+            { "id": "router-tech", "route": "S02-router", "turn": ["t2", "t5"], "reply": { "content": "```json\n{\"output\": \"technical issue\"}\n```" } },
+            { "id": "router-other", "route": "S02-router", "turn": "t4", "reply": { "content": "```json\n{\"output\": \"anything else\"}\n```" } },
+            { "id": "billing-t1", "route": "S02-billing", "turn": "t1", "reply": { "content": "I can see two charges for invoice INV-77. I have started a refund for the duplicate." } },
+            { "id": "billing-t3", "route": "S02-billing", "turn": "t3", "reply": { "content": "The duplicate charge will be back on your card within 5 business days." } },
+            { "id": "billing-t6", "route": "S02-billing", "turn": "t6", "reply": { "content": "Yes, I have switched the refund to store credit of the same amount." } },
+            { "id": "tech-t2", "route": "S02-tech", "turn": "t2", "reply": { "content": "Please update the app to version 5.2 and clear its cache; that fixes the crash." } },
+            { "id": "tech-t5", "route": "S02-tech", "turn": "t5", "reply": { "content": "Then please reinstall the app. Your orders are kept in your account." } }
+        ]
+    },
+    "expectedAfter": {
+        "F13": "The token holds no Condition Agent, Agent or LLM records; the window-memory node still sees only the last 2 exchanges."
+    }
+}

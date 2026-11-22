@@ -1,0 +1,29 @@
+{
+    "id": "S01",
+    "title": "Single agent with all-messages memory and tools",
+    "flow": "S01-single-agent-memory",
+    "findings": ["F13"],
+    "modes": ["M1", "M2", "M3"],
+    "internalModes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "Hi, I need help with my order ORD-1001. It has not arrived yet." },
+        { "id": "t2", "question": "Can you remind me which order we are talking about?" },
+        { "id": "t3", "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?", "note": "Agent calls the calculator tool; tool messages land in the node record" },
+        { "id": "t4", "question": "Thanks. Please summarise our conversation so far." },
+        { "id": "t5", "question": "That is all, goodbye." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "t1", "route": "S01-agent", "turn": "t1", "reply": { "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier." } },
+            { "id": "t2", "route": "S01-agent", "turn": "t2", "reply": { "content": "We are talking about order ORD-1001, which is currently with the carrier." } },
+            { "id": "t3-tool", "route": "S01-agent", "turn": "t3", "call": 0, "reply": { "toolCalls": [{ "name": "calculator", "args": { "input": "12*7+3" } }] } },
+            { "id": "t3-answer", "route": "S01-agent", "turn": "t3", "call": 1, "reply": { "content": "The total would be 87 euros." } },
+            { "id": "t4", "route": "S01-agent", "turn": "t4", "reply": { "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros." } },
+            { "id": "t5", "route": "S01-agent", "turn": "t5", "reply": { "content": "Goodbye, and thank you for shopping with Northwind Outfitters." } }
+        ]
+    },
+    "expectedAfter": {
+        "F13": "The token holds history and flow state only: no node records, no SYSPROMPT_SENTINEL_S01_agent, and its size grows only with the messages."
+    }
+}

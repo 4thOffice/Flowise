@@ -1,0 +1,376 @@
+{
+    "schema": "ts-00b-compare-config/1",
+    "status": "draft (Task 00b). Task 04 fills in the token v2 paths marked pending; each fix task activates and refines its entries.",
+    "notes": [
+        "An entry allows class A differences for its scenarios x modes x turns x aspects (TS6). With mustDiffer (default true) the run fails when none of them differs.",
+        "turns: a list of turn ids, 't3+' for t3 and every later turn, or '*'. modes and scenarios: a list or '*'. variant: only after traces named <scenario>@<variant>.json.",
+        "Checks run on the after trace. A check with 'pending' is reported but not evaluated until its path or decision exists.",
+        "Aspects: modelRequests, streamedTokens, finalText, nodeSequence, status, finalState, action (mapping, elements, data.nodeId), error."
+    ],
+    "tokenV2": {
+        "historyPath": "pending: Task 04 names the history field",
+        "flowStatePath": "pending: Task 04",
+        "formPath": "pending: Task 04",
+        "childTokensPath": "pending: Task 04",
+        "pendingResumePath": "pending: Task 04"
+    },
+    "intended": [
+        {
+            "id": "F01-M3-like-M1",
+            "finding": "F01",
+            "decision": "TS9",
+            "scenarios": ["S01", "S05", "S06", "S07", "S12"],
+            "modes": ["M3"],
+            "turns": "*",
+            "aspects": ["modelRequests", "streamedTokens", "finalText", "nodeSequence", "status", "finalState", "action", "error"],
+            "mustDiffer": false,
+            "expect": "DB mode reads nothing from ChatMessage or Execution: every class A aspect of an M3 after trace equals the M1 after trace of the same scenario and turn.",
+            "checks": [{ "type": "sameClassAAsMode", "mode": "M1" }]
+        },
+        {
+            "id": "F02-S10a-accept-on",
+            "finding": "F02",
+            "decision": "TS13, TS22",
+            "scenarios": ["S10a"],
+            "modes": ["M1"],
+            "variant": "accept-client-history-on",
+            "turns": "*",
+            "aspects": ["modelRequests"],
+            "expect": "The client's history (welcome message included) is the turn's history and is saved in the token. Quick Answer (memory off) gets no history; Context Agent (memory on) gets it once instead of client history plus token history.",
+            "checks": [
+                { "type": "modelInputExcludes", "route": "S10a-quick", "turns": ["t1", "t2", "t3"], "contentIncludes": "Welcome to Northwind Outfitters" },
+                { "type": "modelInputIncludes", "route": "S10a-context", "role": "assistant", "contentIncludes": "Welcome to Northwind Outfitters" },
+                {
+                    "type": "modelInputIncludes",
+                    "route": "S10a-quick",
+                    "role": "user",
+                    "contentIncludes": "Can I pick the parcel up in Oslo instead?",
+                    "turns": ["t4"],
+                    "pending": "Not settled by TS13/TS22: today the llmMessages override carries user messages, so the LLM node does not add the current question (00b README, observation 2). Task 06 asks the user."
+                },
+                { "type": "serverLogIncludes", "pattern": "history", "turns": ["t3"], "note": "TS13 warning: the token's last message is missing from the client history" }
+            ]
+        },
+        {
+            "id": "F02-S10a-accept-off",
+            "finding": "F02",
+            "decision": "TS13a, TS22",
+            "scenarios": ["S10a"],
+            "modes": ["M1"],
+            "variant": "accept-client-history-off",
+            "turns": "*",
+            "aspects": ["modelRequests"],
+            "expect": "history is ignored with a warning; nodes see only the token history through their memory settings: Quick Answer sees none, Context Agent sees the token history once and no welcome message.",
+            "checks": [
+                { "type": "modelInputExcludes", "route": "S10a-quick", "contentIncludes": "Welcome to Northwind Outfitters" },
+                { "type": "modelInputExcludes", "route": "S10a-context", "contentIncludes": "Welcome to Northwind Outfitters" },
+                { "type": "serverLogIncludes", "pattern": "history" }
+            ]
+        },
+        {
+            "id": "F03-S04b-state-carries",
+            "finding": "F03",
+            "decision": "TS11",
+            "scenarios": ["S04b"],
+            "modes": ["M1"],
+            "turns": ["t2+"],
+            "aspects": ["modelRequests", "streamedTokens", "finalText", "nodeSequence", "finalState"],
+            "expect": "State always carries over, so S04b behaves like S04a (Persist State on) does today: count 2, 3, 4; stage stays qualified, so t2 and t4 route to Follow Up; the t3 startState override still resets stage and sends t3 to Intake Agent.",
+            "checks": [
+                { "type": "finalStateEquals", "key": "count", "value": "2", "turns": ["t2"] },
+                { "type": "finalStateEquals", "key": "count", "value": "4", "turns": ["t4"] },
+                { "type": "textIncludes", "value": "Follow-up (t2)", "turns": ["t2"] },
+                { "type": "textIncludes", "value": "Intake (t3)", "turns": ["t3"] }
+            ]
+        },
+        {
+            "id": "F04-S05-new-form-wins",
+            "finding": "F04",
+            "decision": "TS12, TS19",
+            "scenarios": ["S05"],
+            "modes": ["M1", "M3"],
+            "turns": ["t4"],
+            "aspects": ["modelRequests"],
+            "expect": "Form values live in their own token field and the t3 submission replaces them: t4's prompt says Grace Hopper / shipping (today Ada Lovelace / billing).",
+            "checks": [{ "type": "modelInputIncludes", "route": "S05-assistant", "role": "system", "contentIncludes": "Customer name: Grace Hopper. Topic: shipping." }]
+        },
+        {
+            "id": "F05-S06-answers-in-history",
+            "finding": "F05",
+            "decision": "TS15",
+            "scenarios": ["S06"],
+            "modes": ["M1", "M2"],
+            "turns": ["t3+"],
+            "aspects": ["modelRequests"],
+            "expect": "Each answer is the user message of its resume turn: t2 'Please mention the 10% discount code SORRY10.', t3 'Approve' (button label), t5 'Approved, send it.'. Later model inputs alternate user/assistant.",
+            "checks": [
+                { "type": "modelInputIncludes", "route": "S06-finalizer", "role": "user", "contentIncludes": "Please mention the 10% discount code SORRY10.", "turns": ["t3"] },
+                { "type": "modelInputIncludes", "route": "S06-drafter", "role": "user", "contentIncludes": "Approve", "turns": ["t4"] },
+                { "type": "tokenHistoryRoles", "pending": "Task 04 historyPath", "turns": ["t3"], "equals": ["userMessage", "apiMessage", "userMessage", "apiMessage", "userMessage", "apiMessage"] }
+            ]
+        },
+        {
+            "id": "F05-S07-answers-in-history",
+            "finding": "F05",
+            "decision": "TS15",
+            "scenarios": ["S07"],
+            "modes": ["M1", "M2", "M1-internal"],
+            "turns": ["t4+"],
+            "aspects": ["modelRequests"],
+            "expect": "t3 saves 'Proceed' and t5 saves 'Do not calculate it; escalate to a manager instead.' between the stopped turn's message and the resume reply.",
+            "checks": [
+                { "type": "modelInputIncludes", "route": "S07-agent", "role": "user", "contentIncludes": "Proceed", "turns": ["t4"] },
+                { "type": "modelInputIncludes", "route": "S07-agent", "role": "user", "contentIncludes": "Do not calculate it; escalate to a manager instead.", "turns": ["t6"] }
+            ]
+        },
+        {
+            "id": "F05-S08-answers-in-history",
+            "finding": "F05",
+            "decision": "TS15",
+            "scenarios": ["S08"],
+            "modes": ["M1", "M2"],
+            "turns": ["t3+"],
+            "aspects": ["modelRequests"],
+            "expect": "t2 saves 'Proceed' (tool approval) and t3 saves 'Approved by the store manager.'; the summary and later turns see them.",
+            "checks": [
+                { "type": "modelInputIncludes", "route": "S08-summary", "role": "user", "contentIncludes": "Proceed", "turns": ["t3"] },
+                { "type": "modelInputIncludes", "route": "S08-policy", "role": "user", "contentIncludes": "Approved by the store manager.", "turns": ["t4"] }
+            ]
+        },
+        {
+            "id": "F06-S06b-toggle-off",
+            "finding": "F06",
+            "decision": "TS15",
+            "scenarios": ["S06b"],
+            "modes": ["M1"],
+            "turns": ["t2+"],
+            "aspects": ["modelRequests", "streamedTokens", "finalText"],
+            "expect": "With the history toggle off the approval prompt and the answer are left out of history; no question rewrite, so the original question is not repeated as extra user messages; no doNotIncludeFeedbackHistory in state or action.",
+            "checks": [
+                { "type": "tokenHasNoKey", "key": "doNotIncludeFeedbackHistory" },
+                { "type": "actionKeysOnly", "turns": ["t1", "t2", "t4"], "allowed": ["id", "mapping", "elements", "data.nodeId", "data.nodeLabel", "data.input.humanInputEnableFeedback"] }
+            ]
+        },
+        {
+            "id": "F07-alternating-history",
+            "finding": "F07",
+            "decision": "TS15",
+            "scenarios": ["S06", "S07", "S08"],
+            "modes": ["M1", "M2"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Covered by the F05 entries for model input. The token history alternates user/assistant, and a resume turn that ends without terminal output (S08 t2, today ' ') does not add an empty bot message.",
+            "checks": [{ "type": "tokenHistoryRoles", "pending": "Task 04 historyPath; Task 07 decides the S08 t2 empty-output handling" }]
+        },
+        {
+            "id": "F08-no-action-in-history",
+            "finding": "F08",
+            "decision": "TS19, TS-O1",
+            "scenarios": ["S06", "S06b", "S07", "S08"],
+            "modes": ["M1", "M2", "M3", "M1-internal"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "History messages carry no action; pending resume data sits in its own field only while stopped.",
+            "checks": [{ "type": "tokenHistoryHasNoKey", "key": "action", "pending": "Task 04 historyPath" }]
+        },
+        {
+            "id": "F09-no-record-copies",
+            "finding": "F09",
+            "decision": "TS19, TS-O1",
+            "scenarios": ["S06", "S08"],
+            "modes": ["M1", "M2"],
+            "turns": ["t2", "t3"],
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Resume turns do not copy the previous turn's records into the token: t2/t3 tokens shrink to history + state (+ pending data while stopped).",
+            "checks": [{ "type": "tokenBytesRatioToBeforeMax", "max": 0.5 }]
+        },
+        {
+            "id": "F10-S12-child-token",
+            "finding": "F10",
+            "decision": "TS16",
+            "scenarios": ["S12"],
+            "modes": ["M1"],
+            "turns": ["t2+"],
+            "aspects": ["modelRequests", "streamedTokens", "finalText", "finalState"],
+            "expect": "The parent keeps the child's token by node id and sends it with each call: the specialist sees the earlier turns and child_count goes 1, 2, 3, 4.",
+            "checks": [
+                { "type": "finalStateEquals", "key": "child_count", "value": "4", "turns": ["t4"] },
+                { "type": "textIncludes", "value": "(specialist turn 2)", "turns": ["t2"] },
+                { "type": "modelInputIncludes", "route": "S12-specialist", "role": "user", "contentIncludes": "I want to return a pair of boots.", "turns": ["t3"] }
+            ]
+        },
+        {
+            "id": "F11-S10b-no-history",
+            "finding": "F11",
+            "decision": "TS17",
+            "scenarios": ["S10b"],
+            "modes": ["M1"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Model input unchanged (the agent already sees no past history); the token keeps no history instead of the last exchange; the counter still carries over.",
+            "checks": [
+                { "type": "tokenHistoryRoles", "equals": [], "pending": "Task 04 historyPath" },
+                { "type": "finalStateEquals", "key": "counter", "value": "3", "turns": ["t3"] }
+            ]
+        },
+        {
+            "id": "F12-S09-no-parent-lookup",
+            "finding": "F12",
+            "decision": "TS9",
+            "scenarios": ["S09"],
+            "modes": ["M1"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Iteration items get the decoded history and state from the parent run: no per-item token decode and no parent execution lookup.",
+            "checks": [{ "type": "serverLogExcludes", "pattern": "Parent execution ID .* not found" }]
+        },
+        {
+            "id": "F13-no-records-in-token",
+            "finding": "F13",
+            "decision": "TS10, TS19",
+            "scenarios": ["S01", "S01r", "S02", "S03", "S04a", "S04b", "S05", "S06", "S06b", "S09", "S10a", "S10b", "S11", "S12", "S13"],
+            "modes": "*",
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "The token holds history and state only (plus pending HumanInput data while stopped): no system prompt sentinel.",
+            "checks": [{ "type": "tokenSentinelMax", "max": 0 }]
+        },
+        {
+            "id": "F13-tool-approval-pending",
+            "finding": "F13",
+            "decision": "TS10, TS19, TS-O1",
+            "scenarios": ["S07", "S08"],
+            "modes": "*",
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Same as F13 except while an Agent tool approval is pending, where TS-O1 (Task 03) decides what the pending field keeps.",
+            "checks": [
+                { "type": "tokenSentinelMax", "max": 0, "turns": ["t3", "t5", "t6"] },
+                { "type": "tokenSentinelMax", "max": 1, "turns": ["t1", "t2", "t4"], "pending": "TS-O1 (Task 03): 0 if the pending data drops the prompt" }
+            ]
+        },
+        {
+            "id": "F14-S13-token-in-json",
+            "finding": "F14",
+            "decision": "TS3 (non-streaming JSON)",
+            "scenarios": ["S13"],
+            "modes": ["M1"],
+            "turns": ["t2+"],
+            "aspects": ["modelRequests"],
+            "expect": "The non-streaming JSON carries trustedState, so t2 and t3 continue the conversation with t1's history.",
+            "checks": [
+                { "type": "tokenReceived", "value": true, "turns": "*" },
+                { "type": "modelInputIncludes", "route": "S01-agent", "role": "user", "contentIncludes": "Hi, my order ORD-3003 is late.", "turns": ["t2"] }
+            ]
+        },
+        {
+            "id": "F15-F16-switches-only-control-writes",
+            "finding": "F15, F16",
+            "decision": "TS9, TS21, TS5",
+            "scenarios": ["S01"],
+            "modes": ["M1-reqflag", "M3-envflags"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "The request flag and the DISABLE_* env flags no longer select a source: class A equals the plain M1 run. Executions and chat messages are written only as the recording settings say (class B, DB rows).",
+            "checks": [{ "type": "tokenSentinelMax", "max": 0 }]
+        },
+        {
+            "id": "F17-internal-chat-reload",
+            "finding": "F17",
+            "decision": "Task 09 decides (local storage or document only)",
+            "scenarios": ["S01", "S07"],
+            "modes": ["M1-internal"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "UI behaviour, not visible in traces: the internal chat has no saved messages to reload (db.*.chatMessages stays empty with recording off). Task 09 adds its own check if it keeps the token in local storage.",
+            "checks": []
+        },
+        {
+            "id": "F18-executed-data-external",
+            "finding": "F18",
+            "decision": "TS18",
+            "scenarios": "*",
+            "modes": ["M1", "M2", "M3", "M1-reqflag", "M3-envflags"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "/prediction (SSE end event and JSON) returns each record pruned to nodeId, nodeLabel, status, previousNodeIds, data.name, data.state, the error text and the slim action on stopped records.",
+            "checks": [
+                { "type": "payloadSentinelMax", "payload": "executedData", "max": 0 },
+                { "type": "payloadSentinelMax", "payload": "restJson", "max": 0 }
+            ]
+        },
+        {
+            "id": "F18-executed-data-internal",
+            "finding": "F18",
+            "decision": "TS18",
+            "scenarios": ["S01", "S07"],
+            "modes": ["M1-internal"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "/internal-prediction keeps the full executed data the execution viewer shows.",
+            "checks": [{ "type": "payloadSentinelMin", "payload": "executedData", "min": 1 }]
+        },
+        {
+            "id": "F19-slim-action",
+            "finding": "F19",
+            "decision": "TS20",
+            "scenarios": ["S06", "S06b", "S07", "S08"],
+            "modes": "*",
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "The action event keeps only id, mapping, elements, data.nodeId, data.nodeLabel and data.input.humanInputEnableFeedback; mapping, elements and data.nodeId (class A) are unchanged.",
+            "checks": [
+                { "type": "actionKeysOnly", "turns": ["t1", "t2", "t4"], "allowed": ["id", "mapping", "elements", "data.nodeId", "data.nodeLabel", "data.input.humanInputEnableFeedback"] },
+                { "type": "payloadSentinelMax", "payload": "action", "max": 0 }
+            ]
+        },
+        {
+            "id": "TS5-saved-executions-full",
+            "finding": "TS5",
+            "decision": "TS5",
+            "scenarios": ["S01", "S06", "S07", "S08"],
+            "modes": ["M2"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Executions are still written with today's full detail (prompts included) and never read.",
+            "checks": [{ "type": "payloadSentinelMin", "payload": "dbRows", "min": 1 }]
+        },
+        {
+            "id": "TS14-failed-turn",
+            "finding": "TS14",
+            "decision": "TS14",
+            "scenarios": ["S11"],
+            "modes": ["M1"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Unchanged behaviour: t2 fails, keeps LLM B's b_note and adds nothing to history; t3 starts from that state.",
+            "checks": [{ "type": "finalStateEquals", "key": "b_note", "value": "Side note: photos are needed for damage claims.", "turns": ["t2"] }]
+        },
+        {
+            "id": "TS-O1-resume-input",
+            "finding": "TS-O1",
+            "decision": "TS-O1 (open)",
+            "scenarios": ["S07", "S08"],
+            "modes": ["M1", "M2", "M1-internal"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Resumes of an Agent tool approval send the same model input as today (S07 t3 and t5, S08 t2). If Task 03 finds the input would change, the user decides and this entry lists the difference.",
+            "checks": []
+        }
+    ]
+}

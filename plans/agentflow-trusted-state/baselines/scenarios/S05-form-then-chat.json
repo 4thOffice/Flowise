@@ -1,0 +1,25 @@
+{
+    "id": "S05",
+    "title": "Form start, chat, a new form, chat",
+    "flow": "S05-form-then-chat",
+    "findings": ["F04"],
+    "modes": ["M1", "M3"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "form": { "name": "Ada Lovelace", "topic": "billing" } },
+        { "id": "t2", "question": "When will I be charged for the annual plan?" },
+        { "id": "t3", "form": { "name": "Grace Hopper", "topic": "shipping" }, "note": "New form submission: Start output.form keeps Ada, $form uses Grace" },
+        { "id": "t4", "question": "Where is my parcel right now?", "note": "$form falls back to the previous Start record (Ada), not to the new submission" }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "t1", "route": "S05-assistant", "turn": "t1", "reply": { "content": "Thanks, I have opened a billing request for you." } },
+            { "id": "t2", "route": "S05-assistant", "turn": "t2", "reply": { "content": "The annual plan is charged on the first day of next month." } },
+            { "id": "t3", "route": "S05-assistant", "turn": "t3", "reply": { "content": "Thanks, I have opened a shipping request for you." } },
+            { "id": "t4", "route": "S05-assistant", "turn": "t4", "reply": { "content": "Your parcel is at the regional depot and will be delivered tomorrow." } }
+        ]
+    },
+    "expectedAfter": {
+        "F04": "After the new form in t3, the Start node and $form.* both use Grace Hopper / shipping; t4's system prompt says 'Customer name: Grace Hopper. Topic: shipping.'"
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "id": "S07",
+    "title": "Agent with a tool that requires approval",
+    "flow": "S07-agent-tool-approval",
+    "findings": ["F05", "F07", "F08", "F19", "TS-O1"],
+    "modes": ["M1", "M2", "M3"],
+    "internalModes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "What day is it today?", "note": "Uses Current DateTime (no approval)" },
+        { "id": "t2", "question": "Please calculate the refund: 15 percent of 249.99.", "note": "Calculator needs approval: stops" },
+        { "id": "t3", "humanInput": { "type": "proceed" }, "note": "Proceed: the checkpoint prompt is replayed from the token" },
+        { "id": "t4", "question": "And 20 percent of 80 for the second item?", "note": "Stops again" },
+        { "id": "t5", "humanInput": { "type": "reject", "feedback": "Do not calculate it; escalate to a manager instead." }, "note": "Reject with feedback" },
+        { "id": "t6", "question": "Thanks, that is all for today." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "t1-tool", "route": "S07-agent", "turn": "t1", "call": 0, "reply": { "toolCalls": [{ "name": "current_date_time", "args": {} }] } },
+            { "id": "t1-answer", "route": "S07-agent", "turn": "t1", "call": 1, "reply": { "content": "Today is a regular business day, so our warehouse is open." } },
+            { "id": "t2-tool", "route": "S07-agent", "turn": "t2", "reply": { "toolCalls": [{ "name": "calculator", "args": { "input": "249.99*0.15" } }] } },
+            { "id": "t3-answer", "route": "S07-agent", "turn": "t3", "reply": { "content": "The refund is 37.50 euros." } },
+            { "id": "t4-tool", "route": "S07-agent", "turn": "t4", "reply": { "toolCalls": [{ "name": "calculator", "args": { "input": "80*0.2" } }] } },
+            { "id": "t5-answer", "route": "S07-agent", "turn": "t5", "reply": { "content": "Understood, I will not run the calculation and have passed it to a manager." } },
+            { "id": "t6", "route": "S07-agent", "turn": "t6", "reply": { "content": "You are welcome, have a good day." } }
+        ]
+    },
+    "expectedAfter": {
+        "F05": "t3 saves 'Proceed' and t5 saves 'Do not calculate it; escalate to a manager instead.' as the user message of the resume turn.",
+        "F07": "No two bot messages in a row; the stopped turn's bot message is not empty.",
+        "F08": "No action JSON in history; pending resume data in its own field while stopped.",
+        "F19": "The action event carries only the slim fields (TS20).",
+        "TS-O1": "Measured in Task 03: the pending data for a tool approval keeps only what the resume needs."
+    }
+}

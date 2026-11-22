@@ -1,0 +1,27 @@
+{
+    "id": "S11",
+    "title": "A parallel branch fails on turn 2, the conversation continues on turn 3",
+    "flow": "S11-error-and-recovery",
+    "findings": ["TS14"],
+    "modes": ["M1"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "Draft an answer about late deliveries." },
+        { "id": "t2", "question": "Now draft one about damaged items.", "timeoutMs": 300000, "note": "Agent A gets HTTP 500 on every attempt (LangChain retries 6 times); LLM B finishes first" },
+        { "id": "t3", "question": "Try the damaged items answer again." }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "agentA-error", "route": "S11-agentA", "turn": "t2", "reply": { "error": { "status": 500, "message": "Injected fake LLM failure for Agent A" } } },
+            { "id": "agentA-t1", "route": "S11-agentA", "turn": "t1", "reply": { "content": "Late deliveries get the shipping cost refunded." } },
+            { "id": "agentA-t3", "route": "S11-agentA", "turn": "t3", "reply": { "content": "Damaged items are replaced free of charge." } },
+            { "id": "llmB-t1", "route": "S11-llmB", "turn": "t1", "reply": { "content": "Side note: the holiday peak adds two days.", "delayMs": 300 } },
+            { "id": "llmB-t2", "route": "S11-llmB", "turn": "t2", "reply": { "content": "Side note: photos are needed for damage claims.", "delayMs": 300 } },
+            { "id": "llmB-t3", "route": "S11-llmB", "turn": "t3", "reply": { "content": "Side note: photos speed up the claim.", "delayMs": 300 } },
+            { "id": "joiner", "route": "S11-joiner", "reply": { "content": "Joined answer ({turn}): main answer plus the side note." } }
+        ]
+    },
+    "expectedAfter": {
+        "TS14": "Unchanged: the failed turn keeps LLM B's state change (b_note) and adds nothing to history; t3 continues from the token."
+    }
+}

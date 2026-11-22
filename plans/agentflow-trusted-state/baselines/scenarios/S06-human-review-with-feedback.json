@@ -1,0 +1,31 @@
+{
+    "id": "S06",
+    "title": "Drafter, human review with feedback, revise loop, companion reply",
+    "flow": "S06-human-review-with-feedback",
+    "findings": ["F05", "F07", "F08", "F09", "F19"],
+    "modes": ["M1", "M2", "M3"],
+    "streaming": true,
+    "turns": [
+        { "id": "t1", "question": "Draft a reply to a customer whose shipment is delayed by a week.", "note": "Stops at Review Gate; Companion replies in parallel" },
+        { "id": "t2", "humanInput": { "type": "reject", "feedback": "Please mention the 10% discount code SORRY10." }, "note": "Reject with feedback: loops back to Drafter and stops again" },
+        { "id": "t3", "humanInput": { "type": "proceed" }, "note": "Proceed without feedback: Finalizer answers" },
+        { "id": "t4", "question": "Now draft a short SMS version of that message.", "note": "Normal question: stops at Review Gate again" },
+        { "id": "t5", "humanInput": { "type": "proceed", "feedback": "Approved, send it." }, "note": "Proceed with feedback" }
+    ],
+    "llm": {
+        "rules": [
+            { "id": "drafter-t1", "route": "S06-drafter", "turn": "t1", "reply": { "content": "Draft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday." } },
+            { "id": "drafter-t2", "route": "S06-drafter", "turn": "t2", "reply": { "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order." } },
+            { "id": "drafter-t4", "route": "S06-drafter", "turn": "t4", "reply": { "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off." } },
+            { "id": "finalizer-t3", "route": "S06-finalizer", "turn": "t3", "reply": { "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order." } },
+            { "id": "finalizer-t5", "route": "S06-finalizer", "turn": "t5", "reply": { "content": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off." } }
+        ]
+    },
+    "expectedAfter": {
+        "F05": "The answer becomes the user message of the resume turn: t2 'Please mention the 10% discount code SORRY10.', t3 'Approve' (button label), t5 'Approved, send it.'",
+        "F07": "History alternates user/assistant: the resume reply follows the saved answer instead of the stopped turn's bot message.",
+        "F08": "No action JSON inside history messages; pending resume data lives in its own token field while stopped.",
+        "F09": "Resume turns do not copy the previous turn's records; the token does not grow across t1 -> t2 -> t3.",
+        "F19": "The action event carries only id, mapping, elements, data.nodeId, data.nodeLabel and data.input.humanInputEnableFeedback."
+    }
+}
