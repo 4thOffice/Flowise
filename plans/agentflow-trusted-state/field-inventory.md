@@ -8,7 +8,7 @@
 
 Scenario words: **normal** (every turn), **persist** (Start Persist State on: S04a, S10b, S11), **form** (S05), **HI resume** (HumanInput resume: S06, S06b, S08), **TA resume** (Agent tool-approval resume: S07, S08), **ephemeral** (S10b), **error** (S11 t2), **iteration** (S09), **resume** (both kinds).
 
-Target follows TS10/TS12/TS16/TS19: **history**, **flow state**, **form**, **child tokens**, **pending** (pending resume data, only while stopped; contents settled by Task 03/TS-O1), **drop** (not carried).
+Target follows TS10/TS12/TS16/TS19: **history**, **flow state**, **form**, **child tokens**, **pending** (pending resume data, only while stopped; contents settled by Task 03 and TS26), **drop** (not carried).
 
 ---
 
@@ -179,7 +179,7 @@ Nothing else in the token is read on a normal turn: no record field, no history 
 | Run skeleton | per record of the stopped run, in order: node id, status, decision outcomes (`isFulfilled` per condition), loop target and max count | node id: every resume; status: S06, S06b, S08, P1, P2, P3, P5; decisions: P5; loop: S06, S06b, P1, P3; the finished records at all: P1, P2, P3 |
 | Referenced outputs | `output` of finished nodes that another node references (`{{nodeId}}`, `{{nodeId.output.x}}`) | P3 |
 | Stopped nodes | the slim action (TS20) of each stopped node | S08, P2, P5 (a branch still stopped is announced again) |
-| Agent checkpoint | per stopped Agent, TS-O1: (a) the tool calls or (b) the tool-call message, with the history length at the stop, the prompt and history being rebuilt on resume; or (c) the checkpoint messages | S07, S08, P2, P4, P5 |
+| Agent checkpoint | per stopped Agent (TS26, TS-O1 option (b)): the tool-call message, the history length at the stop and the prompt messages the history does not hold; the prompt is rebuilt on resume | S07, S08, P2, P4, P5 |
 
 Not needed for a resume: history metadata, `previousExecution.id` and the rest of its envelope, record labels and `previousNodeIds`, `data.id`, `data.name`, `data.input`, `data.chatHistory`, every other output field, the stopped node's input except the checkpoint messages and the feedback flag, `humanInputAction.extra`, and state copies on all but the latest record.
 

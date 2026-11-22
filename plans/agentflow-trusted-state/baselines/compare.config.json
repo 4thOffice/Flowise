@@ -166,7 +166,7 @@
         {
             "id": "F08-no-action-in-history",
             "finding": "F08",
-            "decision": "TS19, TS-O1",
+            "decision": "TS19, TS26",
             "scenarios": ["S06", "S06b", "S07", "S08"],
             "modes": ["M1", "M2", "M3", "M1-internal"],
             "turns": "*",
@@ -178,7 +178,7 @@
         {
             "id": "F09-no-record-copies",
             "finding": "F09",
-            "decision": "TS19, TS-O1",
+            "decision": "TS19, TS26",
             "scenarios": ["S06", "S08"],
             "modes": ["M1", "M2"],
             "turns": ["t2", "t3"],
@@ -244,17 +244,14 @@
         {
             "id": "F13-tool-approval-pending",
             "finding": "F13",
-            "decision": "TS10, TS19, TS-O1",
+            "decision": "TS10, TS19, TS26",
             "scenarios": ["S07", "S08"],
             "modes": "*",
             "turns": "*",
             "aspects": [],
             "mustDiffer": false,
-            "expect": "Same as F13 except while an Agent tool approval is pending, where TS-O1 (Task 03) decides what the pending field keeps.",
-            "checks": [
-                { "type": "tokenSentinelMax", "max": 0, "turns": ["t3", "t5", "t6"] },
-                { "type": "tokenSentinelMax", "max": 1, "turns": ["t1", "t2", "t4"], "pending": "TS-O1 (Task 03): 0 if the pending data drops the prompt" }
-            ]
+            "expect": "Same as F13, paused turns included: the pending data of a tool approval holds no system prompt (TS26).",
+            "checks": [{ "type": "tokenSentinelMax", "max": 0 }]
         },
         {
             "id": "F14-S13-token-in-json",
@@ -363,13 +360,13 @@
         {
             "id": "TS-O1-resume-input",
             "finding": "TS-O1",
-            "decision": "TS-O1 (open)",
+            "decision": "TS26",
             "scenarios": ["S07", "S08"],
             "modes": ["M1", "M2", "M1-internal"],
             "turns": "*",
             "aspects": [],
             "mustDiffer": false,
-            "expect": "Resumes of an Agent tool approval send the same model input as today (S07 t3 and t5, S08 t2). If Task 03 finds the input would change, the user decides and this entry lists the difference.",
+            "expect": "Resumes of an Agent tool approval send the same model input as today (S07 t3 and t5, S08 t2): the rebuilt prompt equals the stored one here (Task 03). The changes TS26 accepts (values or the flow changed while paused) are not exercised.",
             "checks": []
         }
     ]

@@ -24,7 +24,7 @@ Prove end to end on a real server that history and state are correct with no DB 
 4. **Internal vs external**: S01 and S07 through `/internal-prediction` keep full executed data; through `/prediction` it is pruned (TS18).
 5. **v1 continuation**: for each scenario and turn k (including paused turns), send the `before/` token from turn k to the new server and compare turns k+1… with the expected results.
 6. **Determinism**: two `after/` captures compare clean.
-7. **Size goals**: token size per turn grows by about that turn's messages; sentinel counts 0 (except as TS-O1 allows while paused).
+7. **Size goals**: token size per turn grows by about that turn's messages; sentinel counts 0, paused turns included (TS26).
 8. **Queue mode**: S01, S07 and S13 with `MODE=queue` and a local Redis; class A identical to non-queue; job and pub/sub message sizes recorded.
 9. **Flowise UI** pass in the browser on the isolated server.
 10. **Full test suites**: server, components, UI build.

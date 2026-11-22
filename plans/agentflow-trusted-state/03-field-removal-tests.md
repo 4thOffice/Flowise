@@ -1,6 +1,6 @@
 # Task 03: Contract Proof (Field Removal)
 
-- **Status**: Done (TS-O1: variant (b) recommended, §5.4; recorded in PLAN §2 by the plan session)
+- **Status**: Done (TS-O1: the user chose (b), keeping the messages the history does not hold next to the tool-call message, §5.4; PLAN §2 TS26)
 - **Depends On**: [01-test-harness-and-characterization-tests.md](./01-test-harness-and-characterization-tests.md), [02-field-inventory-and-size-anatomy.md](./02-field-inventory-and-size-anatomy.md)
 - **Primary Files**:
   - `packages/server/test/utils/buildAgentflow/trustedState/fieldRemoval.test.ts` (new)

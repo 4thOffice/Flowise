@@ -1,7 +1,7 @@
 # Task 04: Token v2 Design Review
 
 - **Status**: Not started
-- **Depends On**: [03-field-removal-tests.md](./03-field-removal-tests.md) (TS-O1 resolved there)
+- **Depends On**: [03-field-removal-tests.md](./03-field-removal-tests.md) (TS-O1 resolved there as TS26)
 - **Interactive**: the design is reviewed with the user before Task 05; nothing is implemented here.
 - **Primary Outputs**: this file (design filled in), `PLAN.md` updated if the review changes anything, Tasks 05–09 adjusted, `compare.config.json` intended differences completed.
 
@@ -9,7 +9,7 @@
 
 ## 1. Objective
 
-Turn the decisions in PLAN §2 (TS1–TS25, TS-O1 as resolved in Task 03, TS-O3 and TS-O4 resolved here with the user) and the evidence from Tasks 02–03 into a precise design, so Tasks 05–09 can be implemented without open questions.
+Turn the decisions in PLAN §2 (TS1–TS26, TS-O3 and TS-O4 resolved here with the user) and the evidence from Tasks 02–03 into a precise design, so Tasks 05–09 can be implemented without open questions.
 
 ---
 
@@ -18,7 +18,7 @@ Turn the decisions in PLAN §2 (TS1–TS25, TS-O1 as resolved in Task 03, TS-O3 
 1. **v2 schema** as a TypeScript interface with separate fields (TS19): version, history, flow state, form values, child flow tokens, pending resume data. For each field: its shape, who writes it, who reads it.
 2. **History message shape**: role and content, plus only the fields later turns read (uploads, artifacts, file annotations, used tools; per `field-inventory.md`).
 3. **Versioning** and v1 detection.
-4. **v1 → v2 upgrade**: history from `pastChatHistory` (without `action`); flow state from the latest record with `data.state`; form values from the Start record `output.form`; pending resume data from a stopped `previousExecution` (per TS-O1); empty child flow tokens.
+4. **v1 → v2 upgrade**: history from `pastChatHistory` (without `action`); flow state from the latest record with `data.state`; form values from the Start record `output.form`; pending resume data from a stopped `previousExecution` (per TS26; decide whether a v1 paused token replays its stored checkpoint once or is converted to the TS26 fields); empty child flow tokens.
 5. **Turn input** (`TrustedTurnInput` or similar) that replaces every DB and `previousExecution` read in `executeAgentFlow`, including recursive iteration runs.
 6. **Builder rules** for normal, stopped, resumed and failed (TS14) turns; how saved flows with ephemeral memory on are handled now that it is dropped (TS17).
 7. **History rules**: what each turn appends (user message incl. form text and approval answers per TS15; bot reply); client `history` (TS13, TS13a): replacement, the last-message warning check, welcome messages; how history reaches nodes (TS22), and what happens to `llmMessages` / `agentMessages` overrides that repeat it; same-turn replies as assistant messages and how saved flows with "Return Response As: User Message" migrate (TS25); VoIP's control of the whole history (TS-O3).
