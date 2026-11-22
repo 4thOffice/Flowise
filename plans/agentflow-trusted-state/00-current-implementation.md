@@ -144,7 +144,7 @@ Nothing else is read from `executionData`. In particular `input.messages` and mo
 | SSE `action` (`:2065`) and the saved bot message `action` | `id`, `mapping`, `elements`, `data.{nodeId, nodeLabel, input}`, where `input` is the stopped node's full input (`FLOWISE_CREDENTIAL_ID` included: the action is taken before `_removeCredentialId`, `:2124`) | `elements[].{type, label}`, `action.data.nodeId`, `action.data.input.humanInputEnableFeedback`; the answer is `humanInput {type, startNodeId: action.data.nodeId, feedback}` plus `question`, and V2 never sends the action back (`ChatMessage.jsx:810–854`) |
 | SSE `agentFlowExecutedData` (end of stream, `SSEStreamer.ts:28`) and `result.agentFlowExecutedData` (non-streaming, `:2275`) | All node records of the turn, prompts included; the SSE copy is the array buffered at the last node commit, so it still holds `FLOWISE_CREDENTIAL_ID` (the JSON response is stripped) | Internal chat: `AgentExecutedDataCard` tree and node details (`ChatMessage.jsx:2495–2503`). The execution viewer (`views/agentexecutions/`) reads saved Execution rows instead |
 
-External clients read far less: every known external client reads only `[last].data.state` of the executed data, or nothing, and only `elements`, `data.nodeId` and the feedback flag of `action`. The exceptions (PlatformBot test mode, the EvaluationRunner, the share-page tree view) are in [client-inventory.md](./client-inventory.md) §4.
+External clients read far less: every client that matters reads only `[last].data.state` of the executed data, or nothing, and only `elements`, `data.nodeId` and the feedback flag of `action` ([client-inventory.md](./client-inventory.md) §4). Callers that never send the token are obsolete and ignored.
 
 ---
 
