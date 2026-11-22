@@ -63,7 +63,7 @@ References:
 
 | ID | Topic | Direction | Resolved in |
 | :--- | :--- | :--- | :--- |
-| **TS-O1** | Pending resume data for an Agent tool approval | Only the needed state, not the prompt, if resumes stay correct. Kept in the pending field (TS19). | Task 03, by measurement; the user confirms if model input would change. |
+| **TS-O1** | Pending resume data for an Agent tool approval | Measured in Task 03 ([03 §5.4](./03-field-removal-tests.md)): (a) the pending tool calls, (b) the assistant message holding them, (c) the stored prompt once. All three resume S06–S08 and five probes with model input identical to today. Task 03 recommends **(b)**: a paused token under 1 KB with no system prompt, keeping the text a model writes next to a tool call. (b) rebuilds the prompt on resume, which changes model input where no scenario goes: values changed while paused (`{{current_date_time}}`, edited `$vars`, state changed by a branch resumed first), the flow edited while paused, and messages the history does not hold (same-turn messages, a summary memory's summary, uploads), which can be stored next to the tool-call message instead. (c) replays exactly, at about 13–14 K characters per stopped Agent. | The user: (b) with those differences, or (c). |
 | **TS-O3** | VoIP controls the whole history | User: VoIP must be able to change the whole history, because its bot says things outside the flow (the welcome message, filler words); the approach needs some rethinking. Today it sends the call, welcome first, in `llmMessages` with memory overrides, which TS24 blocks. Candidate for the review: VoIP sends the whole conversation as `history` (TS13, with TS13a on for its flows) and its nodes see it through their memory (TS22). To review: what a turn appends and saves when the client owns the history, the last-message warning, consecutive assistant messages (filler words, then the reply), and whether VoIP keeps `llmMessages`. Needs the production VoIP flow settings and whether `bots.intheloop.io` is Flowise or the proxy ([client-inventory.md](./client-inventory.md) §3.1, §6 Q2–Q3). Related: a memory-off LLM adds no current question when its messages already hold user turns (00b S10a t4). | Task 04, with the user. |
 | **TS-O4** | Concurrent and stale tokens | Two requests with the same token, or an older token sent again after a failure: last writer wins, or detect it ([client-inventory.md](./client-inventory.md) §6 Q4). | Task 04. |
 
@@ -118,7 +118,7 @@ flowchart LR
 | 00b | [00b-scenario-suite-and-baseline-capture.md](./00b-scenario-suite-and-baseline-capture.md) | Done | — | — | Fake LLM, scenarios S01–S13 (with variants), capture & compare tooling, `before/` traces. |
 | 01 | [01-test-harness-and-characterization-tests.md](./01-test-harness-and-characterization-tests.md) | Done | 02 | — | Jest multi-turn harness; tests pinning today's behaviour; failing tests for the findings. |
 | 02 | [02-field-inventory-and-size-anatomy.md](./02-field-inventory-and-size-anatomy.md) | Done (decisions recorded as TS17, TS22–TS25, TS-O3, TS-O4) | 01 | — | Field and client inventory (incl. `history` usage), size report. |
-| 03 | [03-field-removal-tests.md](./03-field-removal-tests.md) | Not started | — | — | Prove that the token fields suffice for normal turns; measure and resolve TS-O1. |
+| 03 | [03-field-removal-tests.md](./03-field-removal-tests.md) | Done (TS-O1 measured; the user's choice pending) | — | — | Prove that the token fields suffice for normal turns; measure and resolve TS-O1. |
 | 04 | [04-decision-gate-and-token-v2-design.md](./04-decision-gate-and-token-v2-design.md) | Not started | — | — | Token v2 design review: field names, v1 upgrade, builder and history rules, compare entries. |
 | 05 | [05-token-only-core.md](./05-token-only-core.md) | Not started | — | F01, F03, F12–F16 | v2 codec and builder, no DB reads, state in the token, token in JSON responses. |
 | 06 | [06-state-and-history-semantics.md](./06-state-and-history-semantics.md) | Not started | 08 | F02, F03, F04, F11 | Persist State removed, form values field, ephemeral memory and client memory overrides dropped, client `history`. |
@@ -136,7 +136,7 @@ flowchart LR
 - **Build**: `pnpm --filter flowise-components build` (when nodes change), then `pnpm --filter ./packages/server build`
 - **All server tests**: `pnpm --filter ./packages/server test`
 - **Agentflow tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow`
-- **Trusted state tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow/trustedState` (about 30 s)
+- **Trusted state tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow/trustedState` (about 60 s)
 - **Components tests**: `pnpm --filter flowise-components test`
 - **UI build**: `pnpm --filter flowise-ui build`
 - **Capture**: `node plans/agentflow-trusted-state/baselines/capture-traces.mjs --out-dir <dir>` (setup in `baselines/README.md`)

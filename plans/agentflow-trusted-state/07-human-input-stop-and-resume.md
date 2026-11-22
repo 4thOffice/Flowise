@@ -23,7 +23,7 @@ Stopping for human input and resuming work entirely from the token, with history
 ## 2. Scope
 
 - **Answers in history (TS15)**: the resume turn's user message is the feedback text, otherwise the button label. History toggle off: neither the approval prompt nor the answer is saved. No `doNotIncludeFeedbackHistory` state flag, no question rewriting, no `action.extra`.
-- **Pending resume data (TS-O1, TS19)**: only what Task 03 resolved, in the pending field; not inside history (F08) and not by copying the previous records into the new turn (F09).
+- **Pending resume data (TS-O1, TS19)**: only what Task 03 resolved, in the pending field; not inside history (F08) and not by copying the previous records into the new turn (F09). Today `commitExecutedDataDelta` drops every record of the resumed node id, not only the stopped one (Task 03).
 - **Recorded chat messages (TS21)**: when chat message recording is on, clear the saved `action` of the stopped turn's bot message on resume by its id (kept in the pending data), without reading the table.
 - **Empty stopped-turn replies (F07)**: what is saved as the bot message when an Agent stops for a tool approval.
 - Parallel stops resumed one by one (S08); resume inside loops (S06 reject → loop back).

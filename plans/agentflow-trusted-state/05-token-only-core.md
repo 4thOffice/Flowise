@@ -31,7 +31,7 @@ One execution path: every Agentflow V2 turn reads history, state and the previou
 - **Switches**: `clientState.enabled`, `enableTrustedState`, `DISABLE_CHAT_MESSAGE_RECORDING` and `DISABLE_EXECUTION_RECORDING` no longer change where data is read from (F15, F16). They only decide writes: chat messages are written only when chat message recording is on (TS21), executions only when execution recording is on (TS5). UI settings (`ClientState.jsx`) become the two recording options, mapped from today's stored config per the Task 04 design.
 - **Non-streaming**: the JSON result carries `trustedState`, also in queue mode; the UI's non-streaming path stores it (F14).
 - **Observability**: a debug log line per turn with the incoming and outgoing token size.
-- **Test harness**: `tokenHistory()` and `tokenRecords()` in the Task 01 `harness.ts` read only the v1 layout and throw on others; add the v2 fields. Its read guard lets one Execution read through, `updateExecution`'s `findOneBy({ id, workspaceId })`, as part of execution recording (TS5); keep or remove it as Task 04 decides.
+- **Test harness**: `tokenHistory()` and `tokenRecords()` in the Task 01 `harness.ts` read only the v1 layout and throw on others; add the v2 fields. Its read guard lets one Execution read through, `updateExecution`'s `findOneBy({ id, workspaceId })`, as part of execution recording (TS5); keep or remove it as Task 04 decides. Task 03's `fieldRemoval.test.ts` builds v1 tokens and reads the written ones with the same helpers.
 
 ---
 
