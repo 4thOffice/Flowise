@@ -679,7 +679,8 @@ const executeNode = async ({
     nodeInstanceFactory,
     maxNodeConcurrency,
     enqueueDbUpdate,
-    getExecutedData
+    getExecutedData,
+    getAvailableVariables
 }: IExecuteNodeParams): Promise<IExecuteNodeResult> => {
     try {
         if (abortController?.signal?.aborted) {
@@ -712,7 +713,7 @@ const executeNode = async ({
         }
 
         // Get available variables and resolve them
-        const availableVariables = await appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId))
+        const availableVariables = await getAvailableVariables()
 
         // Snapshot read-only view of prior execution data and track incremental deltas to commit by caller
         const executedDataSnapshot = [...agentFlowExecutedData]
@@ -1236,6 +1237,9 @@ export const executeAgentFlow = async ({
     let trustedData: TrustedState | undefined = incomingInput.trustedState
         ? await trusted_state_from_string(incomingInput.trustedState)
         : undefined
+    let availableVariablesTask: Promise<Variable[]> | undefined
+    const getAvailableVariables = () =>
+        (availableVariablesTask ??= appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId)))
     /*
     graph {
         startAgentflow_0: [ 'conditionAgentflow_0' ],
@@ -1759,7 +1763,8 @@ export const executeAgentFlow = async ({
                         nodeInstanceFactory,
                         maxNodeConcurrency,
                         enqueueDbUpdate: dbUpdateQueue.enqueue,
-                        getExecutedData: () => agentFlowExecutedData
+                        getExecutedData: () => agentFlowExecutedData,
+                        getAvailableVariables
                     })
 
                     return {

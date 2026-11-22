@@ -31,10 +31,9 @@ export function validateChatflowType(type: ChatflowType | undefined) {
 }
 
 // Check if chatflow valid for streaming
-const checkIfChatflowIsValidForStreaming = async (chatflowId: string): Promise<any> => {
+const checkIfChatflowIsValidForStreaming = async (chatflowId: string): Promise<{ isStreaming: boolean }> => {
     try {
         const appServer = getRunningExpressApp()
-        //**
         const requestedChatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
             id: chatflowId
         })
@@ -42,53 +41,55 @@ const checkIfChatflowIsValidForStreaming = async (chatflowId: string): Promise<a
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowId} not found`)
         }
         const chatflow = await resolveFlowRedirect(requestedChatflow, appServer.AppDataSource)
-
-        /* Check for post-processing settings, if available isStreamValid is always false */
-        let chatflowConfig: ICommonObject = {}
-        if (chatflow.chatbotConfig) {
-            chatflowConfig = JSON.parse(chatflow.chatbotConfig)
-            if (chatflowConfig?.postProcessing?.enabled === true) {
-                return { isStreaming: false }
-            }
-        }
-
-        if (chatflow.type === 'AGENTFLOW') {
-            return { isStreaming: true }
-        }
-
-        /*** Get Ending Node with Directed Graph  ***/
-        const flowData = chatflow.flowData
-        const parsedFlowData: IReactFlowObject = JSON.parse(flowData)
-        const nodes = parsedFlowData.nodes
-        const edges = parsedFlowData.edges
-        const { graph, nodeDependencies } = constructGraphs(nodes, edges)
-
-        const endingNodes = getEndingNodes(nodeDependencies, graph, nodes)
-
-        let isStreaming = false
-        for (const endingNode of endingNodes) {
-            const endingNodeData = endingNode.data
-            const isEndingNode = endingNodeData?.outputs?.output === 'EndingNode'
-            // Once custom function ending node exists, flow is always unavailable to stream
-            if (isEndingNode) {
-                return { isStreaming: false }
-            }
-            isStreaming = isFlowValidForStream(nodes, endingNodeData)
-        }
-
-        // If it is a Multi/Sequential Agents, always enable streaming
-        if (endingNodes.filter((node) => node.data.category === 'Multi Agents' || node.data.category === 'Sequential Agents').length > 0) {
-            return { isStreaming: true }
-        }
-
-        const dbResponse = { isStreaming: isStreaming }
-        return dbResponse
+        return getStreamingSupport(chatflow)
     } catch (error) {
         throw new InternalFlowiseError(
             StatusCodes.INTERNAL_SERVER_ERROR,
             `Error: chatflowsService.checkIfChatflowIsValidForStreaming - ${getErrorMessage(error)}`
         )
     }
+}
+
+const getStreamingSupport = (chatflow: ChatFlow): { isStreaming: boolean } => {
+    /* Check for post-processing settings, if available isStreamValid is always false */
+    let chatflowConfig: ICommonObject = {}
+    if (chatflow.chatbotConfig) {
+        chatflowConfig = JSON.parse(chatflow.chatbotConfig)
+        if (chatflowConfig?.postProcessing?.enabled === true) {
+            return { isStreaming: false }
+        }
+    }
+
+    if (chatflow.type === 'AGENTFLOW') {
+        return { isStreaming: true }
+    }
+
+    /*** Get Ending Node with Directed Graph  ***/
+    const flowData = chatflow.flowData
+    const parsedFlowData: IReactFlowObject = JSON.parse(flowData)
+    const nodes = parsedFlowData.nodes
+    const edges = parsedFlowData.edges
+    const { graph, nodeDependencies } = constructGraphs(nodes, edges)
+
+    const endingNodes = getEndingNodes(nodeDependencies, graph, nodes)
+
+    let isStreaming = false
+    for (const endingNode of endingNodes) {
+        const endingNodeData = endingNode.data
+        const isEndingNode = endingNodeData?.outputs?.output === 'EndingNode'
+        // Once custom function ending node exists, flow is always unavailable to stream
+        if (isEndingNode) {
+            return { isStreaming: false }
+        }
+        isStreaming = isFlowValidForStream(nodes, endingNodeData)
+    }
+
+    // If it is a Multi/Sequential Agents, always enable streaming
+    if (endingNodes.filter((node) => node.data.category === 'Multi Agents' || node.data.category === 'Sequential Agents').length > 0) {
+        return { isStreaming: true }
+    }
+
+    return { isStreaming }
 }
 
 // Check if chatflow valid for uploads
@@ -431,6 +432,7 @@ const checkIfChatflowHasChanged = async (chatflowId: string, lastUpdatedDateTime
 
 export default {
     checkIfChatflowIsValidForStreaming,
+    getStreamingSupport,
     checkIfChatflowIsValidForUploads,
     deleteChatflow,
     getAllChatflows,

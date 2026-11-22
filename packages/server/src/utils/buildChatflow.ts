@@ -71,7 +71,6 @@ import { OMIT_QUEUE_JOB_DATA } from './constants'
 import { executeAgentFlow } from './buildAgentflow'
 import { resolveFlowRedirect } from './flowRedirect'
 import { Workspace } from '../enterprise/database/entities/workspace.entity'
-import { Organization } from '../enterprise/database/entities/organization.entity'
 
 const shouldAutoPlayTTS = (textToSpeechConfig: string | undefined | null): boolean => {
     if (!textToSpeechConfig) return false
@@ -972,20 +971,26 @@ const checkIfStreamValid = async (
     return isStreamValid
 }
 
+export interface PreloadedChatflow {
+    requested: ChatFlow
+    resolved: ChatFlow
+}
+
 /**
  * Build/Data Preparation for execute function
  * @param {Request} req
  * @param {boolean} isInternal
  */
-export const utilBuildChatflow = async (req: Request, isInternal: boolean = false): Promise<any> => {
+export const utilBuildChatflow = async (req: Request, isInternal: boolean = false, preloaded?: PreloadedChatflow): Promise<any> => {
     const appServer = getRunningExpressApp()
 
     const chatflowid = req.params.id
 
-    // Check if chatflow exists
-    const requestedChatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
-        id: chatflowid
-    })
+    const requestedChatflow =
+        preloaded?.requested ??
+        (await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
+            id: chatflowid
+        }))
     if (!requestedChatflow) {
         throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowid} not found`)
     }
@@ -1012,7 +1017,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             }
         }
 
-        chatflow = await resolveFlowRedirect(chatflow, appServer.AppDataSource)
+        chatflow = preloaded?.resolved ?? (await resolveFlowRedirect(chatflow, appServer.AppDataSource))
         const isAgentFlow = chatflow.type === 'MULTIAGENT'
         const abortControllerId = `${chatflow.id}_${chatId}`
         if (isEvaluation && chatflow.type !== 'AGENTFLOW' && req.body.evaluationRunId) {
@@ -1029,17 +1034,16 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
 
         // This can be public API, so we can only get orgId from the chatflow
         const chatflowWorkspaceId = chatflow.workspaceId
-        const workspace = await appServer.AppDataSource.getRepository(Workspace).findOneBy({
-            id: chatflowWorkspaceId
+        const workspace = await appServer.AppDataSource.getRepository(Workspace).findOne({
+            where: { id: chatflowWorkspaceId },
+            relations: { organization: true }
         })
         if (!workspace) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Workspace ${chatflowWorkspaceId} not found`)
         }
         const workspaceId = workspace.id
 
-        const org = await appServer.AppDataSource.getRepository(Organization).findOneBy({
-            id: workspace.organizationId
-        })
+        const org = workspace.organization
         if (!org) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Organization ${workspace.organizationId} not found`)
         }

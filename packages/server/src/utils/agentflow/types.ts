@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm'
+import { Variable } from '../../database/entities/Variable'
 import { AnalyticHandler, ICommonObject, IFileUpload, IHumanInput, IMessage, IServerSideEventStreamer } from 'flowise-components'
 import {
     IAgentflowExecutedData,
@@ -121,6 +122,7 @@ export interface IExecuteNodeParams {
     maxNodeConcurrency?: number
     enqueueDbUpdate?: <T>(task: () => Promise<T>) => Promise<T>
     getExecutedData?: () => IAgentflowExecutedData[]
+    getAvailableVariables: () => Promise<Variable[]>
 }
 
 export interface IExecuteNodeResult {

@@ -9,6 +9,7 @@ import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { v4 as uuidv4 } from 'uuid'
 import { getErrorMessage } from '../../errors/utils'
 import { MODE } from '../../Interface'
+import { resolveFlowRedirect } from '../../utils/flowRedirect'
 
 // Send input message and get prediction result (External)
 const createPrediction = async (req: Request, res: Response, next: NextFunction) => {
@@ -27,15 +28,15 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
         }
         const workspaceId = req.user?.activeWorkspaceId
 
-        const chatflow = await chatflowsService.getChatflowById(req.params.id, workspaceId)
-        if (!chatflow) {
+        const requestedChatflow = await chatflowsService.getChatflowById(req.params.id, workspaceId)
+        if (!requestedChatflow) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${req.params.id} not found`)
         }
         let isDomainAllowed = true
         let unauthorizedOriginError = 'This site is not allowed to access this chatbot'
         logger.info(`[server]: Request originated from ${req.headers.origin || 'UNKNOWN ORIGIN'}`)
-        if (chatflow.chatbotConfig) {
-            const parsedConfig = JSON.parse(chatflow.chatbotConfig)
+        if (requestedChatflow.chatbotConfig) {
+            const parsedConfig = JSON.parse(requestedChatflow.chatbotConfig)
             // check whether the first one is not empty. if it is empty that means the user set a value and then removed it.
             const isValidAllowedOrigins = parsedConfig.allowedOrigins?.length && parsedConfig.allowedOrigins[0] !== ''
             unauthorizedOriginError = parsedConfig.allowedOriginsError || 'This site is not allowed to access this chatbot'
@@ -54,7 +55,9 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
             }
         }
         if (isDomainAllowed) {
-            const streamable = await chatflowsService.checkIfChatflowIsValidForStreaming(req.params.id)
+            const chatflow = await resolveFlowRedirect(requestedChatflow, getRunningExpressApp().AppDataSource)
+            const preloaded = { requested: requestedChatflow, resolved: chatflow }
+            const streamable = chatflowsService.getStreamingSupport(chatflow)
             const isStreamingRequested = req.body.streaming === 'true' || req.body.streaming === true
             if (streamable?.isStreaming && isStreamingRequested) {
                 const sseStreamer = getRunningExpressApp().sseStreamer
@@ -76,7 +79,7 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
                         getRunningExpressApp().redisSubscriber.subscribe(chatId)
                     }
 
-                    const apiResponse = await predictionsServices.buildChatflow(req)
+                    const apiResponse = await predictionsServices.buildChatflow(req, preloaded)
                     sseStreamer.streamMetadataEvent(apiResponse.chatId, apiResponse)
                 } catch (error) {
                     if (chatId) {
@@ -87,7 +90,7 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
                     sseStreamer.removeClient(chatId)
                 }
             } else {
-                const apiResponse = await predictionsServices.buildChatflow(req)
+                const apiResponse = await predictionsServices.buildChatflow(req, preloaded)
                 return res.json(apiResponse)
             }
         } else {
