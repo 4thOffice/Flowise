@@ -27,13 +27,13 @@ History is the single source of truth for messages, flow state and form values l
 - **Ephemeral memory dropped (TS17)**: the Start option no longer changes what nodes see; saved flows with it on are handled as Task 04 decides; flow state carries over as usual.
 - **Client memory overrides blocked (TS24)**: `startEphemeralMemory`, `llmEnableMemory` and the others Task 04 confirms are ignored even where the flow allows overrides, with a warning log. VoIP flows as TS-O3 decides.
 - **Request `history` (TS13, TS13a)**: new flow setting "Accept conversation history from the client" (off by default). When on and `history` is present, it is the turn's history and is saved in the token; log a warning if the token holds history whose last message is not in `history`. When off, ignore `history` with a warning log.
-- **History reaches nodes only through memory (TS22)**: output of other nodes only through Add Messages, with same-turn replies as TS-O2 decides; remove the first-node prepend of `history` in Agent, LLM and Condition Agent. Keep the `a4f69051` de-duplication, now against the history the node gets through memory, and log a warning when an override repeats it.
+- **History reaches nodes only through memory (TS22)**: output of other nodes only through Add Messages; a same-turn reply appended to the history is an assistant message, and "Return Response As: User Message" goes away in Agent and LLM as Task 04 decides (TS25; Execute Flow's option is in Task 08); remove the first-node prepend of `history` in Agent, LLM and Condition Agent. Keep the `a4f69051` de-duplication, now against the history the node gets through memory, and log a warning when an override repeats it.
 
 ---
 
 ## 3. Acceptance Criteria
 
 - [ ] Failing tests for F02, F03, F04, F11 now pass.
-- [ ] S04b, S05, S10a (both setting variants), S10b show exactly the intended differences in `compare.config.json`; all other scenarios unchanged.
+- [ ] S03, S04b, S05, S09, S10a (both setting variants), S10b show exactly the intended differences in `compare.config.json`; all other scenarios unchanged.
 - [ ] Existing saved flows load without errors in the UI (Start node without Persist State).
 - [ ] `pnpm --filter ./packages/server build`, `pnpm --filter ./packages/server test`, components tests and the UI build green.

@@ -10,7 +10,7 @@ What the clients of Agentflow V2 predictions send and read, for TS13/TS13a, TS18
 
 ## 0. Decisions (user, 2026-11-22)
 
-Recorded in PLAN §2 as TS17 (changed), TS22, TS23 and TS24; open points as TS-O2 and TS-O3:
+Recorded in PLAN §2 as TS17 (changed) and TS22–TS25; decision 4 continues as the open TS-O3:
 
 1. **Every client that matters round-trips the token**, on every turn and with approval answers. Callers that do not send it are obsolete and ignored (listed in §1).
 2. **Node memory settings decide the history.** A node's own memory settings (on/off, all messages, window, summary, …) alone decide which history it sees. History is the conversation's user and assistant messages; anything else from earlier nodes in the flow reaches a node only through its own "Add Messages" list.
@@ -18,7 +18,7 @@ Recorded in PLAN §2 as TS17 (changed), TS22, TS23 and TS24; open points as TS-O
    - Consequence: "Return Response As" offers User Message (the default for Agent, LLM and Execute Flow: `Agent.ts:389-405`, `LLM.ts:176-192`, `ExecuteFlow.ts:90-`), Assistant Message and "Do not append to chat history". Every node in the scenario flows uses the default, and in `before/` S03's Composer and S09's Aggregator receive same-turn replies as user messages named after the node. Under the rule those become assistant messages, so their model input changes (TS6: compare entries in Task 04/06), and the User Message option goes away or maps to Assistant Message (Task 04 decides how existing flows migrate).
    - Only the turn's final answer is saved to the token history (`buildAgentflow.ts:2209-2245`); same-turn replies stay in the turn's runtime history, as today.
 3. **No ephemeral memory and no client memory switches, for now.** The client overrides `startEphemeralMemory` and `llmEnableMemory` are blocked (they were workarounds for current conditions), and ephemeral memory is dropped (no use case). The aim is clear, predictable message composition in the node UI. Presumably the other memory-setting overrides (`agentEnableMemory`, `*MemoryType`, `*MemoryWindowSize`, …) go the same way; Task 04 lists them.
-4. **VoIP's `llmMessages` need checking.** The VoIP client sends its conversation in `llmMessages` most consistently and expects the welcome message to stay visible to the model, so that the bot does not greet again (§3.1).
+4. **VoIP's `llmMessages` need checking.** The VoIP client sends its conversation in `llmMessages` most consistently and expects the welcome message to stay visible to the model, so that the bot does not greet again (§3.1). User, later in the plan session: VoIP must be able to change the whole history, because its bot says things outside the flow (the welcome message, filler words); the approach is reviewed in Task 04 (PLAN TS-O3).
 
 ---
 

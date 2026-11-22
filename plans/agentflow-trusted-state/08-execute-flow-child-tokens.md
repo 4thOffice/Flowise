@@ -23,6 +23,7 @@ A child flow called by Execute Flow keeps its own history and state across the p
 - Behaviour when the selected child flow changes (token from another flow): start the child fresh.
 - Child flows that stop for human input: out of scope unless trivial; record the limitation.
 - Size: the child token adds to the parent token; record its size in S12.
+- "Return Response As: User Message" goes away here too, as Task 04 decides for Agent and LLM (TS25).
 
 ---
 
