@@ -615,3 +615,16 @@ export async function waitUntil(predicate: () => boolean, timeoutMs = 1000): Pro
         await new Promise((resolve) => setTimeout(resolve, 5))
     }
 }
+
+export const COMPONENTS_DIST_NODES_DIR = path.join(REPO_ROOT, 'packages/components/dist/nodes')
+
+export function loadComponentNodes(specs: Record<string, string>): IComponentNodes {
+    const componentNodes: IComponentNodes = {}
+    for (const [name, relPath] of Object.entries(specs)) {
+        const filePath = path.isAbsolute(relPath) ? relPath : path.join(COMPONENTS_DIST_NODES_DIR, relPath)
+        const mod = require(filePath)
+        const instance = new mod.nodeClass()
+        componentNodes[name] = Object.assign(instance, { filePath })
+    }
+    return componentNodes
+}
