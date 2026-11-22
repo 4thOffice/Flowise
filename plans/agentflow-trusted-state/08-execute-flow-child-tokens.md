@@ -30,4 +30,4 @@ A child flow called by Execute Flow keeps its own history and state across the p
 
 - [ ] Failing test for F10 passes: on turn 2 the S12 child sees its own earlier messages and state.
 - [ ] S12 shows exactly the intended differences; other scenarios unchanged.
-- [ ] `pnpm --filter flowise build` and components tests green.
+- [ ] `pnpm --filter ./packages/server build` and components tests green.

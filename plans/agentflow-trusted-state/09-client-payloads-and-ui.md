@@ -31,4 +31,4 @@ No system prompt or other unneeded data reaches clients unencrypted, and the Flo
 - [ ] Sentinel count 0 in every `action` payload and in external executed data; internal executed data unchanged.
 - [ ] Flowise UI checked in the browser on the isolated server: chat, approval, feedback, resume, execution viewer, reload behaviour.
 - [ ] Characterization tests: class A unchanged.
-- [ ] `pnpm --filter flowise build`, `pnpm --filter flowise test` and the UI build green.
+- [ ] `pnpm --filter ./packages/server build`, `pnpm --filter ./packages/server test` and the UI build green.

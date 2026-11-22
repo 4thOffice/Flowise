@@ -46,7 +46,7 @@
                     "role": "user",
                     "contentIncludes": "Can I pick the parcel up in Oslo instead?",
                     "turns": ["t4"],
-                    "pending": "Not settled by TS13/TS22: today the llmMessages override carries user messages, so the LLM node does not add the current question (00b README, observation 2). Task 06 asks the user."
+                    "pending": "TS-O3 (Task 04): today the llmMessages override carries user messages, so the LLM node does not add the current question (00b README, observation 2)."
                 },
                 { "type": "serverLogIncludes", "pattern": "history", "turns": ["t3"], "note": "TS13 warning: the token's last message is missing from the client history" }
             ]
@@ -203,17 +203,17 @@
             ]
         },
         {
-            "id": "F11-S10b-no-history",
+            "id": "F11-S10b-ephemeral-dropped",
             "finding": "F11",
             "decision": "TS17",
             "scenarios": ["S10b"],
             "modes": ["M1"],
-            "turns": "*",
-            "aspects": [],
-            "mustDiffer": false,
-            "expect": "Model input unchanged (the agent already sees no past history); the token keeps no history instead of the last exchange; the counter still carries over.",
+            "turns": ["t2+"],
+            "aspects": ["modelRequests"],
+            "expect": "Ephemeral memory is dropped (TS17 as changed in Task 02): the agent follows its own memory setting (on), so from t2 it sees the earlier turns; the token keeps the whole history; the counter still carries over.",
             "checks": [
-                { "type": "tokenHistoryRoles", "equals": [], "pending": "Task 04 historyPath" },
+                { "type": "modelInputIncludes", "route": "S10b-agent", "role": "user", "contentIncludes": "Remember that my favourite colour is green.", "turns": ["t2"], "pending": "Task 04: handling of saved flows with the option on" },
+                { "type": "tokenHistoryRoles", "equals": ["userMessage", "apiMessage", "userMessage", "apiMessage", "userMessage", "apiMessage"], "turns": ["t3"], "pending": "Task 04 historyPath" },
                 { "type": "finalStateEquals", "key": "counter", "value": "3", "turns": ["t3"] }
             ]
         },

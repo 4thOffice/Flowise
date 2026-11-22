@@ -10,10 +10,13 @@ What the clients of Agentflow V2 predictions send and read, for TS13/TS13a, TS18
 
 ## 0. Decisions (user, 2026-11-22)
 
-To be recorded in PLAN §2 (client assumptions, TS17, TS22) by the plan owner:
+Recorded in PLAN §2 as TS17 (changed), TS22, TS23 and TS24; open points as TS-O2 and TS-O3:
 
 1. **Every client that matters round-trips the token**, on every turn and with approval answers. Callers that do not send it are obsolete and ignored (listed in §1).
-2. **Node memory settings decide the history.** A node's own memory settings (on/off, all messages, window, summary, …) alone decide which history it sees. History is the conversation's user and assistant messages; anything from earlier nodes in the flow reaches a node only through its own "Add Messages" list. Open: whether memory-on nodes stop seeing earlier nodes' replies from the same turn, which they see today through the runtime history (§6 Q1).
+2. **Node memory settings decide the history.** A node's own memory settings (on/off, all messages, window, summary, …) alone decide which history it sees. History is the conversation's user and assistant messages; anything else from earlier nodes in the flow reaches a node only through its own "Add Messages" list.
+   - **Same turn**: a node whose reply is appended to the history adds it as an **assistant** message, and memory-on nodes that run after it see it as a normal part of the history. A reply that is not appended is visible to later nodes only as an output variable (`{{nodeId}}`).
+   - Consequence: "Return Response As" offers User Message (the default for Agent, LLM and Execute Flow: `Agent.ts:389-405`, `LLM.ts:176-192`, `ExecuteFlow.ts:90-`), Assistant Message and "Do not append to chat history". Every node in the scenario flows uses the default, and in `before/` S03's Composer and S09's Aggregator receive same-turn replies as user messages named after the node. Under the rule those become assistant messages, so their model input changes (TS6: compare entries in Task 04/06), and the User Message option goes away or maps to Assistant Message (Task 04 decides how existing flows migrate).
+   - Only the turn's final answer is saved to the token history (`buildAgentflow.ts:2209-2245`); same-turn replies stay in the turn's runtime history, as today.
 3. **No ephemeral memory and no client memory switches, for now.** The client overrides `startEphemeralMemory` and `llmEnableMemory` are blocked (they were workarounds for current conditions), and ephemeral memory is dropped (no use case). The aim is clear, predictable message composition in the node UI. Presumably the other memory-setting overrides (`agentEnableMemory`, `*MemoryType`, `*MemoryWindowSize`, …) go the same way; Task 04 lists them.
 4. **VoIP's `llmMessages` need checking.** The VoIP client sends its conversation in `llmMessages` most consistently and expects the welcome message to stay visible to the model, so that the bot does not greet again (§3.1).
 
@@ -118,14 +121,14 @@ No client that matters sends `agentMessages`. Only the VoIP consumer sends `hist
 Today:
 - VoIP sends the whole call conversation in `overrideConfig.llmMessages` on every turn: the welcome message first (as `assistant`, if it was played), then user/assistant turns, a filler last (ftc:214-216, :608-663).
 - The server applies an array override only to nodes whose API override settings enable `llmMessages`, and **appends** it to the node's configured messages (`packages/server/src/utils/index.ts:1137-1148`). The LLM node puts system messages first and keeps the rest in order (`LLM.ts:421-430`).
-- **Memory off** (what VoIP forces where the override is enabled): the node adds the current question only when none of its messages has the user role (`LLM.ts:465`). VoIP's conversation has user turns, so the node adds no question of its own; S10a t4 shows the same shape (Quick Answer's model input ends with the history, without the question). Whatever the production flows do to show the question is in their node configuration (§6 Q2).
+- **Memory off** (what VoIP forces where the override is enabled): the node adds the current question only when none of its messages has the user role (`LLM.ts:465`). VoIP's conversation has user turns, so the node adds no question of its own; S10a t4 shows the same shape (Quick Answer's model input ends with the history, without the question). Whatever the production flows do to show the question is in their node configuration (§6 Q1).
 - **Memory on**: the token history and the current question are added by the memory handling, and the strict window mode (`llmMemoryWindowDisableStrict` off by default, "useful if you're overriding llmMessages") trims user/assistant messages across the whole list, the `llmMessages` conversation included (`LLM.ts:800-812`).
 - The welcome message is never in the token (the server never sees it). A model sees it only through `llmMessages`, or through the `history` prepend when `legacy_history` is on.
 
 After decisions 2 and 3 (memory overrides blocked, node memory decides):
 - Nodes whose own memory is off: same model input as today, welcome included.
 - Nodes whose own memory is on: the token history (no welcome) plus VoIP's `llmMessages` conversation, i.e. the conversation twice.
-- To keep the welcome visible without a second copy, Task 04/06 choose between: (a) VoIP's conversation becomes the turn's history (TS13: `history` with the welcome first, TS13a on), and the conversation leaves `llmMessages`; (b) VoIP's LLM nodes keep memory off and `llmMessages` stays the conversation, as today. Either way the production VoIP flows' memory and override settings decide what changes (§6 Q2).
+- To keep the welcome visible without a second copy, Task 04/06 choose between: (a) VoIP's conversation becomes the turn's history (TS13: `history` with the welcome first, TS13a on), and the conversation leaves `llmMessages`; (b) VoIP's LLM nodes keep memory off and `llmMessages` stays the conversation, as today. Either way the production VoIP flows' memory and override settings decide what changes (§6 Q1).
 
 ## 4. Executed data and `action` against TS18 / TS20
 
@@ -143,11 +146,10 @@ Every client that matters reads from executed data only `[last].data.state` (VoI
 
 ## 6. Open questions
 
-1. **Same-turn replies** (decision 2): should memory-on nodes stop seeing earlier nodes' replies from the same turn (runtime history, `buildAgentflow.ts:726`, `stateReconciler.ts:171-176`), leaving those outputs to "Add Messages" only? This changes model input for multi-node flows (TS6).
-2. **VoIP and Celery flows in production**: their node memory settings, the overrides they enable (`llmMessages`, `llmEnableMemory`, `startEphemeralMemory`, `startState`, `stateMemory`, `vars`), how they show the current question to a memory-off LLM, and `legacy_history` in the production `VoipBotConfig` rows. Flowise DB and Mongo, not in any repo; needed for 3.1.
-3. Is `bots.intheloop.io` Flowise or the proxy? The proxy's history item type rejects `type: ''`, which the VoIP consumer sends with `history` (matters for 3.1 option a).
-4. Concurrent requests with the same token, and older tokens resent after failures (§5): last writer wins, or detect it (Task 04)?
-5. Which proxy deployments use `FLOWISE_CLIENT` (Flowise) rather than `LOOP_FLOW_CLIENT` (rollout, Task 10).
-6. Any API-key caller of `/internal-prediction` would keep full executed data (2.1).
+1. **VoIP and Celery flows in production**: their node memory settings, the overrides they enable (`llmMessages`, `llmEnableMemory`, `startEphemeralMemory`, `startState`, `stateMemory`, `vars`), how they show the current question to a memory-off LLM, and `legacy_history` in the production `VoipBotConfig` rows. Flowise DB and Mongo, not in any repo; needed for 3.1.
+2. Is `bots.intheloop.io` Flowise or the proxy? The proxy's history item type rejects `type: ''`, which the VoIP consumer sends with `history` (matters for 3.1 option a).
+3. Concurrent requests with the same token, and older tokens resent after failures (§5): last writer wins, or detect it (Task 04)?
+4. Which proxy deployments use `FLOWISE_CLIENT` (Flowise) rather than `LOOP_FLOW_CLIENT` (rollout, Task 10).
+5. Any API-key caller of `/internal-prediction` would keep full executed data (2.1).
 
 Outside this plan: `flowise_proxy` treats `trustedStateData` (and `nextAgentFlow`, `artifacts`, `tts_*`) as unknown events, which sets `must_have_content` (`main.rs:1009-1014`). Flowise sends `trustedStateData` after `agentFlowEvent FINISHED`, and with platform sync on FINISHED empties the reply (`main.rs:1040-1044`), so the proxy may append its fallback text and sync it to Loop (`main.rs:1134-1144,1162-1172`). Inferred from code, not run; browsers stop at `end` and never see it.

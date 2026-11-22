@@ -37,4 +37,4 @@ Stopping for human input and resuming work entirely from the token, with history
 - [ ] S06, S06b, S07, S08 show exactly the intended differences; resumed model input has the answer between the approval prompt and the next reply.
 - [ ] Resuming from v1 tokens captured at paused turns in `before/` (S06 turn 1, S07 turn 2, S08 turn 1) works, with model calls as `compare.config.json` expects.
 - [ ] Token size of a chained stop/resume conversation does not grow with the number of stops.
-- [ ] `pnpm --filter flowise build`, `pnpm --filter flowise test` and components tests green.
+- [ ] `pnpm --filter ./packages/server build`, `pnpm --filter ./packages/server test` and components tests green.

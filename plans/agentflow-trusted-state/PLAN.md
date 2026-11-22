@@ -48,18 +48,23 @@ References:
 | **TS14** | Failed turn | Keeps the state changes of nodes that finished before the failure (as today); adds nothing to history. |
 | **TS15** | Approval answers | The answer is saved as the user message of the resume turn: the feedback text, otherwise the button label (as the Flowise UI already displays it). When the HumanInput node's history toggle is off, both the approval prompt and the answer are left out of history. No control flags in flow state. |
 | **TS16** | Execute Flow children | The parent keeps each child's token in the child flow tokens field (TS19), keyed by node id, and sends it with each child call. |
-| **TS17** | Ephemeral memory | Nodes see no past history and the token keeps none. Flow state still carries over. |
+| **TS17** | Ephemeral memory | Dropped for now: no use case (user, Task 02). The Start node option and the `startEphemeralMemory` override no longer change what nodes see; each node's own memory settings decide (TS22), and flow state carries over as usual. Task 04 sets how saved flows with the option on are handled. |
 | **TS18** | `agentFlowExecutedData` | Sent in full only to the internal Flowise chat (`isInternal`, `/internal-prediction`), which shows executions from it. External clients get the same array with each record pruned to `nodeId`, `nodeLabel`, `status`, `previousNodeIds`, `data.name`, `data.state`, the error text, and the slim action (TS20) on stopped records. Applies to SSE, queue mode and the non-streaming JSON. |
 | **TS19** | Token v2 fields | History, flow state, form values, child flow tokens and pending resume data are **separate fields** in the token; flow state is never mixed with the others. Names and shapes are set in the Task 04 design. |
 | **TS20** | Slim `action` | `id`, `mapping`, `elements`, `data.nodeId`, `data.nodeLabel`, `data.input.humanInputEnableFeedback`. Everything else is removed, in the SSE event and in any saved copy. |
 | **TS21** | ChatMessage rows | Written only when chat message recording is enabled, and never read. Flowise ratings depend on it; not a priority this round. |
-| **TS22** | How history reaches nodes | Only through each node's memory settings, whether the history came from the token or from `history`. The first node no longer prepends `history` when its memory is off. Flows that relied on that need memory turned on. |
+| **TS22** | How history reaches nodes | Only through each node's own memory settings (on/off, all messages, window, summary), whether the history came from the token or from `history`. History holds the conversation's user messages and bot replies; output of earlier nodes reaches a node only through its own Add Messages list (user, Task 02; same-turn replies: TS-O2). The first node no longer prepends `history` when its memory is off. Flows that relied on that need memory turned on. |
+| **TS23** | Clients | Every client that matters sends the token on every turn, approval answers included. Callers that never send it are obsolete and ignored: no compatibility work for them ([client-inventory.md](./client-inventory.md) §1). |
+| **TS24** | Client memory overrides | The `startEphemeralMemory` and `llmEnableMemory` overrides are blocked: they were workarounds, and message composition should be clear and predictable from the node settings (user, Task 02). Task 04 lists the other memory overrides (`agentEnableMemory`, `*MemoryType`, `*MemoryWindowSize`, …) for the user to confirm. |
 
 ### Open Decisions
 
 | ID | Topic | Direction | Resolved in |
 | :--- | :--- | :--- | :--- |
 | **TS-O1** | Pending resume data for an Agent tool approval | Only the needed state, not the prompt, if resumes stay correct. Kept in the pending field (TS19). | Task 03, by measurement; the user confirms if model input would change. |
+| **TS-O2** | Same-turn replies | Today a node with memory on also sees the replies of nodes that ran earlier in the same turn (runtime history, `buildAgentflow.ts:726`, `stateReconciler.ts:171–176`). Under TS22 they would reach it only through Add Messages, which changes model input in multi-node flows (TS6). Asked in the Task 02 session ([client-inventory.md](./client-inventory.md) §6 Q1). | The user, before Task 04 closes. |
+| **TS-O3** | VoIP conversation in `llmMessages` | VoIP sends the whole call, welcome message first, in `llmMessages` every turn; the welcome reaches the model only that way. Once TS24 blocks its memory overrides, a memory-on node would get the conversation twice. Options: (a) VoIP sends it as `history` (welcome first) and drops it from `llmMessages`, with TS13a on for those flows; (b) VoIP's LLM nodes stay memory-off and keep `llmMessages`. Related: a memory-off LLM adds no current question when its messages already hold user turns (00b S10a t4). Depends on the production flows' node settings, which no repo holds ([client-inventory.md](./client-inventory.md) §3.1, §6 Q2). | Task 04, with the user. |
+| **TS-O4** | Concurrent and stale tokens | Two requests with the same token, or an older token sent again after a failure: last writer wins, or detect it ([client-inventory.md](./client-inventory.md) §6 Q4). | Task 04. |
 
 ---
 
@@ -110,12 +115,12 @@ flowchart LR
 | 00 | [00-current-implementation.md](./00-current-implementation.md) | Done | — | — | How the token and payloads work today. |
 | 00c | [00c-findings.md](./00c-findings.md) | Done (F04, F07 confirmed in 00b) | — | — | Incorrect handling to fix, F01–F19. |
 | 00b | [00b-scenario-suite-and-baseline-capture.md](./00b-scenario-suite-and-baseline-capture.md) | Done | — | — | Fake LLM, scenarios S01–S13 (with variants), capture & compare tooling, `before/` traces. |
-| 01 | [01-test-harness-and-characterization-tests.md](./01-test-harness-and-characterization-tests.md) | Not started | 02 | — | Jest multi-turn harness; tests pinning today's behaviour; failing tests for the findings. |
-| 02 | [02-field-inventory-and-size-anatomy.md](./02-field-inventory-and-size-anatomy.md) | Not started | 01 | — | Field and client inventory (incl. `history` usage), size report. |
+| 01 | [01-test-harness-and-characterization-tests.md](./01-test-harness-and-characterization-tests.md) | Done | 02 | — | Jest multi-turn harness; tests pinning today's behaviour; failing tests for the findings. |
+| 02 | [02-field-inventory-and-size-anatomy.md](./02-field-inventory-and-size-anatomy.md) | Done (decisions recorded as TS17, TS22–TS24, TS-O2–TS-O4) | 01 | — | Field and client inventory (incl. `history` usage), size report. |
 | 03 | [03-field-removal-tests.md](./03-field-removal-tests.md) | Not started | — | — | Prove that the token fields suffice for normal turns; measure and resolve TS-O1. |
 | 04 | [04-decision-gate-and-token-v2-design.md](./04-decision-gate-and-token-v2-design.md) | Not started | — | — | Token v2 design review: field names, v1 upgrade, builder and history rules, compare entries. |
 | 05 | [05-token-only-core.md](./05-token-only-core.md) | Not started | — | F01, F03, F12–F16 | v2 codec and builder, no DB reads, state in the token, token in JSON responses. |
-| 06 | [06-state-and-history-semantics.md](./06-state-and-history-semantics.md) | Not started | 08 | F02, F03, F04, F11 | Persist State removed, form in state, ephemeral memory, `history` merge. |
+| 06 | [06-state-and-history-semantics.md](./06-state-and-history-semantics.md) | Not started | 08 | F02, F03, F04, F11 | Persist State removed, form values field, ephemeral memory and client memory overrides dropped, client `history`. |
 | 07 | [07-human-input-stop-and-resume.md](./07-human-input-stop-and-resume.md) | Not started | — | F05–F09 | Approval answers in history, no state flags, resume from slim pending data, v1 paused tokens. |
 | 08 | [08-execute-flow-child-tokens.md](./08-execute-flow-child-tokens.md) | Not started | 06 | F10 | Child flow tokens kept in parent state. |
 | 09 | [09-client-payloads-and-ui.md](./09-client-payloads-and-ui.md) | Not started | — | F17, F18, F19 | Slim `action`, executed data full internal / pruned external, UI token handling. |
@@ -126,10 +131,13 @@ flowchart LR
 ## 5. Verification Baseline
 
 - **Scenario suite and traces**: [baselines/](./baselines/) (`flows/`, `scenarios/`, `fake-llm/`, `traces/before/`, `traces/after/`, `reports/`).
-- **Build server**: `pnpm --filter flowise build`
-- **All server tests**: `pnpm --filter flowise test`
-- **Agentflow tests**: `pnpm --filter flowise test -- test/utils/buildAgentflow`
-- **Trusted state tests**: `pnpm --filter flowise test -- test/utils/buildAgentflow/trustedState`
+- **Run from the repo root with `--filter ./packages/server`**, not `--filter flowise`: the root package has the same name, and its turbo run passes the test path to every package's jest, which fails in `flowise-components`.
+- **Build**: `pnpm --filter flowise-components build` (when nodes change), then `pnpm --filter ./packages/server build`
+- **All server tests**: `pnpm --filter ./packages/server test`
+- **Agentflow tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow`
+- **Trusted state tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow/trustedState` (about 30 s)
+- **Components tests**: `pnpm --filter flowise-components test`
+- **UI build**: `pnpm --filter flowise-ui build`
 - **Capture**: `node plans/agentflow-trusted-state/baselines/capture-traces.mjs --out-dir <dir>` (setup in `baselines/README.md`)
 - **Compare**: `node plans/agentflow-trusted-state/baselines/compare-traces.mjs --before traces/before --after traces/after`
 
