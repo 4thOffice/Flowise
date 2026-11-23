@@ -153,8 +153,8 @@ export function commitExecutedDataDelta(
 }
 
 /**
- * Synchronously reconciles a completed node's runtime outputs (`state` delta, `chatHistory`, `form`,
- * `ephemeralMemory`, and `doNotIncludeFeedbackHistory`) onto live execution state.
+ * Synchronously reconciles a completed node's runtime outputs (`state` delta, `chatHistory` and
+ * `doNotIncludeFeedbackHistory`) onto live execution state.
  */
 export function reconcileRuntimeCommit({
     agentflowRuntime,
@@ -173,17 +173,6 @@ export function reconcileRuntimeCommit({
         const nodeChatHistory: IMessage[] = [...nodeResult.chatHistory]
         const duplicatedInputCount = countAlreadyCommittedInputMessages(liveChatHistory, nodeChatHistory, startChatHistoryLength)
         agentflowRuntime.chatHistory = [...liveChatHistory, ...cloneDeep(nodeChatHistory.slice(duplicatedInputCount))]
-    }
-
-    if (nodeResult && nodeResult.output && nodeResult.output.form) {
-        agentflowRuntime.form = cloneDeep(nodeResult.output.form)
-    }
-
-    if (nodeResult && nodeResult.output && nodeResult.output.ephemeralMemory) {
-        pastChatHistory.length = 0
-        if (tokenHistory) {
-            tokenHistory.length = 0
-        }
     }
 
     let hadDoNotIncludeFeedbackHistory = false

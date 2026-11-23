@@ -359,7 +359,7 @@ interface Removal {
     firstPerCase?: boolean
 }
 
-// The first normal turn with history of every scenario except S10b, whose ephemeral memory hides the history from its nodes
+// The first normal turn with history of every scenario (S10b since TS17: its saved Ephemeral Memory option no longer hides the history)
 const HISTORY_READERS = [
     ...at('S01', 't2'),
     ...at('S01r', 't2'),
@@ -374,6 +374,7 @@ const HISTORY_READERS = [
     ...at('S08', 't4'),
     ...at('S09', 't2'),
     ...at('S10a', 't2'),
+    ...at('S10b', 't2'),
     ...at('S11', 't2'),
     ...at('S12', 't2'),
     ...at('S13', 't2')
@@ -399,20 +400,22 @@ const CONTRACT_FIELD_REMOVALS: Removal[] = [
         firstPerCase: true
     },
     {
-        // Only S04a and S10b read carried state: S03, S04b and S12 do not persist it (F03), and no S11 node reads b_note
+        // State always carries over (TS11), so S04b reads it as S04a does; S03 and S12 set their carried keys again before a node
+        // reads them, and no S11 node reads b_note
         name: 'flow state',
         build: contractRemoval((f) => (f.flowState && Object.keys(f.flowState).length ? { ...f, flowState: undefined } : null)),
-        expected: [...at('S04a', 't2 t3 t4'), ...at('S10b', 't2 t3')]
+        expected: [...at('S04a', 't2 t3 t4'), ...at('S04b', 't2 t3 t4'), ...at('S10b', 't2 t3')]
     },
     {
+        // t3 submits a new form, which replaces the carried values (TS12)
         name: 'form values',
         build: contractRemoval((f) => (f.form !== undefined ? { ...f, form: undefined } : null)),
-        expected: at('S05', 't2 t3 t4')
+        expected: at('S05', 't2 t4')
     },
     {
         name: 'Start record name (form lookup)',
         build: contractRemoval((f) => (f.form !== undefined ? f : null), { startRecordName: false }),
-        expected: at('S05', 't2 t3 t4')
+        expected: at('S05', 't2 t4')
     }
 ]
 

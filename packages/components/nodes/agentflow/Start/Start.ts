@@ -18,7 +18,7 @@ class Start_Agentflow implements INode {
     constructor() {
         this.label = 'Start'
         this.name = 'startAgentflow'
-        this.version = 1.1
+        this.version = 1.2
         this.type = 'Start'
         this.category = 'Agent Flows'
         this.description = 'Starting point of the agentflow'
@@ -126,13 +126,6 @@ class Start_Agentflow implements INode {
                 ]
             },
             {
-                label: 'Ephemeral Memory',
-                name: 'startEphemeralMemory',
-                type: 'boolean',
-                description: 'Start fresh for every execution without past chat history',
-                optional: true
-            },
-            {
                 label: 'Flow State',
                 name: 'startState',
                 description: 'Runtime state during the execution of the workflow',
@@ -153,13 +146,6 @@ class Start_Agentflow implements INode {
                         optional: true
                     }
                 ]
-            },
-            {
-                label: 'Persist State',
-                name: 'startPersistState',
-                type: 'boolean',
-                description: 'Persist the state in the same session',
-                optional: true
             }
         ]
     }
@@ -167,8 +153,6 @@ class Start_Agentflow implements INode {
     async run(nodeData: INodeData, input: string | Record<string, any>, options: ICommonObject): Promise<any> {
         const _flowState = nodeData.inputs?.startState as string
         const startInputType = nodeData.inputs?.startInputType as string
-        const startEphemeralMemory = nodeData.inputs?.startEphemeralMemory as boolean
-        const startPersistState = nodeData.inputs?.startPersistState as boolean
 
         let flowStateArray = []
         if (_flowState) {
@@ -185,7 +169,7 @@ class Start_Agentflow implements INode {
         }
 
         const runtimeState = options.agentflowRuntime?.state as ICommonObject
-        if (startPersistState === true && runtimeState && Object.keys(runtimeState).length) {
+        if (runtimeState && Object.keys(runtimeState).length) {
             for (const state in runtimeState) {
                 flowState[state] = runtimeState[state]
             }
@@ -206,19 +190,7 @@ class Start_Agentflow implements INode {
                 inputs: nodeData.inputs?.formInputTypes
             }
 
-            let form = input
-            if (options.agentflowRuntime?.form && Object.keys(options.agentflowRuntime.form).length) {
-                form = options.agentflowRuntime.form
-            }
-            outputData.form = form
-        }
-
-        if (startEphemeralMemory) {
-            outputData.ephemeralMemory = true
-        }
-
-        if (startPersistState) {
-            outputData.persistState = true
+            outputData.form = options.agentflowRuntime?.form ?? {}
         }
 
         const returnOutput = {

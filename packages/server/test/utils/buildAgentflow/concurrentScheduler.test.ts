@@ -923,7 +923,7 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
         expect(inFlightCleaned).toBe(true)
     })
 
-    it('snapshots pastChatHistory and incomingInput per launch so concurrent ephemeralMemory commits cannot corrupt siblings mid-flight', async () => {
+    it('snapshots pastChatHistory and incomingInput per launch so a sibling commit that shortens the history cannot corrupt siblings mid-flight', async () => {
         process.env.AGENTFLOW_MAX_NODE_CONCURRENCY = '2'
 
         const flow = createFlow(
@@ -955,8 +955,8 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
                 return {
                     id: nodeData.id,
                     name: nodeData.name,
-                    output: { content: 'cleared', ephemeralMemory: true },
-                    state: options.agentflowRuntime.state
+                    output: { content: 'cleared' },
+                    state: { ...options.agentflowRuntime.state, doNotIncludeFeedbackHistory: true }
                 }
             },
             slowReader: async (nodeData, _input, options) => {
@@ -989,7 +989,7 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
         })
 
         await slowEntered.promise
-        // Wait deterministically until fastClearing finishes and commits reconcileRuntimeCommit (ephemeralMemory clears shared pastChatHistory)
+        // Wait deterministically until fastClearing finishes and commits reconcileRuntimeCommit (its flag shortens the shared pastChatHistory)
         await waitUntil(() => getEvents('nextAgentFlow').some((e) => e.data?.nodeId === 'fastClearing' && e.data?.status === 'FINISHED'))
         fastCommitted.resolve()
 

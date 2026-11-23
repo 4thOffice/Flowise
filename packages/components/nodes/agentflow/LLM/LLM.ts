@@ -1,18 +1,18 @@
 import { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import { ICommonObject, IMessage, INode, INodeData, INodeOptionsValue, INodeParams, IServerSideEventStreamer } from '../../../src/Interface'
+import { ICommonObject, INode, INodeData, INodeOptionsValue, INodeParams, IServerSideEventStreamer } from '../../../src/Interface'
 import { AIMessageChunk, BaseMessageLike, MessageContentText } from '@langchain/core/messages'
 import { DEFAULT_SUMMARIZER_TEMPLATE } from '../prompt'
 import { AnalyticHandler } from '../../../src/handler'
 import { ILLMMessage } from '../Interface.Agentflow'
 import {
     addImageArtifactsToMessages,
-    countTrailingHistoryCopy,
     extractArtifactsFromResponse,
     getPastChatHistoryImageMessages,
     getUniqueImageMessages,
     processMessagesWithImages,
     replaceBase64ImagesWithFileReferences,
     replaceInlineDataWithFileReferences,
+    trimTrailingHistoryCopy,
     updateFlowState
 } from '../utils'
 import { processTemplateVariables, configureStructuredOutput } from '../../../src/utils'
@@ -35,7 +35,7 @@ class LLM_Agentflow implements INode {
     constructor() {
         this.label = 'LLM'
         this.name = 'llmAgentflow'
-        this.version = 1.1
+        this.version = 1.2
         this.type = 'LLM'
         this.category = 'Agent Flows'
         this.description = 'Large language models to analyze user-provided inputs and generate responses'
@@ -177,10 +177,6 @@ class LLM_Agentflow implements INode {
                 type: 'options',
                 options: [
                     {
-                        label: 'User Message',
-                        name: 'userMessage'
-                    },
-                    {
                         label: 'Assistant Message',
                         name: 'assistantMessage'
                     },
@@ -189,7 +185,7 @@ class LLM_Agentflow implements INode {
                         name: 'ignore'
                     }
                 ],
-                default: 'userMessage'
+                default: 'assistantMessage'
             },
             {
                 label: 'JSON Structured Output',
@@ -371,13 +367,16 @@ class LLM_Agentflow implements INode {
             const userMessage = nodeData.inputs?.llmUserMessage as string
             const _llmUpdateState = nodeData.inputs?.llmUpdateState
             const _llmStructuredOutput = nodeData.inputs?.llmStructuredOutput
-            const llmMessages = (nodeData.inputs?.llmMessages as unknown as ILLMMessage[]) ?? []
+            const llmMessages = trimTrailingHistoryCopy((nodeData.inputs?.llmMessages as unknown as ILLMMessage[]) ?? [], {
+                enableMemory,
+                nodeLabel: nodeData.label ?? nodeData.id,
+                options
+            })
 
             // Extract runtime state and history
             const state = options.agentflowRuntime?.state as ICommonObject
             const pastChatHistory = (options.pastChatHistory as BaseMessageLike[]) ?? []
             const runtimeChatHistory = (options.agentflowRuntime?.chatHistory as BaseMessageLike[]) ?? []
-            const prependedChatHistory = options.prependedChatHistory as IMessage[]
             const chatId = options.chatId as string
 
             // Initialize the LLM model instance
@@ -401,24 +400,7 @@ class LLM_Agentflow implements INode {
             // Use to keep track of past messages with image file references
             let pastImageMessagesWithFileRef: BaseMessageLike[] = []
 
-            // Prepend history ONLY if it is the first node
-            if (prependedChatHistory.length > 0 && !runtimeChatHistory.length) {
-                for (const msg of prependedChatHistory) {
-                    const role: string = msg.role === 'apiMessage' ? 'assistant' : 'user'
-                    const content: string = msg.content ?? ''
-                    messages.push({
-                        role,
-                        content
-                    })
-                }
-            }
-
-            // Clients that send history both in the `history` field and as an llmMessages override would get it here twice
-            const historyCopyLength =
-                prependedChatHistory.length > 0 && !runtimeChatHistory.length
-                    ? countTrailingHistoryCopy(llmMessages, prependedChatHistory)
-                    : 0
-            for (const msg of llmMessages.slice(0, llmMessages.length - historyCopyLength)) {
+            for (const msg of llmMessages) {
                 const role = msg.role
                 const content = msg.content
                 if (role && content) {
@@ -650,13 +632,6 @@ class LLM_Agentflow implements INode {
             }
 
             const returnResponseAs = nodeData.inputs?.llmReturnResponseAs as string
-            let returnRole = 'user'
-            if (returnResponseAs === 'assistantMessage') {
-                returnRole = 'assistant'
-            }
-            if (returnResponseAs === 'ignore') {
-                returnRole = 'ignore';
-            }
 
             // Prepare and return the final output
             return {
@@ -674,7 +649,7 @@ class LLM_Agentflow implements INode {
                     // LLM response
                     ...(returnResponseAs === 'ignore' ? [] :
                         [{
-                            role: returnRole,
+                            role: 'assistant',
                             content: finalResponse,
                             name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id,
                             ...(((artifacts && artifacts.length > 0) || (fileAnnotations && fileAnnotations.length > 0)) && {

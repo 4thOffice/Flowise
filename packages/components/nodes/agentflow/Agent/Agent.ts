@@ -3,7 +3,6 @@ import {
     ICommonObject,
     IDatabaseEntity,
     IHumanInput,
-    IMessage,
     INode,
     INodeData,
     INodeOptionsValue,
@@ -29,6 +28,7 @@ import {
     processMessagesWithImages,
     replaceBase64ImagesWithFileReferences,
     replaceInlineDataWithFileReferences,
+    trimTrailingHistoryCopy,
     updateFlowState
 } from '../utils'
 import { convertMultiOptionsToStringArray, processTemplateVariables, configureStructuredOutput } from '../../../src/utils'
@@ -82,7 +82,7 @@ class Agent_Agentflow implements INode {
     constructor() {
         this.label = 'Agent'
         this.name = 'agentAgentflow'
-        this.version = 3.2
+        this.version = 3.3
         this.type = 'Agent'
         this.category = 'Agent Flows'
         this.description = 'Dynamically choose and utilize tools during runtime, enabling multi-step reasoning'
@@ -390,10 +390,6 @@ class Agent_Agentflow implements INode {
                 type: 'options',
                 options: [
                     {
-                        label: 'User Message',
-                        name: 'userMessage'
-                    },
-                    {
                         label: 'Assistant Message',
                         name: 'assistantMessage'
                     },
@@ -402,7 +398,7 @@ class Agent_Agentflow implements INode {
                         name: 'ignore'
                     }
                 ],
-                default: 'userMessage'
+                default: 'assistantMessage'
             },
             {
                 label: 'JSON Structured Output',
@@ -883,13 +879,16 @@ class Agent_Agentflow implements INode {
             const userMessage = nodeData.inputs?.agentUserMessage as string
             const _agentUpdateState = nodeData.inputs?.agentUpdateState
             const _agentStructuredOutput = nodeData.inputs?.agentStructuredOutput
-            const agentMessages = (nodeData.inputs?.agentMessages as unknown as ILLMMessage[]) ?? []
+            const agentMessages = trimTrailingHistoryCopy((nodeData.inputs?.agentMessages as unknown as ILLMMessage[]) ?? [], {
+                enableMemory,
+                nodeLabel: nodeData.label ?? nodeData.id,
+                options
+            })
 
             // Extract runtime state and history
             const state = options.agentflowRuntime?.state as ICommonObject
             const pastChatHistory = (options.pastChatHistory as BaseMessageLike[]) ?? []
             const runtimeChatHistory = (options.agentflowRuntime?.chatHistory as BaseMessageLike[]) ?? []
-            const prependedChatHistory = options.prependedChatHistory as IMessage[]
             const chatId = options.chatId as string
 
             // Initialize the LLM model instance
@@ -999,18 +998,6 @@ class Agent_Agentflow implements INode {
             let runtimeImageMessagesWithFileRef: BaseMessageLike[] = []
             // Use to keep track of past messages with image file references
             let pastImageMessagesWithFileRef: BaseMessageLike[] = []
-
-            // Prepend history ONLY if it is the first node
-            if (prependedChatHistory.length > 0 && !runtimeChatHistory.length) {
-                for (const msg of prependedChatHistory) {
-                    const role: string = msg.role === 'apiMessage' ? 'assistant' : 'user'
-                    const content: string = msg.content ?? ''
-                    messages.push({
-                        role,
-                        content
-                    })
-                }
-            }
 
             for (const msg of agentMessages) {
                 const role = msg.role
@@ -1440,10 +1427,6 @@ class Agent_Agentflow implements INode {
             }
 
             const returnResponseAs = nodeData.inputs?.agentReturnResponseAs as string
-            let returnRole = 'user'
-            if (returnResponseAs === 'assistantMessage') {
-                returnRole = 'assistant'
-            }
 
             // Prepare and return the final output
             return {
@@ -1465,7 +1448,7 @@ class Agent_Agentflow implements INode {
                     ...(
                         returnResponseAs === 'ignore' ? [] :
                             [{
-                                role: returnRole,
+                                role: 'assistant',
                                 content: finalResponse,
                                 name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id,
                                 ...(((artifacts && artifacts.length > 0) ||

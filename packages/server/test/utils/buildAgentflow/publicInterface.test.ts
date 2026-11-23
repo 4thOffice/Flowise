@@ -358,13 +358,12 @@ describe('Agentflow V2 public interface contract', () => {
         expect(events[events.length - 1]).toEqual({ event: 'end', data: '[DONE]' })
     })
 
-    it('persists flow state across turns when startPersistState is enabled', async () => {
+    it('carries flow state across turns without a Persist State option (TS11)', async () => {
         const { appDataSource } = createMockDataSource()
         const flow = {
             nodes: [
                 createNode(componentNodes, 'startAgentflow', 'startAgentflow_0', 'Start', {
                     startInputType: 'chatInput',
-                    startPersistState: true,
                     startState: [{ key: 'acc', value: '' }]
                 }),
                 createNode(componentNodes, 'customFunctionAgentflow', 'customFunctionAgentflow_0', 'Accumulate', {

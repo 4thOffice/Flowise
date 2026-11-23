@@ -90,7 +90,6 @@ export interface IExecuteNodeParams {
     evaluationRunId?: string
     isInternal: boolean
     pastChatHistory: IMessage[]
-    prependedChatHistory: IMessage[]
     appDataSource: DataSource
     usageCacheManager: UsageCacheManager
     telemetry: Telemetry

@@ -76,6 +76,7 @@ describe('v2 token', () => {
             formValues: { name: 'Ada' },
             childFlowTokens: { executeFlowAgentflow_0: { flowId: 'child', token: 'child-token' } },
             pendingResume,
+            historySource: 'token',
             incoming: { version: 2, base64Length: token.length, historyLength: 3, hadPending: true }
         })
     })
@@ -122,7 +123,14 @@ describe('v2 token', () => {
     test('no token, a broken token or an unknown version is a new conversation; the last two log a warning', async () => {
         const warn = jest.spyOn(logger, 'warn').mockImplementation(() => logger)
         try {
-            const empty = { history: [], flowState: {}, formValues: {}, childFlowTokens: {}, pendingResume: undefined }
+            const empty = {
+                history: [],
+                historySource: 'token',
+                flowState: {},
+                formValues: {},
+                childFlowTokens: {},
+                pendingResume: undefined
+            }
             expect(await readTurnInput({})).toEqual({
                 ...empty,
                 incoming: { version: 0, base64Length: 0, historyLength: 0, hadPending: false }
@@ -140,6 +148,68 @@ describe('v2 token', () => {
         } finally {
             warn.mockRestore()
         }
+    })
+})
+
+describe('turn history and form values (Task 06)', () => {
+    const tokenHistory: TrustedHistoryMessage[] = [
+        { role: 'userMessage', content: 'Do you ship to Norway?' },
+        { role: 'apiMessage', content: 'Yes, in 3 to 5 days.' }
+    ]
+    const clientHistory = [
+        { role: 'apiMessage', content: 'Welcome!' },
+        { role: 'userMessage', content: 'Do you ship to Norway?' },
+        { role: 'apiMessage', content: ' Yes, in 3 to 5 days. ' }
+    ]
+    let token: string
+    let warn: jest.SpyInstance
+    beforeAll(async () => {
+        token = await writeToken(
+            buildTrustedState({ history: tokenHistory, form: { name: 'Ada' }, childFlowTokens: {}, flowNodeIds: new Set() })
+        )
+    })
+    beforeEach(() => {
+        warn = jest.spyOn(logger, 'warn').mockImplementation(() => logger)
+    })
+    afterEach(() => warn.mockRestore())
+    const warnings = () => warn.mock.calls.map((call) => String(call[0]))
+
+    test('TS13a: with the setting on, the request history is the turn history', async () => {
+        const input = await readTurnInput({ trustedState: token, history: clientHistory as any }, { acceptClientHistory: true })
+        expect([input.historySource, input.history]).toEqual(['client', clientHistory])
+        expect(warnings()).toEqual([])
+    })
+
+    test('TS13: a request history without the last message of the token history logs a warning and is used', async () => {
+        const input = await readTurnInput({ trustedState: token, history: clientHistory.slice(0, 2) as any }, { acceptClientHistory: true })
+        expect([input.historySource, input.history]).toEqual(['client', clientHistory.slice(0, 2)])
+        expect(warnings()).toEqual([expect.stringContaining('lacks the last message of the token history')])
+    })
+
+    test('TS13a: with the setting off, the request history is ignored with a warning', async () => {
+        const input = await readTurnInput({ trustedState: token, history: clientHistory as any })
+        expect([input.historySource, input.history]).toEqual(['token', tokenHistory])
+        expect(warnings()).toEqual([expect.stringContaining('"Accept conversation history from the client" is off')])
+    })
+
+    test('D7: a resume turn ignores the request history with a warning, whatever the setting', async () => {
+        const input = await readTurnInput(
+            { trustedState: token, history: clientHistory as any, humanInput: { type: 'proceed' } },
+            { acceptClientHistory: true }
+        )
+        expect([input.historySource, input.history]).toEqual(['token', tokenHistory])
+        expect(warnings()).toEqual([expect.stringContaining('resume turn')])
+    })
+
+    test('an empty request history is no history', async () => {
+        const input = await readTurnInput({ trustedState: token, history: [] }, { acceptClientHistory: false })
+        expect([input.historySource, input.history]).toEqual(['token', tokenHistory])
+        expect(warnings()).toEqual([])
+    })
+
+    test('TS12: a form submission replaces the carried form values', async () => {
+        expect((await readTurnInput({ trustedState: token })).formValues).toEqual({ name: 'Ada' })
+        expect((await readTurnInput({ trustedState: token, form: { name: 'Grace' } })).formValues).toEqual({ name: 'Grace' })
     })
 })
 

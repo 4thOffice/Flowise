@@ -608,14 +608,6 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
 
         const { appDataSource } = createMockDataSource()
         const trustedState = await tokenWithHistory([{ role: 'userMessage', content: 'original-past-history' }])
-        const seedPrepended = [
-            {
-                role: 'userMessage' as const,
-                type: 'userMessage' as const,
-                message: 'original-prepended',
-                content: 'original-prepended'
-            }
-        ]
         const observedChildInputs: any[] = []
 
         const nodeInstanceFactory = createMockNodeFactory({
@@ -624,17 +616,13 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
                     idx: options.iterationContext?.index,
                     parentNested: options.iterationContext?.agentflowRuntime?.state?.parentNested,
                     leakedFlag: options.iterationContext?.agentflowRuntime?.state?.leaked,
-                    pastHistoryContent: options.pastChatHistory?.[0]?.content,
-                    prependedContent: options.prependedChatHistory?.[0]?.content
+                    pastHistoryContent: options.pastChatHistory?.[0]?.content
                 })
-                // Mutate iterationContext.agentflowRuntime, pastChatHistory, and prependedChatHistory in place before succeeding or throwing
+                // Mutate iterationContext.agentflowRuntime and pastChatHistory in place before succeeding or throwing
                 options.iterationContext.agentflowRuntime.state.parentNested = 'corrupted-in-place'
                 options.iterationContext.agentflowRuntime.state.leaked = 'dirty'
                 if (options.pastChatHistory[0]) {
                     options.pastChatHistory[0].content = 'corrupted-past-history'
-                }
-                if (options.prependedChatHistory[0]) {
-                    options.prependedChatHistory[0].content = 'corrupted-prepended'
                 }
                 if (options.iterationContext?.index === 0) {
                     throw new Error('iteration-0-boom')
@@ -652,7 +640,7 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
                 output: {
                     content: `${options.agentflowRuntime.state.parentNested}|${String(options.agentflowRuntime.state.leaked)}|${
                         options.agentflowRuntime.state.survived
-                    }|${options.pastChatHistory[0]?.content}|${options.prependedChatHistory[0]?.content}`
+                    }|${options.pastChatHistory[0]?.content}`
                 },
                 state: options.agentflowRuntime.state
             })
@@ -660,7 +648,7 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
 
         const res = await runTestAgentFlow({
             flow,
-            incomingInput: { question: 'run', history: seedPrepended, trustedState },
+            incomingInput: { question: 'run', trustedState },
             appDataSource,
             chatId: 'chat-iter-iso',
             componentNodes: realComponentNodes,
@@ -672,18 +660,16 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
                 idx: 0,
                 parentNested: 'clean',
                 leakedFlag: undefined,
-                pastHistoryContent: 'original-past-history',
-                prependedContent: 'original-prepended'
+                pastHistoryContent: 'original-past-history'
             },
             {
                 idx: 1,
                 parentNested: 'clean',
                 leakedFlag: undefined,
-                pastHistoryContent: 'original-past-history',
-                prependedContent: 'original-prepended'
+                pastHistoryContent: 'original-past-history'
             }
         ])
-        expect(res.text).toBe('clean|undefined|yes|original-past-history|original-prepended')
+        expect(res.text).toBe('clean|undefined|yes|original-past-history')
     })
 
     it('preserves loopAgentflow maxLoopCount fallbackMessage in agentFlowExecutedData and result.text', async () => {

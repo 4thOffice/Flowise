@@ -236,10 +236,17 @@ export const updateOutdatedNodeData = (newComponentNodeData, existingComponentNo
         initNewComponentNodeData.credential = existingComponentNodeData.credential
     }
 
+    // An Agentflow V2 option the new version no longer offers keeps the new default (e.g. Return Response As: User Message)
+    const isWithdrawnOption = (key, value) => {
+        if (!isAgentFlowV2 || value === undefined || value === null || value === '') return false
+        const inputParam = initNewComponentNodeData.inputParams.find((param) => param.name === key)
+        return inputParam?.type === 'options' && Array.isArray(inputParam.options) && !inputParam.options.some((o) => o.name === value)
+    }
+
     // Update inputs with existing inputs
     if (existingComponentNodeData.inputs) {
         for (const key in existingComponentNodeData.inputs) {
-            if (key in initNewComponentNodeData.inputs) {
+            if (key in initNewComponentNodeData.inputs && !isWithdrawnOption(key, existingComponentNodeData.inputs[key])) {
                 initNewComponentNodeData.inputs[key] = existingComponentNodeData.inputs[key]
             }
         }

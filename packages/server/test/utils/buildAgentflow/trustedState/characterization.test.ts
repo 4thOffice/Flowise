@@ -1,7 +1,11 @@
+import fs from 'fs'
+import path from 'path'
+import { get, isEqual, omit } from 'lodash'
 import * as trustedStateHelper from '../../../../src/utils/trustedStateHelper'
 import { EXPECTED_TOKEN_CONTENTS, EXPECTED_TURN_FACTS } from './characterization.expected'
 import {
     ACCEPT_CLIENT_HISTORY_CHATBOT_CONFIG,
+    BASELINES_DIR,
     BeforeTurn,
     Conversation,
     HarnessMode,
@@ -60,9 +64,14 @@ const SCENARIOS: Array<[string, string]> = [
 
 const runs = new Map<string, Promise<Conversation>>()
 
-function runOf(id: string, mode: HarnessMode = 'M1'): Promise<Conversation> {
-    const key = `${mode}/${id}`
-    if (!runs.has(key)) runs.set(key, runConversation({ scenario: id, mode }))
+// The S10a after-variant with "Accept conversation history from the client" on (TS13a); off is the flow as saved
+const ACCEPT_ON = 'accept-client-history-on'
+
+function runOf(id: string, mode: HarnessMode = 'M1', variant?: typeof ACCEPT_ON): Promise<Conversation> {
+    const key = `${mode}/${id}${variant ? `@${variant}` : ''}`
+    if (!runs.has(key)) {
+        runs.set(key, runConversation({ scenario: id, mode, ...(variant ? { chatbotConfig: ACCEPT_CLIENT_HISTORY_CHATBOT_CONFIG } : {}) }))
+    }
     return runs.get(key) as Promise<Conversation>
 }
 
@@ -165,13 +174,6 @@ describe.each(SCENARIOS)('%s %s', (id) => {
         for (const turnId of TOKEN_DEPENDENT_TURNS[id]) {
             const actual = conversation.turn(turnId)
             const withoutToken = await conversation.replay(turnId, { sendToken: false })
-            if (id === 'S10b') {
-                // Ephemeral memory: the model sees no history either way, only the carried state depends on the token
-                expect(comparableRequests(withoutToken.modelCalls)).toEqual(comparableRequests(actual.modelCalls))
-                expect(withoutToken.finalState).toEqual({ counter: '1' })
-                expect(actual.finalState).toEqual({ counter: '2' })
-                continue
-            }
             expect(comparableRequests(withoutToken.modelCalls)).not.toEqual(comparableRequests(actual.modelCalls))
         }
     })
@@ -225,42 +227,167 @@ const BEFORE_CASES = BEFORE_MODES.flatMap((mode) =>
         .map((id) => [mode, id] as [HarnessMode, string])
 )
 
+type Aspect = 'requests' | keyof ReturnType<typeof observedFacts>
+const ASPECTS: Aspect[] = ['requests', 'status', 'text', 'nodes', 'state', 'action', 'history']
+
+interface IntendedDifference {
+    finding: string
+    aspects: Aspect[]
+    // The requests the turn must send instead, derived from the captured ones; compared like an aspect that must match
+    requests?: (before: ReturnType<typeof comparableRequests>) => ReturnType<typeof comparableRequests>
+}
+
+const intended = (finding: string, aspects: Aspect[], ...keys: string[]) =>
+    Object.fromEntries(keys.map((key) => [key, { finding, aspects }]))
+
+// TS25: the captured requests carry a same-turn reply as a user message named after its node
+const sameTurnRepliesAsAssistant = (before: ReturnType<typeof comparableRequests>) =>
+    Object.fromEntries(
+        Object.entries(before).map(([route, calls]) => [
+            route,
+            calls.map((call: any) => ({
+                ...call,
+                messages: call.messages.map((m: any) => (m.role === 'user' && m.name ? { ...m, role: 'assistant' } : m))
+            }))
+        ])
+    )
+
 describe('before/ traces', () => {
-    // Intended differences from traces/before/, by "<mode>/<scenario>/<turn>": the finding whose fix causes them
-    const INTENDED_DIFFERENCES: Record<string, string> = {
+    // Intended differences from traces/before/, by "<mode>/<scenario>[@variant]/<turn>": the finding whose fix causes them, the
+    // aspects that may differ, or the requests the turn must send instead. Everything else must match, and every listed turn differs.
+    const INTENDED_DIFFERENCES: Record<string, IntendedDifference> = {
         // The JSON response carries the token, so S13 has a token history and continues the conversation
-        'M1/S13/t1': 'F14',
-        'M1/S13/t2': 'F14',
-        'M1/S13/t3': 'F14',
+        ...intended('F14', ASPECTS, 'M1/S13/t1', 'M1/S13/t2', 'M1/S13/t3'),
         // Client State off reads nothing from the database: resumes save no answer (as M1) and the child flow has no memory (as M1)
-        'M3/S06/t2': 'F01',
-        'M3/S06/t3': 'F01',
-        'M3/S06/t4': 'F01',
-        'M3/S06/t5': 'F01',
-        'M3/S07/t3': 'F01',
-        'M3/S07/t4': 'F01',
-        'M3/S07/t5': 'F01',
-        'M3/S07/t6': 'F01',
-        'M3/S12/t2': 'F01',
-        'M3/S12/t3': 'F01',
-        'M3/S12/t4': 'F01'
+        ...intended('F01', ASPECTS, 'M3/S06/t2', 'M3/S06/t3', 'M3/S06/t4', 'M3/S06/t5'),
+        ...intended('F01', ASPECTS, 'M3/S07/t3', 'M3/S07/t4', 'M3/S07/t5', 'M3/S07/t6'),
+        ...intended('F01', ASPECTS, 'M3/S12/t2', 'M3/S12/t3', 'M3/S12/t4'),
+        // The request history is ignored while "Accept conversation history from the client" is off, and no node prepends it
+        ...intended('F02', ['requests'], 'M1/S10a/t1', 'M1/S10a/t2', 'M1/S10a/t3', 'M1/S10a/t4'),
+        // With the setting on, the request history is the turn history and the token keeps it, welcome message included
+        ...intended('F02', ['requests', 'history'], ...['t1', 't2', 't3', 't4'].map((t) => `M1/S10a@${ACCEPT_ON}/${t}`)),
+        // State always carries over, so S04b routes as S04a does
+        ...intended('F03', ['requests', 'text', 'nodes', 'state'], 'M1/S04b/t2', 'M1/S04b/t3', 'M1/S04b/t4'),
+        // The t3 form replaces the carried form values
+        ...intended('F04', ['requests'], 'M1/S05/t4', 'M3/S05/t4'),
+        // The saved Ephemeral Memory option is ignored: the agent sees earlier turns and the token keeps them
+        ...intended('F11', ['requests', 'history'], 'M1/S10b/t2', 'M1/S10b/t3'),
+        // Same-turn replies reach later nodes as assistant messages
+        ...Object.fromEntries(
+            ['M1/S03/t1', 'M1/S03/t2', 'M1/S03/t3', 'M1/S03/t4', 'M1/S09/t1', 'M1/S09/t3'].map((key) => [
+                key,
+                { finding: 'TS25', aspects: [], requests: sameTurnRepliesAsAssistant }
+            ])
+        )
     }
 
-    test.each(BEFORE_CASES)('%s %s matches the captured model requests and responses', async (mode, id) => {
-        const conversation = await runOf(id, mode)
+    const compareWithBefore = (conversation: Conversation, mode: HarnessMode, id: string, variant?: string) => {
         const trace = loadBeforeTrace(mode, loadScenario(id).slug)
         expect(conversation.turns.map((t) => t.id)).toEqual(trace.turns.map((t) => t.id))
         for (const turn of conversation.turns) {
-            if (INTENDED_DIFFERENCES[`${mode}/${id}/${turn.id}`]) continue
             const before = trace.turns.find((t) => t.id === turn.id) as BeforeTurn
-            expect({ turn: turn.id, requests: comparableRequests(turn.modelCalls) }).toEqual({
-                turn: turn.id,
-                requests: comparableRequests(withoutRetries(before.modelRequests))
-            })
-            expect(observedFacts(turn, turn.tokenSummary?.historyRoles ?? null)).toEqual(
-                observedFacts(before, before.token?.sizes?.historyRoles ?? null)
-            )
+            const expected = {
+                requests: comparableRequests(withoutRetries(before.modelRequests)),
+                ...observedFacts(before, before.token?.sizes?.historyRoles ?? null)
+            }
+            const actual = {
+                requests: comparableRequests(turn.modelCalls),
+                ...observedFacts(turn, turn.tokenSummary?.historyRoles ?? null)
+            }
+            const difference = INTENDED_DIFFERENCES[`${mode}/${id}${variant ? `@${variant}` : ''}/${turn.id}`]
+            const aspects = difference?.aspects ?? []
+            const target = difference?.requests ? { ...expected, requests: difference.requests(expected.requests) } : expected
+            expect({ turn: turn.id, ...omit(actual, aspects) }).toEqual({ turn: turn.id, ...omit(target, aspects) })
+            if (difference) {
+                const differs = isEqual(target.requests, expected.requests)
+                    ? aspects.some((aspect) => !isEqual(actual[aspect], expected[aspect]))
+                    : true
+                expect({ turn: turn.id, differs }).toEqual({ turn: turn.id, differs: true })
+            }
         }
+    }
+
+    test.each(BEFORE_CASES)('%s %s matches the captured model requests and responses', async (mode, id) => {
+        compareWithBefore(await runOf(id, mode), mode, id)
+    })
+
+    test(`M1 S10a@${ACCEPT_ON} matches the captured model requests and responses`, async () => {
+        compareWithBefore(await runOf('S10a', 'M1', ACCEPT_ON), 'M1', 'S10a', ACCEPT_ON)
+    })
+})
+
+/*
+ * The checks of the baselines/compare.config.json entries whose findings are fixed, run on the harness turns (Task 10
+ * runs all of them on captured after/ traces). Same semantics as compare-traces.mjs for the check types used here.
+ */
+describe('compare.config.json checks', () => {
+    const config = JSON.parse(fs.readFileSync(path.join(BASELINES_DIR, 'compare.config.json'), 'utf8'))
+    const CHECKED_ENTRIES = [
+        'F02-S10a-accept-on',
+        'F02-S10a-accept-off',
+        'F03-S04b-state-carries',
+        'F04-S05-new-form-wins',
+        'F11-S10b-ephemeral-dropped',
+        'TS25-S03-composer',
+        'TS25-S09-aggregator'
+    ]
+
+    const turnMatches = (spec: string | string[] | undefined, turnId: string, turnIds: string[]) =>
+        !spec ||
+        spec === '*' ||
+        (Array.isArray(spec) ? spec : [spec]).some((item) =>
+            item.endsWith('+') ? turnIds.indexOf(turnId) >= turnIds.indexOf(item.slice(0, -1)) : item === turnId
+        )
+
+    const passes = (check: any, turn: TurnResult): boolean => {
+        switch (check.type) {
+            case 'modelInputIncludes':
+            case 'modelInputExcludes': {
+                const calls = turn.modelCalls.filter(
+                    (call) => (!check.route || call.route === check.route) && (check.call === undefined || call.callIndex === check.call)
+                )
+                const found = calls.some((call) =>
+                    (call.body?.messages ?? []).some(
+                        (m: any) =>
+                            (!check.role || m.role === check.role) &&
+                            (typeof m.content === 'string' ? m.content : JSON.stringify(m.content)).includes(check.contentIncludes)
+                    )
+                )
+                return check.type === 'modelInputIncludes' ? found : calls.length > 0 && !found
+            }
+            case 'serverLogIncludes':
+                return turn.logs.some((entry) => new RegExp(check.pattern).test(entry.message))
+            case 'tokenHistoryRoles':
+                return isEqual(turn.decoded ? tokenHistory(turn.decoded.state).map((m: any) => m.role) : null, check.equals)
+            case 'finalStateEquals':
+                return isEqual(get(turn.finalState ?? {}, check.key), check.value)
+            case 'textIncludes':
+                return String(turn.text ?? '').includes(check.value)
+            default:
+                throw new Error(`Check type ${check.type} is not evaluated on harness turns`)
+        }
+    }
+
+    test.each(CHECKED_ENTRIES)('%s', async (entryId) => {
+        const entry = config.intended.find((e: any) => e.id === entryId)
+        expect(entry?.variant === undefined || entry.variant === ACCEPT_ON || entry.variant === 'accept-client-history-off').toBe(true)
+        const failed: string[] = []
+        let evaluated = 0
+        for (const scenario of entry.scenarios as string[]) {
+            for (const mode of entry.modes as HarnessMode[]) {
+                const conversation = await runOf(scenario, mode, entry.variant === ACCEPT_ON ? ACCEPT_ON : undefined)
+                const turnIds = conversation.turns.map((t) => t.id)
+                for (const check of entry.checks) {
+                    for (const turn of conversation.turns) {
+                        if (!turnMatches(check.turns ?? entry.turns, turn.id, turnIds)) continue
+                        evaluated += 1
+                        if (!passes(check, turn)) failed.push(`${mode}/${scenario}/${turn.id} ${JSON.stringify(omit(check, ['note']))}`)
+                    }
+                }
+            }
+        }
+        expect(evaluated).toBeGreaterThan(0)
+        expect(failed).toEqual([])
     })
 })
 
@@ -379,11 +506,9 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F02 client history (TS13, TS13a, TS22)', () => {
-        let acceptingRun: Promise<Conversation> | undefined
-        const accepting = () =>
-            (acceptingRun ??= runConversation({ scenario: 'S10a', chatbotConfig: ACCEPT_CLIENT_HISTORY_CHATBOT_CONFIG }))
+        const accepting = () => runOf('S10a', 'M1', ACCEPT_ON)
 
-        test.failing('F02 with "Accept conversation history from the client" on, a memory node sees the client history once', async () => {
+        test('F02 with "Accept conversation history from the client" on, a memory node sees the client history once', async () => {
             const conversation = await accepting()
             expect(conversationOf(conversation.turn('t2'), 'S10a-context')).toEqual([
                 { role: 'assistant', content: S10A_WELCOME },
@@ -393,7 +518,7 @@ describe('findings: target behaviour', () => {
             ])
         })
 
-        test.failing('F02 the client history, welcome message included, is saved in the token with the turn appended', async () => {
+        test('F02 the client history, welcome message included, is saved in the token with the turn appended', async () => {
             const conversation = await accepting()
             const history = tokenHistory(conversation.turn('t1').decoded!.state).map((m: any) => [m.role, m.content])
             expect(history).toEqual([
@@ -403,7 +528,7 @@ describe('findings: target behaviour', () => {
             ])
         })
 
-        test.failing('F02 a memory-off first node sees no history, neither from the client nor from the token (TS22)', async () => {
+        test('F02 a memory-off first node sees no history, neither from the client nor from the token (TS22)', async () => {
             const conversation = await accepting()
             for (const turn of conversation.turns) {
                 const question = turn.request.question
@@ -411,18 +536,15 @@ describe('findings: target behaviour', () => {
             }
         })
 
-        test.failing(
-            "F02 a warning is logged when the client history lacks the token's last message, and the turn continues (TS13)",
-            async () => {
-                const conversation = await accepting()
-                const warnings = (turn: TurnResult) => turn.logs.filter((entry) => entry.level === 'warn')
-                expect(warnings(conversation.turn('t2'))).toEqual([])
-                expect(warnings(conversation.turn('t3')).length).toBeGreaterThan(0)
-                expect(conversation.turn('t3').status).toBe('FINISHED')
-            }
-        )
+        test("F02 a warning is logged when the client history lacks the token's last message, and the turn continues (TS13)", async () => {
+            const conversation = await accepting()
+            const warnings = (turn: TurnResult) => turn.logs.filter((entry) => entry.level === 'warn')
+            expect(warnings(conversation.turn('t2'))).toEqual([])
+            expect(warnings(conversation.turn('t3')).length).toBeGreaterThan(0)
+            expect(conversation.turn('t3').status).toBe('FINISHED')
+        })
 
-        test.failing('F02 with the setting off, the client history is ignored with a warning (TS13a)', async () => {
+        test('F02 with the setting off, the client history is ignored with a warning (TS13a)', async () => {
             const conversation = await runOf('S10a')
             const t2 = conversation.turn('t2')
             expect(conversationOf(t2, 'S10a-context')).toEqual([
@@ -435,7 +557,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F03 state always carries over (TS11)', () => {
-        test.failing('F03 flow state carries over with Persist State off, as it does with it on (S04b vs S04a)', async () => {
+        test('F03 flow state carries over with Persist State off, as it does with it on (S04b vs S04a)', async () => {
             const persistOff = await runOf('S04b')
             const persistOn = await runOf('S04a')
             expect(persistOff.turns.map((t) => t.finalState)).toEqual(persistOn.turns.map((t) => t.finalState))
@@ -446,7 +568,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F04 form values (TS12)', () => {
-        test.failing('F04 a new form submission replaces the values the Start node and $form.* see (S05)', async () => {
+        test('F04 a new form submission replaces the values the Start node and $form.* see (S05)', async () => {
             const conversation = await runOf('S05')
             const startForm = (turn: TurnResult) =>
                 turn.executedData?.find((record) => record.nodeId === 'startAgentflow_0')?.data?.output?.form
@@ -590,7 +712,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F11 ephemeral memory dropped (TS17)', () => {
-        test.failing('F11 a saved Ephemeral Memory option changes nothing: the memory-on agent sees earlier turns (S10b)', async () => {
+        test('F11 a saved Ephemeral Memory option changes nothing: the memory-on agent sees earlier turns (S10b)', async () => {
             const conversation = await runOf('S10b')
             expect(conversationOf(conversation.turn('t2'), 'S10b-agent')).toEqual([
                 { role: 'user', content: 'Remember that my favourite colour is green.' },

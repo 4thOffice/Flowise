@@ -71,8 +71,8 @@ const ClientState = ({ dialogProps, onConfirm }) => {
     }
 
     useEffect(() => {
-        if (dialogProps.chatflow && dialogProps.chatflow.chatbotConfig) {
-            let chatbotConfig = JSON.parse(dialogProps.chatflow.chatbotConfig)
+        if (dialogProps.chatflow) {
+            let chatbotConfig = dialogProps.chatflow.chatbotConfig ? JSON.parse(dialogProps.chatflow.chatbotConfig) : {}
             if (!chatbotConfig.clientState) {
                 chatbotConfig.clientState = {}
             }
@@ -120,6 +120,25 @@ const ClientState = ({ dialogProps, onConfirm }) => {
                             chatbotConfig.clientState.enabledFull = !chatbotConfig.clientState.enabledFull
                         }}
                         value={chatbotConfig?.clientState?.enabledFull}
+                    />
+                </Stack>
+                <Stack direction='column' spacing={2}>
+                    <Typography>
+                        Conversation history
+                        <TooltipWithParser
+                            style={{ marginLeft: 10 }}
+                            title={
+                                'When on, the history field of a request is the conversation history for that turn instead of the one in the state token, and is saved in the token. Answers to approvals always continue on the token history. When off, the history field is ignored.'
+                            }
+                        />
+                    </Typography>
+                    <SwitchInput
+                        label='Accept conversation history from the client'
+                        onChange={() => {
+                            if (!chatbotConfig?.clientState) return
+                            chatbotConfig.clientState.acceptClientHistory = !chatbotConfig.clientState.acceptClientHistory
+                        }}
+                        value={chatbotConfig?.clientState?.acceptClientHistory}
                     />
                 </Stack>
 

@@ -252,17 +252,18 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             calls: { 'S04b-intake': ['intake'] },
             history: 'ua'
         },
+        // F03: state always carries over (TS11), so from t2 S04b behaves as S04a
         t2: {
             status: 'FINISHED',
-            text: 'Intake (t2): I have recorded the shop details and marked the request as qualified.',
+            text: 'Follow-up (t2): our onboarding team will call you within two business days.',
             nodes: [
-                'agentAgentflow_0:FINISHED',
                 'conditionAgentflow_0:FINISHED',
                 'customFunctionAgentflow_0:FINISHED',
+                'llmAgentflow_0:FINISHED',
                 'startAgentflow_0:FINISHED'
             ],
-            state: { count: '1', stage: 'qualified' },
-            calls: { 'S04b-intake': ['intake'] },
+            state: { count: '2', stage: 'qualified' },
+            calls: { 'S04b-followup': ['followup'] },
             history: 'uaua'
         },
         t3: {
@@ -274,21 +275,21 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
                 'customFunctionAgentflow_0:FINISHED',
                 'startAgentflow_0:FINISHED'
             ],
-            state: { count: '1', stage: 'qualified' },
+            state: { count: '3', stage: 'qualified' },
             calls: { 'S04b-intake': ['intake'] },
             history: 'uauaua'
         },
         t4: {
             status: 'FINISHED',
-            text: 'Intake (t4): I have recorded the shop details and marked the request as qualified.',
+            text: 'Follow-up (t4): our onboarding team will call you within two business days.',
             nodes: [
-                'agentAgentflow_0:FINISHED',
                 'conditionAgentflow_0:FINISHED',
                 'customFunctionAgentflow_0:FINISHED',
+                'llmAgentflow_0:FINISHED',
                 'startAgentflow_0:FINISHED'
             ],
-            state: { count: '1', stage: 'qualified' },
-            calls: { 'S04b-intake': ['intake'] },
+            state: { count: '4', stage: 'qualified' },
+            calls: { 'S04b-followup': ['followup'] },
             history: 'uauauaua'
         }
     },
@@ -788,6 +789,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             calls: { 'S10b-agent': ['t1'] },
             history: 'ua'
         },
+        // F11: the saved Ephemeral Memory option is ignored (TS17), so the token keeps the whole history
         t2: {
             status: 'FINISHED',
             text: 'Sorry, I do not know your favourite colour.\n\n(turn counter 2)',
@@ -799,7 +801,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: { counter: '2' },
             calls: { 'S10b-agent': ['t2'] },
-            history: 'ua'
+            history: 'uaua'
         },
         t3: {
             status: 'FINISHED',
@@ -812,7 +814,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: { counter: '3' },
             calls: { 'S10b-agent': ['t3'] },
-            history: 'ua'
+            history: 'uauaua'
         }
     },
     S11: {
@@ -1018,8 +1020,8 @@ export const EXPECTED_TOKEN_CONTENTS: Record<string, Record<string, TokenContent
     },
     S10b: {
         t1: { bytes: 290, sentinels: 0, records: 0, historyWithAction: 0 },
-        t2: { bytes: 252, sentinels: 0, records: 0, historyWithAction: 0 },
-        t3: { bytes: 211, sentinels: 0, records: 0, historyWithAction: 0 }
+        t2: { bytes: 452, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 573, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S11: {
         t1: { bytes: 290, sentinels: 0, records: 0, historyWithAction: 0 },

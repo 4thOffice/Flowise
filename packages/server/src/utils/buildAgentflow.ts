@@ -614,7 +614,6 @@ const executeNode = async ({
     evaluationRunId,
     parentExecutionId,
     pastChatHistory,
-    prependedChatHistory,
     appDataSource,
     usageCacheManager,
     telemetry,
@@ -720,7 +719,7 @@ const executeNode = async ({
         const reactFlowNodeData: INodeData = await resolveVariables(
             flowNodeData,
             incomingInput.question ?? '',
-            incomingInput.form ?? agentflowRuntime.form ?? {},
+            agentflowRuntime.form ?? {},
             flowConfig,
             availableVariables,
             variableOverrides,
@@ -794,7 +793,7 @@ const executeNode = async ({
             isLastNode,
             sseStreamer: isRecursive ? undefined : sseStreamer,
             pastChatHistory: cloneDeep(pastChatHistory),
-            prependedChatHistory: cloneDeep(prependedChatHistory),
+            historySource: turnInput.historySource,
             agentflowRuntime,
             abortController,
             analyticHandlers,
@@ -1170,7 +1169,6 @@ export const executeAgentFlow = async ({
         }
     }
 
-    const prependedChatHistory = incomingInput.history ?? []
     const apiMessageId = uuidv4()
 
     /*** Get chatflows and prepare data  ***/
@@ -1201,7 +1199,9 @@ export const executeAgentFlow = async ({
     }
     const disableChatMessageRecording: boolean = chatflowConfig.clientState?.enabled ?? incomingInput.enableTrustedState ?? false
     const zeroRetention: boolean = chatflowConfig.clientState?.enabledFull
-    const turnInput = parentTurnInput ?? (await readTurnInput(incomingInput))
+    const turnInput =
+        parentTurnInput ??
+        (await readTurnInput(incomingInput, { acceptClientHistory: chatflowConfig.clientState?.acceptClientHistory === true }))
     let writtenToken: { token: string; state: TrustedStateV2 } | undefined
     let availableVariablesTask: Promise<Variable[]> | undefined
     const getAvailableVariables = () =>
@@ -1244,16 +1244,19 @@ export const executeAgentFlow = async ({
         let agentflowRuntime: IAgentFlowRuntime = {
             state: {},
             chatHistory: [],
-            form: {}
+            form: cloneDeep(turnInput.formValues)
         }
 
-        // Persist State and the form values read the previous run, which exists exactly when the request carries a token
-        const startPersistState = nodes.find((node) => node.data.name === 'startAgentflow')?.data.inputs?.startPersistState
-        if (startPersistState === true && turnInput.incoming.version > 0) {
+        const startAgentflowNode = nodes.find((node) => node.data.name === 'startAgentflow')
+        if (!isRecursive && startAgentflowNode?.data.inputs?.startEphemeralMemory) {
+            logger.warn("[agentflow]: Ephemeral Memory is no longer supported; each node's memory settings decide")
+        }
+
+        // A resume restores the state the run stopped with; iteration runs get the parent's state through their context
+        if (!isRecursive && !humanInput) {
             let previousState: ICommonObject = cloneDeep(turnInput.flowState)
 
             // Check if startState has been overridden from overrideConfig.startState and is enabled
-            const startAgentflowNode = nodes.find((node) => node.data.name === 'startAgentflow')
             const isStartStateEnabled =
                 nodeOverrides && startAgentflowNode
                     ? nodeOverrides[startAgentflowNode.data.label]?.find((param: any) => param.name === 'startState')?.enabled ?? false
@@ -1276,10 +1279,6 @@ export const executeAgentFlow = async ({
             }
 
             agentflowRuntime.state = previousState
-        }
-
-        if (startInputType === 'formInput' && turnInput.incoming.version > 0) {
-            agentflowRuntime.form = cloneDeep(turnInput.formValues)
         }
 
         // If it is human input, find the last checkpoint and resume
@@ -1441,7 +1440,7 @@ export const executeAgentFlow = async ({
         const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
 
         const pastChatHistory: IMessage[] = turnInput.history.map(toNodeMessage)
-        // The history the token carries out; node commits may shorten it (ephemeral memory, a review without history)
+        // The history the token carries out; node commits may shorten it (a review without history)
         const tokenHistory: TrustedHistoryMessage[] = isRecursive ? [] : cloneDeep(turnInput.history)
 
         let currentHumanInput = humanInput
@@ -1600,7 +1599,6 @@ export const executeAgentFlow = async ({
                         parentExecutionId,
                         isInternal,
                         pastChatHistory: cloneDeep(pastChatHistory),
-                        prependedChatHistory: cloneDeep(prependedChatHistory),
                         appDataSource,
                         usageCacheManager,
                         telemetry,

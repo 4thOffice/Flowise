@@ -40,13 +40,23 @@ export interface TrustedStateV1 {
     previousExecution?: IExecution
 }
 
+export type HistorySource = 'token' | 'client'
+
 export interface TrustedTurnInput {
     history: TrustedHistoryMessage[]
     flowState: ICommonObject
     formValues: ICommonObject
     childFlowTokens: Record<string, ChildFlowToken>
     pendingResume?: PendingResume
+    historySource: HistorySource
     incoming: { version: 0 | 1 | 2; base64Length: number; historyLength: number; hadPending: boolean }
+}
+
+export interface TurnRequest {
+    trustedState?: string
+    humanInput?: unknown
+    history?: IMessage[]
+    form?: ICommonObject
 }
 
 const isPlainObject = (value: unknown): value is ICommonObject => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
@@ -158,13 +168,42 @@ function decodedToV2(decoded: unknown): { state?: TrustedStateV2; version: 0 | 1
     return { version: 0 }
 }
 
-export async function readTurnInput(incomingInput: { trustedState?: string; humanInput?: unknown }): Promise<TrustedTurnInput> {
+const sameMessage = (a: TrustedHistoryMessage, b: TrustedHistoryMessage) =>
+    a.role === b.role && String(a.content ?? '').trim() === String(b.content ?? '').trim()
+
+function selectTurnHistory(
+    tokenHistory: TrustedHistoryMessage[],
+    request: TurnRequest,
+    acceptClientHistory: boolean
+): { history: TrustedHistoryMessage[]; historySource: HistorySource } {
+    const fromToken = { history: tokenHistory, historySource: 'token' as const }
+    if (!Array.isArray(request.history) || !request.history.length) return fromToken
+    if (request.humanInput) {
+        logger.warn('[agentflow]: Ignoring the request history on a resume turn: the paused run continues on the token history')
+        return fromToken
+    }
+    if (!acceptClientHistory) {
+        logger.warn('[agentflow]: Ignoring the request history: "Accept conversation history from the client" is off for this flow')
+        return fromToken
+    }
+    const history = request.history.map((message) => ({ role: message.role, content: message.content } as TrustedHistoryMessage))
+    const lastTokenMessage = tokenHistory[tokenHistory.length - 1]
+    if (lastTokenMessage && !history.some((message) => sameMessage(message, lastTokenMessage))) {
+        logger.warn('[agentflow]: The request history lacks the last message of the token history; continuing with the request history')
+    }
+    return { history, historySource: 'client' }
+}
+
+export async function readTurnInput(
+    incomingInput: TurnRequest,
+    { acceptClientHistory = false }: { acceptClientHistory?: boolean } = {}
+): Promise<TrustedTurnInput> {
     const raw = incomingInput.trustedState
     const { state, version } = decodedToV2(raw ? await trusted_state_from_string(raw) : undefined)
     return {
-        history: state?.history ?? [],
+        ...selectTurnHistory(state?.history ?? [], incomingInput, acceptClientHistory),
         flowState: state?.flowState ?? {},
-        formValues: state?.formValues ?? {},
+        formValues: incomingInput.form ?? state?.formValues ?? {},
         childFlowTokens: state?.childFlowTokens ?? {},
         pendingResume: incomingInput.humanInput ? state?.pendingResume : undefined,
         incoming: {

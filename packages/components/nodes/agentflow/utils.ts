@@ -949,7 +949,7 @@ export const countTrailingHistoryCopy = (messages: { role: string; content: stri
     const expected = history
         .filter((msg) => msg.content)
         .map((msg) => ({
-            role: msg.role === 'apiMessage' ? 'assistant' : 'user',
+            role: ['apiMessage', 'assistant'].includes(msg.role as string) ? 'assistant' : 'user',
             content: normalizeForComparison(msg.content as string)
         }))
     if (!expected.length || expected.length > messages.length) return 0
@@ -959,4 +959,18 @@ export const countTrailingHistoryCopy = (messages: { role: string; content: stri
             msg.role === expected[i].role && typeof msg.content === 'string' && normalizeForComparison(msg.content) === expected[i].content
     )
     return isCopy ? expected.length : 0
+}
+
+// A memory-off node fed from the token history keeps its message list as sent: VoIP sends its whole call there
+export const trimTrailingHistoryCopy = <T extends { role: string; content: string }>(
+    messages: T[],
+    { enableMemory, nodeLabel, options }: { enableMemory: boolean; nodeLabel: string; options: ICommonObject }
+): T[] => {
+    if (!enableMemory && options.historySource !== 'client') return messages
+    const copyLength = countTrailingHistoryCopy(messages, (options.pastChatHistory as IMessage[]) ?? [])
+    if (!copyLength) return messages
+    ;(options.logger ?? console).warn(
+        `[agentflow]: ${nodeLabel}: removed the last ${copyLength} messages of its message list because they repeat the conversation history`
+    )
+    return messages.slice(0, messages.length - copyLength)
 }
