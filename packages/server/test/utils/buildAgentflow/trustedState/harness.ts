@@ -10,6 +10,7 @@ import { DataSource } from 'typeorm'
 import { ICommonObject } from 'flowise-components'
 import { executeAgentFlow } from '../../../../src/utils/buildAgentflow'
 import { SSEStreamer } from '../../../../src/utils/SSEStreamer'
+import { RedisEventPublisher } from '../../../../src/queue/RedisEventPublisher'
 import { resolveFlowRedirect } from '../../../../src/utils/flowRedirect'
 import logger from '../../../../src/utils/logger'
 import { getErrorMessage } from '../../../../src/errors/utils'
@@ -405,6 +406,18 @@ function attachWireRecorder(sseStreamer: SSEStreamer, chatId: string, isInternal
     }
 }
 
+// A queue worker streams through Redis: every event is published for the main server to forward (no Redis connection here)
+function attachQueuePublisher(published: WireEvent[]): RedisEventPublisher {
+    const publisher = new RedisEventPublisher()
+    ;(publisher as any).redisPublisher = {
+        publish: async (_channel: string, message: string) => {
+            const { eventType, data } = JSON.parse(message)
+            published.push({ event: eventType, data })
+        }
+    }
+    return publisher
+}
+
 // ---------- logs ----------
 
 export interface LogEntry {
@@ -481,6 +494,8 @@ export interface ConversationOptions {
     /** Every turn starts with an empty database (nothing written by earlier turns can be read back) */
     freshDataSourcePerTurn?: boolean
     chatId?: string
+    /** Run streaming turns as a queue worker does, publishing the events to Redis */
+    queueMode?: boolean
 }
 
 interface ChainState {
@@ -708,7 +723,7 @@ export class Conversation {
                     resolved,
                     { ...request, chatId: request.chatId ?? crypto.randomUUID() },
                     new SSEStreamer(),
-                    { isTool: headers['flowise-tool'] === 'true' }
+                    { isTool: headers['flowise-tool'] === 'true', isInternal: false }
                 )
                 call.result = cloneDeep(result)
                 return { data: result, status: 200, statusText: 'OK', headers: {}, config, request: {} }
@@ -734,14 +749,15 @@ export class Conversation {
         const readsBefore = this.dataSource.reads.length
         this.currentChildCalls = []
 
-        const sseStreamer = new SSEStreamer()
+        const published: WireEvent[] = []
+        const sseStreamer = this.options.queueMode ? attachQueuePublisher(published) : new SSEStreamer()
         const serverTokens: string[] = []
         const streamTrustedState = sseStreamer.streamTrustedStateDataEvent.bind(sseStreamer)
         sseStreamer.streamTrustedStateDataEvent = (chatId: string, data: any) => {
             if (chatId === this.chatId) serverTokens.push(data)
             streamTrustedState(chatId, data)
         }
-        const wire = streaming ? attachWireRecorder(sseStreamer, this.chatId, isInternal) : undefined
+        const wire = streaming && sseStreamer instanceof SSEStreamer ? attachWireRecorder(sseStreamer, this.chatId, isInternal) : undefined
 
         const savedEnv: Record<string, string | undefined> = {}
         for (const [key, value] of Object.entries(this.modeConfig.env ?? {})) {
@@ -756,13 +772,13 @@ export class Conversation {
         let error: string | null = null
         try {
             const chatflow = await resolveFlowRedirect(this.chatflows[this.scenario.flow], this.dataSource.appDataSource)
-            result = (await this.executeFlow(chatflow, cloneDeep(body), sseStreamer)) as ICommonObject
+            result = (await this.executeFlow(chatflow, cloneDeep(body), sseStreamer as SSEStreamer)) as ICommonObject
             if (streaming) sseStreamer.streamMetadataEvent(this.chatId, result)
         } catch (err) {
             error = `Error: predictionsServices.buildChatflow - ${getErrorMessage(err)}`
             if (streaming) sseStreamer.streamErrorEvent(this.chatId, error)
         } finally {
-            if (streaming) sseStreamer.removeClient(this.chatId)
+            if (wire) (sseStreamer as SSEStreamer).removeClient(this.chatId)
             setActiveScriptedServer(undefined)
             restoreAdapter()
             logs.restore()
@@ -772,7 +788,7 @@ export class Conversation {
             }
         }
 
-        const events = wire ? wire.events() : []
+        const events = wire ? wire.events() : streaming ? published : []
         const lastEvent = (name: string) => [...events].reverse().find((e) => e.event === name)
         const executedData = streaming ? lastEvent('agentFlowExecutedData')?.data ?? null : result?.agentFlowExecutedData ?? null
         const action = streaming ? lastEvent('action')?.data ?? null : result?.action ?? null
@@ -1026,6 +1042,7 @@ export interface BeforeTurn {
     nodeSequence: string[] | null
     finalState: ICommonObject | null
     action: any
+    executedData: any[] | null
     modelRequests: BeforeRequest[]
     token: any
 }

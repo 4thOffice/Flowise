@@ -589,7 +589,8 @@ export async function runTestAgentFlow({
     signal,
     nodeInstanceFactory,
     maxNodeConcurrency,
-    isInternal = false
+    // These suites read the engine's records, which only the internal chat receives in full (TS18)
+    isInternal = true
 }: RunTestAgentFlowOptions) {
     const resolvedChatflow = chatflow ?? (flow ? createChatflow(flow) : undefined)
     if (!resolvedChatflow) {

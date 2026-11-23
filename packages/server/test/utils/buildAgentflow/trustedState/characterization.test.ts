@@ -389,15 +389,21 @@ describe('compare.config.json checks', () => {
         'F10-S12-child-token',
         'F11-S10b-ephemeral-dropped',
         'F13-tool-approval-pending',
+        'F18-executed-data-external',
+        'F18-executed-data-internal',
+        'F19-slim-action',
         'TS25-S03-composer',
         'TS25-S09-aggregator',
         'TS26-pending-only-while-stopped'
     ]
-    // The slim action is Task 09's (F19, TS20)
-    const TASK_09_CHECKS = ['actionKeysOnly']
-
+    // '*' means the scenarios or modes with a before/ trace
+    const scenariosOf = (entry: any): string[] => (entry.scenarios === '*' ? SCENARIOS.map(([id]) => id) : entry.scenarios)
     const modesOf = (entry: any, scenario: string): HarnessMode[] =>
-        entry.modes === '*' ? BEFORE_MODES.filter((mode) => beforeTraceExists(mode, loadScenario(scenario).slug)) : entry.modes
+        entry.modes === '*' || entry.scenarios === '*'
+            ? (entry.modes === '*' ? BEFORE_MODES : (entry.modes as HarnessMode[])).filter((mode) =>
+                  beforeTraceExists(mode, loadScenario(scenario).slug)
+              )
+            : entry.modes
 
     const turnMatches = (spec: string | string[] | undefined, turnId: string, turnIds: string[]) =>
         !spec ||
@@ -448,6 +454,21 @@ describe('compare.config.json checks', () => {
                 const before = beforeTurn?.token?.sizes?.rawJsonBytes ?? 0
                 return before > 0 && (turn.decoded?.sizes.rawJsonBytes ?? 0) <= before * check.max
             }
+            case 'payloadSentinelMax':
+                return (turn.sentinels[check.payload] ?? 0) <= check.max
+            case 'payloadSentinelMin':
+                return (turn.sentinels[check.payload] ?? 0) >= check.min
+            case 'actionKeysOnly': {
+                if (!turn.action) return false
+                const flatten = (value: any, prefix = ''): string[] =>
+                    value &&
+                    typeof value === 'object' &&
+                    !Array.isArray(value) &&
+                    !['mapping', 'elements'].includes(prefix.split('.').pop()!)
+                        ? Object.entries(value).flatMap(([key, inner]) => flatten(inner, prefix ? `${prefix}.${key}` : key))
+                        : [prefix]
+                return flatten(turn.action).every((key) => check.allowed.includes(key))
+            }
             case 'finalStateEquals':
                 return isEqual(get(turn.finalState ?? {}, check.key), check.value)
             case 'textIncludes':
@@ -462,14 +483,14 @@ describe('compare.config.json checks', () => {
         expect(entry?.variant === undefined || entry.variant === ACCEPT_ON || entry.variant === 'accept-client-history-off').toBe(true)
         const failed: string[] = []
         let evaluated = 0
-        for (const scenario of entry.scenarios as string[]) {
+        for (const scenario of scenariosOf(entry)) {
             for (const mode of modesOf(entry, scenario)) {
                 const conversation = await runOf(scenario, mode, entry.variant === ACCEPT_ON ? ACCEPT_ON : undefined)
                 const turnIds = conversation.turns.map((t) => t.id)
                 const before = beforeTraceExists(mode, loadScenario(scenario).slug)
                     ? loadBeforeTrace(mode, loadScenario(scenario).slug)
                     : null
-                for (const check of entry.checks.filter((c: any) => !TASK_09_CHECKS.includes(c.type))) {
+                for (const check of entry.checks) {
                     for (const turn of conversation.turns) {
                         if (!turnMatches(check.turns ?? entry.turns, turn.id, turnIds)) continue
                         evaluated += 1
@@ -654,7 +675,9 @@ describe('human input stop and resume (Task 07)', () => {
 
     test('D9 a resume that ends stopped without output saves the waiting gate prompt as its bot message (S08 t2)', async () => {
         const conversation = await runOf('S08')
-        const gate = conversation.turn('t1').executedData!.find((record) => record.nodeId === 'humanInputAgentflow_0')
+        // External clients get no node output (TS18); the internal chat shows the prompt the gate announced
+        const internal = await runOf('S08', 'M1-internal')
+        const gate = internal.turn('t1').executedData!.find((record) => record.nodeId === 'humanInputAgentflow_0')
         expect(conversation.turn('t2').text).toBe('')
         expect(tokenHistory(conversation.turn('t2').decoded!.state).slice(2)).toEqual([
             { role: 'userMessage', content: 'Proceed' },
@@ -846,9 +869,11 @@ describe('findings: target behaviour', () => {
     describe('F04 form values (TS12)', () => {
         test('F04 a new form submission replaces the values the Start node and $form.* see (S05)', async () => {
             const conversation = await runOf('S05')
+            // External clients get no node output (TS18)
+            const internal = await runOf('S05', 'M1-internal')
             const startForm = (turn: TurnResult) =>
                 turn.executedData?.find((record) => record.nodeId === 'startAgentflow_0')?.data?.output?.form
-            expect(startForm(conversation.turn('t3'))).toEqual({ name: 'Grace Hopper', topic: 'shipping' })
+            expect(startForm(internal.turn('t3'))).toEqual({ name: 'Grace Hopper', topic: 'shipping' })
             for (const turnId of ['t3', 't4']) {
                 const systemPrompt = conversation.turn(turnId).modelCallsByRoute['S05-assistant'][0].messages[0].content
                 expect(systemPrompt).toContain('Customer name: Grace Hopper. Topic: shipping.')
@@ -1136,12 +1161,12 @@ describe('findings: target behaviour', () => {
 
     describe('F17 internal chat reload', () => {
         test.todo(
-            'F17 the internal chat keeps the token across a page reload (UI only, decided in Task 09; not testable in the server suite)'
+            'F17 the internal chat restores the token with its saved messages after a page reload (UI only: checked in the browser in Task 09)'
         )
     })
 
     describe('F18 executed data for external clients (TS18)', () => {
-        test.failing('F18 external clients get records pruned to status, state, error and the slim action, over SSE and JSON', async () => {
+        test('F18 external clients get records pruned to status, state, error and the slim action, over SSE and JSON', async () => {
             const streamed = await runOf('S07')
             const json = await runOf('S13')
             const payloads = [...streamed.turns.map((t) => t.executedData), json.turn('t1').result?.agentFlowExecutedData]
@@ -1158,25 +1183,100 @@ describe('findings: target behaviour', () => {
                 }
             }
         })
+
+        test('F18 external records keep the order, node ids, statuses and state of the records, and the stopped record holds the announced action (S07)', async () => {
+            const external = await runOf('S07')
+            const internal = await runOf('S07', 'M1-internal')
+            const kept = (records: any[]) =>
+                records.map((r) => [r.nodeId, r.nodeLabel, r.status, r.previousNodeIds, normalizeValue(r.data?.state)])
+            for (const turn of external.turns) {
+                expect({ turn: turn.id, records: kept(turn.executedData!) }).toEqual({
+                    turn: turn.id,
+                    records: kept(internal.turn(turn.id).executedData!)
+                })
+                const stopped = turn.executedData!.filter((record) => record.status === 'STOPPED')
+                expect({ turn: turn.id, actions: stopped.map((record) => record.data.output.humanInputAction) }).toEqual({
+                    turn: turn.id,
+                    actions: turn.action ? [turn.action] : []
+                })
+            }
+        })
+
+        test('F18, F19 a queue worker publishes only pruned executed data and the slim action, and its job result is pruned (S07)', async () => {
+            const queued = await runConversation({ scenario: 'S07', queueMode: true })
+            const direct = await runOf('S07')
+            for (const turn of queued.turns) {
+                const executedData = turn.events.filter((event) => event.event === 'agentFlowExecutedData').map((event) => event.data)
+                const actions = turn.events.filter((event) => event.event === 'action').map((event) => event.data)
+                expect(executedData.length).toBeGreaterThan(0)
+                expect(countSentinels([executedData, actions, turn.result?.agentFlowExecutedData]).total).toBe(0)
+                for (const record of [...executedData.flat(), ...(turn.result?.agentFlowExecutedData ?? [])]) {
+                    expect(Object.keys(record.data).filter((key) => !['name', 'state', 'error', 'output'].includes(key))).toEqual([])
+                }
+                expect(turnFacts(turn)).toEqual(turnFacts(direct.turn(turn.id)))
+            }
+        })
+
+        test('F18 the internal chat gets the records the run records, without credential ids (S01, S07; M2 recorded executions)', async () => {
+            const withoutCredentialIds = (value: any): any =>
+                Array.isArray(value)
+                    ? value.map(withoutCredentialIds)
+                    : value && typeof value === 'object'
+                    ? Object.fromEntries(
+                          Object.entries(value)
+                              .filter(([key]) => key !== 'FLOWISE_CREDENTIAL_ID')
+                              .map(([key, inner]) => [key, withoutCredentialIds(inner)])
+                      )
+                    : value
+            for (const id of ['S01', 'S07']) {
+                const internal = await runOf(id, 'M1-internal')
+                const recorded = await runOf(id, 'M2')
+                // A resume's recorded row continues the paused run's row (D10), while the turn's records start from the pending data
+                for (const turn of internal.turns.filter((t) => !t.request.humanInput)) {
+                    const recordedTurn = recorded.turn(turn.id)
+                    const row = recordedTurn.db.executions.find((execution) => execution.id === recordedTurn.result?.executionId)
+                    const records = await executionRecords(row)
+                    expect(JSON.stringify(records)).toContain('FLOWISE_CREDENTIAL_ID')
+                    expect({ id, turn: turn.id, records: normalizeValue(turn.executedData) }).toEqual({
+                        id,
+                        turn: turn.id,
+                        records: normalizeValue(withoutCredentialIds(records))
+                    })
+                }
+            }
+        })
     })
 
     describe('F19 slim action (TS20)', () => {
-        test.failing(
-            'F19 the action event carries only id, mapping, elements, data.nodeId, data.nodeLabel and the feedback flag',
-            async () => {
-                for (const [id, turnId] of [
-                    ['S06', 't1'],
-                    ['S07', 't2'],
-                    ['S08', 't1']
-                ]) {
-                    const action = (await runOf(id)).turn(turnId).action
-                    expect(Object.keys(action).filter((key) => !['id', 'mapping', 'elements', 'data'].includes(key))).toEqual([])
-                    expect(Object.keys(action.data).filter((key) => !['nodeId', 'nodeLabel', 'input'].includes(key))).toEqual([])
-                    expect(Object.keys(action.data.input ?? {}).filter((key) => key !== 'humanInputEnableFeedback')).toEqual([])
-                    expect(countSentinels(action).total).toBe(0)
-                }
-                expect((await runOf('S06')).turn('t1').action.data.input.humanInputEnableFeedback).toBe(true)
+        test('F19 the action event carries only id, mapping, elements, data.nodeId, data.nodeLabel and the feedback flag', async () => {
+            for (const [id, turnId] of [
+                ['S06', 't1'],
+                ['S07', 't2'],
+                ['S08', 't1']
+            ]) {
+                const action = (await runOf(id)).turn(turnId).action
+                expect(Object.keys(action).filter((key) => !['id', 'mapping', 'elements', 'data'].includes(key))).toEqual([])
+                expect(Object.keys(action.data).filter((key) => !['nodeId', 'nodeLabel', 'input'].includes(key))).toEqual([])
+                expect(Object.keys(action.data.input ?? {}).filter((key) => key !== 'humanInputEnableFeedback')).toEqual([])
+                expect(countSentinels(action).total).toBe(0)
             }
-        )
+            expect((await runOf('S06')).turn('t1').action.data.input.humanInputEnableFeedback).toBe(true)
+        })
+
+        test('F19 a stopped Agent carried from a v1 token is announced again with the slim action; its stored prompt stays in the token only (S08, D4)', async () => {
+            const paused = loadBeforeTrace('M1', loadScenario('S08').slug).turns.find((t) => t.id === 't1')!
+            const conversation = await startConversation({ scenario: 'S08' })
+            const gateFirst = await conversation.run({
+                id: 't2',
+                humanInput: { type: 'proceed', feedback: 'Approved by the store manager.', startNodeId: 'humanInputAgentflow_0' },
+                token: encodeToken(paused.token.decoded)
+            })
+            expect([gateFirst.status, gateFirst.action?.data?.nodeId]).toEqual(['STOPPED', 'agentAgentflow_0'])
+            expect(Object.keys(gateFirst.action).sort()).toEqual(['data', 'elements', 'id', 'mapping'])
+            expect(Object.keys(gateFirst.action.data).sort()).toEqual(['nodeId', 'nodeLabel'])
+            expect(countSentinels([gateFirst.action, gateFirst.executedData]).total).toBe(0)
+            const carried = gateFirst.decoded!.state.pendingResume.nodes.find((entry: any) => entry.nodeId === 'agentAgentflow_0')
+            expect(countSentinels(carried.legacyMessages).total).toBeGreaterThan(0)
+        })
     })
 })

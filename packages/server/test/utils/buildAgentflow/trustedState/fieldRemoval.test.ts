@@ -4,6 +4,7 @@ import path from 'path'
 import { cloneDeep, isEqual } from 'lodash'
 import {
     Conversation,
+    HarnessMode,
     ScenarioScript,
     TurnResult,
     TurnSpec,
@@ -80,7 +81,13 @@ const fastS11 = () =>
         'llmB-t3': { delayMs: 10 }
     })
 
-const scenarioCase = (id: string): Case => ({ name: id, conversation: () => runConversation({ scenario: id === 'S11' ? fastS11() : id }) })
+// The D5 = D4 test replays the prompt a stopped Agent sent, which only the internal chat's executed data holds (TS18)
+const MODE: HarnessMode = 'M1-internal'
+
+const scenarioCase = (id: string): Case => ({
+    name: id,
+    conversation: () => runConversation({ scenario: id === 'S11' ? fastS11() : id, mode: MODE })
+})
 
 const withTurns = (script: ScenarioScript, turns: TurnSpec[]): ScenarioScript => ({ ...script, turns })
 
@@ -97,6 +104,7 @@ const PROBES: Case[] = [
         conversation: () => {
             const s06 = loadHarnessScenario('S06')
             return runConversation({
+                mode: MODE,
                 scenario: withTurns(s06, [
                     s06.turns[0],
                     s06.turns[1],
@@ -111,6 +119,7 @@ const PROBES: Case[] = [
         conversation: () => {
             const s08 = loadHarnessScenario('S08')
             return runConversation({
+                mode: MODE,
                 scenario: withTurns(s08, [
                     s08.turns[0],
                     s08.turns[1],
@@ -123,7 +132,7 @@ const PROBES: Case[] = [
         // A node after the resume references the output of a node that finished in the stopped run, and the flow state
         name: P3,
         conversation: async () => {
-            const conversation = new Conversation({ scenario: 'S06' })
+            const conversation = new Conversation({ scenario: 'S06', mode: MODE })
             const chatflow = conversation.chatflows[conversation.scenario.flow]
             const flow = JSON.parse(chatflow.flowData)
             const nodeById = (id: string) => flow.nodes.find((node: any) => node.id === id)
@@ -140,6 +149,7 @@ const PROBES: Case[] = [
         name: P4,
         conversation: () =>
             runConversation({
+                mode: MODE,
                 scenario: withReplyOverrides(loadHarnessScenario('S07'), { 't2-tool': { content: 'Let me work that out.' } }),
                 turns: ['t1', 't2', 't3']
             })
@@ -150,6 +160,7 @@ const PROBES: Case[] = [
         conversation: () => {
             const s08 = loadHarnessScenario('S08')
             return runConversation({
+                mode: MODE,
                 scenario: withTurns(s08, [
                     s08.turns[0],
                     {

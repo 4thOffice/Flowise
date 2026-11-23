@@ -289,13 +289,13 @@
         {
             "id": "F17-internal-chat-reload",
             "finding": "F17",
-            "decision": "Task 09 decides (local storage or document only)",
+            "decision": "Task 09 (user): the internal chat keeps the token with its saved messages",
             "scenarios": ["S01", "S07"],
             "modes": ["M1-internal"],
             "turns": "*",
             "aspects": [],
             "mustDiffer": false,
-            "expect": "UI behaviour, not visible in traces: the internal chat has no saved messages to reload (db.*.chatMessages stays empty with recording off). Task 09 adds its own check if it keeps the token in local storage.",
+            "expect": "UI behaviour, not visible in traces (checked in the browser, 09 §3). The internal chat stores the token next to its chatId in localStorage (<flowId>_INTERNAL) and restores it when it reloads the chat's saved messages (chat message recording on), so a reload, reopening the chat or the expanded view continues the shown conversation; Clear Chat removes it. With recording off (these modes) nothing is reloaded (db.*.chatMessages stays empty) and a new conversation starts.",
             "checks": []
         },
         {
@@ -333,7 +333,7 @@
             "mustDiffer": false,
             "expect": "The action event keeps only id, mapping, elements, data.nodeId, data.nodeLabel and data.input.humanInputEnableFeedback; mapping, elements and data.nodeId (class A) are unchanged.",
             "checks": [
-                { "type": "actionKeysOnly", "turns": ["t1", "t2", "t4"], "allowed": ["id", "mapping", "elements", "data.nodeId", "data.nodeLabel", "data.input.humanInputEnableFeedback"] },
+                { "type": "actionKeysOnly", "turns": ["t2", "t4"], "allowed": ["id", "mapping", "elements", "data.nodeId", "data.nodeLabel", "data.input.humanInputEnableFeedback"], "note": "t2 and t4 are the turns where all four scenarios stop (S07 t1 finishes)." },
                 { "type": "payloadSentinelMax", "payload": "action", "max": 0 }
             ]
         },

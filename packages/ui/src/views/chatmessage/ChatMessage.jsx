@@ -283,6 +283,12 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     // Server-encrypted conversation state: the server continues an Agentflow V2 conversation only from this token
     const trustedStateRef = useRef(null)
 
+    // Saved with the chat so that a reload that shows the saved messages continues their conversation
+    const keepTrustedState = (token, tokenChatId) => {
+        trustedStateRef.current = token
+        setLocalStorageChatflow(chatflowid, tokenChatId, { trustedState: token })
+    }
+
     const isFileAllowedForUpload = (file) => {
         const constraints = getAllowChatFlowUploads.data
         /**
@@ -1021,7 +1027,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                 if (response.data) {
                     const data = response.data
 
-                    if (data.trustedState) trustedStateRef.current = data.trustedState
+                    if (data.trustedState) keepTrustedState(data.trustedState, data.chatId)
                     updateMetadata(data, input)
 
                     let text = ''
@@ -1112,7 +1118,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                         updateAgentFlowExecutedData(payload.data)
                         break
                     case 'trustedStateData':
-                        trustedStateRef.current = payload.data
+                        keepTrustedState(payload.data, chatId)
                         break
                     case 'artifacts':
                         updateLastMessageArtifacts(payload.data)
@@ -1261,6 +1267,8 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
             const fetchData = async () => {
                 const chatId = getChatmessageApi.data[0]?.chatId
                 setChatId(chatId)
+                const saved = getLocalStorageChatflow(chatflowid)
+                if (saved.chatId === chatId && saved.trustedState) trustedStateRef.current = saved.trustedState
                 const loadedMessages = await Promise.all(
                     getChatmessageApi.data.map(async (message) => {
                         const obj = {

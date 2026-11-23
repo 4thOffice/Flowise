@@ -92,8 +92,10 @@ import {
     readTurnInput,
     rehydratePendingResume,
     toNodeMessage,
+    toSlimAction,
     writeToken
 } from './agentflow/trustedState'
+import { toClientExecutedData } from './agentflow/clientPayloads'
 
 /**
  * Add execution to database
@@ -1012,7 +1014,7 @@ const executeNode = async ({
 
         // Stop going through the current route if the node is a human task
         if (!isResumedHumanInputNode && reactFlowNode.data.name === 'humanInputAgentflow') {
-            const humanInputAction = {
+            const humanInputAction = toSlimAction({
                 id: uuidv4(),
                 mapping: {
                     approve: 'Proceed',
@@ -1027,7 +1029,7 @@ const executeNode = async ({
                     nodeLabel: reactFlowNode.data.label,
                     input: results.input
                 }
-            }
+            })
 
             const newWorkflowExecutedData: IAgentflowExecutedData = {
                 nodeId,
@@ -1060,7 +1062,7 @@ const executeNode = async ({
             if (results.output.resumeCheckpoint) {
                 results.output.resumeCheckpoint = { historyLength: pastChatHistory.length, ...results.output.resumeCheckpoint }
             }
-            const humanInputAction = {
+            const humanInputAction = toSlimAction({
                 id: uuidv4(),
                 mapping: {
                     approve: 'Proceed',
@@ -1075,7 +1077,7 @@ const executeNode = async ({
                     nodeLabel: reactFlowNode.data.label,
                     input: results.input
                 }
-            }
+            })
 
             const newWorkflowExecutedData: IAgentflowExecutedData = {
                 nodeId,
@@ -1282,7 +1284,7 @@ export const executeAgentFlow = async ({
     */
 
     let status: ExecutionState = 'INPROGRESS'
-    let agentFlowExecutedData: IAgentflowExecutedData[] = []
+    const agentFlowExecutedData: IAgentflowExecutedData[] = []
     let newExecution: IExecution
     const startingNodeIds: string[] = []
     // A resume starts from records rehydrated from the pending data; they are never written to the Execution row (D10)
@@ -1700,7 +1702,10 @@ export const executeAgentFlow = async ({
                                 status: 'STOPPED'
                             })
                             if (!isRecursive) {
-                                sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+                                sseStreamer?.streamAgentFlowExecutedDataEvent(
+                                    chatId,
+                                    toClientExecutedData(agentFlowExecutedData, isInternal)
+                                )
                             }
                             return { shouldStop: true }
                         }
@@ -1767,7 +1772,9 @@ export const executeAgentFlow = async ({
                             status: 'FINISHED'
                         })
 
-                        if (!isRecursive) sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+                        if (!isRecursive) {
+                            sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, toClientExecutedData(agentFlowExecutedData, isInternal))
+                        }
 
                         return { shouldStop: false }
                     } finally {
@@ -1883,7 +1890,7 @@ export const executeAgentFlow = async ({
         ): Promise<never> => {
             status = errorStatus
             if (!isRecursive) {
-                sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, agentFlowExecutedData)
+                sseStreamer?.streamAgentFlowExecutedDataEvent(chatId, toClientExecutedData(agentFlowExecutedData, isInternal))
 
                 await persistFinalExecution(errorStatus)
 
@@ -1913,6 +1920,8 @@ export const executeAgentFlow = async ({
 
         const levels = dependencyEngine.getLevels()
         const primaryStopped = selectPrimaryStoppedAction(agentFlowExecutedData, nodes, levels)
+        // A stopped Agent carried from a v1 token holds its stored prompt in the action until it is resumed (D4)
+        const announcedAction = primaryStopped.action ? toSlimAction(primaryStopped.action) : undefined
 
         const latestStatusByNodeId = new Map<string, ExecutionState>()
         for (const data of agentFlowExecutedData) {
@@ -1941,8 +1950,8 @@ export const executeAgentFlow = async ({
         if (!isRecursive) {
             await persistFinalExecution(status)
 
-            if (status === 'STOPPED' && primaryStopped.action) {
-                sseStreamer?.streamActionEvent(chatId, primaryStopped.action)
+            if (status === 'STOPPED' && announcedAction) {
+                sseStreamer?.streamActionEvent(chatId, announcedAction)
             }
             sseStreamer?.streamAgentFlowEvent(chatId, status)
         }
@@ -2000,18 +2009,13 @@ export const executeAgentFlow = async ({
             }
         }
 
-        // The pending data is built from these records, whose identity marks the ones rehydrated from the incoming token
-        const turnRecords = agentFlowExecutedData
-        // remove credentialId from agentFlowExecutedData
-        agentFlowExecutedData = agentFlowExecutedData.map((data) => _removeCredentialId(data))
-
         if (parentTraceIds && analyticHandlers) {
             await analyticHandlers.onChainEnd(parentTraceIds, content, true)
         }
 
         if (isRecursive) {
             return {
-                agentFlowExecutedData,
+                agentFlowExecutedData: agentFlowExecutedData.map((data) => _removeCredentialId(data)),
                 agentflowRuntime,
                 status,
                 text: content
@@ -2039,7 +2043,7 @@ export const executeAgentFlow = async ({
         }
 
         const primaryStoppedNode = status === 'STOPPED' ? nodes.find((node) => node.id === primaryStopped.primaryNodeId) : undefined
-        const stopPrompt = status === 'STOPPED' ? latestStoppedPrompt(turnRecords, primaryStopped.primaryNodeId) : undefined
+        const stopPrompt = status === 'STOPPED' ? latestStoppedPrompt(agentFlowExecutedData, primaryStopped.primaryNodeId) : undefined
         const botMessageContent = typeof content === 'string' && !content.trim() && stopPrompt ? stopPrompt : content
 
         const stopMessageId = turnInput.pendingResume?.stopMessageId
@@ -2096,8 +2100,7 @@ export const executeAgentFlow = async ({
                 apiMessage.followUpPrompts = JSON.stringify(followUpPrompts.questions)
             }
         }
-        if (status === 'STOPPED' && primaryStopped.action && Object.keys(primaryStopped.action).length)
-            apiMessage.action = JSON.stringify(primaryStopped.action)
+        if (status === 'STOPPED' && announcedAction) apiMessage.action = JSON.stringify(announcedAction)
 
         const chatMessage = failedResume ? undefined : await utilAddChatMessage(apiMessage, appDataSource, disableChatMessageRecording)
         if (!failedResume && !isHistoryOff(primaryStoppedNode)) {
@@ -2110,7 +2113,7 @@ export const executeAgentFlow = async ({
 
         const pendingResume =
             status === 'STOPPED'
-                ? buildPendingResume(turnRecords, {
+                ? buildPendingResume(agentFlowExecutedData, {
                       references: outputReferences,
                       carried: rehydratedRecords,
                       executionId: !zeroRetention && !process.env.DISABLE_EXECUTION_RECORDING ? newExecution.id : undefined,
@@ -2145,7 +2148,7 @@ export const executeAgentFlow = async ({
         result.chatMessageId = chatMessage?.id
         result.followUpPrompts = JSON.stringify(apiMessage.followUpPrompts)
         result.executionId = newExecution.id
-        result.agentFlowExecutedData = agentFlowExecutedData
+        result.agentFlowExecutedData = toClientExecutedData(agentFlowExecutedData, isInternal)
         result.trustedState = trustedState
 
         if (sessionId) result.sessionId = sessionId
