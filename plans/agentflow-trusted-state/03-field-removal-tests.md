@@ -77,6 +77,8 @@ Each contract field is required (contract token minus that field; history fields
 | flow state (where not empty) | S04a t2–t4, S10b t2–t3; S03, S04b, S11, S12 carry state no node reads on the next turn |
 | form values, or the Start record's `data.name` | S05 t2–t4 |
 
+Tasks 06 and 08 updated these results with the code; the current contract is in [field-inventory.md](./field-inventory.md) §6.
+
 ### 5.3 Resumes: single-field removals
 
 From the original token, at the 19 resume boundaries (S06 t2/t3/t5, S06b t2/t3, S07 t3/t5, S08 t2/t3, P1 t2/t3, P2 t2/t3, P3 t2/t3/t5, P4 t3, P5 t2/t3):

@@ -169,6 +169,8 @@ Proven on today's code by [`fieldRemoval.test.ts`](../../packages/server/test/ut
 | Flow state | the latest flow state | S04a, S10b; S03, S04b and S12 do not persist it (F03) and no S11 node reads it |
 | Form values | the latest form values | S05 |
 
+`fieldRemoval.test.ts` follows the code since then: after Task 06, history is also required in S10b and flow state in S04b, while form values no longer matter at S05 t3, which submits a new form; Task 08 added child flow tokens to the contract, required in S12 t2–t4 (06 §4.3, 08 §4.3).
+
 Nothing else in the token is read on a normal turn: no record field, no history metadata, no `action`.
 
 **Stopped turn: pending resume data.** All 19 resume boundaries (S06, S06b, S07, S08, P1–P5) keep class A identical with the fields above plus these; the flow state field doubles as the stop-time state (required in P3):

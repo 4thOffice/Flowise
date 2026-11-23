@@ -40,5 +40,5 @@ Stopping for human input and resuming work entirely from the token, with history
 - [ ] S06, S06b, S07, S08 show exactly the intended differences (F05–F09 entries); resumed model input has the answer between the approval prompt and the next reply; S07 t3/t5 and S08 t2 Agent resumes send today's model input (TS26-resume-input).
 - [ ] Task 03's resume boundaries (S06, S06b, S07, S08, P1–P5) keep class A with v2 tokens.
 - [ ] Resuming from v1 tokens captured at paused turns in `before/` (S06 t1, S07 t2, S08 t1) works, with model calls as `compare.config.json` expects.
-- [ ] Sentinel count 0 in every paused v2 token not upgraded from v1; after a resume that finishes, the token has no pending data; within a paused run the skeleton grows by one entry per node run.
+- [ ] Sentinel count 0 in every paused v2 token not upgraded from v1 (child tokens are encrypted inside the parent token: decode them, as the F10 tests do, 08 §4.2); after a resume that finishes, the token has no pending data; within a paused run the skeleton grows by one entry per node run.
 - [ ] `pnpm --filter ./packages/server build`, `pnpm --filter ./packages/server test` and components tests green.
