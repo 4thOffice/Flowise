@@ -109,6 +109,16 @@ function createMockDataSource(seedVariables: Array<Record<string, any>> = []) {
             if (idx >= 0) chatMessages.splice(idx, 1)
             return obj
         },
+        update: async (where: { id: string }, partial: Record<string, any>) => {
+            const idx = chatMessages.findIndex((m) => m.id === where.id)
+            if (idx >= 0) chatMessages[idx] = { ...chatMessages[idx], ...partial }
+            return { affected: idx >= 0 ? 1 : 0 }
+        },
+        delete: async (where: { id: string }) => {
+            const idx = chatMessages.findIndex((m) => m.id === where.id)
+            if (idx >= 0) chatMessages.splice(idx, 1)
+            return { affected: idx >= 0 ? 1 : 0 }
+        },
         find: async ({ where, order }: { where: Record<string, any>; order?: Record<string, 'ASC' | 'DESC'> }) => {
             let matched = chatMessages.filter((row) =>
                 Object.entries(where || {}).every(([k, v]) => unwrapFindValue(v) === undefined || row[k] === unwrapFindValue(v))
@@ -607,8 +617,7 @@ describe('Agentflow V2 public interface contract', () => {
         })
         expect(resumeProceed.text).toBe('Approved!')
         expect(executions[0].state).toBe('FINISHED')
-        // Task 07 (D11) clears the recorded pending action button by the stop message's id; until then the row keeps it
-        expect(chatMessages.filter((m) => Boolean(m.action))).toHaveLength(1)
+        expect(chatMessages.filter((m) => Boolean(m.action))).toHaveLength(0)
 
         // Reject flow
         const rejectSession = 'hitl-reject-1'
@@ -761,7 +770,7 @@ describe('Agentflow V2 public interface contract', () => {
         expect(trustedEvt?.data).toBeTruthy()
         const decoded = (await trusted_state_from_string(trustedEvt!.data)) as any
         expect(decoded.version).toBe(2)
-        expect(decoded.pendingResume.legacyExecution.state).toBe('STOPPED')
+        expect(decoded.pendingResume.nodes.find((entry: any) => entry.nodeId === 'humanInputAgentflow_0')?.status).toBe('STOPPED')
 
         const turn2 = await runFlow({
             chatflow,

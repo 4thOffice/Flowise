@@ -21,13 +21,16 @@ import zodToJsonSchema from 'zod-to-json-schema'
 import { getErrorMessage } from '../../../src/error'
 import { DataSource } from 'typeorm'
 import {
+    IAgentResumeCheckpoint,
     addImageArtifactsToMessages,
     extractArtifactsFromResponse,
+    fromCheckpointConversation,
     getPastChatHistoryImageMessages,
     getUniqueImageMessages,
     processMessagesWithImages,
     replaceBase64ImagesWithFileReferences,
     replaceInlineDataWithFileReferences,
+    toCheckpointConversation,
     trimTrailingHistoryCopy,
     updateFlowState
 } from '../utils'
@@ -1010,6 +1013,7 @@ class Agent_Agentflow implements INode {
                     }
                 }
             }
+            const ownMessages = [...messages]
 
             // Handle memory management if enabled
             if (enableMemory) {
@@ -1097,9 +1101,21 @@ class Agent_Agentflow implements INode {
                 if (humanInput.type !== 'proceed' && humanInput.type !== 'reject') {
                     throw new Error(`Invalid human input type. Expected 'proceed' or 'reject', but got '${humanInput.type}'`)
                 }
+                // A pause from before token v2 replays its stored prompt (D4); a v2 checkpoint is rebuilt on the current Messages list (D5)
+                const legacyMessages: BaseMessageLike[] | undefined = humanInputAction?.data?.input?.messages
+                const resumeCheckpoint = options.resumeCheckpoint as IAgentResumeCheckpoint | undefined
+                const checkpointMessages: BaseMessageLike[] = legacyMessages?.length
+                    ? legacyMessages
+                    : resumeCheckpoint
+                    ? [
+                          ...ownMessages,
+                          ...fromCheckpointConversation(resumeCheckpoint.conversation, pastChatHistory),
+                          resumeCheckpoint.toolCallMessage as BaseMessageLike
+                      ]
+                    : []
                 const result = await this.handleResumedToolCalls({
                     humanInput,
-                    humanInputAction,
+                    checkpointMessages,
                     messages,
                     toolsInstance,
                     sseStreamer,
@@ -1402,6 +1418,15 @@ class Agent_Agentflow implements INode {
                 runtimeImageMessagesWithFileRef,
                 pastImageMessagesWithFileRef
             )
+
+            // The resume rebuilds the Messages list from the flow, so the checkpoint keeps only the rest of the prompt
+            if (isWaitingForHumanInput) {
+                const resumeCheckpoint: IAgentResumeCheckpoint = {
+                    conversation: toCheckpointConversation(messagesWithFileReferences.slice(ownMessages.length, -1), pastChatHistory),
+                    toolCallMessage: messagesWithFileReferences[messagesWithFileReferences.length - 1] as ICommonObject
+                }
+                output.resumeCheckpoint = resumeCheckpoint
+            }
 
             // Only add to runtime chat history if this is the first node
             const inputMessages = []
@@ -2267,7 +2292,7 @@ class Agent_Agentflow implements INode {
      */
     private async handleResumedToolCalls({
         humanInput,
-        humanInputAction,
+        checkpointMessages,
         messages,
         toolsInstance,
         sseStreamer,
@@ -2282,7 +2307,7 @@ class Agent_Agentflow implements INode {
         isStructuredOutput = false
     }: {
         humanInput: IHumanInput
-        humanInputAction: Record<string, any> | undefined
+        checkpointMessages: BaseMessageLike[]
         messages: BaseMessageLike[]
         toolsInstance: Tool[]
         sseStreamer: IServerSideEventStreamer | undefined
@@ -2309,17 +2334,16 @@ class Agent_Agentflow implements INode {
         let artifacts: any[] = []
         let isWaitingForHumanInput: boolean | undefined
 
-        const lastCheckpointMessages = humanInputAction?.data?.input?.messages ?? []
-        if (!lastCheckpointMessages.length) {
+        if (!checkpointMessages.length) {
             return { response: new AIMessageChunk(''), usedTools: [], sourceDocuments: [], artifacts: [], totalTokens: 0 }
         }
 
         // Use the last message as the response
-        const response = lastCheckpointMessages[lastCheckpointMessages.length - 1] as AIMessageChunk
+        const response = checkpointMessages[checkpointMessages.length - 1] as AIMessageChunk
 
         // Replace messages array
         messages.length = 0
-        messages.push(...lastCheckpointMessages.slice(0, lastCheckpointMessages.length - 1))
+        messages.push(...checkpointMessages.slice(0, checkpointMessages.length - 1))
 
         // Track total tokens used throughout this process
         let totalTokens = response.usage_metadata?.total_tokens || 0

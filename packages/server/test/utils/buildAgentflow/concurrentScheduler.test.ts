@@ -923,7 +923,7 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
         expect(inFlightCleaned).toBe(true)
     })
 
-    it('snapshots pastChatHistory and incomingInput per launch so a sibling commit that shortens the history cannot corrupt siblings mid-flight', async () => {
+    it('snapshots pastChatHistory per launch so a sibling that empties its copy cannot corrupt siblings mid-flight', async () => {
         process.env.AGENTFLOW_MAX_NODE_CONCURRENCY = '2'
 
         const flow = createFlow(
@@ -952,11 +952,12 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
         const nodeInstanceFactory = createMockNodeFactory({
             fastClearing: async (nodeData, _input, options) => {
                 await slowEntered.promise
+                options.pastChatHistory.length = 0
                 return {
                     id: nodeData.id,
                     name: nodeData.name,
                     output: { content: 'cleared' },
-                    state: { ...options.agentflowRuntime.state, doNotIncludeFeedbackHistory: true }
+                    state: options.agentflowRuntime.state
                 }
             },
             slowReader: async (nodeData, _input, options) => {
@@ -989,7 +990,7 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
         })
 
         await slowEntered.promise
-        // Wait deterministically until fastClearing finishes and commits reconcileRuntimeCommit (its flag shortens the shared pastChatHistory)
+        // Wait deterministically until fastClearing has emptied its history and committed
         await waitUntil(() => getEvents('nextAgentFlow').some((e) => e.data?.nodeId === 'fastClearing' && e.data?.status === 'FINISHED'))
         fastCommitted.resolve()
 

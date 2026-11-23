@@ -9,6 +9,7 @@ import {
     BeforeTurn,
     Conversation,
     HarnessMode,
+    ScenarioScript,
     TurnResult,
     beforeTraceExists,
     compactModelCalls,
@@ -19,6 +20,7 @@ import {
     encodeToken,
     executionRecords,
     findNodeRecords,
+    flowIdFor,
     historyRolesCompact,
     loadBeforeTrace,
     loadHarnessScenario,
@@ -242,6 +244,38 @@ interface IntendedDifference {
 const intended = (finding: string, aspects: Aspect[], ...keys: string[]) =>
     Object.fromEntries(keys.map((key) => [key, { finding, aspects }]))
 
+// F05 with TS15: DB mode saved an answer without feedback as " "; the button label replaces it
+const buttonAnswers = (label: string) => (before: ReturnType<typeof comparableRequests>) =>
+    Object.fromEntries(
+        Object.entries(before).map(([route, calls]) => [
+            route,
+            calls.map((call: any) => ({
+                ...call,
+                messages: call.messages.map((m: any) => (m.role === 'user' && m.content === ' ' ? { ...m, content: label } : m))
+            }))
+        ])
+    )
+
+// Stop and resume turns of S06, S06b, S07 and S08 (Task 07): aspects that differ from traces/before/ in the token modes
+const APPROVAL_DIFFERENCES: Record<string, Aspect[]> = {
+    'S06/t1': ['action'],
+    'S06/t2': ['action', 'history'],
+    'S06/t3': ['requests', 'history'],
+    'S06/t4': ['requests', 'action', 'history'],
+    'S06/t5': ['requests', 'history'],
+    'S06b/t1': ['action', 'history'],
+    'S06b/t2': ['action', 'history'],
+    'S06b/t3': ['requests', 'history'],
+    'S06b/t4': ['requests', 'action', 'history'],
+    'S07/t3': ['history'],
+    'S07/t4': ['requests', 'history'],
+    'S07/t5': ['requests', 'history'],
+    'S07/t6': ['requests', 'history'],
+    'S08/t2': ['action', 'history'],
+    'S08/t3': ['requests', 'history'],
+    'S08/t4': ['requests', 'action', 'history']
+}
+
 // TS25: the captured requests carry a same-turn reply as a user message named after its node
 const sameTurnRepliesAsAssistant = (before: ReturnType<typeof comparableRequests>) =>
     Object.fromEntries(
@@ -260,9 +294,23 @@ describe('before/ traces', () => {
     const INTENDED_DIFFERENCES: Record<string, IntendedDifference> = {
         // The JSON response carries the token, so S13 has a token history and continues the conversation
         ...intended('F14', ASPECTS, 'M1/S13/t1', 'M1/S13/t2', 'M1/S13/t3'),
-        // Client State off reads nothing from the database: resumes save no answer (as M1)
-        ...intended('F01', ASPECTS, 'M3/S06/t2', 'M3/S06/t3', 'M3/S06/t4', 'M3/S06/t5'),
-        ...intended('F01', ASPECTS, 'M3/S07/t3', 'M3/S07/t4', 'M3/S07/t5', 'M3/S07/t6'),
+        // Answers are user messages and the action has no `extra`: DB mode saved the answers already, with " " for a button
+        ...intended('F06', ['action'], 'M3/S06/t1', 'M3/S06/t2'),
+        'M3/S06/t4': { finding: 'F05, F06', aspects: ['action'], requests: buttonAnswers('Approve') },
+        'M3/S06/t5': { finding: 'F05', aspects: [], requests: buttonAnswers('Approve') },
+        ...Object.fromEntries(
+            ['t4', 't5', 't6'].map((t) => [`M3/S07/${t}`, { finding: 'F05', aspects: [], requests: buttonAnswers('Proceed') }])
+        ),
+        // Answers are user messages, the toggle-off exchange leaves no trace, a blank stop saves the waiting node's prompt, and
+        // the action has no `extra`; later turns send the answers to the model
+        ...Object.fromEntries(
+            (['M1', 'M2', 'M1-internal'] as HarnessMode[]).flatMap((mode) =>
+                Object.entries(APPROVAL_DIFFERENCES)
+                    .filter(([key]) => mode !== 'M2' || !key.startsWith('S06b/'))
+                    .filter(([key]) => mode !== 'M1-internal' || key.startsWith('S07/'))
+                    .map(([key, aspects]) => [`${mode}/${key}`, { finding: 'F05-F07, F06', aspects }])
+            )
+        ),
         // The child flow continues from the token the parent keeps for it, as it continued from the database in M3 (unchanged there)
         ...intended('F10', ['requests', 'text', 'state'], 'M1/S12/t2', 'M1/S12/t3', 'M1/S12/t4'),
         // The request history is ignored while "Accept conversation history from the client" is off, and no node prepends it
@@ -330,11 +378,26 @@ describe('compare.config.json checks', () => {
         'F02-S10a-accept-off',
         'F03-S04b-state-carries',
         'F04-S05-new-form-wins',
+        'F05-S06-answers-in-history',
+        'F05-S07-answers-in-history',
+        'F05-S08-answers-in-history',
+        'F06-S06b-toggle-off',
+        'F07-alternating-history',
+        'F07-S08-blank-stop-message',
+        'F08-no-action-in-history',
+        'F09-no-record-copies',
         'F10-S12-child-token',
         'F11-S10b-ephemeral-dropped',
+        'F13-tool-approval-pending',
         'TS25-S03-composer',
-        'TS25-S09-aggregator'
+        'TS25-S09-aggregator',
+        'TS26-pending-only-while-stopped'
     ]
+    // The slim action is Task 09's (F19, TS20)
+    const TASK_09_CHECKS = ['actionKeysOnly']
+
+    const modesOf = (entry: any, scenario: string): HarnessMode[] =>
+        entry.modes === '*' ? BEFORE_MODES.filter((mode) => beforeTraceExists(mode, loadScenario(scenario).slug)) : entry.modes
 
     const turnMatches = (spec: string | string[] | undefined, turnId: string, turnIds: string[]) =>
         !spec ||
@@ -343,7 +406,8 @@ describe('compare.config.json checks', () => {
             item.endsWith('+') ? turnIds.indexOf(turnId) >= turnIds.indexOf(item.slice(0, -1)) : item === turnId
         )
 
-    const passes = (check: any, turn: TurnResult): boolean => {
+    const passes = (check: any, turn: TurnResult, beforeTurn?: BeforeTurn): boolean => {
+        const history = () => (turn.decoded ? tokenHistory(turn.decoded.state) : null)
         switch (check.type) {
             case 'modelInputIncludes':
             case 'modelInputExcludes': {
@@ -362,7 +426,28 @@ describe('compare.config.json checks', () => {
             case 'serverLogIncludes':
                 return turn.logs.some((entry) => new RegExp(check.pattern).test(entry.message))
             case 'tokenHistoryRoles':
-                return isEqual(turn.decoded ? tokenHistory(turn.decoded.state).map((m: any) => m.role) : null, check.equals)
+                return isEqual(history()?.map((m: any) => m.role) ?? null, check.equals)
+            case 'tokenHistoryHasNoKey':
+                return Boolean(history()?.every((m: any) => !(check.key in m)))
+            case 'tokenHistoryAlternates':
+                return Boolean(
+                    history()?.every(
+                        (m: any, i: number) =>
+                            m.role === (i % 2 === 0 ? 'userMessage' : 'apiMessage') &&
+                            typeof m.content === 'string' &&
+                            m.content.trim() !== ''
+                    )
+                )
+            case 'tokenPendingWhileStopped':
+                return Boolean(turn.decoded) && (turn.decoded!.state.pendingResume != null) === (turn.status === 'STOPPED')
+            case 'tokenHasNoKey':
+                return !JSON.stringify(turn.decoded?.state ?? {}).includes(`"${check.key}"`)
+            case 'tokenSentinelMax':
+                return (turn.sentinels.token ?? 0) <= check.max
+            case 'tokenBytesRatioToBeforeMax': {
+                const before = beforeTurn?.token?.sizes?.rawJsonBytes ?? 0
+                return before > 0 && (turn.decoded?.sizes.rawJsonBytes ?? 0) <= before * check.max
+            }
             case 'finalStateEquals':
                 return isEqual(get(turn.finalState ?? {}, check.key), check.value)
             case 'textIncludes':
@@ -378,14 +463,19 @@ describe('compare.config.json checks', () => {
         const failed: string[] = []
         let evaluated = 0
         for (const scenario of entry.scenarios as string[]) {
-            for (const mode of entry.modes as HarnessMode[]) {
+            for (const mode of modesOf(entry, scenario)) {
                 const conversation = await runOf(scenario, mode, entry.variant === ACCEPT_ON ? ACCEPT_ON : undefined)
                 const turnIds = conversation.turns.map((t) => t.id)
-                for (const check of entry.checks) {
+                const before = beforeTraceExists(mode, loadScenario(scenario).slug)
+                    ? loadBeforeTrace(mode, loadScenario(scenario).slug)
+                    : null
+                for (const check of entry.checks.filter((c: any) => !TASK_09_CHECKS.includes(c.type))) {
                     for (const turn of conversation.turns) {
                         if (!turnMatches(check.turns ?? entry.turns, turn.id, turnIds)) continue
                         evaluated += 1
-                        if (!passes(check, turn)) failed.push(`${mode}/${scenario}/${turn.id} ${JSON.stringify(omit(check, ['note']))}`)
+                        const beforeTurn = before?.turns.find((t) => t.id === turn.id)
+                        if (!passes(check, turn, beforeTurn))
+                            failed.push(`${mode}/${scenario}/${turn.id} ${JSON.stringify(omit(check, ['note']))}`)
                     }
                 }
             }
@@ -449,7 +539,7 @@ describe('token-only conversations (Task 05)', () => {
         expect(comparableRequests(resumed.modelCalls)).toEqual(comparableRequests(recorded.turn('t2').modelCalls))
         expect(resumed.logs.filter((entry) => entry.level === 'warn' && /Execution .* not found/.test(entry.message)).length).toBe(2)
         expect(resumed.db.executions.map((row) => row.state)).toEqual(['STOPPED'])
-        expect(decodeToken(resumed.token!).state.pendingResume.legacyExecution.id).toBe(resumed.db.executions[0].id)
+        expect(decodeToken(resumed.token!).state.pendingResume.executionId).toBe(resumed.db.executions[0].id)
     })
 
     test('the v2 token of every turn that does not end stopped holds no system prompt and is at most 5 % of the v1 token', async () => {
@@ -472,6 +562,188 @@ describe('token-only conversations (Task 05)', () => {
             }
         }
         expect(problems).toEqual([])
+    })
+})
+
+describe('human input stop and resume (Task 07)', () => {
+    // Child flow tokens are encrypted inside the parent token (08 §4.2)
+    const tokenSentinels = (state: any): number =>
+        countSentinels(state).total +
+        Object.values(state.childFlowTokens ?? {}).reduce(
+            (sum: number, child: any) => sum + tokenSentinels(decodeToken(child.token).state),
+            0
+        )
+
+    const recordsOf = async (rows: any[]) =>
+        Promise.all(rows.map(async (row) => (await executionRecords(row)).map((record) => `${record.nodeId}:${record.status}`)))
+
+    test('a paused token holds one skeleton entry per node run and no system prompt; other turns hold no pending data', async () => {
+        const problems: string[] = []
+        for (const id of ['S06', 'S06b', 'S07', 'S08']) {
+            for (const mode of ['M1', 'M2', 'M3'] as HarnessMode[]) {
+                const conversation = await runOf(id, mode)
+                const rowIds = conversation.turns[conversation.turns.length - 1].db.executions.map((row) => row.id)
+                for (const turn of conversation.turns) {
+                    const state = turn.decoded!.state
+                    const label = `${mode}/${id}/${turn.id}`
+                    if (tokenSentinels(state)) problems.push(`${label}: prompt sentinels`)
+                    if (turn.status !== 'STOPPED') {
+                        if (state.pendingResume) problems.push(`${label}: pending data after ${turn.status}`)
+                        continue
+                    }
+                    const { nodes, executionId, stopMessageId } = state.pendingResume
+                    const skeleton = nodes.map((entry: any) => `${entry.nodeId}:${entry.status}`)
+                    if (!isEqual(skeleton, turn.nodeSequence))
+                        problems.push(`${label}: skeleton ${skeleton} for records ${turn.nodeSequence}`)
+                    // Recorded rows only: M2 and M3 record executions, M3 chat messages
+                    if (mode !== 'M1' && !rowIds.includes(executionId)) problems.push(`${label}: execution ${executionId}`)
+                    if (mode === 'M1' && executionId) problems.push(`${label}: execution id without a recorded execution`)
+                    if ((mode === 'M3') !== Boolean(stopMessageId)) problems.push(`${label}: stop message id ${stopMessageId}`)
+                }
+            }
+        }
+        expect(problems).toEqual([])
+    })
+
+    test('a child flow paused for human input keeps its pending data, without prompts, inside the parent token', async () => {
+        const s12 = loadHarnessScenario('S12')
+        const s06 = loadHarnessScenario('S06')
+        const script: ScenarioScript = {
+            ...s12,
+            extraFlows: [s06.flow],
+            llm: { ...s12.llm, rules: [...s12.llm.rules, ...s06.llm.rules] },
+            turns: [s12.turns[0]]
+        }
+        const conversation = new Conversation({ scenario: script })
+        const parent = conversation.chatflows[script.flow]
+        parent.flowData = parent.flowData.replace(flowIdFor('S12-child-flow'), flowIdFor(s06.flow))
+        const [turn] = await conversation.runAll()
+        expect(turn.status).toBe('FINISHED')
+        const child = decodeToken(turn.decoded!.state.childFlowTokens.executeFlowAgentflow_0.token).state
+        expect(child.pendingResume.nodes.map((entry: any) => `${entry.nodeId}:${entry.status}`)).toContain('humanInputAgentflow_0:STOPPED')
+        expect(tokenSentinels(turn.decoded!.state)).toBe(0)
+    })
+
+    test('D6 a failed resume returns the incoming token unchanged, and answering again retries the resume', async () => {
+        const s07 = loadHarnessScenario('S07')
+        const failing: ScenarioScript = {
+            ...s07,
+            llm: {
+                ...s07.llm,
+                rules: [
+                    {
+                        id: 'resume-fails',
+                        route: 'S07-agent',
+                        turn: 't3-failed',
+                        reply: { error: { status: 500, message: 'Injected fake LLM failure' } }
+                    },
+                    ...s07.llm.rules
+                ]
+            }
+        }
+        const conversation = await runConversation({ scenario: failing, turns: ['t1', 't2'] })
+        const failed = await conversation.run({ id: 't3-failed', humanInput: { type: 'proceed' } })
+        expect(failed.status).toBe('ERROR')
+        expect(failed.token).toBe(failed.tokenSent)
+        const retried = await conversation.run('t3')
+        const native = (await runOf('S07')).turn('t3')
+        expect([retried.status, retried.text]).toEqual([native.status, native.text])
+        expect(comparableRequests(retried.modelCalls)).toEqual(comparableRequests(native.modelCalls))
+        expect(tokenHistory(retried.decoded!.state)).toEqual(tokenHistory(native.decoded!.state))
+    })
+
+    test('D9 a resume that ends stopped without output saves the waiting gate prompt as its bot message (S08 t2)', async () => {
+        const conversation = await runOf('S08')
+        const gate = conversation.turn('t1').executedData!.find((record) => record.nodeId === 'humanInputAgentflow_0')
+        expect(conversation.turn('t2').text).toBe('')
+        expect(tokenHistory(conversation.turn('t2').decoded!.state).slice(2)).toEqual([
+            { role: 'userMessage', content: 'Proceed' },
+            { role: 'apiMessage', content: gate.data.output.content }
+        ])
+    })
+
+    test('D10 a resume continues the paused run row, which ends with the records of before/ (M2)', async () => {
+        for (const id of ['S06', 'S07', 'S08']) {
+            const conversation = await runOf(id, 'M2')
+            const slug = loadScenario(id).slug
+            const trace = loadBeforeTrace('M2', slug)
+            const beforeRows = (trace.turns[trace.turns.length - 1] as any).db[slug].executions.map((row: any) =>
+                JSON.parse(row.executionDataFromBlob).map((record: any) => `${record.nodeId}:${record.status}`)
+            )
+            expect({ id, rows: await recordsOf(conversation.turns[conversation.turns.length - 1].db.executions) }).toEqual({
+                id,
+                rows: beforeRows
+            })
+            expect(conversation.dataSource.reads.filter((read) => !read.allowed)).toEqual([])
+        }
+    })
+
+    test('D11 the answered stop message keeps no action, and with the history toggle off it is deleted (M3)', async () => {
+        const rows = (turn: TurnResult) => turn.db.chatMessages.map((m) => [m.role, m.content, Boolean(m.action)])
+        const historyRows = (turn: TurnResult) =>
+            tokenHistory(turn.decoded!.state).map((m: any, i: number, all: any[]) => [
+                m.role,
+                m.content,
+                turn.status === 'STOPPED' && i === all.length - 1
+            ])
+
+        const s06 = await runOf('S06', 'M3')
+        for (const turn of s06.turns) expect({ turn: turn.id, rows: rows(turn) }).toEqual({ turn: turn.id, rows: historyRows(turn) })
+
+        const s06b = await runConversation({ scenario: 'S06b', mode: 'M3' })
+        const question = s06b.turn('t1').request.question
+        const stop = (turnId: string) => ['apiMessage', s06b.turn(turnId).text, true]
+        expect(s06b.turns.map((turn) => rows(turn))).toEqual([
+            [['userMessage', question, false], stop('t1')],
+            [['userMessage', question, false], stop('t2')],
+            [
+                ['userMessage', question, false],
+                ['apiMessage', s06b.turn('t3').text, false]
+            ],
+            [
+                ['userMessage', question, false],
+                ['apiMessage', s06b.turn('t3').text, false],
+                ['userMessage', s06b.turn('t4').request.question, false],
+                stop('t4')
+            ]
+        ])
+    })
+
+    test('v1 tokens paused before the deploy resume, replaying a stored Agent prompt once (D4), and the conversation continues as in v2', async () => {
+        for (const [id, pausedTurn] of [
+            ['S06', 't1'],
+            ['S07', 't2'],
+            ['S08', 't1']
+        ]) {
+            const trace = loadBeforeTrace('M1', loadScenario(id).slug)
+            const paused = trace.turns.find((t) => t.id === pausedTurn)!
+            const native = await runOf(id)
+            const conversation = await startConversation({ scenario: id })
+            const turnIds = conversation.scenario.turns.map((t) => t.id)
+            const [next, ...later] = turnIds.slice(turnIds.indexOf(pausedTurn) + 1)
+            const spec = conversation.scenario.turns.find((t) => t.id === next)!
+            const resumed = await conversation.run({
+                ...spec,
+                humanInput: { ...spec.humanInput!, startNodeId: paused.action.data.nodeId },
+                token: encodeToken(paused.token.decoded)
+            })
+            const capturedResume = trace.turns.find((t) => t.id === next)!
+            expect({ id, next, requests: comparableRequests(resumed.modelCalls) }).toEqual({
+                id,
+                next,
+                requests: comparableRequests(withoutRetries(capturedResume.modelRequests))
+            })
+            expect([resumed.decoded!.state.version, tokenSentinels(resumed.decoded!.state)]).toEqual([2, 0])
+            for (const turnId of later) {
+                const turn = await conversation.run(turnId)
+                expect({ id, turnId, text: turn.text, requests: comparableRequests(turn.modelCalls) }).toEqual({
+                    id,
+                    turnId,
+                    text: native.turn(turnId).text,
+                    requests: comparableRequests(native.turn(turnId).modelCalls)
+                })
+            }
+        }
     })
 })
 
@@ -585,22 +857,37 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F05 approval answers in history (TS15)', () => {
-        test.failing(
-            'F05 HumanInput: the feedback, otherwise the button label, sits between the approval prompt and the reply (S06)',
-            async () => {
-                const conversation = await runOf('S06')
-                const drafter = conversationOf(conversation.turn('t4'), 'S06-drafter')
-                expect(messageBefore(drafter, conversation.turn('t2').text)).toEqual({
-                    role: 'user',
-                    content: 'Please mention the 10% discount code SORRY10.'
-                })
-                expect(messageBefore(drafter, conversation.turn('t3').text)).toEqual({ role: 'user', content: 'Approve' })
-                const finalizer = conversationOf(conversation.turn('t5'), 'S06-finalizer')
-                expect(finalizer[finalizer.length - 1]).toEqual({ role: 'user', content: 'Approved, send it.' })
-            }
-        )
+        test('F05 HumanInput: the feedback, otherwise the button label, sits between the approval prompt and the reply (S06)', async () => {
+            const conversation = await runOf('S06')
+            const drafter = conversationOf(conversation.turn('t4'), 'S06-drafter')
+            expect(messageBefore(drafter, conversation.turn('t2').text)).toEqual({
+                role: 'user',
+                content: 'Please mention the 10% discount code SORRY10.'
+            })
+            expect(messageBefore(drafter, conversation.turn('t3').text)).toEqual({ role: 'user', content: 'Approve' })
+            const finalizer = conversationOf(conversation.turn('t5'), 'S06-finalizer')
+            expect(finalizer[finalizer.length - 1]).toEqual({ role: 'user', content: 'Approved, send it.' })
+        })
 
-        test.failing('F05 Agent tool approval: the button label or the feedback is the user message of the resume turn (S07)', async () => {
+        test('F05 later turns send the history DB mode kept in before/ M3, with the button label for an answer without feedback', async () => {
+            for (const [id, label, turnIds] of [
+                ['S06', 'Approve', ['t2', 't3', 't4', 't5']],
+                ['S07', 'Proceed', ['t3', 't4', 't5', 't6']]
+            ] as Array<[string, string, string[]]>) {
+                const conversation = await runOf(id)
+                const dbMode = loadBeforeTrace('M3', loadScenario(id).slug)
+                for (const turnId of turnIds) {
+                    const before = dbMode.turns.find((t) => t.id === turnId)!
+                    expect({ id, turnId, requests: comparableRequests(conversation.turn(turnId).modelCalls) }).toEqual({
+                        id,
+                        turnId,
+                        requests: buttonAnswers(label)(comparableRequests(withoutRetries(before.modelRequests)))
+                    })
+                }
+            }
+        })
+
+        test('F05 Agent tool approval: the button label or the feedback is the user message of the resume turn (S07)', async () => {
             const conversation = await runOf('S07')
             expect(messageBefore(conversationOf(conversation.turn('t4'), 'S07-agent'), conversation.turn('t3').text)).toEqual({
                 role: 'user',
@@ -612,7 +899,7 @@ describe('findings: target behaviour', () => {
             })
         })
 
-        test.failing('F05 parallel stops: both answers reach the Summary and the next turn (S08)', async () => {
+        test('F05 parallel stops: both answers reach the Summary and the next turn (S08)', async () => {
             const conversation = await runOf('S08')
             for (const [turnId, route] of [
                 ['t3', 'S08-summary'],
@@ -627,26 +914,23 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F06 HumanInput history toggle (TS15)', () => {
-        test.failing(
-            'F06 with the toggle off, neither the approval prompt nor the answer is in history, without state flags (S06b)',
-            async () => {
-                const conversation = await runOf('S06b')
-                for (const turn of conversation.turns) {
-                    expect(turn.action?.extra || undefined).toBeUndefined()
-                    for (const record of turn.executedData ?? [])
-                        expect(record.data?.state ?? {}).not.toHaveProperty('doNotIncludeFeedbackHistory')
-                }
-                expect(conversationOf(conversation.turn('t4'), 'S06b-drafter')).toEqual([
-                    { role: 'user', content: 'Draft a reply to a customer whose shipment is delayed by a week.' },
-                    { role: 'assistant', content: conversation.turn('t3').text },
-                    { role: 'user', content: 'Now draft a short SMS version of that message.' }
-                ])
+        test('F06 with the toggle off, neither the approval prompt nor the answer is in history, without state flags (S06b)', async () => {
+            const conversation = await runOf('S06b')
+            for (const turn of conversation.turns) {
+                expect(turn.action?.extra || undefined).toBeUndefined()
+                for (const record of turn.executedData ?? [])
+                    expect(record.data?.state ?? {}).not.toHaveProperty('doNotIncludeFeedbackHistory')
             }
-        )
+            expect(conversationOf(conversation.turn('t4'), 'S06b-drafter')).toEqual([
+                { role: 'user', content: 'Draft a reply to a customer whose shipment is delayed by a week.' },
+                { role: 'assistant', content: conversation.turn('t3').text },
+                { role: 'user', content: 'Now draft a short SMS version of that message.' }
+            ])
+        })
     })
 
     describe('F07 message order after resumes', () => {
-        test.failing('F07 no model input has two assistant messages in a row or a blank assistant message', async () => {
+        test('F07 no model input has two assistant messages in a row or a blank assistant message', async () => {
             const problems: string[] = []
             for (const [id, turnIds] of [
                 ['S06', ['t3', 't4', 't5']],
@@ -685,7 +969,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F09 resume chains', () => {
-        test.failing('F09 a chain of stops and resumes does not copy earlier records into the token', async () => {
+        test('F09 a chain of stops and resumes does not copy earlier records into the token', async () => {
             const historyBytes = (turn: TurnResult) => Buffer.byteLength(JSON.stringify(tokenHistory(turn.decoded!.state)))
             const growth: string[] = []
             for (const [id, from, to] of [

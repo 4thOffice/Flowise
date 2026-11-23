@@ -121,7 +121,8 @@ export interface IExecuteNodeParams {
     nodeInstanceFactory?: NodeInstanceFactory
     maxNodeConcurrency?: number
     enqueueDbUpdate?: <T>(task: () => Promise<T>) => Promise<T>
-    getExecutedData?: () => IAgentflowExecutedData[]
+    /** The records the turn's Execution row holds so far */
+    getRecordedData?: () => IAgentflowExecutedData[]
     getAvailableVariables: () => Promise<Variable[]>
     turnInput: TrustedTurnInput
 }

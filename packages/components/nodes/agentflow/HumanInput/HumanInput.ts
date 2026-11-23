@@ -210,9 +210,6 @@ class HumanInput_Agentflow implements INode {
             ]
             const input = { ...humanInput, messages }
             const output = { conditions: outcomes }
-            if (nodeData.inputs?.humanInputHistoryToggle === false) {
-                state.doNotIncludeFeedbackHistory = 'true'
-            }
 
             const nodeOutput = {
                 id: nodeData.id,
@@ -282,9 +279,6 @@ class HumanInput_Agentflow implements INode {
             }
 
             const input = { messages: [...pastChatHistory, ...runtimeChatHistory], humanInputEnableFeedback }
-            if (nodeData.inputs?.humanInputHistoryToggle === false) {
-                state.doNotIncludeFeedbackHistory = 'true'
-            }
             const output = { content: humanInputDescription }
             const nodeOutput = {
                 id: nodeData.id,

@@ -424,8 +424,7 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
             expect(streamDs.executions[0].state).toBe('FINISHED')
             expect(turn2Sse.agentFlowExecutedData.filter((d: any) => d.nodeId === 'customFunctionAgentflow_0')).toHaveLength(1)
             expect(turn2Sse.agentFlowExecutedData.filter((d: any) => d.nodeId === 'directReplyAgentflow_0')).toHaveLength(1)
-            // Task 07 (D11) clears the recorded stop message's action by its id; until then the row keeps it
-            expect(streamDs.chatMessages.filter((m) => Boolean(m.action))).toHaveLength(1)
+            expect(streamDs.chatMessages.filter((m) => Boolean(m.action))).toHaveLength(0)
 
             // Non-streaming Turn 1 + Turn 2 Reject
             const restDs = createMockDataSource()
@@ -1164,8 +1163,7 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
             const trustedStopEvt = sse1.getEvents().find((e) => e.event === 'trustedStateData')
             const decodedStop = (await trusted_state_from_string(trustedStopEvt!.data)) as any
             expect(decodedStop.version).toBe(2)
-            expect(decodedStop.pendingResume.legacyExecution.state).toBe('STOPPED')
-            const decodedStopData = JSON.parse(decodedStop.pendingResume.legacyExecution.executionData)
+            const decodedStopData = decodedStop.pendingResume.nodes
             expect(decodedStopData.some((d: any) => d.nodeId === 'companion_0' && d.status === 'FINISHED')).toBe(true)
             expect(decodedStopData.some((d: any) => d.nodeId === 'human_0' && d.status === 'STOPPED')).toBe(true)
 

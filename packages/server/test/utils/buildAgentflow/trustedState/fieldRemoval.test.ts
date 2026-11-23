@@ -1,5 +1,7 @@
+import crypto from 'crypto'
+import fs from 'fs'
+import path from 'path'
 import { cloneDeep, isEqual } from 'lodash'
-import { resolveVariables } from '../../../../src/utils/buildAgentflow'
 import {
     Conversation,
     ScenarioScript,
@@ -11,7 +13,6 @@ import {
     encodeToken,
     isV2Token,
     loadBeforeTrace,
-    loadHarnessComponentNodes,
     loadHarnessScenario,
     normalizeValue,
     runConversation,
@@ -22,11 +23,10 @@ import {
 
 /*
  * Task 03 of plans/agentflow-trusted-state: which token fields the next turn needs, proven by running turn n+1 of every
- * scenario with a token built from T(n) and comparing the outcome with the run on T(n). Every built token uses the v1
- * layout, with each field placed where the v1 code read it, so these runs also exercise the v1 upgrade; only a token with
- * child flow tokens, which v1 has no place for, uses the v2 layout (Task 08). Since Task 05
- * the server writes v2 tokens: the removals edit their v2 fields, a stopped run's records sit in the interim pending
- * data, and the pending action is marked by its history index instead of an `action` on the history message.
+ * scenario with a token built from T(n) and comparing the outcome with the run on T(n). Every built normal-turn token uses
+ * the v1 layout, with each field placed where the v1 code read it, so these runs also exercise the v1 upgrade; only a token
+ * with child flow tokens, which v1 has no place for, uses the v2 layout (Task 08). Resumes run on the v2 tokens the server
+ * writes since Task 07, whose pending resume data the removals edit.
  */
 
 jest.setTimeout(180000)
@@ -186,31 +186,6 @@ const pick = (value: Record<string, any>, keys: string[]) =>
 const omit = (value: Record<string, any>, keys: string[]) =>
     Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key)))
 
-const withHistory = (state: any, map: (message: any) => any) =>
-    isV2Token(state) ? { ...state, history: tokenHistory(state).map(map) } : { ...state, pastChatHistory: tokenHistory(state).map(map) }
-const withExecution = (state: any, map: (execution: any) => any) =>
-    isV2Token(state)
-        ? { ...state, pendingResume: { ...state.pendingResume, legacyExecution: map(state.pendingResume.legacyExecution) } }
-        : { ...state, previousExecution: map(state.previousExecution) }
-const withRecords = (state: any, map: (records: any[]) => any[]) =>
-    withExecution(state, (execution) => ({ ...execution, executionData: JSON.stringify(map(tokenRecords(state))) }))
-const eachRecord = (state: any, map: (record: any) => any) => withRecords(state, (records) => records.map(map))
-const withOutput = (record: any, map: (output: any) => any) =>
-    record.data?.output && typeof record.data.output === 'object'
-        ? { ...record, data: { ...record.data, output: map(record.data.output) } }
-        : record
-const withAction = (record: any, map: (action: any) => any) =>
-    withOutput(record, (output) => (output.humanInputAction ? { ...output, humanInputAction: map(output.humanInputAction) } : output))
-
-const isDecision = (output: any) => Array.isArray(output?.conditions)
-const latestStateIndex = (records: any[]) => records.map((record) => Boolean(record.data?.state)).lastIndexOf(true)
-
-// TS20's slim action
-const slimAction = (action: any, inputFields = ['humanInputEnableFeedback']) => ({
-    ...pick(action, ['id', 'mapping', 'elements']),
-    data: { ...pick(action.data ?? {}, ['nodeId', 'nodeLabel']), input: pick(action.data?.input ?? {}, inputFields) }
-})
-
 // ---------- the contract fields (TS19: history, flow state, form values, child flow tokens) ----------
 
 const CONTRACT_MESSAGE_FIELDS = ['role', 'content', 'fileUploads', 'artifacts']
@@ -332,7 +307,7 @@ async function changedBoundaries(cases: Case[], filter: (b: Boundary) => boolean
     return changed
 }
 
-const report: Record<string, Record<string, string[] | string>> = { normal: {}, resume: {}, variants: {}, sizes: {} }
+const report: Record<string, Record<string, string[] | string>> = { normal: {}, resume: {}, sizes: {} }
 
 // ---------- normal turns ----------
 
@@ -440,35 +415,12 @@ describe('normal turns: each contract field is required', () => {
     })
 })
 
-// ---------- resumes: single-field removals from the original token ----------
+// ---------- resumes: the pending resume data of v2 tokens (Task 07) ----------
 
-// Every field the inventory marks drop or reads only on normal turns, removed at once
-function withoutDropFields(state: any) {
-    const kept = withHistory(state, (m) => pick(m, [...CONTRACT_MESSAGE_FIELDS, 'action']))
-    return withRecords(
-        withExecution(kept, (execution) => pick(execution, ['state', 'executionData'])),
-        (records) =>
-            records.map((record, i) => {
-                const output = record.data?.output ?? {}
-                const action = output.humanInputAction
-                return {
-                    nodeId: record.nodeId,
-                    status: record.status,
-                    data: {
-                        ...pick(record.data ?? {}, ['parentNodeId']),
-                        ...(i === latestStateIndex(records) ? { state: record.data.state } : {}),
-                        output: {
-                            ...pick(output, ['content', 'nodeID', 'maxLoopCount']),
-                            ...(isDecision(output)
-                                ? { conditions: output.conditions.map((c: any) => ({ isFulfilled: c?.isFulfilled })) }
-                                : {}),
-                            ...(action ? { humanInputAction: slimAction(action, ['messages', 'humanInputEnableFeedback']) } : {})
-                        }
-                    }
-                }
-            })
-    )
-}
+const withPending = (state: any, map: (pending: any) => any) => ({ ...state, pendingResume: map(state.pendingResume) })
+const eachEntry = (state: any, map: (entry: any) => any) => withPending(state, (pending) => ({ ...pending, nodes: pending.nodes.map(map) }))
+const eachAction = (state: any, map: (action: any) => any) =>
+    eachEntry(state, (entry) => (entry.action ? { ...entry, action: map(entry.action) } : entry))
 
 const removal = (name: string, build: (state: any) => any, expected: string[]): Removal => ({ name, build, expected })
 
@@ -484,78 +436,72 @@ const ALL_RESUMES = [
     ...at(P5, 't2 t3')
 ]
 
+// The other branch is still stopped at these resumes: its action is announced again and, as nothing else answers, its prompt saved
+const REANNOUNCED = [...at('S08', 't2'), ...at(P2, 't2'), ...at(P5, 't2')]
+
 const RESUME_REMOVALS: Removal[] = [
-    removal('fields marked drop, all at once', withoutDropFields, []),
-    // Without a pending action the resume saves a user message; S06b's history toggle removes it again
-    removal(
-        'history message action',
-        (s) =>
-            isV2Token(s)
-                ? { ...s, pendingResume: omit(s.pendingResume, ['actionMessageIndex']) }
-                : withHistory(s, (m) => omit(m, ['action'])),
-        ALL_RESUMES.filter((label) => !label.startsWith('S06b '))
-    ),
-    // A v2 token marks the pending action by its history index already
-    removal(
-        'history message action, replaced by a marker',
-        (s) => (isV2Token(s) ? null : withHistory(s, (m) => (m.action ? { ...m, action: 'pending' } : m))),
-        []
-    ),
-    removal('execution state', (s) => withExecution(s, (execution) => omit(execution, ['state'])), ALL_RESUMES),
-    removal('record nodeId', (s) => eachRecord(s, (record) => omit(record, ['nodeId'])), ALL_RESUMES),
-    removal('record status', (s) => eachRecord(s, (record) => omit(record, ['status'])), [
-        ...at('S06', 't2'),
+    removal('pending resume data', (s) => omit(s, ['pendingResume']), ALL_RESUMES),
+    removal('entry nodeId', (s) => eachEntry(s, (entry) => omit(entry, ['nodeId'])), ALL_RESUMES),
+    // Without statuses the replay settles no edges, and a resume finds neither the stopped Agent's checkpoint nor the answered button
+    removal('entry status', (s) => eachEntry(s, (entry) => omit(entry, ['status'])), [
+        ...at('S06', 't2 t3'),
         ...at('S06b', 't2'),
+        ...at('S07', 't3 t5'),
         ...at('S08', 't2 t3'),
         ...at(P1, 't2 t3'),
         ...at(P2, 't2 t3'),
-        ...at(P3, 't2'),
+        ...at(P3, 't2 t3'),
+        ...at(P4, 't3'),
         ...at(P5, 't2 t3')
     ]),
+    removal('Agent checkpoint', (s) => eachEntry(s, (entry) => omit(entry, ['checkpoint'])), [
+        ...at('S07', 't3 t5'),
+        ...at('S08', 't2'),
+        ...at(P2, 't2'),
+        ...at(P4, 't3'),
+        ...at(P5, 't3')
+    ]),
     removal(
-        'checkpoint messages (humanInputAction.data.input.messages)',
-        (s) =>
-            eachRecord(s, (record) =>
-                withAction(record, (a) => ({ ...a, data: { ...a.data, input: omit(a.data?.input ?? {}, ['messages']) } }))
-            ),
-        [...at('S07', 't3 t5'), ...at('S08', 't2'), ...at(P2, 't2'), ...at(P4, 't3'), ...at(P5, 't3')]
+        'action id, mapping, data.nodeId and data.nodeLabel',
+        (s) => eachAction(s, (action) => ({ ...omit(action, ['id', 'mapping']), data: omit(action.data, ['nodeId', 'nodeLabel']) })),
+        REANNOUNCED
     ),
+    // An answer without feedback is saved as the label of its button (TS15)
+    removal('action elements', (s) => eachAction(s, (action) => omit(action, ['elements'])), [
+        ...at('S06', 't3'),
+        ...at('S08', 't2'),
+        ...at(P2, 't2'),
+        ...at(P3, 't3'),
+        ...at(P5, 't2')
+    ]),
+    removal('stopped node prompt', (s) => eachEntry(s, (entry) => omit(entry, ['prompt'])), REANNOUNCED),
+    removal('referenced outputs', (s) => eachEntry(s, (entry) => omit(entry, ['output'])), at(P3, 't3 t5')),
+    removal('decision conditions', (s) => eachEntry(s, (entry) => omit(entry, ['conditions'])), at(P5, 't3')),
+    removal('loop target and max count', (s) => eachEntry(s, (entry) => omit(entry, ['loop'])), [
+        ...at('S06', 't3'),
+        ...at('S06b', 't3'),
+        ...at(P1, 't3'),
+        ...at(P3, 't3')
+    ]),
+    removal('flow state', (s) => (Object.keys(s.flowState).length ? { ...s, flowState: {} } : null), at(P3, 't2 t3 t5')),
     removal(
-        'humanInputAction id, mapping, elements, data.nodeId and data.nodeLabel',
-        (s) =>
-            eachRecord(s, (record) =>
-                withAction(record, (a) => ({
-                    ...omit(a, ['id', 'mapping', 'elements']),
-                    data: omit(a.data ?? {}, ['nodeId', 'nodeLabel'])
-                }))
-            ),
-        // The other branch is still stopped: its action is announced again from its record
-        [...at('S08', 't2'), ...at(P2, 't2'), ...at(P5, 't2')]
-    ),
-    removal(
-        'record data.output.content',
-        (s) => eachRecord(s, (record) => withOutput(record, (o) => omit(o, ['content']))),
-        at(P3, 't3 t5')
-    ),
-    removal('decision conditions', (s) => eachRecord(s, (record) => withOutput(record, (o) => omit(o, ['conditions']))), at(P5, 't3')),
-    removal(
-        'loop output nodeID and maxLoopCount',
-        (s) => eachRecord(s, (record) => withOutput(record, (o) => omit(o, ['nodeID', 'maxLoopCount']))),
-        [...at('S06', 't3'), ...at('S06b', 't3'), ...at(P1, 't3'), ...at(P3, 't3')]
-    ),
-    removal(
-        'data.state on every record',
-        (s) => eachRecord(s, (record) => ({ ...record, data: omit(record.data ?? {}, ['state']) })),
-        at(P3, 't2 t3 t5')
-    ),
-    removal(
-        'finished records (only the stopped ones kept)',
-        (s) => withRecords(s, (records) => records.filter((record) => record.status === 'STOPPED')),
+        'finished entries (only the stopped ones kept)',
+        (s) => withPending(s, (pending) => ({ ...pending, nodes: pending.nodes.filter((entry: any) => entry.status === 'STOPPED') })),
         [...at(P1, 't3'), ...at(P2, 't3'), ...at(P3, 't3 t5')]
     )
 ]
 
 describe('resumes: single-field removals', () => {
+    test('every resume runs on a v2 token with pending resume data', async () => {
+        for (const c of RESUME_CASES) {
+            const conversation = await caseConversation(c)
+            for (const boundary of boundariesOf(c, conversation).filter((b) => b.resume)) {
+                const state = tokenStateOf(conversation.turn(boundary.from))
+                expect([boundary.label, isV2Token(state), Array.isArray(state.pendingResume?.nodes)]).toEqual([boundary.label, true, true])
+            }
+        }
+    })
+
     test.each(RESUME_REMOVALS)('without the $name', async ({ name, build, expected }) => {
         const changed = await changedBoundaries(RESUME_CASES, (b) => b.resume, build)
         report.resume[name] = changed
@@ -563,248 +509,160 @@ describe('resumes: single-field removals', () => {
     })
 })
 
-// ---------- TS-O1: pending resume data ----------
+// ---------- resumes: class A as before Task 07 ----------
 
-type Variant = 'a' | 'b' | 'c'
+// The outcomes of every turn of RESUME_CASES before Task 07 (class A and the token history), captured at d0afdbed with
+// strings over 300 characters folded to their length and hash
+const BEFORE_TASK_07 = JSON.parse(fs.readFileSync(path.join(__dirname, 'resumeBoundaries.before.json'), 'utf8')).cases
 
-interface PendingNode {
-    nodeId: string
-    status: string
-    conditions?: boolean[]
-    loop?: { nodeID: any; maxLoopCount: any }
-    output?: Record<string, any>
-    action?: Record<string, any>
-    historyLength?: number
-    toolCalls?: Array<{ id: string; name: string; args: any }>
-    toolCallMessage?: Record<string, any>
-    checkpoint?: any[]
+const fold = (value: any): any => {
+    if (typeof value === 'string')
+        return value.length > 300 ? `<${value.length} chars sha256:${crypto.createHash('sha256').update(value).digest('hex')}>` : value
+    if (Array.isArray(value)) return value.map(fold)
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fold(v)]))
+    return value
 }
 
-interface PausedToken extends ContractFields {
-    pending: { nodes: PendingNode[] }
-}
+// Answers saved as user messages, and a blank stop saved as the waiting prompt, reach the models of later turns (F05, D9)
+const LATER_MODEL_INPUT = [
+    ...at('S06', 't3 t4 t5'),
+    ...at('S06b', 't3 t4'),
+    ...at('S07', 't4 t5 t6'),
+    ...at('S08', 't3 t4'),
+    ...at(P2, 't3'),
+    ...at(P3, 't3 t4 t5'),
+    ...at(P5, 't3')
+]
 
-const flowNodesOf = (conversation: Conversation): any[] => JSON.parse(conversation.chatflows[conversation.scenario.flow].flowData).nodes
-
-// Node ids that another node's inputs reference as {{nodeId}} or {{nodeId.output.<path>}}
-function referencedNodeIds(nodes: any[]): Set<string> {
-    const text = JSON.stringify(nodes.map((node) => node.data?.inputs ?? {}))
-    return new Set(
-        nodes.map((node) => node.id).filter((id) => new RegExp(`\\{\\{\\s*${id.replace(/[^A-Za-z0-9]/g, '\\$&')}[\\s.}]`).test(text))
-    )
-}
-
-// The turn in which the stopped record was written; its incoming history is the history the stopped Agent saw
-function historyLengthAtStop(conversation: Conversation, record: any): number {
-    const actionId = record.data.output.humanInputAction.id
-    const stopTurn = conversation.turns.find((turn) =>
-        (turn.executedData ?? []).some(
-            (r: any) => r.nodeId === record.nodeId && r.status === 'STOPPED' && r.data?.output?.humanInputAction?.id === actionId
-        )
-    )
-    if (!stopTurn) throw new Error(`No turn stopped ${record.nodeId} with action ${actionId}`)
-    return stopTurn.tokenSent ? tokenHistory(decodeToken(stopTurn.tokenSent).state).length : 0
-}
-
-function pausedTokenOf(conversation: Conversation, turn: TurnResult, variant: Variant): PausedToken {
-    const state = tokenStateOf(turn)
-    const nodes = flowNodesOf(conversation)
-    const nameOf = (nodeId: string) => nodes.find((node) => node.id === nodeId)?.data?.name
-    const referenced = referencedNodeIds(nodes)
-    const pendingNodes = tokenRecords(state)
-        .filter((record) => !record.data?.parentNodeId)
-        .map((record): PendingNode => {
-            const output = record.data?.output ?? {}
-            const entry: PendingNode = { nodeId: record.nodeId, status: record.status }
-            if (record.status !== 'STOPPED') {
-                if (isDecision(output)) entry.conditions = output.conditions.map((c: any) => c?.isFulfilled === true)
-                if (output.nodeID !== undefined) entry.loop = { nodeID: output.nodeID, maxLoopCount: output.maxLoopCount }
-                if (referenced.has(record.nodeId)) entry.output = omit(output, ['humanInputAction'])
-                return entry
-            }
-            const action = output.humanInputAction
-            const messages: any[] = action.data?.input?.messages ?? []
-            entry.action = slimAction(action)
-            if (variant === 'c') {
-                entry.checkpoint = messages
-            } else if (nameOf(record.nodeId) === 'agentAgentflow') {
-                const toolCallMessage = messages[messages.length - 1]
-                entry.historyLength = historyLengthAtStop(conversation, record)
-                if (variant === 'a') entry.toolCalls = toolCallMessage.tool_calls.map((tc: any) => pick(tc, ['id', 'name', 'args']))
-                else entry.toolCallMessage = toolCallMessage
-            }
-            return entry
-        })
-    return { ...contractFieldsOf(state), pending: { nodes: pendingNodes } }
-}
-
-const toModelMessage = (message: any) => ({ role: message.role === 'userMessage' ? 'user' : 'assistant', content: message.content })
-
-/*
- * What a server keeping no prompt would do on resume: resolve the Agent's messages again as they were at the stop, from
- * the flow, the history before the stopped turn and that turn's question. Covers the scenarios' Agent settings only.
- */
-async function rebuildAgentCheckpoint(node: any, paused: PausedToken, entry: PendingNode, records: any[]) {
-    const past = paused.history.slice(0, entry.historyLength).map(toModelMessage)
-    const question = paused.history[entry.historyLength as number]?.content
-    const flowConfig = { state: cloneDeep(paused.flowState ?? {}), chatHistory: past, runtimeChatHistoryLength: 0 }
-    const resolved = await resolveVariables(
-        cloneDeep(node.data),
-        question,
-        paused.form ?? {},
-        flowConfig as any,
-        [],
-        [],
-        '',
-        past as any,
-        loadHarnessComponentNodes(),
-        records
-    )
-    const inputs: any = resolved.inputs ?? {}
-    if (!inputs.agentEnableMemory || inputs.agentMemoryType !== 'allMessages' || inputs.agentUserMessage) {
-        throw new Error(`rebuildAgentCheckpoint covers Agents with all-messages memory and no user message (${node.id})`)
-    }
-    const messages: any[] = []
-    for (const message of inputs.agentMessages ?? []) {
-        if (!message.role || !message.content) continue
-        if (message.role === 'system') messages.unshift({ role: message.role, content: message.content })
-        else messages.push({ role: message.role, content: message.content })
-    }
-    messages.push(...past, { role: 'user', content: question })
-    const toolCallMessage = entry.toolCallMessage ?? {
-        role: 'assistant',
-        content: '',
-        tool_calls: (entry.toolCalls ?? []).map((tc) => ({ ...tc, type: 'tool_call' }))
-    }
-    return [...messages, toolCallMessage]
-}
-
-// Today's code reads the pending data from records, and the presence of a pending action from the last history message
-async function rehydrate(paused: PausedToken, nodes: any[]) {
-    const nodeById = new Map(nodes.map((node) => [node.id, node]))
-    const records: any[] = []
-    for (const entry of paused.pending.nodes) {
-        const output: Record<string, any> = { ...(entry.output ?? {}) }
-        if (entry.conditions) output.conditions = entry.conditions.map((isFulfilled) => ({ isFulfilled }))
-        if (entry.loop) Object.assign(output, entry.loop)
-        if (entry.action) {
-            const messages =
-                entry.checkpoint ??
-                (entry.toolCalls || entry.toolCallMessage
-                    ? await rebuildAgentCheckpoint(nodeById.get(entry.nodeId), paused, entry, records)
-                    : [])
-            output.humanInputAction = { ...entry.action, data: { ...entry.action.data, input: { ...entry.action.data.input, messages } } }
+describe('resumes: class A as before Task 07', () => {
+    test.each(RESUME_CASES.map((c) => [c.name, c]))('%s', async (_, c) => {
+        const conversation = await caseConversation(c)
+        const before = BEFORE_TASK_07[c.name]
+        expect(conversation.turns.map((turn) => turn.id)).toEqual(Object.keys(before))
+        for (const turn of conversation.turns) {
+            const { next, action, ...classA } = fold(normalizeValue(outcome(turn)))
+            const { history, resume, ...beforeClassA } = before[turn.id]
+            const label = `${c.name} ${turn.id}`
+            const aspects = LATER_MODEL_INPUT.includes(label) ? ['requests'] : []
+            const actual = { ...classA, action: action && omit(action, ['id']) }
+            expect({ label, resume, ...omit(actual, aspects) }).toEqual({
+                label,
+                resume: Boolean(turn.request.humanInput),
+                ...omit(beforeClassA, aspects)
+            })
+            if (aspects.length)
+                expect({ label, differs: !isEqual(actual.requests, beforeClassA.requests) }).toEqual({ label, differs: true })
+            // The history differs as F05-F07 intend: it alternates, starting with a user message, with no blank message
+            const alternates = next.history.every(
+                ([role, content]: [string, string], i: number) => role === (i % 2 ? 'apiMessage' : 'userMessage') && content.trim() !== ''
+            )
+            expect({ label, alternates, history: history.length > 0 }).toEqual({ label, alternates: true, history: true })
         }
-        records.push({ nodeId: entry.nodeId, status: entry.status, data: { name: nodeById.get(entry.nodeId)?.data?.name, output } })
+    })
+})
+
+// ---------- pending resume data (TS26, Task 07) ----------
+
+const PENDING_KEYS = ['nodes', 'executionId', 'stopMessageId']
+const ENTRY_KEYS = ['nodeId', 'status', 'conditions', 'loop', 'output', 'action', 'prompt', 'checkpoint', 'legacyMessages']
+const ACTION_KEYS = ['id', 'mapping', 'elements', 'data']
+
+// The prompt the stopped Agent sent, as its STOPPED record of the stop turn holds it
+function storedPrompt(conversation: Conversation, actionId: string): any[] {
+    for (const turn of conversation.turns) {
+        const record = (turn.executedData ?? []).find(
+            (r: any) => r.status === 'STOPPED' && r.data?.output?.humanInputAction?.id === actionId && r.data?.input?.messages
+        )
+        if (record) return record.data.input.messages
     }
-    records[records.length - 1].data.state = paused.flowState ?? {}
-    const last = paused.history.length - 1
-    return {
-        pastChatHistory: paused.history.map((message, i) => (i === last ? { ...message, action: 'pending' } : message)),
-        previousExecution: { state: 'STOPPED', executionData: JSON.stringify(records) }
-    }
+    throw new Error(`No turn stopped with action ${actionId}`)
 }
 
 interface PausedSizes {
     today?: number
-    contract: number
-    a: number
-    b: number
-    c: number
-    promptsInC: number
+    v2: number
 }
 
-// Base64 characters of the paused token: today's (v1, as captured in traces/before/), the contract fields alone, and the contract
-// fields with each variant's pending data
+// Base64 characters of the paused token: today's (v1, as captured in traces/before/) and the v2 token with its pending data
 const EXPECTED_PAUSED_SIZES: Record<string, PausedSizes> = {
-    'S06 t1': { today: 15268, contract: 344, a: 680, b: 680, c: 724, promptsInC: 0 },
-    'S06 t2': { today: 27716, contract: 420, a: 808, b: 808, c: 908, promptsInC: 0 },
-    'S06 t4': { today: 16036, contract: 544, a: 872, b: 872, c: 964, promptsInC: 0 },
-    'S07 t2': { today: 39676, contract: 428, a: 752, b: 856, c: 13852, promptsInC: 1 },
-    'S07 t4': { today: 40368, contract: 500, a: 828, b: 932, c: 14124, promptsInC: 1 },
-    'S08 t1': { today: 38656, contract: 408, a: 868, b: 972, c: 13668, promptsInC: 1 },
-    'S08 t2': { today: 15412, contract: 416, a: 728, b: 728, c: 744, promptsInC: 0 },
-    'S08 t4': { today: 15884, contract: 524, a: 836, b: 836, c: 900, promptsInC: 0 }
+    'S06 t1': { today: 15336, v2: 740 },
+    'S06 t2': { today: 27816, v2: 892 },
+    'S06 t4': { today: 16108, v2: 960 },
+    'S06b t1': { today: 15192, v2: 684 },
+    'S06b t2': { today: 27380, v2: 776 },
+    'S06b t4': { today: 15768, v2: 824 },
+    'S07 t2': { today: 39844, v2: 956 },
+    'S07 t4': { today: 40516, v2: 1032 },
+    'S08 t1': { today: 38812, v2: 1068 },
+    'S08 t2': { today: 15496, v2: 796 },
+    'S08 t4': { today: 15964, v2: 912 }
 }
 
-const VARIANTS: Array<[Variant, string]> = [
-    ['a', 'stopped nodes, pending tool calls and stop-time state; prompt and history rebuilt'],
-    ['b', '(a) plus the assistant message holding the tool calls'],
-    ['c', 'the full checkpoint stored once']
-]
+describe('pending resume data (TS26)', () => {
+    test('a paused token holds the skeleton, slim actions, prompts and Agent checkpoints only, and no system prompt', async () => {
+        const problems: string[] = []
+        for (const c of RESUME_CASES) {
+            const conversation = await caseConversation(c)
+            for (const turn of conversation.turns.filter((t) => t.status === 'STOPPED')) {
+                const label = `${c.name} ${turn.id}`
+                const pending = tokenStateOf(turn).pendingResume
+                const extra = (value: any, allowed: string[]) => Object.keys(value ?? {}).filter((key) => !allowed.includes(key))
+                if (extra(pending, PENDING_KEYS).length) problems.push(`${label}: pending ${extra(pending, PENDING_KEYS)}`)
+                for (const entry of pending.nodes) {
+                    if (extra(entry, ENTRY_KEYS).length) problems.push(`${label} ${entry.nodeId}: ${extra(entry, ENTRY_KEYS)}`)
+                    if (extra(entry.action, ACTION_KEYS).length)
+                        problems.push(`${label} ${entry.nodeId} action: ${extra(entry.action, ACTION_KEYS)}`)
+                    if (entry.action && extra(entry.action.data.input, ['humanInputEnableFeedback']).length)
+                        problems.push(
+                            `${label} ${entry.nodeId} action input: ${extra(entry.action.data.input, ['humanInputEnableFeedback'])}`
+                        )
+                }
+                if (countSentinels(tokenStateOf(turn)).total) problems.push(`${label}: prompt sentinels`)
+            }
+        }
+        expect(problems).toEqual([])
+    })
 
-describe('TS-O1: pending resume data', () => {
-    test('the rebuilt Agent checkpoint equals the stored one at every Agent stop', async () => {
+    test('an Agent resume rebuilt from its checkpoint sends what replaying its stored prompt sends (D5, D4)', async () => {
         const checked: string[] = []
         for (const c of RESUME_CASES) {
             const conversation = await caseConversation(c)
-            const nodes = flowNodesOf(conversation)
-            for (const turn of conversation.turns.filter((t) => t.status === 'STOPPED')) {
-                const paused = pausedTokenOf(conversation, turn, 'b')
-                const stored = tokenRecords(tokenStateOf(turn)).filter((r) => r.status === 'STOPPED')
-                const rehydrated = tokenRecords(await rehydrate(paused, nodes)).filter((r) => r.status === 'STOPPED')
-                for (const record of stored.filter((r) => nodes.find((n) => n.id === r.nodeId)?.data?.name === 'agentAgentflow')) {
-                    const messagesOf = (r: any) =>
-                        r.data.output.humanInputAction.data.input.messages.map((m: any) => pick(m, ['role', 'content', 'tool_calls']))
-                    expect(messagesOf(rehydrated.find((r) => r.nodeId === record.nodeId))).toEqual(messagesOf(record))
-                    checked.push(`${c.name} ${turn.id}`)
-                }
-            }
-        }
-        expect(checked).toEqual([...at('S07', 't2 t4'), ...at('S08', 't1'), ...at(P2, 't1'), ...at(P4, 't2'), ...at(P5, 't1 t2')])
-    })
-
-    test.each(VARIANTS)('variant (%s) %s', async (variant) => {
-        const differences: string[] = []
-        for (const c of RESUME_CASES) {
-            const conversation = await caseConversation(c)
-            const nodes = flowNodesOf(conversation)
             for (const boundary of boundariesOf(c, conversation).filter((b) => b.resume)) {
-                const paused = pausedTokenOf(conversation, conversation.turn(boundary.from), variant)
-                const actual = await runWithToken(conversation, boundary, await rehydrate(paused, nodes))
-                if (!isEqual(actual, await baselineOf(conversation, boundary))) differences.push(boundary.label)
+                const state = tokenStateOf(conversation.turn(boundary.from))
+                const resumed = state.pendingResume.nodes.find(
+                    (entry: any) => entry.nodeId === conversation.turn(boundary.to).request.humanInput.startNodeId && entry.checkpoint
+                )
+                if (!resumed) continue
+                const replayed = eachEntry(state, (entry) =>
+                    entry.checkpoint
+                        ? { ...omit(entry, ['checkpoint']), legacyMessages: storedPrompt(conversation, entry.action.id) }
+                        : entry
+                )
+                expect({ boundary: boundary.label, ...(await runWithToken(conversation, boundary, replayed)) }).toEqual({
+                    boundary: boundary.label,
+                    ...(await baselineOf(conversation, boundary))
+                })
+                checked.push(boundary.label)
             }
         }
-        report.variants[variant] = differences
-        expect(differences).toEqual([])
+        expect(checked).toEqual([...at('S07', 't3 t5'), ...at('S08', 't2'), ...at(P2, 't2'), ...at(P4, 't3'), ...at(P5, 't3')])
     })
 
-    test('paused token sizes, and system prompts only in (c)', async () => {
-        const measured: Record<string, PausedSizes> = {}
-        for (const c of RESUME_CASES) {
+    test('paused token sizes', async () => {
+        for (const c of RESUME_CASES.filter((c) => SCENARIOS.includes(c.name))) {
             const conversation = await caseConversation(c)
-            const before = SCENARIOS.includes(c.name) ? loadBeforeTrace('M1', loadHarnessScenario(c.name).slug) : undefined
+            const before = loadBeforeTrace('M1', loadHarnessScenario(c.name).slug)
             for (const turn of conversation.turns.filter((t) => t.status === 'STOPPED')) {
-                const paused = (variant: Variant) => pausedTokenOf(conversation, turn, variant)
-                const today = before?.turns.find((t) => t.id === turn.id)?.token?.base64Length
+                const label = `${c.name} ${turn.id}`
                 const sizes: PausedSizes = {
-                    ...(today !== undefined ? { today } : {}),
-                    contract: encodeToken(omit(paused('a'), ['pending'])).length,
-                    a: encodeToken(paused('a')).length,
-                    b: encodeToken(paused('b')).length,
-                    c: encodeToken(paused('c')).length,
-                    promptsInC: countSentinels(paused('c')).total
+                    today: before.turns.find((t) => t.id === turn.id)?.token?.base64Length,
+                    v2: (tokenOf(turn) as string).length
                 }
-                expect({
-                    turn: `${c.name} ${turn.id}`,
-                    a: countSentinels(paused('a')).total,
-                    b: countSentinels(paused('b')).total
-                }).toEqual({
-                    turn: `${c.name} ${turn.id}`,
-                    a: 0,
-                    b: 0
-                })
-                measured[`${c.name} ${turn.id}`] = sizes
-                report.sizes[`${c.name} ${turn.id}`] = JSON.stringify(sizes)
-            }
-        }
-        for (const [turn, expected] of Object.entries(EXPECTED_PAUSED_SIZES)) {
-            const { promptsInC, ...sizes } = measured[turn]
-            expect({ turn, promptsInC }).toEqual({ turn, promptsInC: expected.promptsInC })
-            for (const [key, value] of Object.entries(sizes)) {
-                const pinned = expected[key as keyof PausedSizes] as number
-                if (Math.abs(value - pinned) / pinned >= 0.03)
-                    throw new Error(`${turn} ${key}: ${value} base64 characters, pinned ${pinned}`)
+                report.sizes[label] = JSON.stringify(sizes)
+                const pinned = EXPECTED_PAUSED_SIZES[label]
+                expect([label, sizes.today]).toEqual([label, pinned.today])
+                if (Math.abs(sizes.v2 - pinned.v2) / pinned.v2 >= 0.03)
+                    throw new Error(`${label}: ${sizes.v2} base64 characters, pinned ${pinned.v2}`)
             }
         }
     })

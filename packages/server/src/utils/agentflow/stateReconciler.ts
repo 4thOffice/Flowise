@@ -25,16 +25,10 @@ export interface IReconcileRuntimeCommitParams {
     startStateSnapshot: ICommonObject
     startChatHistoryLength?: number
     nodeResult: any
-    pastChatHistory: IMessage[]
-    tokenHistory?: unknown[]
-    incomingInput: { question?: string }
-    question?: string
 }
 
 export interface IReconcileRuntimeCommitResult {
     delta: IStateDelta
-    question?: string
-    hadDoNotIncludeFeedbackHistory: boolean
 }
 
 function isPlainStateObject(value: unknown): value is ICommonObject {
@@ -153,21 +147,14 @@ export function commitExecutedDataDelta(
 }
 
 /**
- * Synchronously reconciles a completed node's runtime outputs (`state` delta, `chatHistory` and
- * `doNotIncludeFeedbackHistory`) onto live execution state.
+ * Synchronously reconciles a completed node's runtime outputs (`state` delta and `chatHistory`) onto live execution state.
  */
 export function reconcileRuntimeCommit({
     agentflowRuntime,
     startStateSnapshot,
     startChatHistoryLength,
-    nodeResult,
-    pastChatHistory,
-    tokenHistory,
-    incomingInput,
-    question
+    nodeResult
 }: IReconcileRuntimeCommitParams): IReconcileRuntimeCommitResult {
-    let updatedQuestion = question
-
     if (nodeResult && nodeResult.chatHistory) {
         const liveChatHistory = agentflowRuntime.chatHistory ?? []
         const nodeChatHistory: IMessage[] = [...nodeResult.chatHistory]
@@ -175,33 +162,10 @@ export function reconcileRuntimeCommit({
         agentflowRuntime.chatHistory = [...liveChatHistory, ...cloneDeep(nodeChatHistory.slice(duplicatedInputCount))]
     }
 
-    let hadDoNotIncludeFeedbackHistory = false
-    if (nodeResult && isPlainStateObject(nodeResult.state) && nodeResult.state.doNotIncludeFeedbackHistory) {
-        hadDoNotIncludeFeedbackHistory = true
-        pastChatHistory.length = Math.max(0, pastChatHistory.length - 1)
-        if (tokenHistory) {
-            tokenHistory.length = Math.max(0, tokenHistory.length - 1)
-        }
-        if (pastChatHistory.length) {
-            updatedQuestion = pastChatHistory[pastChatHistory.length - 1].message || pastChatHistory[pastChatHistory.length - 1].content
-            incomingInput.question = updatedQuestion
-            pastChatHistory.length = pastChatHistory.length - 1 // run original input
-        }
-        delete nodeResult.state.doNotIncludeFeedbackHistory
-    }
-
     const delta = computeStateDelta(startStateSnapshot, nodeResult?.state)
     if (nodeResult && isPlainStateObject(nodeResult.state)) {
-        const nextState = applyStateDelta(agentflowRuntime.state ?? {}, delta)
-        if (hadDoNotIncludeFeedbackHistory) {
-            delete nextState.doNotIncludeFeedbackHistory
-        }
-        agentflowRuntime.state = nextState
+        agentflowRuntime.state = applyStateDelta(agentflowRuntime.state ?? {}, delta)
     }
 
-    return {
-        delta,
-        question: updatedQuestion,
-        hadDoNotIncludeFeedbackHistory
-    }
+    return { delta }
 }

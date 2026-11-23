@@ -333,10 +333,11 @@ export function tokenHistory(state: any): any[] {
     return (isV2Token(state) ? state.history : state.pastChatHistory) ?? []
 }
 
-// v2 tokens carry node records only in the interim pending data of a stopped run
+// v1 tokens carry the run's records; v2 tokens carry a skeleton entry per top-level record of a stopped run
 export function tokenRecords(state: any): any[] {
     assertKnownToken(state)
-    const raw = isV2Token(state) ? state.pendingResume?.legacyExecution?.executionData : state.previousExecution?.executionData
+    if (isV2Token(state)) return state.pendingResume?.nodes ?? []
+    const raw = state.previousExecution?.executionData
     return raw ? JSON.parse(raw) : []
 }
 

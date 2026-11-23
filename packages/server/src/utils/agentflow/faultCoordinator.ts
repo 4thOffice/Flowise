@@ -220,6 +220,19 @@ export function findResumedHumanInputAction(
     return undefined
 }
 
+/**
+ * The Agent checkpoint of the resumed node's latest top-level `STOPPED` record, from which the Agent rebuilds the prompt it stopped with.
+ */
+export function findResumeCheckpoint(executedData: IAgentflowExecutedData[], targetNodeId: string): Record<string, any> | undefined {
+    for (let i = executedData.length - 1; i >= 0; i -= 1) {
+        const entry = executedData[i]
+        if (entry.data?.parentNodeId || entry.nodeId !== targetNodeId || entry.status !== 'STOPPED') continue
+        const checkpoint = (entry.data?.output as Record<string, any> | undefined)?.resumeCheckpoint
+        if (isNonEmptyPlainObject(checkpoint)) return checkpoint
+    }
+    return undefined
+}
+
 function collectOrderedStoppedRecords(
     executedData: IAgentflowExecutedData[],
     nodes: IReactFlowNode[],

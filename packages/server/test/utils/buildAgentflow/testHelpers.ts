@@ -264,6 +264,16 @@ export function createMockDataSource(seedVariables: Array<Record<string, any>> =
             if (idx >= 0) chatMessages.splice(idx, 1)
             return obj
         },
+        update: async (where: { id: string }, partial: Record<string, any>) => {
+            const idx = chatMessages.findIndex((m) => m.id === where.id)
+            if (idx >= 0) chatMessages[idx] = { ...chatMessages[idx], ...partial }
+            return { affected: idx >= 0 ? 1 : 0 }
+        },
+        delete: async (where: { id: string }) => {
+            const idx = chatMessages.findIndex((m) => m.id === where.id)
+            if (idx >= 0) chatMessages.splice(idx, 1)
+            return { affected: idx >= 0 ? 1 : 0 }
+        },
         find: async ({ where, order }: { where: Record<string, any>; order?: Record<string, 'ASC' | 'DESC'> }) => {
             let matched = chatMessages.filter((row) =>
                 Object.entries(where || {}).every(([k, v]) => unwrapFindValue(v) === undefined || row[k] === unwrapFindValue(v))

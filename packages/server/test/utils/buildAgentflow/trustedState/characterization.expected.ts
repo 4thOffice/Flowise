@@ -345,7 +345,6 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
                     { label: 'Approve', type: 'agentflowv2-approve-button' },
                     { label: 'Request changes', type: 'agentflowv2-reject-button' }
                 ],
-                extra: '',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -367,13 +366,12 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06-drafter': ['drafter-t2'] },
-            history: 'uaa',
+            history: 'uaua',
             action: {
                 elements: [
                     { label: 'Approve', type: 'agentflowv2-approve-button' },
                     { label: 'Request changes', type: 'agentflowv2-reject-button' }
                 ],
-                extra: '',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -395,7 +393,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06-finalizer': ['finalizer-t3'] },
-            history: 'uaaa'
+            history: 'uauaua'
         },
         t4: {
             status: 'STOPPED',
@@ -408,13 +406,12 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06-drafter': ['drafter-t4'] },
-            history: 'uaaaua',
+            history: 'uauauaua',
             action: {
                 elements: [
                     { label: 'Approve', type: 'agentflowv2-approve-button' },
                     { label: 'Request changes', type: 'agentflowv2-reject-button' }
                 ],
-                extra: '',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -434,7 +431,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06-finalizer': ['finalizer-t5'] },
-            history: 'uaaauaa'
+            history: 'uauauauaua'
         }
     },
     S06b: {
@@ -449,13 +446,12 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06b-drafter': ['drafter-t1'] },
-            history: 'ua',
+            history: 'u',
             action: {
                 elements: [
                     { label: 'Approve', type: 'agentflowv2-approve-button' },
                     { label: 'Request changes', type: 'agentflowv2-reject-button' }
                 ],
-                extra: 'doNotIncludeFeedbackHistory',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -477,13 +473,12 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06b-drafter': ['drafter-t2'] },
-            history: 'uua',
+            history: 'u',
             action: {
                 elements: [
                     { label: 'Approve', type: 'agentflowv2-approve-button' },
                     { label: 'Request changes', type: 'agentflowv2-reject-button' }
                 ],
-                extra: 'doNotIncludeFeedbackHistory',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -505,7 +500,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06b-finalizer': ['finalizer-t3'] },
-            history: 'uuua'
+            history: 'ua'
         },
         t4: {
             status: 'STOPPED',
@@ -518,13 +513,12 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             ],
             state: {},
             calls: { 'S06b-drafter': ['drafter-t4'] },
-            history: 'uuuaua',
+            history: 'uau',
             action: {
                 elements: [
                     { label: 'Approve', type: 'agentflowv2-approve-button' },
                     { label: 'Request changes', type: 'agentflowv2-reject-button' }
                 ],
-                extra: 'doNotIncludeFeedbackHistory',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -566,7 +560,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S07-agent': ['t3-answer'] },
-            history: 'uauaa'
+            history: 'uauaua'
         },
         t4: {
             status: 'STOPPED',
@@ -574,7 +568,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:STOPPED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S07-agent': ['t4-tool'] },
-            history: 'uauaaua',
+            history: 'uauauaua',
             action: {
                 elements: [
                     { label: 'Proceed', type: 'agentflowv2-approve-button' },
@@ -592,7 +586,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S07-agent': ['t5-answer'] },
-            history: 'uauaauaa'
+            history: 'uauauauaua'
         },
         t6: {
             status: 'FINISHED',
@@ -600,7 +594,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S07-agent': ['t6'] },
-            history: 'uauaauaaua'
+            history: 'uauauauauaua'
         }
     },
     S08: {
@@ -628,13 +622,12 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'humanInputAgentflow_0:STOPPED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S08-policy': ['policy-after-tool'] },
-            history: 'uaa',
+            history: 'uaua',
             action: {
                 elements: [
                     { label: 'Approve refund', type: 'agentflowv2-approve-button' },
                     { label: 'Deny refund', type: 'agentflowv2-reject-button' }
                 ],
-                extra: '',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -648,7 +641,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'humanInputAgentflow_0:FINISHED', 'llmAgentflow_0:FINISHED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S08-summary': ['summary'] },
-            history: 'uaaa'
+            history: 'uauaua'
         },
         t4: {
             status: 'STOPPED',
@@ -656,13 +649,12 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'humanInputAgentflow_0:STOPPED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S08-policy': ['policy-t4'] },
-            history: 'uaaaua',
+            history: 'uauauaua',
             action: {
                 elements: [
                     { label: 'Approve refund', type: 'agentflowv2-approve-button' },
                     { label: 'Deny refund', type: 'agentflowv2-reject-button' }
                 ],
-                extra: '',
                 humanInputEnableFeedback: true,
                 id: '<uuid>',
                 mapping: { approve: 'Proceed', reject: 'Reject' },
@@ -934,7 +926,7 @@ export interface TokenContents {
 }
 
 // Token contents (raw decoded JSON bytes, prompt sentinels, node records, history messages carrying an action): v2 tokens
-// since Task 05. A stopped turn still carries the stopped run's records as interim pending data until Task 07.
+// since Task 05. A stopped turn carries the pending resume data of Task 07, with one skeleton entry per record.
 export const EXPECTED_TOKEN_CONTENTS: Record<string, Record<string, TokenContents | null>> = {
     S01: {
         t1: { bytes: 311, sentinels: 0, records: 0, historyWithAction: 0 },
@@ -981,31 +973,31 @@ export const EXPECTED_TOKEN_CONTENTS: Record<string, Record<string, TokenContent
         t4: { bytes: 764, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S06: {
-        t1: { bytes: 47028, sentinels: 1, records: 4, historyWithAction: 0 },
-        t2: { bytes: 93753, sentinels: 2, records: 7, historyWithAction: 0 },
-        t3: { bytes: 742, sentinels: 0, records: 0, historyWithAction: 0 },
-        t4: { bytes: 49506, sentinels: 1, records: 4, historyWithAction: 0 },
-        t5: { bytes: 1138, sentinels: 0, records: 0, historyWithAction: 0 }
+        t1: { bytes: 1116, sentinels: 0, records: 4, historyWithAction: 0 },
+        t2: { bytes: 1614, sentinels: 0, records: 7, historyWithAction: 0 },
+        t3: { bytes: 866, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 1847, sentinels: 0, records: 4, historyWithAction: 0 },
+        t5: { bytes: 1316, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S06b: {
-        t1: { bytes: 46170, sentinels: 1, records: 4, historyWithAction: 0 },
-        t2: { bytes: 91126, sentinels: 2, records: 7, historyWithAction: 0 },
-        t3: { bytes: 554, sentinels: 0, records: 0, historyWithAction: 0 },
-        t4: { bytes: 47862, sentinels: 1, records: 4, historyWithAction: 0 }
+        t1: { bytes: 900, sentinels: 0, records: 4, historyWithAction: 0 },
+        t2: { bytes: 1145, sentinels: 0, records: 7, historyWithAction: 0 },
+        t3: { bytes: 354, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 1139, sentinels: 0, records: 4, historyWithAction: 0 }
     },
     S07: {
         t1: { bytes: 227, sentinels: 0, records: 0, historyWithAction: 0 },
-        t2: { bytes: 90203, sentinels: 2, records: 2, historyWithAction: 0 },
-        t3: { bytes: 600, sentinels: 0, records: 0, historyWithAction: 0 },
-        t4: { bytes: 91362, sentinels: 2, records: 2, historyWithAction: 0 },
-        t5: { bytes: 1008, sentinels: 0, records: 0, historyWithAction: 0 },
-        t6: { bytes: 1142, sentinels: 0, records: 0, historyWithAction: 0 }
+        t2: { bytes: 1588, sentinels: 0, records: 2, historyWithAction: 0 },
+        t3: { bytes: 643, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 1971, sentinels: 0, records: 2, historyWithAction: 0 },
+        t5: { bytes: 1138, sentinels: 0, records: 0, historyWithAction: 0 },
+        t6: { bytes: 1272, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S08: {
-        t1: { bytes: 90682, sentinels: 2, records: 3, historyWithAction: 0 },
-        t2: { bytes: 47052, sentinels: 1, records: 3, historyWithAction: 0 },
-        t3: { bytes: 597, sentinels: 0, records: 0, historyWithAction: 0 },
-        t4: { bytes: 48544, sentinels: 1, records: 3, historyWithAction: 0 }
+        t1: { bytes: 1967, sentinels: 0, records: 3, historyWithAction: 0 },
+        t2: { bytes: 1176, sentinels: 0, records: 3, historyWithAction: 0 },
+        t3: { bytes: 754, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 1646, sentinels: 0, records: 3, historyWithAction: 0 }
     },
     S09: {
         t1: { bytes: 298, sentinels: 0, records: 0, historyWithAction: 0 },

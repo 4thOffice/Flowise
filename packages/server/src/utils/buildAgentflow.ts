@@ -44,6 +44,7 @@ import { replaceInputsWithConfig, constructGraphs, getAPIOverrideConfig } from '
 import logger from './logger'
 import { getErrorMessage } from '../errors/utils'
 import { Compression, Execution } from '../database/entities/Execution'
+import { ChatMessage } from '../database/entities/ChatMessage'
 import { utilAddChatMessage } from './addChatMesage'
 import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
 import { generateTTSForResponseStream, shouldAutoPlayTTS } from './buildChatflow'
@@ -61,6 +62,7 @@ import {
     createExecutionAbortScope,
     createFaultRecorder,
     createSerializedTaskQueue,
+    findResumeCheckpoint,
     findResumedHumanInputAction,
     selectPrimaryStoppedAction,
     selectPrimaryStoppedNode
@@ -80,13 +82,15 @@ import {
     resolveTerminalContent
 } from './agentflow/terminalCoordinator'
 import {
+    PendingNode,
     PendingResume,
     TrustedHistoryMessage,
-    TrustedStateV2,
+    buildPendingResume,
     buildTrustedState,
-    isResumableExecution,
+    findOutputReferences,
     logTurnTokens,
     readTurnInput,
+    rehydratePendingResume,
     toNodeMessage,
     writeToken
 } from './agentflow/trustedState'
@@ -209,6 +213,18 @@ const updateExecution = async (
     appDataSource.getRepository(Execution).merge(execution, updateExecution)
     await appDataSource.getRepository(Execution).save(execution)
     return true
+}
+
+// The records of the paused run's row, which the resume continues; they are written back and never reach the conversation (D10)
+const readRecordedRun = async (
+    appDataSource: DataSource,
+    executionId: string,
+    workspaceId: string
+): Promise<IAgentflowExecutedData[] | undefined> => {
+    const execution = await appDataSource.getRepository(Execution).findOneBy({ id: executionId, workspaceId })
+    if (!execution) return undefined
+    const json = execution.executionDataBlob ? await Compression.decompress(execution.executionDataBlob) : execution.executionData
+    return JSON.parse(json || '[]')
 }
 
 export const resolveVariables = async (
@@ -645,7 +661,7 @@ const executeNode = async ({
     nodeInstanceFactory,
     maxNodeConcurrency,
     enqueueDbUpdate,
-    getExecutedData,
+    getRecordedData,
     getAvailableVariables,
     turnInput
 }: IExecuteNodeParams): Promise<IExecuteNodeResult> => {
@@ -733,12 +749,14 @@ const executeNode = async ({
 
         // Handle human input if present
         let humanInputAction: Record<string, any> | undefined
+        let resumeCheckpoint: ICommonObject | undefined
         let updatedHumanInput = humanInput
 
         // This is when human in the loop is resumed (strictly scoped to the target startNodeId)
         const isResumedHumanInputNode = Boolean(humanInput && nodeId === humanInput.startNodeId)
         if (isResumedHumanInputNode && executedDataSnapshot.length) {
             humanInputAction = findResumedHumanInputAction(executedDataSnapshot, nodeId)
+            resumeCheckpoint = findResumeCheckpoint(executedDataSnapshot, nodeId)
         }
         if (isResumedHumanInputNode && humanInput) {
             reactFlowNodeData.inputs = { ...reactFlowNodeData.inputs, humanInput }
@@ -799,6 +817,7 @@ const executeNode = async ({
             analyticHandlers,
             parentTraceIds,
             humanInputAction,
+            resumeCheckpoint,
             iterationContext: iterationContext ? cloneDeep(iterationContext) : undefined,
             evaluationRunId,
             overrideConfig,
@@ -928,7 +947,7 @@ const executeNode = async ({
                                     logger.debug(`  📝 Updating parent execution ${parentExecutionId} with iteration ${i + 1} data`)
                                     // Serialized when the queued write runs, so records committed by parallel siblings since launch are kept
                                     const persistIteration = () => {
-                                        const committed = getExecutedData?.() ?? executedDataSnapshot
+                                        const committed = getRecordedData?.() ?? executedDataSnapshot
                                         const committedRecords = new Set(committed)
                                         const executionDataJson = JSON.stringify([
                                             ...committed,
@@ -1007,12 +1026,7 @@ const executeNode = async ({
                     nodeId,
                     nodeLabel: reactFlowNode.data.label,
                     input: results.input
-                },
-                extra: ''
-            }
-            if (results.state && results.state.doNotIncludeFeedbackHistory) {
-                delete results.state.doNotIncludeFeedbackHistory
-                humanInputAction.extra = 'doNotIncludeFeedbackHistory'
+                }
             }
 
             const newWorkflowExecutedData: IAgentflowExecutedData = {
@@ -1042,6 +1056,10 @@ const executeNode = async ({
 
         // Stop going through the current route if the node is a agent node waiting for human input before using the tool
         if (reactFlowNode.data.name === 'agentAgentflow' && results?.output?.isWaitingForHumanInput) {
+            // The checkpoint's history references index this turn's history
+            if (results.output.resumeCheckpoint) {
+                results.output.resumeCheckpoint = { historyLength: pastChatHistory.length, ...results.output.resumeCheckpoint }
+            }
             const humanInputAction = {
                 id: uuidv4(),
                 mapping: {
@@ -1093,6 +1111,38 @@ const executeNode = async ({
     } catch (error) {
         logger.error(`[server]: Error executing node ${nodeId}: ${getErrorMessage(error)}`)
         throw error
+    }
+}
+
+// With a HumanInput's history toggle off, the approval exchange leaves no trace in history (D8)
+const isHistoryOff = (node?: IReactFlowNode) =>
+    node?.data.name === 'humanInputAgentflow' && node.data.inputs?.humanInputHistoryToggle === false
+
+const stoppedAction = (pending: PendingResume | undefined, nodeId: string | undefined) =>
+    [...(pending?.nodes ?? [])].reverse().find((entry) => entry.nodeId === nodeId && entry.status === 'STOPPED')?.action
+
+// The user message of a resume turn (TS15): the feedback, else the question the client sent, else the answered button's label
+const resumeAnswer = (humanInput: IHumanInput, question: string | undefined, action?: PendingNode['action']): string => {
+    if (humanInput.feedback?.trim()) return humanInput.feedback
+    if (question?.trim()) return question
+    const button = humanInput.type === 'reject' ? 'reject' : 'approve'
+    return action?.elements?.find((element) => element.type?.includes(button))?.label ?? action?.mapping?.[button] ?? humanInput.type
+}
+
+const latestStoppedPrompt = (records: IAgentflowExecutedData[], nodeId: string | undefined): string | undefined => {
+    const record = [...records].reverse().find((r) => r.nodeId === nodeId && r.status === 'STOPPED' && !r.data?.parentNodeId)
+    const prompt = (record?.data?.output as ICommonObject | undefined)?.content
+    return typeof prompt === 'string' ? prompt : undefined
+}
+
+// The answered stop message keeps no buttons (D11); with the history toggle off it goes, as the exchange leaves no trace
+const clearStopMessage = async (appDataSource: DataSource, id: string, remove: boolean) => {
+    try {
+        const repository = appDataSource.getRepository(ChatMessage)
+        if (remove) await repository.delete({ id })
+        else await repository.update({ id }, { action: null })
+    } catch (error) {
+        logger.warn(`[agentflow]: Failed to update the answered stop message ${id}: ${getErrorMessage(error)}`)
     }
 }
 
@@ -1151,7 +1201,7 @@ export const executeAgentFlow = async ({
 }: IExecuteAgentFlowParams) => {
     logger.debug('\n🚀 Starting flow execution')
 
-    let question = incomingInput.question
+    const question = incomingInput.question
     const form = incomingInput.form
     let overrideConfig = incomingInput.overrideConfig ?? {}
     const uploads = incomingInput.uploads
@@ -1199,10 +1249,15 @@ export const executeAgentFlow = async ({
     }
     const disableChatMessageRecording: boolean = chatflowConfig.clientState?.enabled ?? incomingInput.enableTrustedState ?? false
     const zeroRetention: boolean = chatflowConfig.clientState?.enabledFull
+    const outputReferences = isRecursive ? new Map<string, Set<string>>() : findOutputReferences(nodes)
     const turnInput =
         parentTurnInput ??
-        (await readTurnInput(incomingInput, { acceptClientHistory: chatflowConfig.clientState?.acceptClientHistory === true }))
-    let writtenToken: { token: string; state: TrustedStateV2 } | undefined
+        (await readTurnInput(incomingInput, {
+            acceptClientHistory: chatflowConfig.clientState?.acceptClientHistory === true,
+            references: outputReferences
+        }))
+    const isResume = Boolean(humanInput) && !isRecursive
+    let writtenToken: { token: string; historyLength: number; pending: boolean } | undefined
     let availableVariablesTask: Promise<Variable[]> | undefined
     const getAvailableVariables = () =>
         (availableVariablesTask ??= appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId)))
@@ -1230,6 +1285,10 @@ export const executeAgentFlow = async ({
     let agentFlowExecutedData: IAgentflowExecutedData[] = []
     let newExecution: IExecution
     const startingNodeIds: string[] = []
+    // A resume starts from records rehydrated from the pending data; they are never written to the Execution row (D10)
+    const rehydratedRecords = new Map<IAgentflowExecutedData, PendingNode>()
+    let recordedRun: IAgentflowExecutedData[] | undefined
+    const removedRecordedNodeIds = new Set<string>()
 
     // Initialize execution queue
     const nodeExecutionQueue: INodeQueue[] = []
@@ -1281,59 +1340,14 @@ export const executeAgentFlow = async ({
             agentflowRuntime.state = previousState
         }
 
-        // If it is human input, find the last checkpoint and resume
         // Skip human input resumption for recursive iteration calls - they should start fresh
         if (humanInput && !(isRecursive && iterationContext)) {
-            const previousExecution = turnInput.pendingResume?.legacyExecution
-            if (!previousExecution) {
+            const pending = turnInput.pendingResume
+            if (!pending) {
                 throw new Error(`No previous execution found for session ${sessionId}: the trustedState holds no stopped run to resume`)
             }
-
-            let executionData = JSON.parse(
-                previousExecution.executionDataBlob
-                    ? await Compression.decompress(previousExecution.executionDataBlob)
-                    : previousExecution.executionData
-            ) as IAgentflowExecutedData[]
-            let shouldUpdateExecution = false
-
-            // Handle different execution states
-            if (previousExecution.state === 'STOPPED') {
-                // Normal case - execution is stopped and ready to resume
-                logger.debug(`  ✅ Previous execution is in STOPPED state, ready to resume`)
-            } else if (previousExecution.state === 'ERROR') {
-                // Check if second-to-last execution item is STOPPED and last is ERROR
-                if (executionData.length >= 2) {
-                    const lastItem = executionData[executionData.length - 1]
-                    const secondLastItem = executionData[executionData.length - 2]
-
-                    if (lastItem.status === 'ERROR' && secondLastItem.status === 'STOPPED') {
-                        logger.debug(`  🔄 Found ERROR after STOPPED - removing last error item to allow retry`)
-                        logger.debug(
-                            `    Removing: ${lastItem.nodeId} (${lastItem.nodeLabel}) - ${lastItem.data?.error || 'Unknown error'}`
-                        )
-
-                        // Remove the last ERROR item
-                        executionData = executionData.slice(0, -1)
-                        shouldUpdateExecution = true
-                    } else {
-                        throw new Error(
-                            `Cannot resume execution ${previousExecution.id} because it is in 'ERROR' state ` +
-                                `and the previous item is not in 'STOPPED' state. Only executions that ended with a ` +
-                                `STOPPED state (or ERROR after STOPPED) can be resumed.`
-                        )
-                    }
-                } else {
-                    throw new Error(
-                        `Cannot resume execution ${previousExecution.id} because it is in 'ERROR' state ` +
-                            `with insufficient execution data. Only executions in 'STOPPED' state can be resumed.`
-                    )
-                }
-            } else {
-                throw new Error(
-                    `Cannot resume execution ${previousExecution.id} because it is in '${previousExecution.state}' state. ` +
-                        `Only executions in 'STOPPED' state (or 'ERROR' after 'STOPPED') can be resumed.`
-                )
-            }
+            rehydratePendingResume(pending, nodes, reversedGraph).forEach((entry, record) => rehydratedRecords.set(record, entry))
+            const executionData = [...rehydratedRecords.keys()]
 
             let startNodeId = humanInput.startNodeId
 
@@ -1364,34 +1378,28 @@ export const executeAgentFlow = async ({
             checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
 
             agentFlowExecutedData.push(...executionData)
+            agentflowRuntime.state = cloneDeep(turnInput.flowState)
 
-            // Update execution data if we removed an error item
-            if (shouldUpdateExecution && !zeroRetention) {
-                logger.debug(`  📝 Updating execution data after removing error item`)
-                serializedUpdateExecution(previousExecution.id, {
-                    executionData: JSON.stringify(executionData),
-                    state: 'INPROGRESS'
-                }).catch((err) => {
-                    logger.warn(`updateExecution resume cleanup err ${getErrorMessage(err)}`)
-                })
-            }
-
-            // Get latest recorded state without assuming the final array entry contains `.state`
-            let lastState: ICommonObject | undefined
-            for (let i = executionData.length - 1; i >= 0; i -= 1) {
-                if (executionData[i]?.data?.state) {
-                    lastState = executionData[i].data.state as ICommonObject
-                    break
+            if (pending.executionId && !zeroRetention && !process.env.DISABLE_EXECUTION_RECORDING) {
+                newExecution = { id: pending.executionId } as IExecution
+                recordedRun = await readRecordedRun(appDataSource, pending.executionId, workspaceId)
+                if (recordedRun) {
+                    await serializedUpdateExecution(pending.executionId, { state: 'INPROGRESS' })
+                } else {
+                    logger.warn(`[agentflow]: Execution ${pending.executionId} not found; it is not updated`)
                 }
+            } else {
+                newExecution = await addExecution(
+                    appDataSource,
+                    chatflowid,
+                    [],
+                    sessionId,
+                    workspaceId,
+                    zeroRetention,
+                    dbUpdateQueue.enqueue
+                )
             }
-
-            // Update agentflow runtime state
-            agentflowRuntime.state = cloneDeep(lastState ?? {})
-
-            // Update execution state to INPROGRESS
-            await serializedUpdateExecution(previousExecution.id, { state: 'INPROGRESS' })
-            newExecution = previousExecution
-            parentExecutionId = previousExecution.id
+            parentExecutionId = newExecution.id
 
             // Update humanInput with the resolved startNodeId
             humanInput.startNodeId = startNodeId
@@ -1440,7 +1448,6 @@ export const executeAgentFlow = async ({
         const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
 
         const pastChatHistory: IMessage[] = turnInput.history.map(toNodeMessage)
-        // The history the token carries out; node commits may shorten it (a review without history)
         const tokenHistory: TrustedHistoryMessage[] = isRecursive ? [] : cloneDeep(turnInput.history)
 
         let currentHumanInput = humanInput
@@ -1481,19 +1488,6 @@ export const executeAgentFlow = async ({
             logger.error(`[server]: Error initializing analytic handlers: ${getErrorMessage(error)}`)
         }
 
-        const getPreviousExecution = () => {
-            return {
-                id: newExecution.id,
-                state: status,
-                agentflowId: chatflowid,
-                sessionId,
-                workspaceId,
-                executionData: JSON.stringify(agentFlowExecutedData),
-                executionDataBlob: undefined,
-                createdDate: newExecution.createdDate ?? new Date(),
-                updatedDate: newExecution.updatedDate ?? new Date()
-            } as IExecution
-        }
         const flowNodeIds = new Set(nodes.map((node) => node.id))
         const writeTurnToken = async (pendingResume?: PendingResume) => {
             const state = buildTrustedState({
@@ -1504,9 +1498,20 @@ export const executeAgentFlow = async ({
                 flowNodeIds,
                 pendingResume
             })
-            writtenToken = { token: await writeToken(state), state }
+            writtenToken = { token: await writeToken(state), historyLength: state.history.length, pending: Boolean(pendingResume) }
             return writtenToken.token
         }
+        // A failed resume returns the incoming token, so answering again retries it (D6)
+        const keepIncomingToken = () => {
+            const token = incomingInput.trustedState as string
+            writtenToken = { token, historyLength: turnInput.history.length, pending: Boolean(turnInput.pendingResume) }
+            return token
+        }
+        // A resume continues the paused run's row: its records minus the resumed node's, then the turn's own (D10)
+        const recordedData = () => [
+            ...(recordedRun ?? []).filter((record) => !removedRecordedNodeIds.has(record.nodeId)),
+            ...agentFlowExecutedData.filter((record) => !rehydratedRecords.has(record))
+        ]
 
         const effectiveMaxNodeConcurrency = getMaxNodeConcurrency(maxNodeConcurrency)
         const streamCoordinator = !isRecursive && sseStreamer ? createStreamCoordinator(sseStreamer) : undefined
@@ -1630,7 +1635,7 @@ export const executeAgentFlow = async ({
                         nodeInstanceFactory,
                         maxNodeConcurrency,
                         enqueueDbUpdate: dbUpdateQueue.enqueue,
-                        getExecutedData: () => agentFlowExecutedData,
+                        getRecordedData: recordedData,
                         getAvailableVariables,
                         turnInput
                     })
@@ -1687,6 +1692,7 @@ export const executeAgentFlow = async ({
                                 additionalRecords: executionResult.additionalExecutedData,
                                 nodeRecord: executionResult.stoppedExecutedData
                             })
+                            executionResult.removedExecutedNodeIds?.forEach((nodeId) => removedRecordedNodeIds.add(nodeId))
                             currentTurnNodeIds.add(currentNode.nodeId)
                             sseStreamer?.streamNextAgentFlowEvent(chatId, {
                                 nodeId: currentNode.nodeId,
@@ -1701,18 +1707,13 @@ export const executeAgentFlow = async ({
 
                         const nodeResult = executionResult.result
 
-                        // Reconcile runtime state delta, chat history, form, and feedback flags atomically before committing record
-                        const commitResult = reconcileRuntimeCommit({
+                        // Reconcile runtime state delta and chat history atomically before committing record
+                        reconcileRuntimeCommit({
                             agentflowRuntime,
                             startStateSnapshot,
                             startChatHistoryLength,
-                            nodeResult,
-                            pastChatHistory,
-                            tokenHistory,
-                            incomingInput,
-                            question
+                            nodeResult
                         })
-                        question = commitResult.question
 
                         if (status === 'INPROGRESS' && !faultRecorder.getRootError() && !abortScope.isAborted()) {
                             // Synchronously settle DAG edges, cascade DPE, and handle loop subgraph reset
@@ -1757,6 +1758,7 @@ export const executeAgentFlow = async ({
                                 status: 'FINISHED'
                             }
                         })
+                        executionResult.removedExecutedNodeIds?.forEach((nodeId) => removedRecordedNodeIds.add(nodeId))
                         currentTurnNodeIds.add(currentNode.nodeId)
 
                         sseStreamer?.streamNextAgentFlowEvent(chatId, {
@@ -1851,14 +1853,14 @@ export const executeAgentFlow = async ({
         const persistFinalExecution = async (finalState: ExecutionState) => {
             try {
                 const updated = await serializedUpdateExecution(newExecution.id, {
-                    executionData: JSON.stringify(agentFlowExecutedData),
+                    executionData: JSON.stringify(recordedData()),
                     state: finalState
                 })
                 if (!updated) {
                     newExecution = await addExecution(
                         appDataSource,
                         chatflowid,
-                        agentFlowExecutedData,
+                        recordedData(),
                         sessionId,
                         workspaceId,
                         zeroRetention,
@@ -1874,16 +1876,6 @@ export const executeAgentFlow = async ({
             await dbUpdateQueue.drain()
         }
 
-        // An error right after a stop can be retried by answering again, so the stopped run stays pending
-        const pendingAfterFailure = (): PendingResume | undefined => {
-            if (!isResumableExecution(status, agentFlowExecutedData)) return undefined
-            const actionMessageIndex = turnInput.pendingResume?.actionMessageIndex
-            return {
-                legacyExecution: getPreviousExecution(),
-                ...(actionMessageIndex !== undefined && actionMessageIndex < tokenHistory.length ? { actionMessageIndex } : {})
-            }
-        }
-
         const persistAndThrowFatalError = async (
             errorStatus: ExecutionState,
             errorMessage: string,
@@ -1895,7 +1887,7 @@ export const executeAgentFlow = async ({
 
                 await persistFinalExecution(errorStatus)
 
-                sseStreamer?.streamTrustedStateDataEvent(chatId, await writeTurnToken(pendingAfterFailure()))
+                sseStreamer?.streamTrustedStateDataEvent(chatId, isResume ? keepIncomingToken() : await writeTurnToken())
 
                 sseStreamer?.streamAgentFlowEvent(chatId, errorStatus)
             } else {
@@ -2008,6 +2000,8 @@ export const executeAgentFlow = async ({
             }
         }
 
+        // The pending data is built from these records, whose identity marks the ones rehydrated from the incoming token
+        const turnRecords = agentFlowExecutedData
         // remove credentialId from agentFlowExecutedData
         agentFlowExecutedData = agentFlowExecutedData.map((data) => _removeCredentialId(data))
 
@@ -2024,29 +2018,39 @@ export const executeAgentFlow = async ({
             }
         }
 
-        // A resume saves no user message while the message that announced the action is still in the history
-        const actionMessageIndex = turnInput.pendingResume?.actionMessageIndex
-        const doNotIncludeFeedbackHistory = Boolean(
-            humanInput && Object.keys(humanInput).length && actionMessageIndex !== undefined && actionMessageIndex < tokenHistory.length
-        )
-        if (!doNotIncludeFeedbackHistory) {
-            let finalUserInput = incomingInput.question || ' '
+        const isChatMessageRecorded = !disableChatMessageRecording && !process.env.DISABLE_CHAT_MESSAGE_RECORDING
+        const resumedNode = isResume ? nodes.find((node) => node.id === humanInput?.startNodeId) : undefined
+        const failedResume = isResume && (status === 'ERROR' || status === 'TERMINATED')
 
-            if (startInputType === 'chatInput') {
-                finalUserInput = question || humanInput?.feedback || ' '
-            } else if (startInputType === 'formInput') {
-                if (form) {
-                    finalUserInput = Object.entries(form || {})
-                        .map(([key, value]) => `${key}: ${value}`)
-                        .join('\n')
-                } else {
-                    finalUserInput = question || humanInput?.feedback || ' '
-                }
-            }
+        let userMessageContent: string | undefined
+        if (!isResume) {
+            userMessageContent =
+                startInputType === 'formInput' && form
+                    ? Object.entries(form)
+                          .map(([key, value]) => `${key}: ${value}`)
+                          .join('\n')
+                    : question || ' '
+        } else if (!failedResume && !isHistoryOff(resumedNode)) {
+            userMessageContent = resumeAnswer(
+                humanInput as IHumanInput,
+                question,
+                stoppedAction(turnInput.pendingResume, humanInput?.startNodeId)
+            )
+        }
 
+        const primaryStoppedNode = status === 'STOPPED' ? nodes.find((node) => node.id === primaryStopped.primaryNodeId) : undefined
+        const stopPrompt = status === 'STOPPED' ? latestStoppedPrompt(turnRecords, primaryStopped.primaryNodeId) : undefined
+        const botMessageContent = typeof content === 'string' && !content.trim() && stopPrompt ? stopPrompt : content
+
+        const stopMessageId = turnInput.pendingResume?.stopMessageId
+        if (isResume && !failedResume && stopMessageId && isChatMessageRecorded) {
+            await clearStopMessage(appDataSource, stopMessageId, isHistoryOff(resumedNode))
+        }
+
+        if (userMessageContent !== undefined) {
             const userMessageStub: Omit<IChatMessage, 'id'> = {
                 role: 'userMessage',
-                content: finalUserInput,
+                content: userMessageContent,
                 chatflowid,
                 chatType: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
                 chatId,
@@ -2059,7 +2063,7 @@ export const executeAgentFlow = async ({
             await utilAddChatMessage(userMessageStub, appDataSource, disableChatMessageRecording)
             tokenHistory.push({
                 role: 'userMessage',
-                content: finalUserInput,
+                content: userMessageContent,
                 ...(uploads && fileUploads !== undefined ? { fileUploads } : {})
             })
         }
@@ -2067,7 +2071,7 @@ export const executeAgentFlow = async ({
         const apiMessage: Omit<IChatMessage, 'createdDate'> = {
             id: apiMessageId,
             role: 'apiMessage',
-            content: content,
+            content: botMessageContent,
             chatflowid,
             chatType: evaluationRunId ? ChatType.EVALUATION : isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
             chatId,
@@ -2095,20 +2099,25 @@ export const executeAgentFlow = async ({
         if (status === 'STOPPED' && primaryStopped.action && Object.keys(primaryStopped.action).length)
             apiMessage.action = JSON.stringify(primaryStopped.action)
 
-        const chatMessage = await utilAddChatMessage(apiMessage, appDataSource, disableChatMessageRecording)
-        tokenHistory.push({
-            role: 'apiMessage',
-            content,
-            ...(terminalMetadata.artifacts ? { artifacts: terminalMetadata.artifacts } : {})
-        })
+        const chatMessage = failedResume ? undefined : await utilAddChatMessage(apiMessage, appDataSource, disableChatMessageRecording)
+        if (!failedResume && !isHistoryOff(primaryStoppedNode)) {
+            tokenHistory.push({
+                role: 'apiMessage',
+                content: botMessageContent,
+                ...(terminalMetadata.artifacts ? { artifacts: terminalMetadata.artifacts } : {})
+            })
+        }
 
-        const pendingResume: PendingResume | undefined = isResumableExecution(status, agentFlowExecutedData)
-            ? {
-                  legacyExecution: getPreviousExecution(),
-                  ...(apiMessage.action ? { actionMessageIndex: tokenHistory.length - 1 } : {})
-              }
-            : undefined
-        const trustedState = await writeTurnToken(pendingResume)
+        const pendingResume =
+            status === 'STOPPED'
+                ? buildPendingResume(turnRecords, {
+                      references: outputReferences,
+                      carried: rehydratedRecords,
+                      executionId: !zeroRetention && !process.env.DISABLE_EXECUTION_RECORDING ? newExecution.id : undefined,
+                      stopMessageId: isChatMessageRecorded ? chatMessage?.id : undefined
+                  })
+                : undefined
+        const trustedState = failedResume ? keepIncomingToken() : await writeTurnToken(pendingResume)
         sseStreamer?.streamTrustedStateDataEvent(chatId, trustedState)
 
         logger.debug(`[server]: Finished running agentflow ${chatflowid}`)
@@ -2141,7 +2150,7 @@ export const executeAgentFlow = async ({
 
         if (sessionId) result.sessionId = sessionId
 
-        if (shouldAutoPlayTTS(chatflow.textToSpeech) && result.text) {
+        if (shouldAutoPlayTTS(chatflow.textToSpeech) && result.text && chatMessage) {
             const options = {
                 orgId,
                 chatflowid,
@@ -2156,7 +2165,7 @@ export const executeAgentFlow = async ({
                     chatflow.textToSpeech,
                     options,
                     chatId,
-                    chatMessage?.id,
+                    chatMessage.id,
                     sseStreamer,
                     abortScope.abortController
                 )

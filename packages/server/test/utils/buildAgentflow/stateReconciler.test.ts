@@ -155,42 +155,6 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
         })
     })
 
-    it('handles doNotIncludeFeedbackHistory cleanly before diffing and prevents leaking into live state', () => {
-        const liveRuntime: IAgentFlowRuntime = {
-            state: { keep: 'yes', doNotIncludeFeedbackHistory: 'stale' },
-            chatHistory: [],
-            form: {}
-        }
-        const { startStateSnapshot, nodeRuntimeSnapshot } = createNodeRuntimeSnapshot(liveRuntime)
-        nodeRuntimeSnapshot.state!.doNotIncludeFeedbackHistory = 'true'
-        nodeRuntimeSnapshot.state!.extra = 'ok'
-
-        const pastChatHistory: any[] = [
-            { message: 'orig question', content: 'orig question', type: 'userMessage' },
-            { message: 'feedback prompt', content: 'feedback prompt', type: 'apiMessage' }
-        ]
-        const tokenHistory: any[] = [{ content: 'orig' }, { content: 'feedback' }]
-        const incomingInput: { question?: string } = { question: 'initial' }
-
-        const commitResult = reconcileRuntimeCommit({
-            agentflowRuntime: liveRuntime,
-            startStateSnapshot,
-            nodeResult: { state: nodeRuntimeSnapshot.state },
-            pastChatHistory,
-            tokenHistory,
-            incomingInput,
-            question: 'initial'
-        })
-
-        expect(commitResult.hadDoNotIncludeFeedbackHistory).toBe(true)
-        expect(commitResult.question).toBe('orig question')
-        expect(incomingInput.question).toBe('orig question')
-        expect(pastChatHistory).toHaveLength(0)
-        expect(tokenHistory).toHaveLength(1)
-        expect(liveRuntime.state).toEqual({ keep: 'yes', extra: 'ok' })
-        expect('doNotIncludeFeedbackHistory' in (liveRuntime.state || {})).toBe(false)
-    })
-
     it('reconciles parallel-branch simulation with in-place mutation, key deletion, and chatHistory appends', () => {
         const liveRuntime: IAgentFlowRuntime = {
             state: { keep: 'v0', dropMe: 'old', sharedObj: { n: 1 } },
@@ -216,20 +180,15 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
             chatHistory: [{ message: 'fromB', type: 'apiMessage', role: 'apiMessage', content: 'fromB' }]
         }
 
-        const emptyHistory: any[] = []
         reconcileRuntimeCommit({
             agentflowRuntime: liveRuntime,
             startStateSnapshot: snapA.startStateSnapshot,
-            nodeResult: resultA,
-            pastChatHistory: emptyHistory,
-            incomingInput: {}
+            nodeResult: resultA
         })
         reconcileRuntimeCommit({
             agentflowRuntime: liveRuntime,
             startStateSnapshot: snapB.startStateSnapshot,
-            nodeResult: resultB,
-            pastChatHistory: emptyHistory,
-            incomingInput: {}
+            nodeResult: resultB
         })
 
         expect(liveRuntime.state).toEqual({
@@ -252,9 +211,7 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
                 agentflowRuntime: liveRuntime,
                 startStateSnapshot: snap.startStateSnapshot,
                 startChatHistoryLength: snap.startChatHistoryLength,
-                nodeResult: { chatHistory },
-                pastChatHistory: [],
-                incomingInput: {}
+                nodeResult: { chatHistory }
             })
 
         commit(snapA, [
@@ -291,9 +248,7 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
                         { role: 'user', content: input },
                         { role: 'assistant', content: answer }
                     ]
-                },
-                pastChatHistory: [],
-                incomingInput: {}
+                }
             })
         }
 
@@ -313,9 +268,7 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
             agentflowRuntime: liveRuntime,
             startStateSnapshot: snap.startStateSnapshot,
             startChatHistoryLength: snap.startChatHistoryLength,
-            nodeResult: { chatHistory: [{ role: 'user', content: 'hi' }] },
-            pastChatHistory: [],
-            incomingInput: {}
+            nodeResult: { chatHistory: [{ role: 'user', content: 'hi' }] }
         })
 
         expect(liveRuntime.chatHistory?.map((m) => m.content)).toEqual(['hi', 'hi'])

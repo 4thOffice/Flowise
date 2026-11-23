@@ -7,6 +7,7 @@ import { BaseMessageLike } from '@langchain/core/messages'
 import { IFlowState } from './Interface.Agentflow'
 import { getCredentialData, getCredentialParam, handleEscapeCharacters, mapMimeTypeToInputField } from '../../src/utils'
 import fetch from 'node-fetch'
+import { cloneDeep, isEqual } from 'lodash'
 
 export const addImagesToMessages = async (
     options: ICommonObject,
@@ -974,3 +975,66 @@ export const trimTrailingHistoryCopy = <T extends { role: string; content: strin
     )
     return messages.slice(0, messages.length - copyLength)
 }
+
+export type CheckpointHistoryReference = { history: [number, number] }
+
+export interface IAgentResumeCheckpoint {
+    /** Length of the history the stopped turn started with (added by the server) */
+    historyLength?: number
+    conversation: Array<CheckpointHistoryReference | ICommonObject>
+    toolCallMessage: ICommonObject
+}
+
+const isHistoryReference = (item: unknown): item is CheckpointHistoryReference =>
+    Boolean(item) && Array.isArray((item as CheckpointHistoryReference).history) && (item as ICommonObject).role === undefined
+
+/**
+ * Replaces each run of prompt messages that copies pastChatHistory[i..j) with { history: [i, j] }, so a paused run keeps only
+ * the messages the history lacks. Only exact copies become references, which a resume expands back to the same messages.
+ */
+export const toCheckpointConversation = (
+    messages: BaseMessageLike[],
+    pastChatHistory: BaseMessageLike[]
+): IAgentResumeCheckpoint['conversation'] => {
+    const conversation: IAgentResumeCheckpoint['conversation'] = []
+    let i = 0
+    while (i < messages.length) {
+        let bestStart = -1
+        let bestLength = 0
+        for (let start = 0; start < pastChatHistory.length; start++) {
+            let length = 0
+            while (
+                i + length < messages.length &&
+                start + length < pastChatHistory.length &&
+                isEqual(messages[i + length], pastChatHistory[start + length])
+            ) {
+                length++
+            }
+            if (length > bestLength) {
+                bestStart = start
+                bestLength = length
+            }
+        }
+        if (bestLength) {
+            conversation.push({ history: [bestStart, bestStart + bestLength] })
+            i += bestLength
+        } else {
+            conversation.push(messages[i] as ICommonObject)
+            i++
+        }
+    }
+    return conversation
+}
+
+export const fromCheckpointConversation = (
+    conversation: IAgentResumeCheckpoint['conversation'],
+    pastChatHistory: BaseMessageLike[]
+): BaseMessageLike[] =>
+    conversation.flatMap((item) => {
+        if (!isHistoryReference(item)) return [cloneDeep(item) as BaseMessageLike]
+        const [start, end] = item.history
+        if (end > pastChatHistory.length) {
+            throw new Error(`The paused run refers to history messages ${start}-${end}, but the history holds ${pastChatHistory.length}`)
+        }
+        return cloneDeep(pastChatHistory.slice(start, end))
+    })
