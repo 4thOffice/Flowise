@@ -1,19 +1,16 @@
 {
     "schema": "ts-00b-compare-config/1",
-    "status": "draft (Task 00b). Task 04 fills in the token v2 paths marked pending; each fix task activates and refines its entries.",
+    "status": "Task 04: token v2 paths set and every intended difference listed (dry run against before/: reports/04-config-dry-run.md). Each fix task activates and refines its entries.",
     "notes": [
         "An entry allows class A differences for its scenarios x modes x turns x aspects (TS6). With mustDiffer (default true) the run fails when none of them differs.",
         "turns: a list of turn ids, 't3+' for t3 and every later turn, or '*'. modes and scenarios: a list or '*'. variant: only after traces named <scenario>@<variant>.json.",
         "Checks run on the after trace. A check with 'pending' is reported but not evaluated until its path or decision exists.",
-        "Aspects: modelRequests, streamedTokens, finalText, nodeSequence, status, finalState, action (mapping, elements, data.nodeId), error."
+        "Aspects: modelRequests, streamedTokens, finalText, nodeSequence, status, finalState, action (mapping, elements, data.nodeId), error.",
+        "History checks (tokenHistoryRoles, tokenHistoryHasNoKey, tokenHistoryAlternates) read tokenV2.historyPath unless the check names its own historyPath. tokenHistoryAlternates: userMessage first, then strictly alternating, no blank content.",
+        "tokenPendingWhileStopped: the token has pending resume data (tokenV2.pendingResumePath) exactly when the turn ended STOPPED.",
+        "Decision ids D1-D17 are those of 04-decision-gate-and-token-v2-design.md section 4."
     ],
-    "tokenV2": {
-        "historyPath": "pending: Task 04 names the history field",
-        "flowStatePath": "pending: Task 04",
-        "formPath": "pending: Task 04",
-        "childTokensPath": "pending: Task 04",
-        "pendingResumePath": "pending: Task 04"
-    },
+    "tokenV2": { "historyPath": "history", "flowStatePath": "flowState", "formPath": "formValues", "childTokensPath": "childFlowTokens", "pendingResumePath": "pendingResume" },
     "intended": [
         {
             "id": "F01-M3-like-M1",
@@ -30,39 +27,34 @@
         {
             "id": "F02-S10a-accept-on",
             "finding": "F02",
-            "decision": "TS13, TS22",
+            "decision": "TS13, TS22, D16",
             "scenarios": ["S10a"],
             "modes": ["M1"],
             "variant": "accept-client-history-on",
             "turns": "*",
             "aspects": ["modelRequests"],
-            "expect": "The client's history (welcome message included) is the turn's history and is saved in the token. Quick Answer (memory off) gets no history; Context Agent (memory on) gets it once instead of client history plus token history.",
+            "expect": "The client's history (welcome message included) is the turn's history and is saved in the token. Quick Answer (memory off) gets no history; Context Agent (memory on) gets it once instead of client history plus token history. t4: Quick Answer's llmMessages override repeats the accepted client history, so the copy is trimmed and the current question added (D16).",
             "checks": [
-                { "type": "modelInputExcludes", "route": "S10a-quick", "turns": ["t1", "t2", "t3"], "contentIncludes": "Welcome to Northwind Outfitters" },
+                { "type": "modelInputExcludes", "route": "S10a-quick", "turns": ["t1", "t2", "t3", "t4"], "contentIncludes": "Welcome to Northwind Outfitters" },
                 { "type": "modelInputIncludes", "route": "S10a-context", "role": "assistant", "contentIncludes": "Welcome to Northwind Outfitters" },
-                {
-                    "type": "modelInputIncludes",
-                    "route": "S10a-quick",
-                    "role": "user",
-                    "contentIncludes": "Can I pick the parcel up in Oslo instead?",
-                    "turns": ["t4"],
-                    "pending": "TS-O3 (Task 04): today the llmMessages override carries user messages, so the LLM node does not add the current question (00b README, observation 2)."
-                },
-                { "type": "serverLogIncludes", "pattern": "history", "turns": ["t3"], "note": "TS13 warning: the token's last message is missing from the client history" }
+                { "type": "modelInputIncludes", "route": "S10a-quick", "role": "user", "contentIncludes": "Can I pick the parcel up in Oslo instead?", "turns": ["t4"] },
+                { "type": "serverLogIncludes", "pattern": "history", "turns": ["t3"], "note": "TS13 warning: the token's last message is missing from the client history" },
+                { "type": "tokenHistoryRoles", "turns": ["t1"], "equals": ["apiMessage", "userMessage", "apiMessage"], "note": "welcome message, question, reply" }
             ]
         },
         {
             "id": "F02-S10a-accept-off",
             "finding": "F02",
-            "decision": "TS13a, TS22",
+            "decision": "TS13a, TS22, D16",
             "scenarios": ["S10a"],
             "modes": ["M1"],
             "variant": "accept-client-history-off",
             "turns": "*",
             "aspects": ["modelRequests"],
-            "expect": "history is ignored with a warning; nodes see only the token history through their memory settings: Quick Answer sees none, Context Agent sees the token history once and no welcome message.",
+            "expect": "history is ignored with a warning; nodes see only the token history through their memory settings: Quick Answer (memory off) sees no history on t1-t3 and on t4 its llmMessages override exactly as sent (welcome and earlier turns, no current question, as today; D16: a memory-off node fed from the token history keeps the override); Context Agent sees the token history once and no welcome message.",
             "checks": [
-                { "type": "modelInputExcludes", "route": "S10a-quick", "contentIncludes": "Welcome to Northwind Outfitters" },
+                { "type": "modelInputExcludes", "route": "S10a-quick", "turns": ["t1", "t2", "t3"], "contentIncludes": "Welcome to Northwind Outfitters" },
+                { "type": "modelInputIncludes", "route": "S10a-quick", "role": "assistant", "turns": ["t4"], "contentIncludes": "Welcome to Northwind Outfitters" },
                 { "type": "modelInputExcludes", "route": "S10a-context", "contentIncludes": "Welcome to Northwind Outfitters" },
                 { "type": "serverLogIncludes", "pattern": "history" }
             ]
@@ -106,7 +98,7 @@
             "checks": [
                 { "type": "modelInputIncludes", "route": "S06-finalizer", "role": "user", "contentIncludes": "Please mention the 10% discount code SORRY10.", "turns": ["t3"] },
                 { "type": "modelInputIncludes", "route": "S06-drafter", "role": "user", "contentIncludes": "Approve", "turns": ["t4"] },
-                { "type": "tokenHistoryRoles", "pending": "Task 04 historyPath", "turns": ["t3"], "equals": ["userMessage", "apiMessage", "userMessage", "apiMessage", "userMessage", "apiMessage"] }
+                { "type": "tokenHistoryRoles", "turns": ["t3"], "equals": ["userMessage", "apiMessage", "userMessage", "apiMessage", "userMessage", "apiMessage"] }
             ]
         },
         {
@@ -140,28 +132,43 @@
         {
             "id": "F06-S06b-toggle-off",
             "finding": "F06",
-            "decision": "TS15",
+            "decision": "TS15, D8",
             "scenarios": ["S06b"],
             "modes": ["M1"],
             "turns": ["t2+"],
             "aspects": ["modelRequests", "streamedTokens", "finalText"],
-            "expect": "With the history toggle off the approval prompt and the answer are left out of history; no question rewrite, so the original question is not repeated as extra user messages; no doNotIncludeFeedbackHistory in state or action.",
+            "expect": "With the history toggle off the approval exchange leaves no trace (D8): a stop turn saves only its user message, a resume turn only its reply, so the token history after t3 is the question and the final reply and t4 adds the new question; no question rewrite, no doNotIncludeFeedbackHistory in state or action.",
             "checks": [
                 { "type": "tokenHasNoKey", "key": "doNotIncludeFeedbackHistory" },
-                { "type": "actionKeysOnly", "turns": ["t1", "t2", "t4"], "allowed": ["id", "mapping", "elements", "data.nodeId", "data.nodeLabel", "data.input.humanInputEnableFeedback"] }
+                { "type": "actionKeysOnly", "turns": ["t1", "t2", "t4"], "allowed": ["id", "mapping", "elements", "data.nodeId", "data.nodeLabel", "data.input.humanInputEnableFeedback"] },
+                { "type": "tokenHistoryRoles", "turns": ["t3"], "equals": ["userMessage", "apiMessage"] },
+                { "type": "tokenHistoryRoles", "turns": ["t4"], "equals": ["userMessage", "apiMessage", "userMessage"] },
+                { "type": "modelInputIncludes", "route": "S06b-drafter", "role": "assistant", "contentIncludes": "Final: Dear customer, we apologise for the one-week delay.", "turns": ["t4"] }
             ]
         },
         {
             "id": "F07-alternating-history",
             "finding": "F07",
-            "decision": "TS15",
-            "scenarios": ["S06", "S07", "S08"],
+            "decision": "TS15, D8, D9",
+            "scenarios": ["S06", "S06b", "S07", "S08"],
             "modes": ["M1", "M2"],
             "turns": "*",
             "aspects": [],
             "mustDiffer": false,
-            "expect": "Covered by the F05 entries for model input. The token history alternates user/assistant, and a resume turn that ends without terminal output (S08 t2, today ' ') does not add an empty bot message.",
-            "checks": [{ "type": "tokenHistoryRoles", "pending": "Task 04 historyPath; Task 07 decides the S08 t2 empty-output handling" }]
+            "expect": "Covered by the F05 entries for model input. The token history starts with a user message, alternates user/assistant and has no blank message: answers sit between the approval prompt and the reply, the toggle-off exchange leaves no trace (D8), and a resume turn that ends stopped without output (S08 t2, today \" \") saves the waiting node's prompt (D9).",
+            "checks": [{ "type": "tokenHistoryAlternates" }]
+        },
+        {
+            "id": "F07-S08-blank-stop-message",
+            "finding": "F07",
+            "decision": "D9",
+            "scenarios": ["S08"],
+            "modes": ["M1", "M2"],
+            "turns": ["t2"],
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "t2 approves the Policy Check tool while the Manager Gate stays stopped and streams nothing; the bot message saved is the gate's prompt as announced in t1, so the history is user, bot, user ('Proceed'), bot.",
+            "checks": [{ "type": "tokenHistoryRoles", "equals": ["userMessage", "apiMessage", "userMessage", "apiMessage"] }]
         },
         {
             "id": "F08-no-action-in-history",
@@ -173,7 +180,7 @@
             "aspects": [],
             "mustDiffer": false,
             "expect": "History messages carry no action; pending resume data sits in its own field only while stopped.",
-            "checks": [{ "type": "tokenHistoryHasNoKey", "key": "action", "pending": "Task 04 historyPath" }]
+            "checks": [{ "type": "tokenHistoryHasNoKey", "key": "action" }]
         },
         {
             "id": "F09-no-record-copies",
@@ -205,15 +212,15 @@
         {
             "id": "F11-S10b-ephemeral-dropped",
             "finding": "F11",
-            "decision": "TS17",
+            "decision": "TS17, D14",
             "scenarios": ["S10b"],
             "modes": ["M1"],
             "turns": ["t2+"],
             "aspects": ["modelRequests"],
-            "expect": "Ephemeral memory is dropped (TS17 as changed in Task 02): the agent follows its own memory setting (on), so from t2 it sees the earlier turns; the token keeps the whole history; the counter still carries over.",
+            "expect": "Ephemeral memory is dropped (TS17 as changed in Task 02; D14: the flow's saved option is ignored): the agent follows its own memory setting (on), so from t2 it sees the earlier turns; the token keeps the whole history; the counter still carries over.",
             "checks": [
-                { "type": "modelInputIncludes", "route": "S10b-agent", "role": "user", "contentIncludes": "Remember that my favourite colour is green.", "turns": ["t2"], "pending": "Task 04: handling of saved flows with the option on" },
-                { "type": "tokenHistoryRoles", "equals": ["userMessage", "apiMessage", "userMessage", "apiMessage", "userMessage", "apiMessage"], "turns": ["t3"], "pending": "Task 04 historyPath" },
+                { "type": "modelInputIncludes", "route": "S10b-agent", "role": "user", "contentIncludes": "Remember that my favourite colour is green.", "turns": ["t2"] },
+                { "type": "tokenHistoryRoles", "equals": ["userMessage", "apiMessage", "userMessage", "apiMessage", "userMessage", "apiMessage"], "turns": ["t3"] },
                 { "type": "finalStateEquals", "key": "counter", "value": "3", "turns": ["t3"] }
             ]
         },
@@ -301,10 +308,7 @@
             "aspects": [],
             "mustDiffer": false,
             "expect": "/prediction (SSE end event and JSON) returns each record pruned to nodeId, nodeLabel, status, previousNodeIds, data.name, data.state, the error text and the slim action on stopped records.",
-            "checks": [
-                { "type": "payloadSentinelMax", "payload": "executedData", "max": 0 },
-                { "type": "payloadSentinelMax", "payload": "restJson", "max": 0 }
-            ]
+            "checks": [{ "type": "payloadSentinelMax", "payload": "executedData", "max": 0 }, { "type": "payloadSentinelMax", "payload": "restJson", "max": 0 }]
         },
         {
             "id": "F18-executed-data-internal",
@@ -358,16 +362,94 @@
             "checks": [{ "type": "finalStateEquals", "key": "b_note", "value": "Side note: photos are needed for damage claims.", "turns": ["t2"] }]
         },
         {
-            "id": "TS-O1-resume-input",
-            "finding": "TS-O1",
-            "decision": "TS26",
+            "id": "TS26-resume-input",
+            "finding": "TS26",
+            "decision": "TS26, D5",
             "scenarios": ["S07", "S08"],
             "modes": ["M1", "M2", "M1-internal"],
             "turns": "*",
             "aspects": [],
             "mustDiffer": false,
-            "expect": "Resumes of an Agent tool approval send the same model input as today (S07 t3 and t5, S08 t2): the rebuilt prompt equals the stored one here (Task 03). The changes TS26 accepts (values or the flow changed while paused) are not exercised.",
+            "expect": "Resumes of an Agent tool approval send the same model input as today (S07 t3 and t5, S08 t2): the Agent re-resolves its own Messages list and replays the stored rest of the prompt (D5), which equals today's checkpoint (Task 03). The changes TS26 accepts (values or the Messages list edited while paused) are not exercised.",
             "checks": []
+        },
+        {
+            "id": "TS25-S03-composer",
+            "finding": "TS25",
+            "decision": "TS25, D15",
+            "scenarios": ["S03"],
+            "modes": ["M1"],
+            "turns": "*",
+            "aspects": ["modelRequests"],
+            "expect": "Same-turn replies appended to the history are assistant messages ('Return Response As: User Message' maps to Assistant Message): the Researcher's and the Critic's replies reach the Composer as assistant messages instead of user messages named after the nodes.",
+            "checks": [
+                { "type": "modelInputIncludes", "route": "S03-composer", "role": "assistant", "contentIncludes": "Research: zippers are covered for 24 months", "turns": ["t1"] },
+                { "type": "modelInputIncludes", "route": "S03-composer", "role": "assistant", "contentIncludes": "Critique: the answer should mention that proof of purchase", "turns": ["t1"] },
+                { "type": "modelInputIncludes", "route": "S03-composer", "role": "assistant", "contentIncludes": "Research: nothing further to add.", "turns": ["t4"] },
+                { "type": "modelInputIncludes", "route": "S03-composer", "role": "assistant", "contentIncludes": "Critique: a short closing is enough here.", "turns": ["t4"] }
+            ]
+        },
+        {
+            "id": "TS25-S09-aggregator",
+            "finding": "TS25",
+            "decision": "TS25, D15",
+            "scenarios": ["S09"],
+            "modes": ["M1"],
+            "turns": ["t1", "t3"],
+            "aspects": ["modelRequests"],
+            "expect": "The Aggregator's first-pass reply reaches its second pass (after the Retry Loop) as an assistant message instead of a user message named 'aggregator'.",
+            "checks": [
+                { "type": "modelInputIncludes", "route": "S09-aggregator", "call": 1, "role": "assistant", "contentIncludes": "Aggregate (t1, pass 0)", "turns": ["t1"] },
+                { "type": "modelInputIncludes", "route": "S09-aggregator", "call": 1, "role": "assistant", "contentIncludes": "Aggregate (t3, pass 0)", "turns": ["t3"] }
+            ]
+        },
+        {
+            "id": "TS26-pending-only-while-stopped",
+            "finding": "TS26",
+            "decision": "TS19, TS26",
+            "scenarios": ["S01", "S01r", "S02", "S03", "S04a", "S04b", "S05", "S06", "S06b", "S07", "S08", "S09", "S10a", "S10b", "S11", "S12", "S13"],
+            "modes": "*",
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Pending resume data is in the token exactly while a turn is stopped; a finished or failed normal turn carries none.",
+            "checks": [{ "type": "tokenPendingWhileStopped" }]
+        },
+        {
+            "id": "SIZE-token-v2",
+            "finding": "F13",
+            "decision": "TS19",
+            "scenarios": ["S01", "S01r", "S02", "S03", "S04a", "S04b", "S05", "S06", "S06b", "S07", "S08", "S09", "S10a", "S10b", "S11"],
+            "modes": "*",
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Token raw JSON is history + flow state + form values (+ pending data while stopped): at most 5% of the before token (estimate from before/: at most 2.2%; paused tokens under 1 K base64 characters in Task 03).",
+            "checks": [{ "type": "tokenBytesRatioToBeforeMax", "max": 0.05 }]
+        },
+        {
+            "id": "SIZE-token-v2-S12",
+            "finding": "F13",
+            "decision": "TS16, TS19",
+            "scenarios": ["S12"],
+            "modes": "*",
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "As SIZE-token-v2, with the child flow's token inside the parent token: at most 10% of the before token.",
+            "checks": [{ "type": "tokenBytesRatioToBeforeMax", "max": 0.1 }]
+        },
+        {
+            "id": "SIZE-token-v2-S13",
+            "finding": "F13, F14",
+            "decision": "TS19",
+            "scenarios": ["S13"],
+            "modes": ["M1"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "S13 has no before token (F14); its after token stays under 4 KB raw JSON.",
+            "checks": [{ "type": "tokenBytesMax", "max": 4096 }]
         }
     ]
 }

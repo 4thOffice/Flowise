@@ -146,6 +146,8 @@ Every client that matters reads from executed data only `[last].data.state` (VoI
 
 ## 6. Open questions
 
+Triaged in [04 §3](./04-decision-gate-and-token-v2-design.md#3-client-questions-client-inventorymd-6) (Task 04).
+
 1. **Same-turn replies** (TS-O2): answered, see §0 decision 2 (assistant messages when appended to the history, otherwise output variables only).
 2. **VoIP and Celery flows in production**: their node memory settings, the overrides they enable (`llmMessages`, `llmEnableMemory`, `startEphemeralMemory`, `startState`, `stateMemory`, `vars`), how they show the current question to a memory-off LLM, and `legacy_history` in the production `VoipBotConfig` rows. Flowise DB and Mongo, not in any repo; needed for 3.1.
 3. Is `bots.intheloop.io` Flowise or the proxy? The proxy's history item type rejects `type: ''`, which the VoIP consumer sends with `history` (matters for 3.1 option a).

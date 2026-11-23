@@ -105,8 +105,9 @@ function getPath(value, dotted) {
 }
 
 function runCheck(check, ctx) {
-    const { turn, resolve, peers } = ctx
+    const { turn, resolve, peers, tokenV2 = {} } = ctx
     if (check.pending) return 'pending'
+    const tokenHistory = () => getPath(resolve(turn.token?.decoded), check.historyPath ?? tokenV2.historyPath)
     switch (check.type) {
         case 'modelInputIncludes':
         case 'modelInputExcludes': {
@@ -129,13 +130,26 @@ function runCheck(check, ctx) {
         case 'tokenReceived':
             return Boolean(turn.token?.received) === (check.value ?? true)
         case 'tokenHistoryRoles': {
-            const history = getPath(resolve(turn.token?.decoded), check.historyPath)
+            const history = tokenHistory()
             const roles = Array.isArray(history) ? history.map((m) => m.role) : null
             return stable(roles) === stable(check.equals)
         }
         case 'tokenHistoryHasNoKey': {
-            const history = getPath(resolve(turn.token?.decoded), check.historyPath)
+            const history = tokenHistory()
             return Array.isArray(history) && history.every((m) => !(check.key in m))
+        }
+        case 'tokenHistoryAlternates': {
+            const history = tokenHistory()
+            return (
+                Array.isArray(history) &&
+                history.every(
+                    (m, i) => m.role === (i % 2 === 0 ? 'userMessage' : 'apiMessage') && typeof m.content === 'string' && m.content.trim() !== ''
+                )
+            )
+        }
+        case 'tokenPendingWhileStopped': {
+            const pending = getPath(resolve(turn.token?.decoded), check.path ?? tokenV2.pendingResumePath)
+            return Boolean(turn.token?.decoded) && (pending !== undefined && pending !== null) === (turn.status === 'STOPPED')
         }
         case 'tokenHasNoKey':
             return !stable(resolve(turn.token?.decoded) ?? {}).includes(`"${check.key}"`)
@@ -260,7 +274,13 @@ function compare(opts) {
                     let passed
                     let error
                     try {
-                        passed = runCheck(check, { turn: afterTurn, beforeTurn, resolve: afterReader.resolve, peers: afterByScenario.get(scenario) })
+                        passed = runCheck(check, {
+                            turn: afterTurn,
+                            beforeTurn,
+                            resolve: afterReader.resolve,
+                            peers: afterByScenario.get(scenario),
+                            tokenV2: config.tokenV2
+                        })
                     } catch (err) {
                         passed = false
                         error = err.message

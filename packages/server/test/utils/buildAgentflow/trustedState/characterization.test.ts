@@ -530,10 +530,15 @@ describe('findings: target behaviour', () => {
         })
     })
 
-    describe('F11 ephemeral memory (TS17)', () => {
-        test.failing('F11 the token keeps no history while flow state still carries over (S10b)', async () => {
+    describe('F11 ephemeral memory dropped (TS17)', () => {
+        test.failing('F11 a saved Ephemeral Memory option changes nothing: the memory-on agent sees earlier turns (S10b)', async () => {
             const conversation = await runOf('S10b')
-            expect(conversation.turns.map((t) => tokenHistory(t.decoded!.state).length)).toEqual([0, 0, 0])
+            expect(conversationOf(conversation.turn('t2'), 'S10b-agent')).toEqual([
+                { role: 'user', content: 'Remember that my favourite colour is green.' },
+                { role: 'assistant', content: conversation.turn('t1').text },
+                { role: 'user', content: 'What is my favourite colour?' }
+            ])
+            expect(conversation.turns.map((t) => tokenHistory(t.decoded!.state).length)).toEqual([2, 4, 6])
             expect(conversation.turns.map((t) => t.finalState?.counter)).toEqual(['1', '2', '3'])
         })
     })

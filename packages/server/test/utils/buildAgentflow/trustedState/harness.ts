@@ -132,11 +132,8 @@ export const MODES: Record<HarnessMode, ModeConfig> = {
     }
 }
 
-/*
- * The per-flow "Accept conversation history from the client" setting (TS13a) does not exist yet; its storage
- * key is set when it is built (Task 04/06). Tests that need it go through this one switch.
- */
-export const ACCEPT_CLIENT_HISTORY_CHATBOT_CONFIG = { acceptClientHistory: { enabled: true } }
+// "Accept conversation history from the client" (TS13a): key from the Task 04 design, built in Task 06
+export const ACCEPT_CLIENT_HISTORY_CHATBOT_CONFIG = { clientState: { acceptClientHistory: true } }
 
 // ---------- component nodes ----------
 
@@ -545,10 +542,12 @@ export class Conversation {
         for (const slug of [this.scenario.flow, ...(this.scenario.extraFlows ?? [])]) {
             const loaded = loadFlow(slug)
             const isTarget = slug === this.scenario.flow
-            const chatbotConfig = {
-                ...(this.modeConfig.clientState ? { clientState: this.modeConfig.clientState } : {}),
-                ...(isTarget ? options.chatbotConfig ?? {} : {})
-            }
+            const extraConfig: ICommonObject = isTarget ? options.chatbotConfig ?? {} : {}
+            const clientState =
+                this.modeConfig.clientState || extraConfig.clientState
+                    ? { ...(this.modeConfig.clientState ?? {}), ...(extraConfig.clientState ?? {}) }
+                    : undefined
+            const chatbotConfig = { ...extraConfig, ...(clientState ? { clientState } : {}) }
             this.chatflows[slug] = {
                 id: flowIdFor(slug),
                 name: `TS01 ${this.mode} ${slug}`,

@@ -183,5 +183,5 @@ Nothing else in the token is read on a normal turn: no record field, no history 
 
 Not needed for a resume: history metadata, `previousExecution.id` and the rest of its envelope, record labels and `previousNodeIds`, `data.id`, `data.name`, `data.input`, `data.chatHistory`, every other output field, the stopped node's input except the checkpoint messages and the feedback flag, `humanInputAction.extra`, and state copies on all but the latest record.
 
-Left to Task 04: `previousExecution.id` (recorded executions continue one row, M2), the ERROR-after-STOPPED retry, `{{$loop}}` after a resume (reads `data.name`; not exercised), and a loop max count overridden per request.
+Left to Task 04: `previousExecution.id` (recorded executions continue one row, M2), the ERROR-after-STOPPED retry, `{{$loop}}` after a resume (reads `data.name`; not exercised), and a loop max count overridden per request. Settled in [04 §2.6](./04-decision-gate-and-token-v2-design.md#26-builder-rules): `executionId` in the pending data when executions are recorded (D10), a failed resume returns the incoming token so answering again retries (D6), rehydrated records take `data.name` from the current flow, and the loop entry keeps the stop-time max count.
 

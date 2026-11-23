@@ -137,7 +137,7 @@ All turns stream except S13. The capture client sends the latest token it receiv
 | **TS14** failed turn | `M1/S11…` t2 | Status `ERROR`, 7 Agent A attempts (HTTP 500, LangChain retries), `b_note` from LLM B kept in the record state, token history unchanged; t3 continues. |
 | **TS-O1** | `M1/S07…` t3, t5; `M1/S08…` t2 | The resume replays `humanInputAction.data.input.messages` (the earlier prompt) as model input. |
 
-Every finding except F17's UI part is visible in at least one trace. `compare.config.json` holds the expected after-behaviour. Run against `before/` itself ([`reports/00b-config-dry-run.md`](./reports/00b-config-dry-run.md)), the checks for changed behaviour fail and the ones for kept behaviour (TS5, TS14, F18 internal) pass; the F07, F08 and F11 history checks and the TS-O1 allowance wait for Task 04's field names and Task 03's measurement.
+Every finding except F17's UI part is visible in at least one trace. `compare.config.json` holds the expected after-behaviour. Run against `before/` itself ([`reports/04-config-dry-run.md`](./reports/04-config-dry-run.md), after Task 04 named the token v2 fields and completed the entries; first draft: [`reports/00b-config-dry-run.md`](./reports/00b-config-dry-run.md)), the checks for changed behaviour fail and the ones for kept behaviour (TS5, TS14, F18 internal) pass; no check is pending.
 
 ---
 
@@ -197,6 +197,6 @@ Statuses per turn: F finished, S stopped, E error. Token max / last: largest tok
 
 **Observations for later tasks** (today's behaviour, not decided)
 1. DB mode picks the latest execution by second-resolution `createdDate` (see above); moot once F01 removes DB reads.
-2. S10a t4: when the client repeats the history in an `llmMessages` override, the memory-off LLM drops the trailing copy but also never receives the current question, because the override contains user messages. TS13/TS22 do not settle this; Task 06 asks the user (`compare.config.json`, F02 entry, pending check).
+2. S10a t4: when the client repeats the history in an `llmMessages` override, the memory-off LLM drops the trailing copy but also never receives the current question, because the override contains user messages. Settled in Task 04 (D16): an override tail that repeats an accepted client history is trimmed, so the question is added; a memory-off node fed from the token history keeps its override as sent (`compare.config.json`, F02 entries).
 3. S08 t2: a resume turn that finishes one branch while another stays stopped streams no text and saves `" "` as the bot message (F07; Task 07).
 4. S06b: each toggle-off resume re-adds the original question as a user message, so history gets the same question three times by t3 (F06).
