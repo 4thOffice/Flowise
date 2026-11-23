@@ -43,7 +43,7 @@ References:
 | **TS9** | Token is the only source | Agentflow V2 never reads ChatMessage or Execution rows for history, state or resume, in any mode. The Client State switch, the `enableTrustedState` request flag and the env flags no longer select sources. The remaining settings only control writes: recording chat messages (TS21) and recording executions (TS5). `clientState.enabled` and `enabledFull` stay as these write switches; the request flag only stands in for an unset `enabled` (D12). |
 | **TS10** | Turn contract | Between turns only the token fields of TS19 are carried: history, flow state, form values, child flow tokens, and pending resume data while stopped. |
 | **TS11** | State carry-over | Flow state always carries over. The Start node's Persist State option is removed. Start node version 1.2; a saved value is ignored (D14). |
-| **TS12** | Form values | Kept in their own token field (TS19), not in flow state. A new form submission replaces them; the Start node and `$form.*` read them from there. |
+| **TS12** | Form values | Kept in their own token field (TS19), not in flow state. A new form submission replaces them; the Start node and `$form.*` read them from there, in every run, iteration runs included (06 §4.2). |
 | **TS13** | Request `history` field | Clients send the whole conversation in `history`, optionally starting with a welcome message. When `history` is present and allowed (TS13a), it is the turn's history instead of the token history; the turn's messages are appended and the result is saved in the token. Sanity check: if the token holds history and its last message is not in `history`, log a warning and continue. Resume turns ignore `history`, with a warning (D7). |
 | **TS13a** | When client `history` is allowed | A per-flow setting, "Accept conversation history from the client", off by default. When off, `history` is ignored and a warning is logged. Flows whose clients send `history` today must turn it on at deploy. Key: `clientState.acceptClientHistory` (D12). |
 | **TS14** | Failed turn | Keeps the state changes of nodes that finished before the failure (as today); adds nothing to history. A failed resume returns the incoming token unchanged, so answering again retries (D6). |
@@ -62,7 +62,7 @@ References:
 | **TS27** | VoIP and overrides that repeat the history | VoIP keeps sending its call in `llmMessages`, the welcome, filler words and consecutive bot messages included; the server neither merges nor reorders them, and `llmEnableMemory` keeps its LLM nodes memory-off (TS24). The tail of an `agentMessages` / `llmMessages` override that repeats the turn history is removed, with a warning, only when the node has memory on or the history came from an accepted client `history`; the rule that adds the current question runs on what remains (00b S10a t4). VoIP's `history` field is ignored with a warning while its flows keep TS13a off. `bots.intheloop.io` is Flowise itself, not the proxy. Memory-on nodes that `startEphemeralMemory` hid the token history from now see it; Task 10 checks the production VoIP and Celery flows (user, Task 04 D16; [04 §2.7](./04-decision-gate-and-token-v2-design.md)). |
 | **TS28** | Concurrent and stale tokens | Last writer wins, with no detection on the server (it would need server-side conversation state, TS9). Clients send one request at a time per conversation, keep the latest token, resend the previous one to retry a failed turn, and hide approval buttons once answered; Task 10's client note documents this (user, Task 04 D17; [04 §2.12](./04-decision-gate-and-token-v2-design.md)). |
 
-Task 04's design decisions D1–D17 are listed in [04 §4](./04-decision-gate-and-token-v2-design.md); the rows above cite the ones that refine a TS decision.
+Task 04's design decisions D1–D17 are listed in [04 §4](./04-decision-gate-and-token-v2-design.md); the rows above cite the ones that refine a TS decision. Task 06's implementation decisions are listed in [06 §4.2](./06-state-and-history-semantics.md); none changes model input beyond the compare entries.
 
 ### Open Decisions
 
@@ -122,7 +122,7 @@ flowchart LR
 | 03 | [03-field-removal-tests.md](./03-field-removal-tests.md) | Done (TS-O1 resolved as TS26) | — | — | Prove that the token fields suffice for normal turns; measure and resolve TS-O1. |
 | 04 | [04-decision-gate-and-token-v2-design.md](./04-decision-gate-and-token-v2-design.md) | Done (D1–D17; TS-O3 and TS-O4 resolved as TS27, TS28; TS24 amended) | — | — | Token v2 design review: field names, v1 upgrade, builder and history rules, compare entries. |
 | 05 | [05-token-only-core.md](./05-token-only-core.md) | Done (interim deviations for Task 07 in 05 §4.2) | — | F01, F03, F12–F16 | v2 codec and builder, no DB reads, state in the token, token in JSON responses. |
-| 06 | [06-state-and-history-semantics.md](./06-state-and-history-semantics.md) | Not started | — | F02, F03, F04, F11 | Persist State and ephemeral memory removed, form values field, client `history`, overrides that repeat the history (TS27), Return Response As (TS25). |
+| 06 | [06-state-and-history-semantics.md](./06-state-and-history-semantics.md) | Done (decisions in 06 §4.2; notes for 07, 08 and 10 in their specs) | — | F02, F03, F04, F11 | Persist State and ephemeral memory removed, form values field, client `history`, overrides that repeat the history (TS27), Return Response As (TS25). |
 | 07 | [07-human-input-stop-and-resume.md](./07-human-input-stop-and-resume.md) | Not started | — | F05–F09 | Approval answers in history, no state flags, resume from slim pending data, v1 paused tokens. |
 | 08 | [08-execute-flow-child-tokens.md](./08-execute-flow-child-tokens.md) | Not started | — | F10 | Child flow tokens kept in parent state. |
 | 09 | [09-client-payloads-and-ui.md](./09-client-payloads-and-ui.md) | Not started | — | F17, F18, F19 | Slim `action`, executed data full internal / pruned external, UI token handling. |
@@ -140,6 +140,7 @@ flowchart LR
 - **All server tests**: `pnpm --filter ./packages/server test` (about 5 min)
 - **Agentflow tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow`
 - **Trusted state tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow/trustedState` (about 60 s)
+- **Characterization snapshots**: update them only in a run of the whole `characterization.test.ts`; a filtered run reverses S03's parallel reply order.
 - **Components tests**: `pnpm --filter flowise-components test`
 - **UI build**: `pnpm --filter flowise-ui build`
 - **Capture**: `node plans/agentflow-trusted-state/baselines/capture-traces.mjs --out-dir <dir>` (setup in `baselines/README.md`)

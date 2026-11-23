@@ -24,7 +24,8 @@ A child flow called by Execute Flow keeps its own history and state across the p
 - Chat id, override config and Merge State (`agentFlowExecutedData[last].data.state`) unchanged.
 - Child flows that stop for human input are not resumed: the next parent turn sends the child token with a question, which abandons the child's pause. Record the limitation.
 - Size: the child token adds to the parent token; record its size in S12.
-- "Return Response As" (D15): User Message removed, default Assistant Message, any value but `ignore` means assistant; version 1.2 → 1.3 (sync fallback from Task 06's `updateOutdatedNodeData` change).
+- "Return Response As" (D15): User Message removed, default Assistant Message, any value but `ignore` means assistant; version 1.2 → 1.3 (sync fallback from Task 06's `updateOutdatedNodeData` change). The option is at `ExecuteFlow.ts:90-106`, the role logic at `:258-283`.
+- Tests: list S12's differences in `INTENDED_DIFFERENCES` (`characterization.test.ts`) and add `F10-S12-child-token` to its `compare.config.json checks` block, as Task 06 did for its entries (06 §4.3).
 
 ---
 
