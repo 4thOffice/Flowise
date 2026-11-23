@@ -23,7 +23,8 @@ import {
 /*
  * Task 03 of plans/agentflow-trusted-state: which token fields the next turn needs, proven by running turn n+1 of every
  * scenario with a token built from T(n) and comparing the outcome with the run on T(n). Every built token uses the v1
- * layout, with each field placed where the v1 code read it, so these runs also exercise the v1 upgrade. Since Task 05
+ * layout, with each field placed where the v1 code read it, so these runs also exercise the v1 upgrade; only a token with
+ * child flow tokens, which v1 has no place for, uses the v2 layout (Task 08). Since Task 05
  * the server writes v2 tokens: the removals edit their v2 fields, a stopped run's records sit in the interim pending
  * data, and the pending action is marked by its history index instead of an `action` on the history message.
  */
@@ -210,7 +211,7 @@ const slimAction = (action: any, inputFields = ['humanInputEnableFeedback']) => 
     data: { ...pick(action.data ?? {}, ['nodeId', 'nodeLabel']), input: pick(action.data?.input ?? {}, inputFields) }
 })
 
-// ---------- the contract fields (TS19: history, flow state, form values) ----------
+// ---------- the contract fields (TS19: history, flow state, form values, child flow tokens) ----------
 
 const CONTRACT_MESSAGE_FIELDS = ['role', 'content', 'fileUploads', 'artifacts']
 
@@ -218,6 +219,7 @@ interface ContractFields {
     history: any[]
     flowState?: any
     form?: any
+    childFlowTokens?: Record<string, { flowId: string; token: string }>
 }
 
 function latestFlowState(records: any[]) {
@@ -228,7 +230,12 @@ function latestFlowState(records: any[]) {
 function contractFieldsOf(state: any): ContractFields {
     const history = tokenHistory(state).map((message: any) => pick(message, CONTRACT_MESSAGE_FIELDS))
     if (isV2Token(state)) {
-        return { history, flowState: state.flowState, form: Object.keys(state.formValues).length ? state.formValues : undefined }
+        return {
+            history,
+            flowState: state.flowState,
+            form: Object.keys(state.formValues).length ? state.formValues : undefined,
+            childFlowTokens: Object.keys(state.childFlowTokens).length ? state.childFlowTokens : undefined
+        }
     }
     const records = tokenRecords(state)
     return {
@@ -239,7 +246,8 @@ function contractFieldsOf(state: any): ContractFields {
 }
 
 // Persist State reads the latest record with data.state; form values are read from the first Start record
-function contractToken({ history, flowState, form }: ContractFields, { startRecordName = true } = {}) {
+function contractToken({ history, flowState, form, childFlowTokens }: ContractFields, { startRecordName = true } = {}) {
+    if (childFlowTokens) return { version: 2, history, flowState: flowState ?? {}, formValues: form ?? {}, childFlowTokens }
     const records: any[] = []
     if (form !== undefined) records.push({ data: { ...(startRecordName ? { name: 'startAgentflow' } : {}), output: { form } } })
     if (flowState !== undefined) records.push({ data: { state: flowState } })
@@ -329,7 +337,7 @@ const report: Record<string, Record<string, string[] | string>> = { normal: {}, 
 // ---------- normal turns ----------
 
 describe('normal turns: the contract token', () => {
-    test.each(SCENARIOS)('%s: history, flow state and form values alone keep every normal turn identical', async (id) => {
+    test.each(SCENARIOS)('%s: the TS19 fields alone keep every normal turn identical', async (id) => {
         const c = scenarioCase(id)
         const conversation = await caseConversation(c)
         const normal = boundariesOf(c, conversation).filter((b) => !b.resume)
@@ -416,6 +424,11 @@ const CONTRACT_FIELD_REMOVALS: Removal[] = [
         name: 'Start record name (form lookup)',
         build: contractRemoval((f) => (f.form !== undefined ? f : null), { startRecordName: false }),
         expected: at('S05', 't2 t4')
+    },
+    {
+        name: 'child flow tokens',
+        build: contractRemoval((f) => (f.childFlowTokens ? { ...f, childFlowTokens: undefined } : null)),
+        expected: at('S12', 't2 t3 t4')
     }
 ]
 

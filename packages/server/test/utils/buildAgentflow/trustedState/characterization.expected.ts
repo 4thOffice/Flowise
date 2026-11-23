@@ -860,40 +860,40 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
         },
         t2: {
             status: 'FINISHED',
-            text: 'Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)',
+            text: 'Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 2)',
             nodes: [
                 'agentAgentflow_0:FINISHED',
                 'directReplyAgentflow_0:FINISHED',
                 'executeFlowAgentflow_0:FINISHED',
                 'startAgentflow_0:FINISHED'
             ],
-            state: { child_count: '1' },
+            state: { child_count: '2' },
             calls: { 'S12-parent': ['parent'], 'S12-specialist': ['specialist-t2'] },
             history: 'uaua'
         },
         t3: {
             status: 'FINISHED',
-            text: 'Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 1)',
+            text: 'Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 3)',
             nodes: [
                 'agentAgentflow_0:FINISHED',
                 'directReplyAgentflow_0:FINISHED',
                 'executeFlowAgentflow_0:FINISHED',
                 'startAgentflow_0:FINISHED'
             ],
-            state: { child_count: '1' },
+            state: { child_count: '3' },
             calls: { 'S12-parent': ['parent'], 'S12-specialist': ['specialist-t3'] },
             history: 'uauaua'
         },
         t4: {
             status: 'FINISHED',
-            text: 'Front desk (t4): let me ask our returns specialist.\n\nSpecialist: Happy to help with your return. (specialist turn 1)',
+            text: 'Front desk (t4): let me ask our returns specialist.\n\nSpecialist: Happy to help with your return. (specialist turn 4)',
             nodes: [
                 'agentAgentflow_0:FINISHED',
                 'directReplyAgentflow_0:FINISHED',
                 'executeFlowAgentflow_0:FINISHED',
                 'startAgentflow_0:FINISHED'
             ],
-            state: { child_count: '1' },
+            state: { child_count: '4' },
             calls: { 'S12-parent': ['parent'], 'S12-specialist': ['specialist-t4'] },
             history: 'uauauaua'
         }
@@ -1029,10 +1029,10 @@ export const EXPECTED_TOKEN_CONTENTS: Record<string, Record<string, TokenContent
         t3: { bytes: 442, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S12: {
-        t1: { bytes: 341, sentinels: 0, records: 0, historyWithAction: 0 },
-        t2: { bytes: 583, sentinels: 0, records: 0, historyWithAction: 0 },
-        t3: { bytes: 810, sentinels: 0, records: 0, historyWithAction: 0 },
-        t4: { bytes: 1019, sentinels: 0, records: 0, historyWithAction: 0 }
+        t1: { bytes: 709, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 1023, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 1278, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 1531, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S13: {
         t1: { bytes: 237, sentinels: 0, records: 0, historyWithAction: 0 },

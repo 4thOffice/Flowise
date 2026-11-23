@@ -21,6 +21,7 @@ import {
     findNodeRecords,
     historyRolesCompact,
     loadBeforeTrace,
+    loadHarnessScenario,
     loadScenario,
     normalizeValue,
     runConversation,
@@ -29,6 +30,7 @@ import {
     tokenSize,
     turnFacts,
     userFacingAction,
+    withReplyOverrides,
     withoutRetries
 } from './harness'
 import { ScriptedOpenAIServer } from './testChatModel'
@@ -258,10 +260,11 @@ describe('before/ traces', () => {
     const INTENDED_DIFFERENCES: Record<string, IntendedDifference> = {
         // The JSON response carries the token, so S13 has a token history and continues the conversation
         ...intended('F14', ASPECTS, 'M1/S13/t1', 'M1/S13/t2', 'M1/S13/t3'),
-        // Client State off reads nothing from the database: resumes save no answer (as M1) and the child flow has no memory (as M1)
+        // Client State off reads nothing from the database: resumes save no answer (as M1)
         ...intended('F01', ASPECTS, 'M3/S06/t2', 'M3/S06/t3', 'M3/S06/t4', 'M3/S06/t5'),
         ...intended('F01', ASPECTS, 'M3/S07/t3', 'M3/S07/t4', 'M3/S07/t5', 'M3/S07/t6'),
-        ...intended('F01', ASPECTS, 'M3/S12/t2', 'M3/S12/t3', 'M3/S12/t4'),
+        // The child flow continues from the token the parent keeps for it, as it continued from the database in M3 (unchanged there)
+        ...intended('F10', ['requests', 'text', 'state'], 'M1/S12/t2', 'M1/S12/t3', 'M1/S12/t4'),
         // The request history is ignored while "Accept conversation history from the client" is off, and no node prepends it
         ...intended('F02', ['requests'], 'M1/S10a/t1', 'M1/S10a/t2', 'M1/S10a/t3', 'M1/S10a/t4'),
         // With the setting on, the request history is the turn history and the token keeps it, welcome message included
@@ -327,6 +330,7 @@ describe('compare.config.json checks', () => {
         'F02-S10a-accept-off',
         'F03-S04b-state-carries',
         'F04-S05-new-form-wins',
+        'F10-S12-child-token',
         'F11-S10b-ephemeral-dropped',
         'TS25-S03-composer',
         'TS25-S09-aggregator'
@@ -422,7 +426,7 @@ describe('kept behaviour', () => {
 })
 
 describe('token-only conversations (Task 05)', () => {
-    const TOKEN_ONLY_SCENARIOS = ['S01', 'S01r', 'S02', 'S03', 'S04a', 'S04b', 'S05', 'S09', 'S10a', 'S10b', 'S11', 'S13']
+    const TOKEN_ONLY_SCENARIOS = ['S01', 'S01r', 'S02', 'S03', 'S04a', 'S04b', 'S05', 'S09', 'S10a', 'S10b', 'S11', 'S12', 'S13']
 
     test.each(TOKEN_ONLY_SCENARIOS)('%s runs with Client State off and every conversation read failing, as with it on', async (id) => {
         const tokenMode = await runOf(id)
@@ -700,7 +704,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F10 Execute Flow child tokens (TS16)', () => {
-        test.failing('F10 the child flow sees its own earlier messages and state on the next turn (S12)', async () => {
+        test('F10 the child flow sees its own earlier messages and state on the next turn (S12)', async () => {
             const conversation = await runOf('S12')
             expect(conversationOf(conversation.turn('t2'), 'S12-specialist')).toEqual([
                 { role: 'user', content: 'I want to return a pair of boots.' },
@@ -708,6 +712,61 @@ describe('findings: target behaviour', () => {
                 { role: 'user', content: 'They were worn once, is that a problem?' }
             ])
             expect(conversation.turns.map((t) => t.finalState?.child_count)).toEqual(['1', '2', '3', '4'])
+        })
+
+        test('F10 the conversation runs as it did when the child read its messages and state from the database (S12, M3 before/)', async () => {
+            const trace = loadBeforeTrace('M3', loadScenario('S12').slug)
+            for (const turn of (await runOf('S12')).turns) {
+                const before = trace.turns.find((t) => t.id === turn.id) as BeforeTurn
+                expect({
+                    turn: turn.id,
+                    requests: comparableRequests(turn.modelCalls),
+                    ...observedFacts(turn, turn.tokenSummary?.historyRoles ?? null)
+                }).toEqual({
+                    turn: turn.id,
+                    requests: comparableRequests(withoutRetries(before.modelRequests)),
+                    ...observedFacts(before, before.token?.sizes?.historyRoles ?? null)
+                })
+            }
+        })
+
+        test("F10 the parent keeps the child's token by node id, sends it with the next call and stays within 10 % of the v1 token (S12)", async () => {
+            for (const mode of ['M1', 'M3'] as HarnessMode[]) {
+                const conversation = await runOf('S12', mode)
+                const before = loadBeforeTrace(mode, loadScenario('S12').slug)
+                conversation.turns.forEach((turn, i) => {
+                    const [call] = turn.childCalls
+                    const kept = turn.decoded!.state.childFlowTokens
+                    expect(Object.keys(kept)).toEqual(['executeFlowAgentflow_0'])
+                    expect(kept.executeFlowAgentflow_0).toEqual({ flowId: call.flowId, token: call.result?.trustedState })
+                    expect(call.request.trustedState).toBe(
+                        i ? conversation.turns[i - 1].decoded!.state.childFlowTokens.executeFlowAgentflow_0.token : undefined
+                    )
+                    const child = decodeToken(kept.executeFlowAgentflow_0.token)
+                    expect(child.state.flowState).toEqual({ child_count: String(i + 1) })
+                    expect(countSentinels(child.json).total).toBe(0)
+                    expect(JSON.stringify(turn.executedData)).not.toContain(kept.executeFlowAgentflow_0.token)
+                    const beforeBytes = before.turns.find((t) => t.id === turn.id)!.token!.sizes!.rawJsonBytes
+                    expect(turn.decoded!.sizes.rawJsonBytes).toBeLessThanOrEqual(0.1 * beforeBytes)
+                })
+            }
+        })
+
+        test('F10 a failed child call fails the turn and keeps the earlier child token, which the next call continues from (S12)', async () => {
+            const failing = withReplyOverrides(loadHarnessScenario('S12'), {
+                'specialist-t2': { error: { status: 500, message: 'Injected fake LLM failure for the specialist' } }
+            })
+            const conversation = await runConversation({ scenario: failing })
+            const kept = (turnId: string) => conversation.turn(turnId).decoded!.state.childFlowTokens.executeFlowAgentflow_0
+            expect(conversation.turns.map((t) => t.status)).toEqual(['FINISHED', 'ERROR', 'FINISHED', 'FINISHED'])
+            expect(kept('t2')).toEqual(kept('t1'))
+            expect(conversation.turn('t3').childCalls[0].request.trustedState).toBe(kept('t1').token)
+            expect(conversationOf(conversation.turn('t3'), 'S12-specialist')).toEqual([
+                { role: 'user', content: 'I want to return a pair of boots.' },
+                { role: 'assistant', content: 'Boots can be returned within 30 days if they are unworn.' },
+                { role: 'user', content: 'What did I want to return again?' }
+            ])
+            expect(conversation.turn('t3').finalState).toEqual({ child_count: '2' })
         })
     })
 

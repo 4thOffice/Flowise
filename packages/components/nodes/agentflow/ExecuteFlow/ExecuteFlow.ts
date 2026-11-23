@@ -1,5 +1,6 @@
 import { ICommonObject, INode, INodeData, INodeOptionsValue, INodeParams, IServerSideEventStreamer } from '../../../src/Interface'
 import axios, { AxiosRequestConfig } from 'axios'
+import { omit } from 'lodash'
 import { getCredentialData, getCredentialParam, processTemplateVariables, parseJsonBody } from '../../../src/utils'
 import { BaseMessageLike } from '@langchain/core/messages'
 import { listFlows, updateFlowState } from '../utils'
@@ -41,7 +42,7 @@ class ExecuteFlow_Agentflow implements INode {
     constructor() {
         this.label = 'Execute Flow'
         this.name = 'executeFlowAgentflow'
-        this.version = 1.2
+        this.version = 1.3
         this.type = 'ExecuteFlow'
         this.category = 'Agent Flows'
         this.description = 'Execute another flow'
@@ -91,10 +92,6 @@ class ExecuteFlow_Agentflow implements INode {
                 type: 'options',
                 options: [
                     {
-                        label: 'User Message',
-                        name: 'userMessage'
-                    },
-                    {
                         label: 'Assistant Message',
                         name: 'assistantMessage'
                     },
@@ -103,7 +100,7 @@ class ExecuteFlow_Agentflow implements INode {
                         name: 'ignore'
                     }
                 ],
-                default: 'userMessage'
+                default: 'assistantMessage'
             },
             {
                 label: 'Update Flow State',
@@ -193,6 +190,7 @@ class ExecuteFlow_Agentflow implements INode {
         const runtimeChatHistory = (options.agentflowRuntime?.chatHistory as BaseMessageLike[]) ?? []
         const isLastNode = options.isLastNode as boolean
         const sseStreamer: IServerSideEventStreamer | undefined = options.sseStreamer
+        const childFlowToken = options.childFlowToken as { flowId: string; token: string } | undefined
 
         try {
             const credentialData = await getCredentialData(nodeData.credential ?? '', options)
@@ -214,16 +212,18 @@ class ExecuteFlow_Agentflow implements INode {
                 data: {
                     question: flowInput,
                     chatId: options.chatId,
-                    overrideConfig
+                    overrideConfig,
+                    ...(childFlowToken?.flowId === selectedFlowId ? { trustedState: childFlowToken.token } : {})
                 }
             }
 
             const response = await axios(requestConfig)
+            const childToken = response.data?.trustedState
 
             let resultText = ''
             if (response.data.text) resultText = response.data.text
             else if (response.data.json) resultText = '```json\n' + JSON.stringify(response.data.json, null, 2)
-            else resultText = JSON.stringify(response.data, null, 2)
+            else resultText = JSON.stringify(childToken === undefined ? response.data : omit(response.data, 'trustedState'), null, 2)
 
             if (isLastNode && sseStreamer) {
                 sseStreamer.streamTokenEvent(options.chatId, resultText)
@@ -255,11 +255,6 @@ class ExecuteFlow_Agentflow implements INode {
                 inputMessages.push({ role: 'user', content: flowInput })
             }
 
-            let returnRole = 'user'
-            if (returnResponseAs === 'assistantMessage') {
-                returnRole = 'assistant'
-            }
-
             const returnOutput = {
                 id: nodeData.id,
                 name: this.name,
@@ -280,13 +275,14 @@ class ExecuteFlow_Agentflow implements INode {
                     ...(
                         returnResponseAs === 'ignore' ? [] :
                             [{
-                                role: returnRole,
+                                role: 'assistant',
                                 content: resultText,
                                 name: nodeData?.label ? nodeData?.label.toLowerCase().replace(/\s/g, '_').trim() : nodeData?.id
 
                             }]
                     )
-                ]
+                ],
+                ...(typeof childToken === 'string' && childToken ? { childFlowToken: { flowId: selectedFlowId, token: childToken } } : {})
             }
 
             return returnOutput
