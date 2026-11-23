@@ -1,0 +1,152 @@
+# Trace comparison
+
+- Before: `traces/after`
+- After: `<outside baselines>/after-rerun`
+- Intended entries: 0
+- Failures: 2
+
+| Trace | Turn | modelRequests | streamedTokens | finalText | nodeSequence | status | finalState | action | error | Token bytes (before → after) | Token sentinels |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | ---: | ---: |
+| M1/S01-single-agent-memory.json | t1 | = | = | = | = | = | = | = | = | 311 → 311 | 0 → 0 |
+| M1/S01-single-agent-memory.json | t2 | = | = | = | = | = | = | = | = | 506 → 506 | 0 → 0 |
+| M1/S01-single-agent-memory.json | t3 | = | = | = | = | = | = | = | = | 689 → 689 | 0 → 0 |
+| M1/S01-single-agent-memory.json | t4 | = | = | = | = | = | = | = | = | 919 → 919 | 0 → 0 |
+| M1/S01-single-agent-memory.json | t5 | = | = | = | = | = | = | = | = | 1073 → 1073 | 0 → 0 |
+| M1/S01r-redirect-mapping.json | t1 | = | = | = | = | = | = | = | = | 255 → 255 | 0 → 0 |
+| M1/S01r-redirect-mapping.json | t2 | = | = | = | = | = | = | = | = | 388 → 388 | 0 → 0 |
+| M1/S01r-redirect-mapping.json | t3 | = | = | = | = | = | = | = | = | 492 → 492 | 0 → 0 |
+| M1/S02-router-mixed-memory.json | t1 | = | = | = | = | = | = | = | = | 272 → 272 | 0 → 0 |
+| M1/S02-router-mixed-memory.json | t2 | = | = | = | = | = | = | = | = | 467 → 467 | 0 → 0 |
+| M1/S02-router-mixed-memory.json | t3 | = | = | = | = | = | = | = | = | 651 → 651 | 0 → 0 |
+| M1/S02-router-mixed-memory.json | t4 | = | = | = | = | = | = | = | = | 840 → 840 | 0 → 0 |
+| M1/S02-router-mixed-memory.json | t5 | = | = | = | = | = | = | = | = | 1020 → 1020 | 0 → 0 |
+| M1/S02-router-mixed-memory.json | t6 | = | = | = | = | = | = | = | = | 1203 → 1203 | 0 → 0 |
+| M1/S03-parallel-agents-join.json | t1 | **DIFF** | = | = | = | = | = | = | = | 495 → 495 | 0 → 0 |
+| M1/S03-parallel-agents-join.json | t2 | **DIFF** | = | = | = | = | = | = | = | 807 → 807 | 0 → 0 |
+| M1/S03-parallel-agents-join.json | t3 | = | = | = | = | = | = | = | = | 1086 → 1086 | 0 → 0 |
+| M1/S03-parallel-agents-join.json | t4 | = | = | = | = | = | = | = | = | 1219 → 1219 | 0 → 0 |
+| M1/S04a-state-carry-persist-on.json | t1 | = | = | = | = | = | = | = | = | 313 → 313 | 0 → 0 |
+| M1/S04a-state-carry-persist-on.json | t2 | = | = | = | = | = | = | = | = | 483 → 483 | 0 → 0 |
+| M1/S04a-state-carry-persist-on.json | t3 | = | = | = | = | = | = | = | = | 681 → 681 | 0 → 0 |
+| M1/S04a-state-carry-persist-on.json | t4 | = | = | = | = | = | = | = | = | 859 → 859 | 0 → 0 |
+| M1/S04b-state-carry-persist-off.json | t1 | = | = | = | = | = | = | = | = | 313 → 313 | 0 → 0 |
+| M1/S04b-state-carry-persist-off.json | t2 | = | = | = | = | = | = | = | = | 483 → 483 | 0 → 0 |
+| M1/S04b-state-carry-persist-off.json | t3 | = | = | = | = | = | = | = | = | 681 → 681 | 0 → 0 |
+| M1/S04b-state-carry-persist-off.json | t4 | = | = | = | = | = | = | = | = | 859 → 859 | 0 → 0 |
+| M1/S05-form-then-chat.json | t1 | = | = | = | = | = | = | = | = | 269 → 269 | 0 → 0 |
+| M1/S05-form-then-chat.json | t2 | = | = | = | = | = | = | = | = | 441 → 441 | 0 → 0 |
+| M1/S05-form-then-chat.json | t3 | = | = | = | = | = | = | = | = | 597 → 597 | 0 → 0 |
+| M1/S05-form-then-chat.json | t4 | = | = | = | = | = | = | = | = | 765 → 765 | 0 → 0 |
+| M1/S06-human-review-with-feedback.json | t1 | = | = | = | = | = | = | = | = | 1116 → 1116 | 0 → 0 |
+| M1/S06-human-review-with-feedback.json | t2 | = | = | = | = | = | = | = | = | 1614 → 1614 | 0 → 0 |
+| M1/S06-human-review-with-feedback.json | t3 | = | = | = | = | = | = | = | = | 866 → 866 | 0 → 0 |
+| M1/S06-human-review-with-feedback.json | t4 | = | = | = | = | = | = | = | = | 1847 → 1847 | 0 → 0 |
+| M1/S06-human-review-with-feedback.json | t5 | = | = | = | = | = | = | = | = | 1316 → 1316 | 0 → 0 |
+| M1/S06b-human-review-history-off.json | t1 | = | = | = | = | = | = | = | = | 900 → 900 | 0 → 0 |
+| M1/S06b-human-review-history-off.json | t2 | = | = | = | = | = | = | = | = | 1145 → 1145 | 0 → 0 |
+| M1/S06b-human-review-history-off.json | t3 | = | = | = | = | = | = | = | = | 354 → 354 | 0 → 0 |
+| M1/S06b-human-review-history-off.json | t4 | = | = | = | = | = | = | = | = | 1139 → 1139 | 0 → 0 |
+| M1/S07-agent-tool-approval.json | t1 | = | = | = | = | = | = | = | = | 227 → 227 | 0 → 0 |
+| M1/S07-agent-tool-approval.json | t2 | = | = | = | = | = | = | = | = | 1588 → 1588 | 0 → 0 |
+| M1/S07-agent-tool-approval.json | t3 | = | = | = | = | = | = | = | = | 643 → 643 | 0 → 0 |
+| M1/S07-agent-tool-approval.json | t4 | = | = | = | = | = | = | = | = | 1971 → 1971 | 0 → 0 |
+| M1/S07-agent-tool-approval.json | t5 | = | = | = | = | = | = | = | = | 1138 → 1138 | 0 → 0 |
+| M1/S07-agent-tool-approval.json | t6 | = | = | = | = | = | = | = | = | 1272 → 1272 | 0 → 0 |
+| M1/S08-parallel-stops.json | t1 | = | = | = | = | = | = | = | = | 1967 → 1967 | 0 → 0 |
+| M1/S08-parallel-stops.json | t2 | = | = | = | = | = | = | = | = | 1176 → 1176 | 0 → 0 |
+| M1/S08-parallel-stops.json | t3 | = | = | = | = | = | = | = | = | 754 → 754 | 0 → 0 |
+| M1/S08-parallel-stops.json | t4 | = | = | = | = | = | = | = | = | 1646 → 1646 | 0 → 0 |
+| M1/S09-iteration-and-loop.json | t1 | = | = | = | = | = | = | = | = | 298 → 298 | 0 → 0 |
+| M1/S09-iteration-and-loop.json | t2 | = | = | = | = | = | = | = | = | 504 → 504 | 0 → 0 |
+| M1/S09-iteration-and-loop.json | t3 | = | = | = | = | = | = | = | = | 656 → 656 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-off.json | t1 | = | = | = | = | = | = | = | = | 221 → 221 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-off.json | t2 | = | = | = | = | = | = | = | = | 381 → 381 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-off.json | t3 | = | = | = | = | = | = | = | = | 532 → 532 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-off.json | t4 | = | = | = | = | = | = | = | = | 703 → 703 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-on.json | t1 | = | = | = | = | = | = | = | = | 314 → 314 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-on.json | t2 | = | = | = | = | = | = | = | = | 474 → 474 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-on.json | t3 | = | = | = | = | = | = | = | = | 529 → 529 | 0 → 0 |
+| M1/S10a-client-history-field@accept-client-history-on.json | t4 | = | = | = | = | = | = | = | = | 796 → 796 | 0 → 0 |
+| M1/S10b-ephemeral-with-state.json | t1 | = | = | = | = | = | = | = | = | 290 → 290 | 0 → 0 |
+| M1/S10b-ephemeral-with-state.json | t2 | = | = | = | = | = | = | = | = | 452 → 452 | 0 → 0 |
+| M1/S10b-ephemeral-with-state.json | t3 | = | = | = | = | = | = | = | = | 573 → 573 | 0 → 0 |
+| M1/S11-error-and-recovery.json | t1 | = | = | = | = | = | = | = | = | 290 → 290 | 0 → 0 |
+| M1/S11-error-and-recovery.json | t2 | = | = | = | = | = | = | = | = | 295 → 295 | 0 → 0 |
+| M1/S11-error-and-recovery.json | t3 | = | = | = | = | = | = | = | = | 442 → 442 | 0 → 0 |
+| M1/S12-execute-flow-child-memory.json | t1 | = | = | = | = | = | = | = | = | 726 → 726 | 0 → 0 |
+| M1/S12-execute-flow-child-memory.json | t2 | = | = | = | = | = | = | = | = | 1040 → 1040 | 0 → 0 |
+| M1/S12-execute-flow-child-memory.json | t3 | = | = | = | = | = | = | = | = | 1295 → 1295 | 0 → 0 |
+| M1/S12-execute-flow-child-memory.json | t4 | = | = | = | = | = | = | = | = | 1548 → 1548 | 0 → 0 |
+| M1/S13-non-streaming-conversation.json | t1 | = | = | = | = | = | = | = | = | 237 → 237 | 0 → 0 |
+| M1/S13-non-streaming-conversation.json | t2 | = | = | = | = | = | = | = | = | 363 → 363 | 0 → 0 |
+| M1/S13-non-streaming-conversation.json | t3 | = | = | = | = | = | = | = | = | 482 → 482 | 0 → 0 |
+| M1-internal/S01-single-agent-memory.json | t1 | = | = | = | = | = | = | = | = | 311 → 311 | 0 → 0 |
+| M1-internal/S01-single-agent-memory.json | t2 | = | = | = | = | = | = | = | = | 506 → 506 | 0 → 0 |
+| M1-internal/S01-single-agent-memory.json | t3 | = | = | = | = | = | = | = | = | 689 → 689 | 0 → 0 |
+| M1-internal/S01-single-agent-memory.json | t4 | = | = | = | = | = | = | = | = | 919 → 919 | 0 → 0 |
+| M1-internal/S01-single-agent-memory.json | t5 | = | = | = | = | = | = | = | = | 1073 → 1073 | 0 → 0 |
+| M1-internal/S07-agent-tool-approval.json | t1 | = | = | = | = | = | = | = | = | 227 → 227 | 0 → 0 |
+| M1-internal/S07-agent-tool-approval.json | t2 | = | = | = | = | = | = | = | = | 1588 → 1588 | 0 → 0 |
+| M1-internal/S07-agent-tool-approval.json | t3 | = | = | = | = | = | = | = | = | 643 → 643 | 0 → 0 |
+| M1-internal/S07-agent-tool-approval.json | t4 | = | = | = | = | = | = | = | = | 1971 → 1971 | 0 → 0 |
+| M1-internal/S07-agent-tool-approval.json | t5 | = | = | = | = | = | = | = | = | 1138 → 1138 | 0 → 0 |
+| M1-internal/S07-agent-tool-approval.json | t6 | = | = | = | = | = | = | = | = | 1272 → 1272 | 0 → 0 |
+| M1-reqflag/S01-single-agent-memory.json | t1 | = | = | = | = | = | = | = | = | 311 → 311 | 0 → 0 |
+| M1-reqflag/S01-single-agent-memory.json | t2 | = | = | = | = | = | = | = | = | 506 → 506 | 0 → 0 |
+| M1-reqflag/S01-single-agent-memory.json | t3 | = | = | = | = | = | = | = | = | 689 → 689 | 0 → 0 |
+| M1-reqflag/S01-single-agent-memory.json | t4 | = | = | = | = | = | = | = | = | 919 → 919 | 0 → 0 |
+| M1-reqflag/S01-single-agent-memory.json | t5 | = | = | = | = | = | = | = | = | 1073 → 1073 | 0 → 0 |
+| M2/S01-single-agent-memory.json | t1 | = | = | = | = | = | = | = | = | 311 → 311 | 0 → 0 |
+| M2/S01-single-agent-memory.json | t2 | = | = | = | = | = | = | = | = | 506 → 506 | 0 → 0 |
+| M2/S01-single-agent-memory.json | t3 | = | = | = | = | = | = | = | = | 689 → 689 | 0 → 0 |
+| M2/S01-single-agent-memory.json | t4 | = | = | = | = | = | = | = | = | 919 → 919 | 0 → 0 |
+| M2/S01-single-agent-memory.json | t5 | = | = | = | = | = | = | = | = | 1073 → 1073 | 0 → 0 |
+| M2/S06-human-review-with-feedback.json | t1 | = | = | = | = | = | = | = | = | 1169 → 1169 | 0 → 0 |
+| M2/S06-human-review-with-feedback.json | t2 | = | = | = | = | = | = | = | = | 1667 → 1667 | 0 → 0 |
+| M2/S06-human-review-with-feedback.json | t3 | = | = | = | = | = | = | = | = | 866 → 866 | 0 → 0 |
+| M2/S06-human-review-with-feedback.json | t4 | = | = | = | = | = | = | = | = | 1900 → 1900 | 0 → 0 |
+| M2/S06-human-review-with-feedback.json | t5 | = | = | = | = | = | = | = | = | 1316 → 1316 | 0 → 0 |
+| M2/S07-agent-tool-approval.json | t1 | = | = | = | = | = | = | = | = | 227 → 227 | 0 → 0 |
+| M2/S07-agent-tool-approval.json | t2 | = | = | = | = | = | = | = | = | 1641 → 1641 | 0 → 0 |
+| M2/S07-agent-tool-approval.json | t3 | = | = | = | = | = | = | = | = | 643 → 643 | 0 → 0 |
+| M2/S07-agent-tool-approval.json | t4 | = | = | = | = | = | = | = | = | 2024 → 2024 | 0 → 0 |
+| M2/S07-agent-tool-approval.json | t5 | = | = | = | = | = | = | = | = | 1138 → 1138 | 0 → 0 |
+| M2/S07-agent-tool-approval.json | t6 | = | = | = | = | = | = | = | = | 1272 → 1272 | 0 → 0 |
+| M2/S08-parallel-stops.json | t1 | = | = | = | = | = | = | = | = | 2020 → 2020 | 0 → 0 |
+| M2/S08-parallel-stops.json | t2 | = | = | = | = | = | = | = | = | 1229 → 1229 | 0 → 0 |
+| M2/S08-parallel-stops.json | t3 | = | = | = | = | = | = | = | = | 754 → 754 | 0 → 0 |
+| M2/S08-parallel-stops.json | t4 | = | = | = | = | = | = | = | = | 1699 → 1699 | 0 → 0 |
+| M3/S01-single-agent-memory.json | t1 | = | = | = | = | = | = | = | = | 311 → 311 | 0 → 0 |
+| M3/S01-single-agent-memory.json | t2 | = | = | = | = | = | = | = | = | 506 → 506 | 0 → 0 |
+| M3/S01-single-agent-memory.json | t3 | = | = | = | = | = | = | = | = | 689 → 689 | 0 → 0 |
+| M3/S01-single-agent-memory.json | t4 | = | = | = | = | = | = | = | = | 919 → 919 | 0 → 0 |
+| M3/S01-single-agent-memory.json | t5 | = | = | = | = | = | = | = | = | 1073 → 1073 | 0 → 0 |
+| M3/S05-form-then-chat.json | t1 | = | = | = | = | = | = | = | = | 269 → 269 | 0 → 0 |
+| M3/S05-form-then-chat.json | t2 | = | = | = | = | = | = | = | = | 441 → 441 | 0 → 0 |
+| M3/S05-form-then-chat.json | t3 | = | = | = | = | = | = | = | = | 597 → 597 | 0 → 0 |
+| M3/S05-form-then-chat.json | t4 | = | = | = | = | = | = | = | = | 765 → 765 | 0 → 0 |
+| M3/S06-human-review-with-feedback.json | t1 | = | = | = | = | = | = | = | = | 1224 → 1224 | 0 → 0 |
+| M3/S06-human-review-with-feedback.json | t2 | = | = | = | = | = | = | = | = | 1722 → 1722 | 0 → 0 |
+| M3/S06-human-review-with-feedback.json | t3 | = | = | = | = | = | = | = | = | 866 → 866 | 0 → 0 |
+| M3/S06-human-review-with-feedback.json | t4 | = | = | = | = | = | = | = | = | 1955 → 1955 | 0 → 0 |
+| M3/S06-human-review-with-feedback.json | t5 | = | = | = | = | = | = | = | = | 1316 → 1316 | 0 → 0 |
+| M3/S07-agent-tool-approval.json | t1 | = | = | = | = | = | = | = | = | 227 → 227 | 0 → 0 |
+| M3/S07-agent-tool-approval.json | t2 | = | = | = | = | = | = | = | = | 1696 → 1696 | 0 → 0 |
+| M3/S07-agent-tool-approval.json | t3 | = | = | = | = | = | = | = | = | 643 → 643 | 0 → 0 |
+| M3/S07-agent-tool-approval.json | t4 | = | = | = | = | = | = | = | = | 2079 → 2079 | 0 → 0 |
+| M3/S07-agent-tool-approval.json | t5 | = | = | = | = | = | = | = | = | 1138 → 1138 | 0 → 0 |
+| M3/S07-agent-tool-approval.json | t6 | = | = | = | = | = | = | = | = | 1272 → 1272 | 0 → 0 |
+| M3/S12-execute-flow-child-memory.json | t1 | = | = | = | = | = | = | = | = | 726 → 726 | 0 → 0 |
+| M3/S12-execute-flow-child-memory.json | t2 | = | = | = | = | = | = | = | = | 1040 → 1040 | 0 → 0 |
+| M3/S12-execute-flow-child-memory.json | t3 | = | = | = | = | = | = | = | = | 1295 → 1295 | 0 → 0 |
+| M3/S12-execute-flow-child-memory.json | t4 | = | = | = | = | = | = | = | = | 1548 → 1548 | 0 → 0 |
+| M3-envflags/S01-single-agent-memory.json | t1 | = | = | = | = | = | = | = | = | 311 → 311 | 0 → 0 |
+| M3-envflags/S01-single-agent-memory.json | t2 | = | = | = | = | = | = | = | = | 506 → 506 | 0 → 0 |
+| M3-envflags/S01-single-agent-memory.json | t3 | = | = | = | = | = | = | = | = | 689 → 689 | 0 → 0 |
+| M3-envflags/S01-single-agent-memory.json | t4 | = | = | = | = | = | = | = | = | 919 → 919 | 0 → 0 |
+| M3-envflags/S01-single-agent-memory.json | t5 | = | = | = | = | = | = | = | = | 1073 → 1073 | 0 → 0 |
+
+## Failures
+
+- unexpected-difference M1/S03-parallel-agents-join.json t1 modelRequests at `[0].body.messages[2].content`
+- unexpected-difference M1/S03-parallel-agents-join.json t2 modelRequests at `[0].body.messages[4].content`

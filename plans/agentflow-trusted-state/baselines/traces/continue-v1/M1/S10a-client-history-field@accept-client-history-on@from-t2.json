@@ -1,0 +1,1147 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S10a",
+  "file": "S10a-client-history-field.json",
+  "title": "Client sends the whole conversation in history every turn",
+  "findings": [
+   "F02",
+   "TS13",
+   "TS13a",
+   "TS22"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl08na-M1-S10a",
+ "runTag": "mwtl08na",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t2"
+ },
+ "flows": [
+  {
+   "slug": "S10a-client-history-field",
+   "chatflowId": "fabb3791-bd6c-4a39-853e-49ec7b7a3948",
+   "name": "TS00b M1 S10a-client-history-field",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true,
+     "acceptClientHistory": true
+    }
+   },
+   "apiConfig": {
+    "overrideConfig": {
+     "status": true,
+     "nodes": {
+      "Quick Answer": [
+       {
+        "name": "llmMessages",
+        "enabled": true
+       }
+      ]
+     },
+     "variables": []
+    }
+   }
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:48.356Z",
+ "turns": [
+  {
+   "id": "t3",
+   "note": "The client's history leaves out the token's last message",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M1-S10a",
+     "streaming": true,
+     "question": "Is there an express option?",
+     "history": [
+      {
+       "role": "apiMessage",
+       "content": "Welcome to Northwind Outfitters! How can I help you today?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Do you ship to Norway?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, we ship to Norway; delivery takes 3 to 5 days."
+      },
+      {
+       "role": "userMessage",
+       "content": "How much does shipping cost?"
+      }
+     ],
+     "trustedState": {
+      "$token": true,
+      "base64Length": 38012,
+      "sha256": "e55cff40be7acb0c38cc2c754f9670287c5880e7ad23a50ce435eedf30520441"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 38012,
+    "sha256": "e55cff40be7acb0c38cc2c754f9670287c5880e7ad23a50ce435eedf30520441"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 44.4,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 8.45,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 8.47,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.48,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 8.49,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Quick Answer",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.5,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Context Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 25.44,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Context Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 38.9,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Quick Answer",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 38.92,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 41.74,
+      "event": "token",
+      "data": "Yes, express delivery takes"
+     },
+     {
+      "offsetMs": 41.76,
+      "event": "token",
+      "data": " 1 to 2 days"
+     },
+     {
+      "offsetMs": 41.77,
+      "event": "token",
+      "data": " for 19 euros."
+     },
+     {
+      "offsetMs": 42.59,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 42.61,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10416,
+       "output_tokens": 14,
+       "total_tokens": 10430
+      }
+     },
+     {
+      "offsetMs": 42.62,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 42.63,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 43.19,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 404,
+       "sha256": "c364ee4a2438bfa201637847ed587de1d0b330767edda5379759505e454b2b2c"
+      }
+     },
+     {
+      "offsetMs": 44.33,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M1-S10a",
+       "chatMessageId": "20b7cbb6-51c7-45a8-a49e-032415195073",
+       "question": "Is there an express option?",
+       "sessionId": "ts00b-mwtl08na-M1-S10a"
+      }
+     },
+     {
+      "offsetMs": 44.35,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 44.36,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Yes, express delivery takes 1 to 2 days for 19 euros.",
+   "tokens": [
+    "Yes, express delivery takes",
+    " 1 to 2 days",
+    " for 19 euros."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Context Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Quick Answer",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_1",
+     "nodeLabel": "Joiner",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "llmAgentflow_0",
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_1:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1538,
+     "route": "S10a-context",
+     "callIndex": 0,
+     "ruleId": "context-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "56053378dc3a37df27d730fdb101c419b5571a8d9413e92d2687db2cebdc4f44",
+         "length": 41206,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10a_context"
+         ],
+         "head": "\\[\\[route:S10a-context\\]\\] SYSPROMPT_SENTINEL_S10a_context\n\nYou answer with full Northwind Outfitters context.\n\nSection "
+        }
+       },
+       {
+        "role": "assistant",
+        "content": "Welcome to Northwind Outfitters! How can I help you today?"
+       },
+       {
+        "role": "user",
+        "content": "Do you ship to Norway?"
+       },
+       {
+        "role": "assistant",
+        "content": "Yes, we ship to Norway; delivery takes 3 to 5 days."
+       },
+       {
+        "role": "user",
+        "content": "How much does shipping cost?"
+       },
+       {
+        "role": "user",
+        "content": "Is there an express option?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Express delivery to Norway takes 1 to 2 days and costs 19 euros.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1539,
+     "route": "S10a-quick",
+     "callIndex": 0,
+     "ruleId": "quick",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "c9f92cf9a928b46c79b531c42b7103d2239387de53cde5027f183c40bce7c328",
+         "length": 41581,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10a_quick"
+         ],
+         "head": "\\[\\[route:S10a-quick\\]\\] SYSPROMPT_SENTINEL_S10a_quick\n\nYou give a one-line Northwind Outfitters answer.\n\nSection 1 - Lo"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Is there an express option?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Quick (t3): yes, that works for Norway.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1540,
+     "route": "S10a-joiner",
+     "callIndex": 0,
+     "ruleId": "joiner-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "4cdddd826903f17e13216a0655aa9a7948581efb86d7710a179c898ecb9c6028",
+         "length": 41370,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10a_joiner"
+         ],
+         "head": "\\[\\[route:S10a-joiner\\]\\] SYSPROMPT_SENTINEL_S10a_joiner\n\nYou merge two Northwind Outfitters answers into one.\n\nSection "
+        }
+       },
+       {
+        "role": "user",
+        "content": "Quick answer: Quick (t3): yes, that works for Norway.\n\nContext answer: Express delivery to Norway takes 1 to 2 days and costs 19 euros."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Yes, express delivery takes 1 to 2 days for 19 euros.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 404,
+    "sha256": "c364ee4a2438bfa201637847ed587de1d0b330767edda5379759505e454b2b2c",
+    "sizes": {
+     "base64Length": 404,
+     "payloadBytes": 301,
+     "gzipBytes": 273,
+     "rawJsonBytes": 529,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 453,
+     "historyRoles": [
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 529
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "apiMessage",
+       "content": "Welcome to Northwind Outfitters! How can I help you today?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Do you ship to Norway?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, we ship to Norway; delivery takes 3 to 5 days."
+      },
+      {
+       "role": "userMessage",
+       "content": "How much does shipping cost?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Is there an express option?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, express delivery takes 1 to 2 days for 19 euros."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10a_context": 1,
+      "SYSPROMPT_SENTINEL_S10a_quick": 1,
+      "SYSPROMPT_SENTINEL_S10a_joiner": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 620,
+    "executedDataGzipBytes": 192,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": [
+    "2026-11-23 19:10:48 [WARN]: [agentflow]: The request history lacks the last message of the token history; continuing with the request history"
+   ]
+  },
+  {
+   "id": "t4",
+   "note": "History repeated in an llmMessages override for Quick Answer",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M1-S10a",
+     "streaming": true,
+     "question": "Can I pick the parcel up in Oslo instead?",
+     "history": [
+      {
+       "role": "apiMessage",
+       "content": "Welcome to Northwind Outfitters! How can I help you today?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Do you ship to Norway?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, we ship to Norway; delivery takes 3 to 5 days."
+      },
+      {
+       "role": "userMessage",
+       "content": "How much does shipping cost?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Shipping to Norway costs 9 euros and is free above 100 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "Is there an express option?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, express delivery takes 1 to 2 days for 19 euros."
+      }
+     ],
+     "overrideConfig": {
+      "llmMessages": [
+       {
+        "role": "assistant",
+        "content": "Welcome to Northwind Outfitters! How can I help you today?"
+       },
+       {
+        "role": "user",
+        "content": "Do you ship to Norway?"
+       },
+       {
+        "role": "assistant",
+        "content": "Yes, we ship to Norway; delivery takes 3 to 5 days."
+       },
+       {
+        "role": "user",
+        "content": "How much does shipping cost?"
+       },
+       {
+        "role": "assistant",
+        "content": "Shipping to Norway costs 9 euros and is free above 100 euros."
+       },
+       {
+        "role": "user",
+        "content": "Is there an express option?"
+       },
+       {
+        "role": "assistant",
+        "content": "Yes, express delivery takes 1 to 2 days for 19 euros."
+       }
+      ]
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 404,
+      "sha256": "c364ee4a2438bfa201637847ed587de1d0b330767edda5379759505e454b2b2c"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 404,
+    "sha256": "c364ee4a2438bfa201637847ed587de1d0b330767edda5379759505e454b2b2c"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 44.99,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 9.06,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 9.08,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.09,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.1,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Quick Answer",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.11,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Context Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 25.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Quick Answer",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 39.1,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Context Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 39.13,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 42.07,
+      "event": "token",
+      "data": "Yes, you can pick"
+     },
+     {
+      "offsetMs": 42.08,
+      "event": "token",
+      "data": " the parcel up at"
+     },
+     {
+      "offsetMs": 42.09,
+      "event": "token",
+      "data": " our Oslo store for"
+     },
+     {
+      "offsetMs": 42.09,
+      "event": "token",
+      "data": " free."
+     },
+     {
+      "offsetMs": 42.82,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 42.83,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10413,
+       "output_tokens": 16,
+       "total_tokens": 10429
+      }
+     },
+     {
+      "offsetMs": 42.84,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 42.85,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 43.5,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 508,
+       "sha256": "6bd1e94063b36a3e14d8087fed3d2c5156dfd27b492d91eecfb2735ea7d92e98"
+      }
+     },
+     {
+      "offsetMs": 44.82,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M1-S10a",
+       "chatMessageId": "f5fd014c-40b3-483b-b53a-7888545d7e2f",
+       "question": "Can I pick the parcel up in Oslo instead?",
+       "sessionId": "ts00b-mwtl08na-M1-S10a"
+      }
+     },
+     {
+      "offsetMs": 44.92,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 44.94,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Yes, you can pick the parcel up at our Oslo store for free.",
+   "tokens": [
+    "Yes, you can pick",
+    " the parcel up at",
+    " our Oslo store for",
+    " free."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Quick Answer",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Context Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_1",
+     "nodeLabel": "Joiner",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "llmAgentflow_0",
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "llmAgentflow_1:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1542,
+     "route": "S10a-quick",
+     "callIndex": 0,
+     "ruleId": "quick",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "c9f92cf9a928b46c79b531c42b7103d2239387de53cde5027f183c40bce7c328",
+         "length": 41581,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10a_quick"
+         ],
+         "head": "\\[\\[route:S10a-quick\\]\\] SYSPROMPT_SENTINEL_S10a_quick\n\nYou give a one-line Northwind Outfitters answer.\n\nSection 1 - Lo"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Can I pick the parcel up in Oslo instead?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Quick (t4): yes, that works for Norway.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1543,
+     "route": "S10a-context",
+     "callIndex": 0,
+     "ruleId": "context-t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "56053378dc3a37df27d730fdb101c419b5571a8d9413e92d2687db2cebdc4f44",
+         "length": 41206,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10a_context"
+         ],
+         "head": "\\[\\[route:S10a-context\\]\\] SYSPROMPT_SENTINEL_S10a_context\n\nYou answer with full Northwind Outfitters context.\n\nSection "
+        }
+       },
+       {
+        "role": "assistant",
+        "content": "Welcome to Northwind Outfitters! How can I help you today?"
+       },
+       {
+        "role": "user",
+        "content": "Do you ship to Norway?"
+       },
+       {
+        "role": "assistant",
+        "content": "Yes, we ship to Norway; delivery takes 3 to 5 days."
+       },
+       {
+        "role": "user",
+        "content": "How much does shipping cost?"
+       },
+       {
+        "role": "assistant",
+        "content": "Shipping to Norway costs 9 euros and is free above 100 euros."
+       },
+       {
+        "role": "user",
+        "content": "Is there an express option?"
+       },
+       {
+        "role": "assistant",
+        "content": "Yes, express delivery takes 1 to 2 days for 19 euros."
+       },
+       {
+        "role": "user",
+        "content": "Can I pick the parcel up in Oslo instead?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Yes, you can pick it up at our Oslo store at no cost.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1544,
+     "route": "S10a-joiner",
+     "callIndex": 0,
+     "ruleId": "joiner-t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "4cdddd826903f17e13216a0655aa9a7948581efb86d7710a179c898ecb9c6028",
+         "length": 41370,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S10a_joiner"
+         ],
+         "head": "\\[\\[route:S10a-joiner\\]\\] SYSPROMPT_SENTINEL_S10a_joiner\n\nYou merge two Northwind Outfitters answers into one.\n\nSection "
+        }
+       },
+       {
+        "role": "user",
+        "content": "Quick answer: Quick (t4): yes, that works for Norway.\n\nContext answer: Yes, you can pick it up at our Oslo store at no cost."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Yes, you can pick the parcel up at our Oslo store for free.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 508,
+    "sha256": "6bd1e94063b36a3e14d8087fed3d2c5156dfd27b492d91eecfb2735ea7d92e98",
+    "sizes": {
+     "base64Length": 508,
+     "payloadBytes": 379,
+     "gzipBytes": 351,
+     "rawJsonBytes": 796,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 9,
+     "historyBytes": 720,
+     "historyRoles": [
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 796
+     },
+     {
+      "path": "history",
+      "bytes": 720
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "apiMessage",
+       "content": "Welcome to Northwind Outfitters! How can I help you today?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Do you ship to Norway?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, we ship to Norway; delivery takes 3 to 5 days."
+      },
+      {
+       "role": "userMessage",
+       "content": "How much does shipping cost?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Shipping to Norway costs 9 euros and is free above 100 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "Is there an express option?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, express delivery takes 1 to 2 days for 19 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "Can I pick the parcel up in Oslo instead?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, you can pick the parcel up at our Oslo store for free."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S10a_quick": 1,
+      "SYSPROMPT_SENTINEL_S10a_context": 1,
+      "SYSPROMPT_SENTINEL_S10a_joiner": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 620,
+    "executedDataGzipBytes": 193,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": [
+    "2026-11-23 19:10:48 [WARN]: [agentflow]: Quick Answer: removed the last 7 messages of its message list because they repeat the conversation history"
+   ]
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": "accept-client-history-on",
+  "emptyDbBeforeEveryTurn": false
+ }
+}

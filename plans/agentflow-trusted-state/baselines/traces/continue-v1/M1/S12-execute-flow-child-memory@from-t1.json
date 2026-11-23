@@ -1,0 +1,1581 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S12",
+  "file": "S12-execute-flow-child-memory.json",
+  "title": "Parent flow calls a child flow with memory and a state counter",
+  "findings": [
+   "F10"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtkxdd6-M1-S12",
+ "runTag": "mwtkxdd6",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t1"
+ },
+ "flows": [
+  {
+   "slug": "S12-execute-flow-child-memory",
+   "chatflowId": "d6845245-5554-4e8a-8d7a-bd914224c3b8",
+   "name": "TS00b M1 S12-execute-flow-child-memory",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  },
+  {
+   "slug": "S12-child-flow",
+   "chatflowId": "c2aa610a-9219-4055-89b3-7a2ee059bc6e",
+   "name": "TS00b M1 S12-child-flow",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:10.937Z",
+ "turns": [
+  {
+   "id": "t2",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M1-S12",
+     "streaming": true,
+     "question": "They were worn once, is that a problem?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14784,
+      "sha256": "a952a5838d01d15a83c5fbf5f55d25d6ca60681fd320cfc59193b805cfcc3bbb"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14784,
+    "sha256": "a952a5838d01d15a83c5fbf5f55d25d6ca60681fd320cfc59193b805cfcc3bbb"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 56.87,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.94,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.02,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.03,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Parent Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 25.63,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Parent Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 25.67,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "executeFlowAgentflow_0",
+       "nodeLabel": "Ask Specialist",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 54.89,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "executeFlowAgentflow_0",
+       "nodeLabel": "Ask Specialist",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 54.92,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 54.94,
+      "event": "token",
+      "data": "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)"
+     },
+     {
+      "offsetMs": 54.96,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 54.97,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 55.32,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 872,
+       "sha256": "d8c2ad047293a9e757944763074f09176babaf2dd59be6034e6c9c4446ae2339"
+      }
+     },
+     {
+      "offsetMs": 56.75,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M1-S12",
+       "chatMessageId": "b2d6dfb4-7967-4902-94b9-c8537625771e",
+       "question": "They were worn once, is that a problem?",
+       "sessionId": "ts00b-mwtkxdd6-M1-S12"
+      }
+     },
+     {
+      "offsetMs": 56.8,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 56.82,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)",
+   "tokens": [
+    "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)"
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "child_count": "1"
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Parent Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {
+       "child_count": "1"
+      }
+     }
+    },
+    {
+     "nodeId": "executeFlowAgentflow_0",
+     "nodeLabel": "Ask Specialist",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "executeFlowAgentflow",
+      "state": {
+       "child_count": "1"
+      }
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Reply",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "executeFlowAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow",
+      "state": {
+       "child_count": "1"
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "executeFlowAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "child_count": "1"
+   },
+   "modelRequests": [
+    {
+     "seq": 1329,
+     "route": "S12-parent",
+     "callIndex": 0,
+     "ruleId": "parent",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f84c4fdcdabed57d93c886dbb9b1c71d5ad4ee9c3f3be6923bad5fbfd9911f5c",
+         "length": 41065,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S12_parent"
+         ],
+         "head": "\\[\\[route:S12-parent\\]\\] SYSPROMPT_SENTINEL_S12_parent\n\nYou are the Northwind Outfitters front desk.\n\nSection 1 - Fraud "
+        }
+       },
+       {
+        "role": "user",
+        "content": "I want to return a pair of boots."
+       },
+       {
+        "role": "assistant",
+        "content": "Front desk (t1): let me ask our returns specialist.\n\nSpecialist: Boots can be returned within 30 days if they are unworn. (specialist turn 1)"
+       },
+       {
+        "role": "user",
+        "content": "They were worn once, is that a problem?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Front desk (t2): let me ask our returns specialist.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1330,
+     "route": "S12-specialist",
+     "callIndex": 0,
+     "ruleId": "specialist-t2",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "8978600c7d8c712cf365726ca6a6ecfe6a46dd11dcc7a91359514d4e779ab230",
+         "length": 40907,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S12_specialist"
+         ],
+         "head": "\\[\\[route:S12-specialist\\]\\] SYSPROMPT_SENTINEL_S12_specialist\n\nYou are the Northwind Outfitters returns specialist.\n\nSe"
+        }
+       },
+       {
+        "role": "user",
+        "content": "They were worn once, is that a problem?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Worn once is fine if the soles show no marks.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 872,
+    "sha256": "d8c2ad047293a9e757944763074f09176babaf2dd59be6034e6c9c4446ae2339",
+    "sizes": {
+     "base64Length": 872,
+     "payloadBytes": 652,
+     "gzipBytes": 624,
+     "rawJsonBytes": 964,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 490,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 19,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 383,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 964
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I want to return a pair of boots."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t1): let me ask our returns specialist.\n\nSpecialist: Boots can be returned within 30 days if they are unworn. (specialist turn 1)"
+      },
+      {
+       "role": "userMessage",
+       "content": "They were worn once, is that a problem?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)"
+      }
+     ],
+     "flowState": {
+      "child_count": "1"
+     },
+     "formValues": {},
+     "childFlowTokens": {
+      "executeFlowAgentflow_0": {
+       "flowId": "c2aa610a-9219-4055-89b3-7a2ee059bc6e",
+       "token": "vBmd046rLxJuypqzkYwMHhCOOU7oC1T3Zxjo2Hw6l4+JeVtLzl3WllKRqPlCZNqhPn1pYzH3aFz6YQmjTimfaE37R2jVZ9tx3k7x97Q1yXO1YBauokjLnHsfKZ+BKPfnllKczl3ohvUJ6jNPI30mCw5LJX+6GBrwMsUtTUkVL4Muhh2wSMykiCgjHp8BhImE0uIzh+u8fEj42lJRVevOu2NMcKb8bQsJGZTFLgf//LNyYi2aeusrf9Bm+bg84m7n/+dPM+e2Bn61xsaw3fjan4zJuBG8rf5iwtifyQ=="
+      }
+     }
+    },
+    "childTokens": {
+     "executeFlowAgentflow_0": {
+      "flowId": "c2aa610a-9219-4055-89b3-7a2ee059bc6e",
+      "base64Length": 296,
+      "sizes": {
+       "base64Length": 296,
+       "payloadBytes": 220,
+       "gzipBytes": 192,
+       "rawJsonBytes": 249,
+       "version": 2,
+       "topLevelKeys": [
+        "version",
+        "history",
+        "flowState",
+        "formValues",
+        "childFlowTokens"
+       ],
+       "historyMessages": 2,
+       "historyBytes": 156,
+       "historyRoles": [
+        "userMessage",
+        "apiMessage"
+       ],
+       "historyMessagesWithAction": 0,
+       "flowStateBytes": 19,
+       "formValuesBytes": 2,
+       "childFlowTokensBytes": 2,
+       "pendingResumeBytes": 0,
+       "pendingNodes": null
+      },
+      "sentinels": {
+       "total": 0,
+       "bySentinel": {}
+      },
+      "decoded": {
+       "version": 2,
+       "history": [
+        {
+         "role": "userMessage",
+         "content": "They were worn once, is that a problem?"
+        },
+        {
+         "role": "apiMessage",
+         "content": "Worn once is fine if the soles show no marks."
+        }
+       ],
+       "flowState": {
+        "child_count": "1"
+       },
+       "formValues": {},
+       "childFlowTokens": {}
+      },
+      "childTokens": {}
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S12_parent": 1,
+      "SYSPROMPT_SENTINEL_S12_specialist": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 709,
+    "executedDataGzipBytes": 221,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t3",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M1-S12",
+     "streaming": true,
+     "question": "What did I want to return again?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 872,
+      "sha256": "d8c2ad047293a9e757944763074f09176babaf2dd59be6034e6c9c4446ae2339"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 872,
+    "sha256": "d8c2ad047293a9e757944763074f09176babaf2dd59be6034e6c9c4446ae2339"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 55.35,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 5.57,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 5.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 5.6,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 5.61,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Parent Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 25.17,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Parent Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 25.21,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "executeFlowAgentflow_0",
+       "nodeLabel": "Ask Specialist",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 53.78,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "executeFlowAgentflow_0",
+       "nodeLabel": "Ask Specialist",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 53.81,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 53.83,
+      "event": "token",
+      "data": "Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 2)"
+     },
+     {
+      "offsetMs": 53.84,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 53.85,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 54.18,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 976,
+       "sha256": "d8adce47b1d25138d01d7ffc6c9094c2cb5a7c4d0b4c3de0dcc531c77d563698"
+      }
+     },
+     {
+      "offsetMs": 55.27,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M1-S12",
+       "chatMessageId": "831f7467-73ca-4b32-af51-1318651f122e",
+       "question": "What did I want to return again?",
+       "sessionId": "ts00b-mwtkxdd6-M1-S12"
+      }
+     },
+     {
+      "offsetMs": 55.29,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 55.31,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 2)",
+   "tokens": [
+    "Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 2)"
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "child_count": "1"
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Parent Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {
+       "child_count": "1"
+      }
+     }
+    },
+    {
+     "nodeId": "executeFlowAgentflow_0",
+     "nodeLabel": "Ask Specialist",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "executeFlowAgentflow",
+      "state": {
+       "child_count": "2"
+      }
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Reply",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "executeFlowAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow",
+      "state": {
+       "child_count": "2"
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "executeFlowAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "child_count": "2"
+   },
+   "modelRequests": [
+    {
+     "seq": 1332,
+     "route": "S12-parent",
+     "callIndex": 0,
+     "ruleId": "parent",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f84c4fdcdabed57d93c886dbb9b1c71d5ad4ee9c3f3be6923bad5fbfd9911f5c",
+         "length": 41065,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S12_parent"
+         ],
+         "head": "\\[\\[route:S12-parent\\]\\] SYSPROMPT_SENTINEL_S12_parent\n\nYou are the Northwind Outfitters front desk.\n\nSection 1 - Fraud "
+        }
+       },
+       {
+        "role": "user",
+        "content": "I want to return a pair of boots."
+       },
+       {
+        "role": "assistant",
+        "content": "Front desk (t1): let me ask our returns specialist.\n\nSpecialist: Boots can be returned within 30 days if they are unworn. (specialist turn 1)"
+       },
+       {
+        "role": "user",
+        "content": "They were worn once, is that a problem?"
+       },
+       {
+        "role": "assistant",
+        "content": "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)"
+       },
+       {
+        "role": "user",
+        "content": "What did I want to return again?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Front desk (t3): let me ask our returns specialist.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1333,
+     "route": "S12-specialist",
+     "callIndex": 0,
+     "ruleId": "specialist-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "8978600c7d8c712cf365726ca6a6ecfe6a46dd11dcc7a91359514d4e779ab230",
+         "length": 40907,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S12_specialist"
+         ],
+         "head": "\\[\\[route:S12-specialist\\]\\] SYSPROMPT_SENTINEL_S12_specialist\n\nYou are the Northwind Outfitters returns specialist.\n\nSe"
+        }
+       },
+       {
+        "role": "user",
+        "content": "They were worn once, is that a problem?"
+       },
+       {
+        "role": "assistant",
+        "content": "Worn once is fine if the soles show no marks."
+       },
+       {
+        "role": "user",
+        "content": "What did I want to return again?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "You wanted to return a pair of boots.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 976,
+    "sha256": "d8adce47b1d25138d01d7ffc6c9094c2cb5a7c4d0b4c3de0dcc531c77d563698",
+    "sizes": {
+     "base64Length": 976,
+     "payloadBytes": 732,
+     "gzipBytes": 704,
+     "rawJsonBytes": 1247,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 717,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 19,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 439,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1247
+     },
+     {
+      "path": "history",
+      "bytes": 717
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I want to return a pair of boots."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t1): let me ask our returns specialist.\n\nSpecialist: Boots can be returned within 30 days if they are unworn. (specialist turn 1)"
+      },
+      {
+       "role": "userMessage",
+       "content": "They were worn once, is that a problem?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)"
+      },
+      {
+       "role": "userMessage",
+       "content": "What did I want to return again?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 2)"
+      }
+     ],
+     "flowState": {
+      "child_count": "2"
+     },
+     "formValues": {},
+     "childFlowTokens": {
+      "executeFlowAgentflow_0": {
+       "flowId": "c2aa610a-9219-4055-89b3-7a2ee059bc6e",
+       "token": "1grqCs8syqOcqyfIT6+uikQl/Tczo344zV9gbMqPdyIMikjAom9+DdG6uRugWgvh91IELSE3KVXrnPqJKC/Lg7zivwHist8lNrj5UibBmvjtOy2gIraBSkatXG11taumcfXlxoNWlozunXV9KAMOQ0YQqH19hQOX1aZcHm2+8dsVlSaXB0eOQtZatzbl4BXlS670HTkD3VlvqfnwWJUGZDcn+Id7J1yzlxykALvCYiG55/rCIMaGVv9Jd1FtsPoOKLufGuQhq1OcB9gcnB1mu7qui5lTBv6d1M4J/DkcXCYdRBh9pY5zJ/VBHX9XCnOZVSYwvxrp7nTFrgDvvitL/epl8Nrr0ZVC"
+      }
+     }
+    },
+    "childTokens": {
+     "executeFlowAgentflow_0": {
+      "flowId": "c2aa610a-9219-4055-89b3-7a2ee059bc6e",
+      "base64Length": 352,
+      "sizes": {
+       "base64Length": 352,
+       "payloadBytes": 264,
+       "gzipBytes": 236,
+       "rawJsonBytes": 389,
+       "version": 2,
+       "topLevelKeys": [
+        "version",
+        "history",
+        "flowState",
+        "formValues",
+        "childFlowTokens"
+       ],
+       "historyMessages": 4,
+       "historyBytes": 296,
+       "historyRoles": [
+        "userMessage",
+        "apiMessage",
+        "userMessage",
+        "apiMessage"
+       ],
+       "historyMessagesWithAction": 0,
+       "flowStateBytes": 19,
+       "formValuesBytes": 2,
+       "childFlowTokensBytes": 2,
+       "pendingResumeBytes": 0,
+       "pendingNodes": null
+      },
+      "sentinels": {
+       "total": 0,
+       "bySentinel": {}
+      },
+      "decoded": {
+       "version": 2,
+       "history": [
+        {
+         "role": "userMessage",
+         "content": "They were worn once, is that a problem?"
+        },
+        {
+         "role": "apiMessage",
+         "content": "Worn once is fine if the soles show no marks."
+        },
+        {
+         "role": "userMessage",
+         "content": "What did I want to return again?"
+        },
+        {
+         "role": "apiMessage",
+         "content": "You wanted to return a pair of boots."
+        }
+       ],
+       "flowState": {
+        "child_count": "2"
+       },
+       "formValues": {},
+       "childFlowTokens": {}
+      },
+      "childTokens": {}
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S12_parent": 1,
+      "SYSPROMPT_SENTINEL_S12_specialist": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 709,
+    "executedDataGzipBytes": 225,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M1-S12",
+     "streaming": true,
+     "question": "Thanks for the help.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 976,
+      "sha256": "d8adce47b1d25138d01d7ffc6c9094c2cb5a7c4d0b4c3de0dcc531c77d563698"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 976,
+    "sha256": "d8adce47b1d25138d01d7ffc6c9094c2cb5a7c4d0b4c3de0dcc531c77d563698"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 60.74,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.51,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.55,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.57,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.58,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Parent Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 26.04,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Parent Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 26.09,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "executeFlowAgentflow_0",
+       "nodeLabel": "Ask Specialist",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 58.98,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "executeFlowAgentflow_0",
+       "nodeLabel": "Ask Specialist",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 59.01,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 59.03,
+      "event": "token",
+      "data": "Front desk (t4): let me ask our returns specialist.\n\nSpecialist: Happy to help with your return. (specialist turn 3)"
+     },
+     {
+      "offsetMs": 59.04,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 59.05,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 59.4,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 1080,
+       "sha256": "81df7661063d53b90c59cbd60d7bb110fbc2e2a5bdc9f3a7ffabdef29cba819a"
+      }
+     },
+     {
+      "offsetMs": 60.65,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M1-S12",
+       "chatMessageId": "764688ba-ca30-4666-a1c2-0fc6b78619e1",
+       "question": "Thanks for the help.",
+       "sessionId": "ts00b-mwtkxdd6-M1-S12"
+      }
+     },
+     {
+      "offsetMs": 60.68,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 60.7,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Front desk (t4): let me ask our returns specialist.\n\nSpecialist: Happy to help with your return. (specialist turn 3)",
+   "tokens": [
+    "Front desk (t4): let me ask our returns specialist.\n\nSpecialist: Happy to help with your return. (specialist turn 3)"
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "child_count": "2"
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Parent Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {
+       "child_count": "2"
+      }
+     }
+    },
+    {
+     "nodeId": "executeFlowAgentflow_0",
+     "nodeLabel": "Ask Specialist",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "executeFlowAgentflow",
+      "state": {
+       "child_count": "3"
+      }
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Reply",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "executeFlowAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow",
+      "state": {
+       "child_count": "3"
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "executeFlowAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "child_count": "3"
+   },
+   "modelRequests": [
+    {
+     "seq": 1335,
+     "route": "S12-parent",
+     "callIndex": 0,
+     "ruleId": "parent",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f84c4fdcdabed57d93c886dbb9b1c71d5ad4ee9c3f3be6923bad5fbfd9911f5c",
+         "length": 41065,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S12_parent"
+         ],
+         "head": "\\[\\[route:S12-parent\\]\\] SYSPROMPT_SENTINEL_S12_parent\n\nYou are the Northwind Outfitters front desk.\n\nSection 1 - Fraud "
+        }
+       },
+       {
+        "role": "user",
+        "content": "I want to return a pair of boots."
+       },
+       {
+        "role": "assistant",
+        "content": "Front desk (t1): let me ask our returns specialist.\n\nSpecialist: Boots can be returned within 30 days if they are unworn. (specialist turn 1)"
+       },
+       {
+        "role": "user",
+        "content": "They were worn once, is that a problem?"
+       },
+       {
+        "role": "assistant",
+        "content": "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)"
+       },
+       {
+        "role": "user",
+        "content": "What did I want to return again?"
+       },
+       {
+        "role": "assistant",
+        "content": "Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 2)"
+       },
+       {
+        "role": "user",
+        "content": "Thanks for the help."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Front desk (t4): let me ask our returns specialist.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1336,
+     "route": "S12-specialist",
+     "callIndex": 0,
+     "ruleId": "specialist-t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "8978600c7d8c712cf365726ca6a6ecfe6a46dd11dcc7a91359514d4e779ab230",
+         "length": 40907,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S12_specialist"
+         ],
+         "head": "\\[\\[route:S12-specialist\\]\\] SYSPROMPT_SENTINEL_S12_specialist\n\nYou are the Northwind Outfitters returns specialist.\n\nSe"
+        }
+       },
+       {
+        "role": "user",
+        "content": "They were worn once, is that a problem?"
+       },
+       {
+        "role": "assistant",
+        "content": "Worn once is fine if the soles show no marks."
+       },
+       {
+        "role": "user",
+        "content": "What did I want to return again?"
+       },
+       {
+        "role": "assistant",
+        "content": "You wanted to return a pair of boots."
+       },
+       {
+        "role": "user",
+        "content": "Thanks for the help."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Happy to help with your return.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 1080,
+    "sha256": "81df7661063d53b90c59cbd60d7bb110fbc2e2a5bdc9f3a7ffabdef29cba819a",
+    "sizes": {
+     "base64Length": 1080,
+     "payloadBytes": 808,
+     "gzipBytes": 780,
+     "rawJsonBytes": 1504,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 926,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 19,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 487,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1504
+     },
+     {
+      "path": "history",
+      "bytes": 926
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I want to return a pair of boots."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t1): let me ask our returns specialist.\n\nSpecialist: Boots can be returned within 30 days if they are unworn. (specialist turn 1)"
+      },
+      {
+       "role": "userMessage",
+       "content": "They were worn once, is that a problem?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t2): let me ask our returns specialist.\n\nSpecialist: Worn once is fine if the soles show no marks. (specialist turn 1)"
+      },
+      {
+       "role": "userMessage",
+       "content": "What did I want to return again?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t3): let me ask our returns specialist.\n\nSpecialist: You wanted to return a pair of boots. (specialist turn 2)"
+      },
+      {
+       "role": "userMessage",
+       "content": "Thanks for the help."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Front desk (t4): let me ask our returns specialist.\n\nSpecialist: Happy to help with your return. (specialist turn 3)"
+      }
+     ],
+     "flowState": {
+      "child_count": "3"
+     },
+     "formValues": {},
+     "childFlowTokens": {
+      "executeFlowAgentflow_0": {
+       "flowId": "c2aa610a-9219-4055-89b3-7a2ee059bc6e",
+       "token": "t84KQv6bKFnMuMH2d+KsWFmjFhscvkjQ4MQ7Fe/rPtp7u+OYOGNCJIykwx+Jp3Y3GxGd7thdPJKVYBeHtevxC41L2a+WaBHG9JEoGwTJ6ljUq6fsVrqqja34Mo44JgIAfx0BxuigwSsM6CHR67ER+RKMqaIE34lMRvvJ4iPvbeiWO0YE3NCJSagraiObdVMmFEGk9vCUty7h+0AK3fkb089TH2qk3FL2Qwa5o9u0ZUflgQiJmy/tMMAQNEY/w2Lbp5oTrujpobtt9hhSvP2vhPa/ys1wcHOqgysURl4wNzvyzfBxHufNE/smz8ewjX4a73loQQIKo3GfxSIuNEHt7t9h4d4eE2iX/rw7HzGeEdIjJJoDQXhYGwh4tPNwmpmy0xobhoc1bqia5w=="
+      }
+     }
+    },
+    "childTokens": {
+     "executeFlowAgentflow_0": {
+      "flowId": "c2aa610a-9219-4055-89b3-7a2ee059bc6e",
+      "base64Length": 400,
+      "sizes": {
+       "base64Length": 400,
+       "payloadBytes": 298,
+       "gzipBytes": 270,
+       "rawJsonBytes": 511,
+       "version": 2,
+       "topLevelKeys": [
+        "version",
+        "history",
+        "flowState",
+        "formValues",
+        "childFlowTokens"
+       ],
+       "historyMessages": 6,
+       "historyBytes": 418,
+       "historyRoles": [
+        "userMessage",
+        "apiMessage",
+        "userMessage",
+        "apiMessage",
+        "userMessage",
+        "apiMessage"
+       ],
+       "historyMessagesWithAction": 0,
+       "flowStateBytes": 19,
+       "formValuesBytes": 2,
+       "childFlowTokensBytes": 2,
+       "pendingResumeBytes": 0,
+       "pendingNodes": null
+      },
+      "sentinels": {
+       "total": 0,
+       "bySentinel": {}
+      },
+      "decoded": {
+       "version": 2,
+       "history": [
+        {
+         "role": "userMessage",
+         "content": "They were worn once, is that a problem?"
+        },
+        {
+         "role": "apiMessage",
+         "content": "Worn once is fine if the soles show no marks."
+        },
+        {
+         "role": "userMessage",
+         "content": "What did I want to return again?"
+        },
+        {
+         "role": "apiMessage",
+         "content": "You wanted to return a pair of boots."
+        },
+        {
+         "role": "userMessage",
+         "content": "Thanks for the help."
+        },
+        {
+         "role": "apiMessage",
+         "content": "Happy to help with your return."
+        }
+       ],
+       "flowState": {
+        "child_count": "3"
+       },
+       "formValues": {},
+       "childFlowTokens": {}
+      },
+      "childTokens": {}
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S12_parent": 1,
+      "SYSPROMPT_SENTINEL_S12_specialist": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 709,
+    "executedDataGzipBytes": 225,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

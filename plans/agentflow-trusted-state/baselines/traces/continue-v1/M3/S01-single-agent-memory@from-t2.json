@@ -1,0 +1,3340 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S01",
+  "file": "S01-single-agent-memory.json",
+  "title": "Single agent with all-messages memory and tools",
+  "findings": [
+   "F13"
+  ]
+ },
+ "mode": "M3",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl08na-M3-S01",
+ "runTag": "mwtl08na",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t2"
+ },
+ "flows": [
+  {
+   "slug": "S01-single-agent-memory",
+   "chatflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+   "name": "TS00b M3 S01-single-agent-memory",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": false,
+     "enabledFull": false
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:54.440Z",
+ "turns": [
+  {
+   "id": "t3",
+   "note": "Agent calls the calculator tool; tool messages land in the node record",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M3-S01",
+     "streaming": true,
+     "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 15284,
+      "sha256": "fa129b3544c5e30df3ca35d6a7c0556e5d65ae5135cf401189016cc8ace77b67"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 15284,
+    "sha256": "fa129b3544c5e30df3ca35d6a7c0556e5d65ae5135cf401189016cc8ace77b67"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 18.78,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.68,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.72,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.73,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.74,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 11.38,
+      "event": "calledTools",
+      "data": [
+       {
+        "tool": "calculator",
+        "toolInput": {
+         "input": "12*7+3"
+        },
+        "toolOutput": ""
+       }
+      ]
+     },
+     {
+      "offsetMs": 12.5,
+      "event": "token",
+      "data": "The total would be"
+     },
+     {
+      "offsetMs": 12.51,
+      "event": "token",
+      "data": " 87 euros."
+     },
+     {
+      "offsetMs": 13.45,
+      "event": "usedTools",
+      "data": [
+       {
+        "tool": "calculator",
+        "toolInput": {
+         "input": "12*7+3"
+        },
+        "toolOutput": "87"
+       }
+      ]
+     },
+     {
+      "offsetMs": 13.47,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 13.47,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10590,
+       "output_tokens": 8,
+       "total_tokens": 10598
+      }
+     },
+     {
+      "offsetMs": 13.48,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 16.61,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 17.14,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 508,
+       "sha256": "3041b28e0965457816bcc2c259f95f928f19b3d3dddbdf8a6704d2dfe4b6da14"
+      }
+     },
+     {
+      "offsetMs": 18.72,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "chatMessageId": "2f326ccd-22c1-4a3d-8dd7-05c65642f119",
+       "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?",
+       "sessionId": "ts00b-mwtl08na-M3-S01"
+      }
+     },
+     {
+      "offsetMs": 18.74,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 18.75,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "The total would be 87 euros.",
+   "tokens": [
+    "The total would be",
+    " 87 euros."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Support Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1600,
+     "route": "S01-agent",
+     "callIndex": 0,
+     "ruleId": "t3-tool",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+         "length": 41448,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S01_agent"
+         ],
+         "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+       },
+       {
+        "role": "assistant",
+        "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "Can you remind me which order we are talking about?"
+       },
+       {
+        "role": "assistant",
+        "content": "We are talking about order ORD-1001, which is currently with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": [
+       {
+        "id": "call_S01agent_t3_0_0",
+        "name": "calculator",
+        "args": {
+         "input": "12*7+3"
+        }
+       }
+      ],
+      "error": null
+     }
+    },
+    {
+     "seq": 1601,
+     "route": "S01-agent",
+     "callIndex": 1,
+     "ruleId": "t3-answer",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+         "length": 41448,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S01_agent"
+         ],
+         "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+       },
+       {
+        "role": "assistant",
+        "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "Can you remind me which order we are talking about?"
+       },
+       {
+        "role": "assistant",
+        "content": "We are talking about order ORD-1001, which is currently with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+       },
+       {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+         {
+          "id": "call_S01agent_t3_0_0",
+          "type": "function",
+          "function": {
+           "name": "calculator",
+           "arguments": {
+            "$json": {
+             "input": "12*7+3"
+            }
+           }
+          }
+         }
+        ]
+       },
+       {
+        "role": "tool",
+        "content": "87",
+        "name": "calculator",
+        "tool_call_id": "call_S01agent_t3_0_0"
+       }
+      ]
+     },
+     "reply": {
+      "content": "The total would be 87 euros.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 508,
+    "sha256": "3041b28e0965457816bcc2c259f95f928f19b3d3dddbdf8a6704d2dfe4b6da14",
+    "sizes": {
+     "base64Length": 508,
+     "payloadBytes": 380,
+     "gzipBytes": 352,
+     "rawJsonBytes": 689,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 613,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 689
+     },
+     {
+      "path": "history",
+      "bytes": 613
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+      },
+      {
+       "role": "apiMessage",
+       "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+      },
+      {
+       "role": "userMessage",
+       "content": "Can you remind me which order we are talking about?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "We are talking about order ORD-1001, which is currently with the carrier."
+      },
+      {
+       "role": "userMessage",
+       "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The total would be 87 euros."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S01_agent": 2
+     }
+    },
+    "dbRows": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S01_agent": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 297,
+    "executedDataGzipBytes": 152,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S01-single-agent-memory": {
+     "executions": [
+      {
+       "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10924,
+        "sha256": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008"
+       },
+       "state": "FINISHED",
+       "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:49.000Z",
+       "updatedDate": "2026-11-23T18:10:49.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+           },
+           "output": {
+            "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Support Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+               "length": 41448,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S01_agent"
+               ],
+               "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+             },
+             {
+              "role": "assistant",
+              "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "Can you remind me which order we are talking about?"
+             },
+             {
+              "role": "assistant",
+              "content": "We are talking about order ORD-1001, which is currently with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+             },
+             {
+              "id": "chatcmpl-fake-S01-agent-t3-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "12*7+3"
+                },
+                "id": "call_S01agent_t3_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10526,
+               "output_tokens": 20,
+               "total_tokens": 10546
+              }
+             },
+             {
+              "role": "tool",
+              "content": "87",
+              "tool_call_id": "call_S01agent_t3_0_0",
+              "name": "calculator",
+              "additional_kwargs": {}
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "The total would be 87 euros.",
+            "timeMetadata": {
+             "start": 1795457449450,
+             "end": 1795457449455,
+             "delta": 5
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10590,
+             "output_tokens": 8,
+             "total_tokens": 31742,
+             "tool_call_tokens": 21144
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10590,
+              "completion_tokens": 8,
+              "total_tokens": 10598
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "usedTools": [
+             {
+              "tool": "calculator",
+              "toolInput": {
+               "input": "12*7+3"
+              },
+              "toolOutput": "87"
+             }
+            ],
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+            },
+            {
+             "role": "assistant",
+             "content": "The total would be 87 euros.",
+             "name": "support_agent",
+             "additional_kwargs": {
+              "usedTools": [
+               {
+                "tool": "calculator",
+                "toolInput": {
+                 "input": "12*7+3"
+                },
+                "toolOutput": "87"
+               }
+              ]
+             }
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 45522
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "6863017c-6e63-4edb-863c-98454300317b",
+       "role": "userMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:49.445Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a28jx5LlX0kQWMC7SxL1ZFVpPgx67b6wcO22YbXXGNiGUCJTUt0uVvHWo2Vdo//7IDMjIp9FUsbMfBNLfOQjMuLEiUf++ueq6w/89rC6"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:49.000Z",
+        "updatedDate": "2026-11-23T18:10:49.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "2f326ccd-22c1-4a3d-8dd7-05c65642f119",
+       "role": "apiMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "content": "The total would be 87 euros.",
+       "sourceDocuments": null,
+       "usedTools": [
+        {
+         "tool": "calculator",
+         "toolInput": {
+          "input": "12*7+3"
+         },
+         "toolOutput": "87"
+        }
+       ],
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:49.458Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a28jx5LlX0kQWMC7SxL1ZFVpPgx67b6wcO22YbXXGNiGUCJTUt0uVvHWo2Vdo//7IDMjIp9FUsbMfBNLfOQjMuLEiUf++ueq6w/89rC6"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:49.000Z",
+        "updatedDate": "2026-11-23T18:10:49.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M3-S01",
+     "streaming": true,
+     "question": "Thanks. Please summarise our conversation so far.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 508,
+      "sha256": "3041b28e0965457816bcc2c259f95f928f19b3d3dddbdf8a6704d2dfe4b6da14"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 508,
+    "sha256": "3041b28e0965457816bcc2c259f95f928f19b3d3dddbdf8a6704d2dfe4b6da14"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 18.52,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 9.47,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 9.5,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.51,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.51,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 12.59,
+      "event": "token",
+      "data": "Summary: you asked about"
+     },
+     {
+      "offsetMs": 12.61,
+      "event": "token",
+      "data": " the delayed order ORD-1001"
+     },
+     {
+      "offsetMs": 12.61,
+      "event": "token",
+      "data": " and about a quote"
+     },
+     {
+      "offsetMs": 12.62,
+      "event": "token",
+      "data": " for 12 jackets, which"
+     },
+     {
+      "offsetMs": 12.62,
+      "event": "token",
+      "data": " comes to 87 euros."
+     },
+     {
+      "offsetMs": 13.36,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 13.38,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10561,
+       "output_tokens": 28,
+       "total_tokens": 10589
+      }
+     },
+     {
+      "offsetMs": 13.39,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 16.31,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 17.13,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 608,
+       "sha256": "d51d05237d179b99755a7d8598883c71299efbeff36c6e00488fe48641b9053a"
+      }
+     },
+     {
+      "offsetMs": 18.46,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "chatMessageId": "02c5fb29-4e09-431c-95cf-36917aeea5cd",
+       "question": "Thanks. Please summarise our conversation so far.",
+       "sessionId": "ts00b-mwtl08na-M3-S01"
+      }
+     },
+     {
+      "offsetMs": 18.48,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 18.48,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+   "tokens": [
+    "Summary: you asked about",
+    " the delayed order ORD-1001",
+    " and about a quote",
+    " for 12 jackets, which",
+    " comes to 87 euros."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Support Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1603,
+     "route": "S01-agent",
+     "callIndex": 0,
+     "ruleId": "t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+         "length": 41448,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S01_agent"
+         ],
+         "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+       },
+       {
+        "role": "assistant",
+        "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "Can you remind me which order we are talking about?"
+       },
+       {
+        "role": "assistant",
+        "content": "We are talking about order ORD-1001, which is currently with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+       },
+       {
+        "role": "assistant",
+        "content": "The total would be 87 euros."
+       },
+       {
+        "role": "user",
+        "content": "Thanks. Please summarise our conversation so far."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 608,
+    "sha256": "d51d05237d179b99755a7d8598883c71299efbeff36c6e00488fe48641b9053a",
+    "sizes": {
+     "base64Length": 608,
+     "payloadBytes": 454,
+     "gzipBytes": 426,
+     "rawJsonBytes": 919,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 843,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 919
+     },
+     {
+      "path": "history",
+      "bytes": 843
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+      },
+      {
+       "role": "apiMessage",
+       "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+      },
+      {
+       "role": "userMessage",
+       "content": "Can you remind me which order we are talking about?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "We are talking about order ORD-1001, which is currently with the carrier."
+      },
+      {
+       "role": "userMessage",
+       "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The total would be 87 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "Thanks. Please summarise our conversation so far."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S01_agent": 1
+     }
+    },
+    "dbRows": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S01_agent": 2
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 297,
+    "executedDataGzipBytes": 152,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S01-single-agent-memory": {
+     "executions": [
+      {
+       "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10924,
+        "sha256": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008"
+       },
+       "state": "FINISHED",
+       "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:49.000Z",
+       "updatedDate": "2026-11-23T18:10:49.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+           },
+           "output": {
+            "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Support Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+               "length": 41448,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S01_agent"
+               ],
+               "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+             },
+             {
+              "role": "assistant",
+              "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "Can you remind me which order we are talking about?"
+             },
+             {
+              "role": "assistant",
+              "content": "We are talking about order ORD-1001, which is currently with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+             },
+             {
+              "id": "chatcmpl-fake-S01-agent-t3-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "12*7+3"
+                },
+                "id": "call_S01agent_t3_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10526,
+               "output_tokens": 20,
+               "total_tokens": 10546
+              }
+             },
+             {
+              "role": "tool",
+              "content": "87",
+              "tool_call_id": "call_S01agent_t3_0_0",
+              "name": "calculator",
+              "additional_kwargs": {}
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "The total would be 87 euros.",
+            "timeMetadata": {
+             "start": 1795457449450,
+             "end": 1795457449455,
+             "delta": 5
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10590,
+             "output_tokens": 8,
+             "total_tokens": 31742,
+             "tool_call_tokens": 21144
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10590,
+              "completion_tokens": 8,
+              "total_tokens": 10598
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "usedTools": [
+             {
+              "tool": "calculator",
+              "toolInput": {
+               "input": "12*7+3"
+              },
+              "toolOutput": "87"
+             }
+            ],
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+            },
+            {
+             "role": "assistant",
+             "content": "The total would be 87 euros.",
+             "name": "support_agent",
+             "additional_kwargs": {
+              "usedTools": [
+               {
+                "tool": "calculator",
+                "toolInput": {
+                 "input": "12*7+3"
+                },
+                "toolOutput": "87"
+               }
+              ]
+             }
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 45522
+      },
+      {
+       "id": "92366b99-df7d-4282-b233-5df45884cd2f",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10833,
+        "sha256": "908c30e9ba2827c59e7770fcbc09e301e54a73295ba7a61e2dfa950d7d030b6e"
+       },
+       "state": "FINISHED",
+       "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:51.000Z",
+       "updatedDate": "2026-11-23T18:10:51.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "Thanks. Please summarise our conversation so far."
+           },
+           "output": {
+            "question": "Thanks. Please summarise our conversation so far."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Support Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+               "length": 41448,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S01_agent"
+               ],
+               "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+             },
+             {
+              "role": "assistant",
+              "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "Can you remind me which order we are talking about?"
+             },
+             {
+              "role": "assistant",
+              "content": "We are talking about order ORD-1001, which is currently with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+             },
+             {
+              "role": "assistant",
+              "content": "The total would be 87 euros."
+             },
+             {
+              "role": "user",
+              "content": "Thanks. Please summarise our conversation so far."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+            "timeMetadata": {
+             "start": 1795457451388,
+             "end": 1795457451391,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10561,
+             "output_tokens": 28,
+             "total_tokens": 10589,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10561,
+              "completion_tokens": 28,
+              "total_tokens": 10589
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Thanks. Please summarise our conversation so far."
+            },
+            {
+             "role": "assistant",
+             "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+             "name": "support_agent"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 45155
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "6863017c-6e63-4edb-863c-98454300317b",
+       "role": "userMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:49.445Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a28jx5LlX0kQWMC7SxL1ZFVpPgx67b6wcO22YbXXGNiGUCJTUt0uVvHWo2Vdo//7IDMjIp9FUsbMfBNLfOQjMuLEiUf++ueq6w/89rC6"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:49.000Z",
+        "updatedDate": "2026-11-23T18:10:49.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "2f326ccd-22c1-4a3d-8dd7-05c65642f119",
+       "role": "apiMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "content": "The total would be 87 euros.",
+       "sourceDocuments": null,
+       "usedTools": [
+        {
+         "tool": "calculator",
+         "toolInput": {
+          "input": "12*7+3"
+         },
+         "toolOutput": "87"
+        }
+       ],
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:49.458Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a28jx5LlX0kQWMC7SxL1ZFVpPgx67b6wcO22YbXXGNiGUCJTUt0uVvHWo2Vdo//7IDMjIp9FUsbMfBNLfOQjMuLEiUf++ueq6w/89rC6"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:49.000Z",
+        "updatedDate": "2026-11-23T18:10:49.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "ffd389ad-4cc9-4e4c-a479-7fba5d1e3208",
+       "role": "userMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "92366b99-df7d-4282-b233-5df45884cd2f",
+       "content": "Thanks. Please summarise our conversation so far.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:51.383Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "92366b99-df7d-4282-b233-5df45884cd2f",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "908c30e9ba2827c59e7770fcbc09e301e54a73295ba7a61e2dfa950d7d030b6e",
+         "length": 14444,
+         "head": "H4sIAAAAAAAAA719a4/jRpLtX0kIWKAvIAl8imTth4u+dg9cGLvdcLXXWNhGgyWlSpymSA1JdbnG6P++yMyIyCcllTF3v5VUqhIzMx4nTjzy1z8XXb/j97vF"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:51.000Z",
+        "updatedDate": "2026-11-23T18:10:51.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "02c5fb29-4e09-431c-95cf-36917aeea5cd",
+       "role": "apiMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "92366b99-df7d-4282-b233-5df45884cd2f",
+       "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:51.394Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "92366b99-df7d-4282-b233-5df45884cd2f",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "908c30e9ba2827c59e7770fcbc09e301e54a73295ba7a61e2dfa950d7d030b6e",
+         "length": 14444,
+         "head": "H4sIAAAAAAAAA719a4/jRpLtX0kIWKAvIAl8imTth4u+dg9cGLvdcLXXWNhGgyWlSpymSA1JdbnG6P++yMyIyCcllTF3v5VUqhIzMx4nTjzy1z8XXb/j97vF"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:51.000Z",
+        "updatedDate": "2026-11-23T18:10:51.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t5",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M3-S01",
+     "streaming": true,
+     "question": "That is all, goodbye.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 608,
+      "sha256": "d51d05237d179b99755a7d8598883c71299efbeff36c6e00488fe48641b9053a"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 608,
+    "sha256": "d51d05237d179b99755a7d8598883c71299efbeff36c6e00488fe48641b9053a"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 22.66,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 12.05,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 12.08,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 12.09,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 12.09,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 17.38,
+      "event": "token",
+      "data": "Goodbye, and thank you"
+     },
+     {
+      "offsetMs": 17.41,
+      "event": "token",
+      "data": " for shopping with Northwind"
+     },
+     {
+      "offsetMs": 17.42,
+      "event": "token",
+      "data": " Outfitters."
+     },
+     {
+      "offsetMs": 18.15,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 18.16,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10609,
+       "output_tokens": 16,
+       "total_tokens": 10625
+      }
+     },
+     {
+      "offsetMs": 18.17,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 20.78,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 21.48,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 664,
+       "sha256": "b23c41e64f9ccf239ecf645724f2f777751553fb07663517175357817a4ac876"
+      }
+     },
+     {
+      "offsetMs": 22.6,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "chatMessageId": "bd0433d5-12a9-4cf4-85a5-978cdc1a9a51",
+       "question": "That is all, goodbye.",
+       "sessionId": "ts00b-mwtl08na-M3-S01"
+      }
+     },
+     {
+      "offsetMs": 22.61,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 22.62,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Goodbye, and thank you for shopping with Northwind Outfitters.",
+   "tokens": [
+    "Goodbye, and thank you",
+    " for shopping with Northwind",
+    " Outfitters."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Support Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1605,
+     "route": "S01-agent",
+     "callIndex": 0,
+     "ruleId": "t5",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+         "length": 41448,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S01_agent"
+         ],
+         "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+       },
+       {
+        "role": "assistant",
+        "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "Can you remind me which order we are talking about?"
+       },
+       {
+        "role": "assistant",
+        "content": "We are talking about order ORD-1001, which is currently with the carrier."
+       },
+       {
+        "role": "user",
+        "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+       },
+       {
+        "role": "assistant",
+        "content": "The total would be 87 euros."
+       },
+       {
+        "role": "user",
+        "content": "Thanks. Please summarise our conversation so far."
+       },
+       {
+        "role": "assistant",
+        "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros."
+       },
+       {
+        "role": "user",
+        "content": "That is all, goodbye."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Goodbye, and thank you for shopping with Northwind Outfitters.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 664,
+    "sha256": "b23c41e64f9ccf239ecf645724f2f777751553fb07663517175357817a4ac876",
+    "sizes": {
+     "base64Length": 664,
+     "payloadBytes": 497,
+     "gzipBytes": 469,
+     "rawJsonBytes": 1073,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 10,
+     "historyBytes": 997,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1073
+     },
+     {
+      "path": "history",
+      "bytes": 997
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+      },
+      {
+       "role": "apiMessage",
+       "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+      },
+      {
+       "role": "userMessage",
+       "content": "Can you remind me which order we are talking about?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "We are talking about order ORD-1001, which is currently with the carrier."
+      },
+      {
+       "role": "userMessage",
+       "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The total would be 87 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "Thanks. Please summarise our conversation so far."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "That is all, goodbye."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Goodbye, and thank you for shopping with Northwind Outfitters."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S01_agent": 1
+     }
+    },
+    "dbRows": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S01_agent": 3
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 297,
+    "executedDataGzipBytes": 152,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S01-single-agent-memory": {
+     "executions": [
+      {
+       "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10924,
+        "sha256": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008"
+       },
+       "state": "FINISHED",
+       "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:49.000Z",
+       "updatedDate": "2026-11-23T18:10:49.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+           },
+           "output": {
+            "question": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Support Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+               "length": 41448,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S01_agent"
+               ],
+               "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+             },
+             {
+              "role": "assistant",
+              "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "Can you remind me which order we are talking about?"
+             },
+             {
+              "role": "assistant",
+              "content": "We are talking about order ORD-1001, which is currently with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+             },
+             {
+              "id": "chatcmpl-fake-S01-agent-t3-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "12*7+3"
+                },
+                "id": "call_S01agent_t3_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10526,
+               "output_tokens": 20,
+               "total_tokens": 10546
+              }
+             },
+             {
+              "role": "tool",
+              "content": "87",
+              "tool_call_id": "call_S01agent_t3_0_0",
+              "name": "calculator",
+              "additional_kwargs": {}
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "The total would be 87 euros.",
+            "timeMetadata": {
+             "start": 1795457449450,
+             "end": 1795457449455,
+             "delta": 5
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10590,
+             "output_tokens": 8,
+             "total_tokens": 31742,
+             "tool_call_tokens": 21144
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10590,
+              "completion_tokens": 8,
+              "total_tokens": 10598
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "usedTools": [
+             {
+              "tool": "calculator",
+              "toolInput": {
+               "input": "12*7+3"
+              },
+              "toolOutput": "87"
+             }
+            ],
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+            },
+            {
+             "role": "assistant",
+             "content": "The total would be 87 euros.",
+             "name": "support_agent",
+             "additional_kwargs": {
+              "usedTools": [
+               {
+                "tool": "calculator",
+                "toolInput": {
+                 "input": "12*7+3"
+                },
+                "toolOutput": "87"
+               }
+              ]
+             }
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 45522
+      },
+      {
+       "id": "92366b99-df7d-4282-b233-5df45884cd2f",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10833,
+        "sha256": "908c30e9ba2827c59e7770fcbc09e301e54a73295ba7a61e2dfa950d7d030b6e"
+       },
+       "state": "FINISHED",
+       "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:51.000Z",
+       "updatedDate": "2026-11-23T18:10:51.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "Thanks. Please summarise our conversation so far."
+           },
+           "output": {
+            "question": "Thanks. Please summarise our conversation so far."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Support Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+               "length": 41448,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S01_agent"
+               ],
+               "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+             },
+             {
+              "role": "assistant",
+              "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "Can you remind me which order we are talking about?"
+             },
+             {
+              "role": "assistant",
+              "content": "We are talking about order ORD-1001, which is currently with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+             },
+             {
+              "role": "assistant",
+              "content": "The total would be 87 euros."
+             },
+             {
+              "role": "user",
+              "content": "Thanks. Please summarise our conversation so far."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+            "timeMetadata": {
+             "start": 1795457451388,
+             "end": 1795457451391,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10561,
+             "output_tokens": 28,
+             "total_tokens": 10589,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10561,
+              "completion_tokens": 28,
+              "total_tokens": 10589
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Thanks. Please summarise our conversation so far."
+            },
+            {
+             "role": "assistant",
+             "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+             "name": "support_agent"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 45155
+      },
+      {
+       "id": "b2920593-374d-4163-a278-46129452a3d4",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10866,
+        "sha256": "0cd3b1c78d3f4ae2bd8367373d00a0fdcf23b33d71f087390d553c84facbeafb"
+       },
+       "state": "FINISHED",
+       "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:54.000Z",
+       "updatedDate": "2026-11-23T18:10:54.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "That is all, goodbye."
+           },
+           "output": {
+            "question": "That is all, goodbye."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Support Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+               "length": 41448,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S01_agent"
+               ],
+               "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Hi, I need help with my order ORD-1001. It has not arrived yet."
+             },
+             {
+              "role": "assistant",
+              "content": "I am sorry about the delay. Order ORD-1001 left our warehouse on Monday and is now with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "Can you remind me which order we are talking about?"
+             },
+             {
+              "role": "assistant",
+              "content": "We are talking about order ORD-1001, which is currently with the carrier."
+             },
+             {
+              "role": "user",
+              "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?"
+             },
+             {
+              "role": "assistant",
+              "content": "The total would be 87 euros."
+             },
+             {
+              "role": "user",
+              "content": "Thanks. Please summarise our conversation so far."
+             },
+             {
+              "role": "assistant",
+              "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros."
+             },
+             {
+              "role": "user",
+              "content": "That is all, goodbye."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Goodbye, and thank you for shopping with Northwind Outfitters.",
+            "timeMetadata": {
+             "start": 1795457454419,
+             "end": 1795457454421,
+             "delta": 2
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10609,
+             "output_tokens": 16,
+             "total_tokens": 10625,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10609,
+              "completion_tokens": 16,
+              "total_tokens": 10625
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "That is all, goodbye."
+            },
+            {
+             "role": "assistant",
+             "content": "Goodbye, and thank you for shopping with Northwind Outfitters.",
+             "name": "support_agent"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 45169
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "6863017c-6e63-4edb-863c-98454300317b",
+       "role": "userMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "content": "If I order 12 more jackets at 7 euros each plus 3 euros shipping, what is the total?",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:49.445Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a28jx5LlX0kQWMC7SxL1ZFVpPgx67b6wcO22YbXXGNiGUCJTUt0uVvHWo2Vdo//7IDMjIp9FUsbMfBNLfOQjMuLEiUf++ueq6w/89rC6"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:49.000Z",
+        "updatedDate": "2026-11-23T18:10:49.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "2f326ccd-22c1-4a3d-8dd7-05c65642f119",
+       "role": "apiMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "bc221680-d866-4357-8443-3d0f1c805a6b",
+       "content": "The total would be 87 euros.",
+       "sourceDocuments": null,
+       "usedTools": [
+        {
+         "tool": "calculator",
+         "toolInput": {
+          "input": "12*7+3"
+         },
+         "toolOutput": "87"
+        }
+       ],
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:49.458Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "bc221680-d866-4357-8443-3d0f1c805a6b",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "4a820ed3b0d8500a44ba7eb7ecea272147bed7e8ac16bba5602a9b1fcf742008",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a28jx5LlX0kQWMC7SxL1ZFVpPgx67b6wcO22YbXXGNiGUCJTUt0uVvHWo2Vdo//7IDMjIp9FUsbMfBNLfOQjMuLEiUf++ueq6w/89rC6"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:49.000Z",
+        "updatedDate": "2026-11-23T18:10:49.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "ffd389ad-4cc9-4e4c-a479-7fba5d1e3208",
+       "role": "userMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "92366b99-df7d-4282-b233-5df45884cd2f",
+       "content": "Thanks. Please summarise our conversation so far.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:51.383Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "92366b99-df7d-4282-b233-5df45884cd2f",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "908c30e9ba2827c59e7770fcbc09e301e54a73295ba7a61e2dfa950d7d030b6e",
+         "length": 14444,
+         "head": "H4sIAAAAAAAAA719a4/jRpLtX0kIWKAvIAl8imTth4u+dg9cGLvdcLXXWNhGgyWlSpymSA1JdbnG6P++yMyIyCcllTF3v5VUqhIzMx4nTjzy1z8XXb/j97vF"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:51.000Z",
+        "updatedDate": "2026-11-23T18:10:51.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "02c5fb29-4e09-431c-95cf-36917aeea5cd",
+       "role": "apiMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "92366b99-df7d-4282-b233-5df45884cd2f",
+       "content": "Summary: you asked about the delayed order ORD-1001 and about a quote for 12 jackets, which comes to 87 euros.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:51.394Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "92366b99-df7d-4282-b233-5df45884cd2f",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "908c30e9ba2827c59e7770fcbc09e301e54a73295ba7a61e2dfa950d7d030b6e",
+         "length": 14444,
+         "head": "H4sIAAAAAAAAA719a4/jRpLtX0kIWKAvIAl8imTth4u+dg9cGLvdcLXXWNhGgyWlSpymSA1JdbnG6P++yMyIyCcllTF3v5VUqhIzMx4nTjzy1z8XXb/j97vF"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:51.000Z",
+        "updatedDate": "2026-11-23T18:10:51.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "e5c17ee1-9294-49dd-9868-21525abbbfdf",
+       "role": "userMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "b2920593-374d-4163-a278-46129452a3d4",
+       "content": "That is all, goodbye.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:54.410Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "b2920593-374d-4163-a278-46129452a3d4",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "0cd3b1c78d3f4ae2bd8367373d00a0fdcf23b33d71f087390d553c84facbeafb",
+         "length": 14488,
+         "head": "H4sIAAAAAAAAA7V9a48bR5LtX0kQWEAXIIl6sli9Hxa6tmbdGFsW3PIaC9sQqslks0bFKk491O4x9N8XmRkR+SyS7bv3m0ixycrMeJw48chf/1y03Z7f7xd3"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:54.000Z",
+        "updatedDate": "2026-11-23T18:10:54.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "bd0433d5-12a9-4cf4-85a5-978cdc1a9a51",
+       "role": "apiMessage",
+       "chatflowid": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+       "executionId": "b2920593-374d-4163-a278-46129452a3d4",
+       "content": "Goodbye, and thank you for shopping with Northwind Outfitters.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S01",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S01",
+       "createdDate": "2026-11-23T18:10:54.424Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "b2920593-374d-4163-a278-46129452a3d4",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "0cd3b1c78d3f4ae2bd8367373d00a0fdcf23b33d71f087390d553c84facbeafb",
+         "length": 14488,
+         "head": "H4sIAAAAAAAAA7V9a48bR5LtX0kQWEAXIIl6sli9Hxa6tmbdGFsW3PIaC9sQqslks0bFKk491O4x9N8XmRkR+SyS7bv3m0ixycrMeJw48chf/1y03Z7f7xd3"
+        },
+        "state": "FINISHED",
+        "agentflowId": "c555ebb8-e0fc-42ac-8325-f684d4fd7933",
+        "sessionId": "ts00b-mwtl08na-M3-S01",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:54.000Z",
+        "updatedDate": "2026-11-23T18:10:54.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

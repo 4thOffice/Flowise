@@ -1,0 +1,4056 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S06",
+  "file": "S06-human-review-with-feedback.json",
+  "title": "Drafter, human review with feedback, revise loop, companion reply",
+  "findings": [
+   "F05",
+   "F07",
+   "F08",
+   "F09",
+   "F19"
+  ]
+ },
+ "mode": "M2",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtkxdd6-M2-S06",
+ "runTag": "mwtkxdd6",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t1"
+ },
+ "flows": [
+  {
+   "slug": "S06-human-review-with-feedback",
+   "chatflowId": "248d9409-6813-4d86-8e2c-42a189922e4b",
+   "name": "TS00b M2 S06-human-review-with-feedback",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": false
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:11.304Z",
+ "turns": [
+  {
+   "id": "t2",
+   "note": "Reject with feedback: loops back to Drafter and stops again",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M2-S06",
+     "streaming": true,
+     "humanInput": {
+      "type": "reject",
+      "feedback": "Please mention the 10% discount code SORRY10.",
+      "startNodeId": "humanInputAgentflow_0"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 15352,
+      "sha256": "692cd84f76ee459ef502b65956e1208baeda871b605bb0b23a8b31fc160c629b"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 15352,
+    "sha256": "692cd84f76ee459ef502b65956e1208baeda871b605bb0b23a8b31fc160c629b"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 39.5,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 11.52,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 11.55,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 11.56,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 11.56,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Revise Loop",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 11.57,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Revise Loop",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 11.57,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Drafter",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 32.46,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Drafter",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 32.49,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 32.49,
+      "event": "token",
+      "data": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+     },
+     {
+      "offsetMs": 32.5,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "STOPPED"
+      }
+     },
+     {
+      "offsetMs": 37.07,
+      "event": "action",
+      "data": {
+       "id": "c72a3772-5dbe-4f40-9a1c-86af730aa637",
+       "mapping": {
+        "approve": "Proceed",
+        "reject": "Reject"
+       },
+       "elements": [
+        {
+         "type": "agentflowv2-approve-button",
+         "label": "Approve"
+        },
+        {
+         "type": "agentflowv2-reject-button",
+         "label": "Request changes"
+        }
+       ],
+       "data": {
+        "nodeId": "humanInputAgentflow_0",
+        "nodeLabel": "Review Gate",
+        "input": {
+         "humanInputEnableFeedback": true
+        }
+       }
+      }
+     },
+     {
+      "offsetMs": 37.16,
+      "event": "agentFlowEvent",
+      "data": "STOPPED"
+     },
+     {
+      "offsetMs": 37.8,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 944,
+       "sha256": "bf6c13a8b2d0443dd2919495f5c531b9a1451c6c2eef6cf80097f6586505862a"
+      }
+     },
+     {
+      "offsetMs": 39.4,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M2-S06",
+       "chatMessageId": "1499e6b1-cbd8-410e-ab03-2d833be225e6",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06"
+      }
+     },
+     {
+      "offsetMs": 39.42,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 7
+      }
+     },
+     {
+      "offsetMs": 39.46,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "STOPPED",
+   "statusSource": "sse",
+   "text": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?",
+   "tokens": [
+    "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+   ],
+   "action": {
+    "id": "c72a3772-5dbe-4f40-9a1c-86af730aa637",
+    "mapping": {
+     "approve": "Proceed",
+     "reject": "Reject"
+    },
+    "elements": [
+     {
+      "type": "agentflowv2-approve-button",
+      "label": "Approve"
+     },
+     {
+      "type": "agentflowv2-reject-button",
+      "label": "Request changes"
+     }
+    ],
+    "data": {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "input": {
+      "humanInputEnableFeedback": true
+     }
+    }
+   },
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow"
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Companion",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow"
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Drafter",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow"
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "loopAgentflow_0",
+     "nodeLabel": "Revise Loop",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "humanInputAgentflow_0"
+     ],
+     "data": {
+      "name": "loopAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Drafter",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "status": "STOPPED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {},
+      "output": {
+       "humanInputAction": {
+        "id": "c72a3772-5dbe-4f40-9a1c-86af730aa637",
+        "mapping": {
+         "approve": "Proceed",
+         "reject": "Reject"
+        },
+        "elements": [
+         {
+          "type": "agentflowv2-approve-button",
+          "label": "Approve"
+         },
+         {
+          "type": "agentflowv2-reject-button",
+          "label": "Request changes"
+         }
+        ],
+        "data": {
+         "nodeId": "humanInputAgentflow_0",
+         "nodeLabel": "Review Gate",
+         "input": {
+          "humanInputEnableFeedback": true
+         }
+        }
+       }
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:FINISHED",
+    "loopAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:STOPPED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1349,
+     "route": "S06-drafter",
+     "callIndex": 0,
+     "ruleId": "drafter-t2",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+         "length": 41747,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S06_drafter"
+         ],
+         "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft a reply to a customer whose shipment is delayed by a week."
+       },
+       {
+        "role": "assistant",
+        "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Please mention the 10% discount code SORRY10."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 944,
+    "sha256": "bf6c13a8b2d0443dd2919495f5c531b9a1451c6c2eef6cf80097f6586505862a",
+    "sizes": {
+     "base64Length": 944,
+     "payloadBytes": 708,
+     "gzipBytes": 680,
+     "rawJsonBytes": 1667,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens",
+      "pendingResume"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 570,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 1004,
+     "pendingNodes": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "directReplyAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 55,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "humanInputAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 80,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "loopAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 102,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "humanInputAgentflow_0",
+       "status": "STOPPED",
+       "bytes": 549,
+       "promptBytes": 139,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1667
+     },
+     {
+      "path": "history",
+      "bytes": 570
+     },
+     {
+      "path": "pendingResume",
+      "bytes": 1004
+     },
+     {
+      "path": "pendingResume.nodes",
+      "bytes": 941
+     },
+     {
+      "path": "pendingResume.nodes[6]",
+      "bytes": 549
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft a reply to a customer whose shipment is delayed by a week."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Please mention the 10% discount code SORRY10."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {},
+     "pendingResume": {
+      "nodes": [
+       {
+        "nodeId": "startAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "directReplyAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "agentAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "humanInputAgentflow_0",
+        "status": "FINISHED",
+        "conditions": [
+         false,
+         true
+        ]
+       },
+       {
+        "nodeId": "loopAgentflow_0",
+        "status": "FINISHED",
+        "loop": {
+         "nodeID": "agentAgentflow_0",
+         "maxLoopCount": 2
+        }
+       },
+       {
+        "nodeId": "agentAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "humanInputAgentflow_0",
+        "status": "STOPPED",
+        "action": {
+         "id": "c72a3772-5dbe-4f40-9a1c-86af730aa637",
+         "mapping": {
+          "approve": "Proceed",
+          "reject": "Reject"
+         },
+         "elements": [
+          {
+           "type": "agentflowv2-approve-button",
+           "label": "Approve"
+          },
+          {
+           "type": "agentflowv2-reject-button",
+           "label": "Request changes"
+          }
+         ],
+         "data": {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "input": {
+           "humanInputEnableFeedback": true
+          }
+         }
+        },
+        "prompt": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+       }
+      ],
+      "executionId": "cf6e280f-62a9-4a65-8e22-dc115c96fc73"
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "action": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_drafter": 1
+     }
+    },
+    "dbRows": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_drafter": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 337,
+    "actionInputBytes": 33,
+    "executedDataBytes": 1449,
+    "executedDataGzipBytes": 402,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S06-human-review-with-feedback": {
+     "executions": [
+      {
+       "id": "cf6e280f-62a9-4a65-8e22-dc115c96fc73",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 11173,
+        "sha256": "5783755cc76c0567f9132d58d24181e887b3db004dae07c6f0da0674bbd25dd2"
+       },
+       "state": "STOPPED",
+       "agentflowId": "248d9409-6813-4d86-8e2c-42a189922e4b",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.183Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "type": "reject",
+            "feedback": "Please mention the 10% discount code SORRY10.",
+            "startNodeId": "humanInputAgentflow_0",
+            "messages": [
+             {
+              "content": "Draft a reply to a customer whose shipment is delayed by a week.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             }
+            ]
+           },
+           "output": {
+            "conditions": [
+             {
+              "type": "proceed",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Please mention the 10% discount code SORRY10.",
+              "isFulfilled": false
+             },
+             {
+              "type": "reject",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Please mention the 10% discount code SORRY10.",
+              "isFulfilled": true
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Please mention the 10% discount code SORRY10."
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Revise Loop",
+          "data": {
+           "id": "loopAgentflow_0",
+           "name": "loopAgentflow",
+           "input": {
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2
+           },
+           "output": {
+            "content": "Loop back to Drafter (agentAgentflow_0)",
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2,
+            "fallbackMessage": ""
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Drafter",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+               "length": 41747,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_drafter"
+               ],
+               "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+            "timeMetadata": {
+             "start": 1795457411160,
+             "end": 1795457411177,
+             "delta": 17
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10564,
+             "output_tokens": 29,
+             "total_tokens": 10593,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9126,
+              "completionTokens": 32,
+              "totalTokens": 9158
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10564,
+              "completion_tokens": 29,
+              "total_tokens": 10593
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+             "name": "drafter"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "messages": [
+             {
+              "content": "Draft a reply to a customer whose shipment is delayed by a week.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+              "name": "drafter"
+             }
+            ],
+            "humanInputEnableFeedback": true
+           },
+           "output": {
+            "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?",
+            "humanInputAction": {
+             "id": "c72a3772-5dbe-4f40-9a1c-86af730aa637",
+             "mapping": {
+              "approve": "Proceed",
+              "reject": "Reject"
+             },
+             "elements": [
+              {
+               "type": "agentflowv2-approve-button",
+               "label": "Approve"
+              },
+              {
+               "type": "agentflowv2-reject-button",
+               "label": "Request changes"
+              }
+             ],
+             "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Review Gate",
+              "input": {
+               "humanInputEnableFeedback": true
+              }
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0"
+          ],
+          "status": "STOPPED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 46957
+      }
+     ],
+     "chatMessages": []
+    }
+   },
+   "serverLog": [
+    "2026-11-23 19:10:11 [WARN]: [agentflow]: Execution 3f15901d-c411-493d-9dfb-bacbd04bb85f not found; it is not updated",
+    "2026-11-23 19:10:11 [WARN]: [agentflow]: Execution 3f15901d-c411-493d-9dfb-bacbd04bb85f not found; it is not updated"
+   ]
+  },
+  {
+   "id": "t3",
+   "note": "Proceed without feedback: Finalizer answers",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M2-S06",
+     "streaming": true,
+     "humanInput": {
+      "type": "proceed",
+      "startNodeId": "humanInputAgentflow_0"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 944,
+      "sha256": "bf6c13a8b2d0443dd2919495f5c531b9a1451c6c2eef6cf80097f6586505862a"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 944,
+    "sha256": "bf6c13a8b2d0443dd2919495f5c531b9a1451c6c2eef6cf80097f6586505862a"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 16.64,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.56,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.58,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.6,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Finalizer",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.88,
+      "event": "token",
+      "data": "Final: Dear customer, we"
+     },
+     {
+      "offsetMs": 10.9,
+      "event": "token",
+      "data": " apologise for the one-week"
+     },
+     {
+      "offsetMs": 10.91,
+      "event": "token",
+      "data": " delay. Your order arrives"
+     },
+     {
+      "offsetMs": 10.91,
+      "event": "token",
+      "data": " next Friday, and code"
+     },
+     {
+      "offsetMs": 10.92,
+      "event": "token",
+      "data": " SORRY10 gives you 10%"
+     },
+     {
+      "offsetMs": 10.92,
+      "event": "token",
+      "data": " off your next order."
+     },
+     {
+      "offsetMs": 11.7,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 11.71,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10419,
+       "output_tokens": 36,
+       "total_tokens": 10455
+      }
+     },
+     {
+      "offsetMs": 11.72,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Finalizer",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 14.46,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 15.11,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 548,
+       "sha256": "17903098cfd8d200681e77454c76a488470381beed31a90fbce7f85da9905a48"
+      }
+     },
+     {
+      "offsetMs": 16.55,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M2-S06",
+       "chatMessageId": "a5ac27e9-cd75-44eb-93a4-70fcea29285a",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06"
+      }
+     },
+     {
+      "offsetMs": 16.57,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 7
+      }
+     },
+     {
+      "offsetMs": 16.59,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+   "tokens": [
+    "Final: Dear customer, we",
+    " apologise for the one-week",
+    " delay. Your order arrives",
+    " next Friday, and code",
+    " SORRY10 gives you 10%",
+    " off your next order."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow"
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Companion",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow"
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Drafter",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow"
+     }
+    },
+    {
+     "nodeId": "loopAgentflow_0",
+     "nodeLabel": "Revise Loop",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "humanInputAgentflow_0"
+     ],
+     "data": {
+      "name": "loopAgentflow"
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Drafter",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow"
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Finalizer",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "humanInputAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "loopAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1351,
+     "route": "S06-finalizer",
+     "callIndex": 0,
+     "ruleId": "finalizer-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "ba33b78ffcfaa0683130bf95675e638a789fea3de11c8570b7dbef675ce85cc9",
+         "length": 41001,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S06_finalizer"
+         ],
+         "head": "\\[\\[route:S06-finalizer\\]\\] SYSPROMPT_SENTINEL_S06_finalizer\n\nYou polish approved Northwind Outfitters drafts.\n\nSection "
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft a reply to a customer whose shipment is delayed by a week."
+       },
+       {
+        "role": "assistant",
+        "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Please mention the 10% discount code SORRY10."
+       },
+       {
+        "role": "assistant",
+        "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 548,
+    "sha256": "17903098cfd8d200681e77454c76a488470381beed31a90fbce7f85da9905a48",
+    "sizes": {
+     "base64Length": 548,
+     "payloadBytes": 411,
+     "gzipBytes": 383,
+     "rawJsonBytes": 866,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 790,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 866
+     },
+     {
+      "path": "history",
+      "bytes": 790
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft a reply to a customer whose shipment is delayed by a week."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Please mention the 10% discount code SORRY10."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Approve"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_finalizer": 1
+     }
+    },
+    "dbRows": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_drafter": 1,
+      "SYSPROMPT_SENTINEL_S06_finalizer": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 1049,
+    "executedDataGzipBytes": 248,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S06-human-review-with-feedback": {
+     "executions": [
+      {
+       "id": "cf6e280f-62a9-4a65-8e22-dc115c96fc73",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 19631,
+        "sha256": "cbdb69d71724253e7ca7ac6071be43936a83d0c85a2dd9fd812a566e6b69765f"
+       },
+       "state": "FINISHED",
+       "agentflowId": "248d9409-6813-4d86-8e2c-42a189922e4b",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.183Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Revise Loop",
+          "data": {
+           "id": "loopAgentflow_0",
+           "name": "loopAgentflow",
+           "input": {
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2
+           },
+           "output": {
+            "content": "Loop back to Drafter (agentAgentflow_0)",
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2,
+            "fallbackMessage": ""
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Drafter",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+               "length": 41747,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_drafter"
+               ],
+               "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+            "timeMetadata": {
+             "start": 1795457411160,
+             "end": 1795457411177,
+             "delta": 17
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10564,
+             "output_tokens": 29,
+             "total_tokens": 10593,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9126,
+              "completionTokens": 32,
+              "totalTokens": 9158
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10564,
+              "completion_tokens": 29,
+              "total_tokens": 10593
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+             "name": "drafter"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "type": "proceed",
+            "startNodeId": "humanInputAgentflow_0",
+            "messages": [
+             {
+              "content": "Draft a reply to a customer whose shipment is delayed by a week.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "content": "Please mention the 10% discount code SORRY10.",
+              "role": "user"
+             },
+             {
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "proceed"
+             }
+            ]
+           },
+           "output": {
+            "conditions": [
+             {
+              "type": "proceed",
+              "startNodeId": "humanInputAgentflow_0",
+              "isFulfilled": true
+             },
+             {
+              "type": "reject",
+              "startNodeId": "humanInputAgentflow_0",
+              "isFulfilled": false
+             }
+            ]
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Finalizer",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "ba33b78ffcfaa0683130bf95675e638a789fea3de11c8570b7dbef675ce85cc9",
+               "length": 41001,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_finalizer"
+               ],
+               "head": "\\[\\[route:S06-finalizer\\]\\] SYSPROMPT_SENTINEL_S06_finalizer\n\nYou polish approved Northwind Outfitters drafts.\n\nSection "
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+            "timeMetadata": {
+             "start": 1795457411207,
+             "end": 1795457411210,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10419,
+             "output_tokens": 36,
+             "total_tokens": 10455
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10419,
+              "completion_tokens": 36,
+              "total_tokens": 10455
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+             "name": "finalizer"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 88751
+      }
+     ],
+     "chatMessages": []
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": "Normal question: stops at Review Gate again",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M2-S06",
+     "streaming": true,
+     "question": "Now draft a short SMS version of that message.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 548,
+      "sha256": "17903098cfd8d200681e77454c76a488470381beed31a90fbce7f85da9905a48"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 548,
+    "sha256": "17903098cfd8d200681e77454c76a488470381beed31a90fbce7f85da9905a48"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 29.15,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.2,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.23,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.24,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.25,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Drafter",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.26,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Companion",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.27,
+      "event": "token",
+      "data": "A reviewer will check the draft before it goes out."
+     },
+     {
+      "offsetMs": 7.28,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Companion",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 25.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Drafter",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 25.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 25.71,
+      "event": "token",
+      "data": "\n\n"
+     },
+     {
+      "offsetMs": 25.72,
+      "event": "token",
+      "data": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+     },
+     {
+      "offsetMs": 25.73,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "STOPPED"
+      }
+     },
+     {
+      "offsetMs": 27.14,
+      "event": "action",
+      "data": {
+       "id": "44cadd0b-8547-456e-94b6-dd813f1c448b",
+       "mapping": {
+        "approve": "Proceed",
+        "reject": "Reject"
+       },
+       "elements": [
+        {
+         "type": "agentflowv2-approve-button",
+         "label": "Approve"
+        },
+        {
+         "type": "agentflowv2-reject-button",
+         "label": "Request changes"
+        }
+       ],
+       "data": {
+        "nodeId": "humanInputAgentflow_0",
+        "nodeLabel": "Review Gate",
+        "input": {
+         "humanInputEnableFeedback": true
+        }
+       }
+      }
+     },
+     {
+      "offsetMs": 27.16,
+      "event": "agentFlowEvent",
+      "data": "STOPPED"
+     },
+     {
+      "offsetMs": 27.7,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 1016,
+       "sha256": "e1615be02509e15c6b8bb86555dc9c327475d133728e99272bfd8945ece9145d"
+      }
+     },
+     {
+      "offsetMs": 29.07,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M2-S06",
+       "chatMessageId": "61a0c6a4-8bb8-4b57-8446-38c26f32d324",
+       "question": "Now draft a short SMS version of that message.",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06"
+      }
+     },
+     {
+      "offsetMs": 29.09,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 29.11,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "STOPPED",
+   "statusSource": "sse",
+   "text": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?",
+   "tokens": [
+    "A reviewer will check the draft before it goes out.",
+    "\n\n",
+    "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+   ],
+   "action": {
+    "id": "44cadd0b-8547-456e-94b6-dd813f1c448b",
+    "mapping": {
+     "approve": "Proceed",
+     "reject": "Reject"
+    },
+    "elements": [
+     {
+      "type": "agentflowv2-approve-button",
+      "label": "Approve"
+     },
+     {
+      "type": "agentflowv2-reject-button",
+      "label": "Request changes"
+     }
+    ],
+    "data": {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "input": {
+      "humanInputEnableFeedback": true
+     }
+    }
+   },
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Companion",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Drafter",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "status": "STOPPED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {},
+      "output": {
+       "humanInputAction": {
+        "id": "44cadd0b-8547-456e-94b6-dd813f1c448b",
+        "mapping": {
+         "approve": "Proceed",
+         "reject": "Reject"
+        },
+        "elements": [
+         {
+          "type": "agentflowv2-approve-button",
+          "label": "Approve"
+         },
+         {
+          "type": "agentflowv2-reject-button",
+          "label": "Request changes"
+         }
+        ],
+        "data": {
+         "nodeId": "humanInputAgentflow_0",
+         "nodeLabel": "Review Gate",
+         "input": {
+          "humanInputEnableFeedback": true
+         }
+        }
+       }
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:STOPPED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1353,
+     "route": "S06-drafter",
+     "callIndex": 0,
+     "ruleId": "drafter-t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+         "length": 41747,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S06_drafter"
+         ],
+         "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft a reply to a customer whose shipment is delayed by a week."
+       },
+       {
+        "role": "assistant",
+        "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Please mention the 10% discount code SORRY10."
+       },
+       {
+        "role": "assistant",
+        "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Approve"
+       },
+       {
+        "role": "assistant",
+        "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+       },
+       {
+        "role": "user",
+        "content": "Now draft a short SMS version of that message."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 1016,
+    "sha256": "e1615be02509e15c6b8bb86555dc9c327475d133728e99272bfd8945ece9145d",
+    "sizes": {
+     "base64Length": 1016,
+     "payloadBytes": 760,
+     "gzipBytes": 732,
+     "rawJsonBytes": 1900,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens",
+      "pendingResume"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 1068,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 739,
+     "pendingNodes": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "directReplyAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 55,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "humanInputAgentflow_0",
+       "status": "STOPPED",
+       "bytes": 518,
+       "promptBytes": 108,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1900
+     },
+     {
+      "path": "history",
+      "bytes": 1068
+     },
+     {
+      "path": "pendingResume",
+      "bytes": 739
+     },
+     {
+      "path": "pendingResume.nodes",
+      "bytes": 676
+     },
+     {
+      "path": "pendingResume.nodes[3]",
+      "bytes": 518
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft a reply to a customer whose shipment is delayed by a week."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Please mention the 10% discount code SORRY10."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Approve"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+      },
+      {
+       "role": "userMessage",
+       "content": "Now draft a short SMS version of that message."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {},
+     "pendingResume": {
+      "nodes": [
+       {
+        "nodeId": "startAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "directReplyAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "agentAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "humanInputAgentflow_0",
+        "status": "STOPPED",
+        "action": {
+         "id": "44cadd0b-8547-456e-94b6-dd813f1c448b",
+         "mapping": {
+          "approve": "Proceed",
+          "reject": "Reject"
+         },
+         "elements": [
+          {
+           "type": "agentflowv2-approve-button",
+           "label": "Approve"
+          },
+          {
+           "type": "agentflowv2-reject-button",
+           "label": "Request changes"
+          }
+         ],
+         "data": {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "input": {
+           "humanInputEnableFeedback": true
+          }
+         }
+        },
+        "prompt": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+       }
+      ],
+      "executionId": "e63197a8-427c-49d5-a40d-95822af638cc"
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "action": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_drafter": 1
+     }
+    },
+    "dbRows": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_drafter": 2,
+      "SYSPROMPT_SENTINEL_S06_finalizer": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 337,
+    "actionInputBytes": 33,
+    "executedDataBytes": 996,
+    "executedDataGzipBytes": 369,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S06-human-review-with-feedback": {
+     "executions": [
+      {
+       "id": "cf6e280f-62a9-4a65-8e22-dc115c96fc73",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 19631,
+        "sha256": "cbdb69d71724253e7ca7ac6071be43936a83d0c85a2dd9fd812a566e6b69765f"
+       },
+       "state": "FINISHED",
+       "agentflowId": "248d9409-6813-4d86-8e2c-42a189922e4b",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.183Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Revise Loop",
+          "data": {
+           "id": "loopAgentflow_0",
+           "name": "loopAgentflow",
+           "input": {
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2
+           },
+           "output": {
+            "content": "Loop back to Drafter (agentAgentflow_0)",
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2,
+            "fallbackMessage": ""
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Drafter",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+               "length": 41747,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_drafter"
+               ],
+               "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+            "timeMetadata": {
+             "start": 1795457411160,
+             "end": 1795457411177,
+             "delta": 17
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10564,
+             "output_tokens": 29,
+             "total_tokens": 10593,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9126,
+              "completionTokens": 32,
+              "totalTokens": 9158
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10564,
+              "completion_tokens": 29,
+              "total_tokens": 10593
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+             "name": "drafter"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "type": "proceed",
+            "startNodeId": "humanInputAgentflow_0",
+            "messages": [
+             {
+              "content": "Draft a reply to a customer whose shipment is delayed by a week.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "content": "Please mention the 10% discount code SORRY10.",
+              "role": "user"
+             },
+             {
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "proceed"
+             }
+            ]
+           },
+           "output": {
+            "conditions": [
+             {
+              "type": "proceed",
+              "startNodeId": "humanInputAgentflow_0",
+              "isFulfilled": true
+             },
+             {
+              "type": "reject",
+              "startNodeId": "humanInputAgentflow_0",
+              "isFulfilled": false
+             }
+            ]
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Finalizer",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "ba33b78ffcfaa0683130bf95675e638a789fea3de11c8570b7dbef675ce85cc9",
+               "length": 41001,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_finalizer"
+               ],
+               "head": "\\[\\[route:S06-finalizer\\]\\] SYSPROMPT_SENTINEL_S06_finalizer\n\nYou polish approved Northwind Outfitters drafts.\n\nSection "
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+            "timeMetadata": {
+             "start": 1795457411207,
+             "end": 1795457411210,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10419,
+             "output_tokens": 36,
+             "total_tokens": 10455
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10419,
+              "completion_tokens": 36,
+              "total_tokens": 10455
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+             "name": "finalizer"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 88751
+      },
+      {
+       "id": "e63197a8-427c-49d5-a40d-95822af638cc",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 11022,
+        "sha256": "a7faa6eb1bde153209b19869919870b73fd73c323873dad1fe9ed2c7ed7217a6"
+       },
+       "state": "STOPPED",
+       "agentflowId": "248d9409-6813-4d86-8e2c-42a189922e4b",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.253Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "Now draft a short SMS version of that message."
+           },
+           "output": {
+            "question": "Now draft a short SMS version of that message."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Companion",
+          "data": {
+           "id": "directReplyAgentflow_0",
+           "name": "directReplyAgentflow",
+           "input": {},
+           "output": {
+            "content": "A reviewer will check the draft before it goes out."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Drafter",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+               "length": 41747,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_drafter"
+               ],
+               "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Approve"
+             },
+             {
+              "role": "assistant",
+              "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+             },
+             {
+              "role": "user",
+              "content": "Now draft a short SMS version of that message."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+            "timeMetadata": {
+             "start": 1795457411236,
+             "end": 1795457411250,
+             "delta": 14
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10679,
+             "output_tokens": 22,
+             "total_tokens": 10701,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9232,
+              "completionTokens": 23,
+              "totalTokens": 9255
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10679,
+              "completion_tokens": 22,
+              "total_tokens": 10701
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Now draft a short SMS version of that message."
+            },
+            {
+             "role": "assistant",
+             "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+             "name": "drafter"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "messages": [
+             {
+              "content": "Draft a reply to a customer whose shipment is delayed by a week.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "content": "Please mention the 10% discount code SORRY10.",
+              "role": "user"
+             },
+             {
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "content": "Approve",
+              "role": "user"
+             },
+             {
+              "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "Now draft a short SMS version of that message."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+              "name": "drafter"
+             }
+            ],
+            "humanInputEnableFeedback": true
+           },
+           "output": {
+            "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?",
+            "humanInputAction": {
+             "id": "44cadd0b-8547-456e-94b6-dd813f1c448b",
+             "mapping": {
+              "approve": "Proceed",
+              "reject": "Reject"
+             },
+             "elements": [
+              {
+               "type": "agentflowv2-approve-button",
+               "label": "Approve"
+              },
+              {
+               "type": "agentflowv2-reject-button",
+               "label": "Request changes"
+              }
+             ],
+             "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Review Gate",
+              "input": {
+               "humanInputEnableFeedback": true
+              }
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0"
+          ],
+          "status": "STOPPED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 46907
+      }
+     ],
+     "chatMessages": []
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t5",
+   "note": "Proceed with feedback",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M2-S06",
+     "streaming": true,
+     "humanInput": {
+      "type": "proceed",
+      "feedback": "Approved, send it.",
+      "startNodeId": "humanInputAgentflow_0"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 1016,
+      "sha256": "e1615be02509e15c6b8bb86555dc9c327475d133728e99272bfd8945ece9145d"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 1016,
+    "sha256": "e1615be02509e15c6b8bb86555dc9c327475d133728e99272bfd8945ece9145d"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 16.71,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.55,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.57,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.58,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Finalizer",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 11,
+      "event": "token",
+      "data": "Final SMS: Sorry for"
+     },
+     {
+      "offsetMs": 11.01,
+      "event": "token",
+      "data": " the delay! Your order"
+     },
+     {
+      "offsetMs": 11.03,
+      "event": "token",
+      "data": " arrives Friday. Use SORRY10"
+     },
+     {
+      "offsetMs": 11.04,
+      "event": "token",
+      "data": " for 10% off."
+     },
+     {
+      "offsetMs": 11.93,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 11.94,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10551,
+       "output_tokens": 22,
+       "total_tokens": 10573
+      }
+     },
+     {
+      "offsetMs": 11.95,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Finalizer",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 14.76,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 15.37,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 636,
+       "sha256": "aedee93237dbc93a5d2890ac1e9fa8c47e864dd6570fb74f315749e180a133ae"
+      }
+     },
+     {
+      "offsetMs": 16.64,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M2-S06",
+       "chatMessageId": "635f61da-4557-4521-9c60-06c781fd9abb",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06"
+      }
+     },
+     {
+      "offsetMs": 16.66,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 5
+      }
+     },
+     {
+      "offsetMs": 16.67,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+   "tokens": [
+    "Final SMS: Sorry for",
+    " the delay! Your order",
+    " arrives Friday. Use SORRY10",
+    " for 10% off."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow"
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Companion",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow"
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Drafter",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow"
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Finalizer",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "humanInputAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1355,
+     "route": "S06-finalizer",
+     "callIndex": 0,
+     "ruleId": "finalizer-t5",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "ba33b78ffcfaa0683130bf95675e638a789fea3de11c8570b7dbef675ce85cc9",
+         "length": 41001,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S06_finalizer"
+         ],
+         "head": "\\[\\[route:S06-finalizer\\]\\] SYSPROMPT_SENTINEL_S06_finalizer\n\nYou polish approved Northwind Outfitters drafts.\n\nSection "
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft a reply to a customer whose shipment is delayed by a week."
+       },
+       {
+        "role": "assistant",
+        "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Please mention the 10% discount code SORRY10."
+       },
+       {
+        "role": "assistant",
+        "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Approve"
+       },
+       {
+        "role": "assistant",
+        "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+       },
+       {
+        "role": "user",
+        "content": "Now draft a short SMS version of that message."
+       },
+       {
+        "role": "assistant",
+        "content": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Approved, send it."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 636,
+    "sha256": "aedee93237dbc93a5d2890ac1e9fa8c47e864dd6570fb74f315749e180a133ae",
+    "sizes": {
+     "base64Length": 636,
+     "payloadBytes": 477,
+     "gzipBytes": 449,
+     "rawJsonBytes": 1316,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 10,
+     "historyBytes": 1240,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1316
+     },
+     {
+      "path": "history",
+      "bytes": 1240
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft a reply to a customer whose shipment is delayed by a week."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Please mention the 10% discount code SORRY10."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Approve"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+      },
+      {
+       "role": "userMessage",
+       "content": "Now draft a short SMS version of that message."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Approved, send it."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_finalizer": 1
+     }
+    },
+    "dbRows": {
+     "total": 4,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_drafter": 2,
+      "SYSPROMPT_SENTINEL_S06_finalizer": 2
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 754,
+    "executedDataGzipBytes": 223,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S06-human-review-with-feedback": {
+     "executions": [
+      {
+       "id": "cf6e280f-62a9-4a65-8e22-dc115c96fc73",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 19631,
+        "sha256": "cbdb69d71724253e7ca7ac6071be43936a83d0c85a2dd9fd812a566e6b69765f"
+       },
+       "state": "FINISHED",
+       "agentflowId": "248d9409-6813-4d86-8e2c-42a189922e4b",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.183Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "loopAgentflow_0",
+          "nodeLabel": "Revise Loop",
+          "data": {
+           "id": "loopAgentflow_0",
+           "name": "loopAgentflow",
+           "input": {
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2
+           },
+           "output": {
+            "content": "Loop back to Drafter (agentAgentflow_0)",
+            "nodeID": "agentAgentflow_0",
+            "maxLoopCount": 2,
+            "fallbackMessage": ""
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Drafter",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+               "length": 41747,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_drafter"
+               ],
+               "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+            "timeMetadata": {
+             "start": 1795457411160,
+             "end": 1795457411177,
+             "delta": 17
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10564,
+             "output_tokens": 29,
+             "total_tokens": 10593,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9126,
+              "completionTokens": 32,
+              "totalTokens": 9158
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10564,
+              "completion_tokens": 29,
+              "total_tokens": 10593
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.",
+             "name": "drafter"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "type": "proceed",
+            "startNodeId": "humanInputAgentflow_0",
+            "messages": [
+             {
+              "content": "Draft a reply to a customer whose shipment is delayed by a week.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "content": "Please mention the 10% discount code SORRY10.",
+              "role": "user"
+             },
+             {
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "proceed"
+             }
+            ]
+           },
+           "output": {
+            "conditions": [
+             {
+              "type": "proceed",
+              "startNodeId": "humanInputAgentflow_0",
+              "isFulfilled": true
+             },
+             {
+              "type": "reject",
+              "startNodeId": "humanInputAgentflow_0",
+              "isFulfilled": false
+             }
+            ]
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Finalizer",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "ba33b78ffcfaa0683130bf95675e638a789fea3de11c8570b7dbef675ce85cc9",
+               "length": 41001,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_finalizer"
+               ],
+               "head": "\\[\\[route:S06-finalizer\\]\\] SYSPROMPT_SENTINEL_S06_finalizer\n\nYou polish approved Northwind Outfitters drafts.\n\nSection "
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+            "timeMetadata": {
+             "start": 1795457411207,
+             "end": 1795457411210,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10419,
+             "output_tokens": 36,
+             "total_tokens": 10455
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10419,
+              "completion_tokens": 36,
+              "total_tokens": 10455
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+             "name": "finalizer"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 88751
+      },
+      {
+       "id": "e63197a8-427c-49d5-a40d-95822af638cc",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 19901,
+        "sha256": "b547bb4a427eb56b9c6baa0e2d2fd8c82033b764513fd53d0b93c82674ad8459"
+       },
+       "state": "FINISHED",
+       "agentflowId": "248d9409-6813-4d86-8e2c-42a189922e4b",
+       "sessionId": "ts00b-mwtkxdd6-M2-S06",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.253Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "Now draft a short SMS version of that message."
+           },
+           "output": {
+            "question": "Now draft a short SMS version of that message."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "directReplyAgentflow_0",
+          "nodeLabel": "Companion",
+          "data": {
+           "id": "directReplyAgentflow_0",
+           "name": "directReplyAgentflow",
+           "input": {},
+           "output": {
+            "content": "A reviewer will check the draft before it goes out."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Drafter",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "3ed8f2bba1dc09638961c8a5fb5e60a3b5f8f67e62d461e36af69ce46858be9a",
+               "length": 41747,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_drafter"
+               ],
+               "head": "\\[\\[route:S06-drafter\\]\\] SYSPROMPT_SENTINEL_S06_drafter\n\nYou draft Northwind Outfitters customer replies for review.\n\nS"
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Approve"
+             },
+             {
+              "role": "assistant",
+              "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+             },
+             {
+              "role": "user",
+              "content": "Now draft a short SMS version of that message."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+            "timeMetadata": {
+             "start": 1795457411236,
+             "end": 1795457411250,
+             "delta": 14
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10679,
+             "output_tokens": 22,
+             "total_tokens": 10701,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9232,
+              "completionTokens": 23,
+              "totalTokens": 9255
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10679,
+              "completion_tokens": 22,
+              "total_tokens": 10701
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Now draft a short SMS version of that message."
+            },
+            {
+             "role": "assistant",
+             "content": "Draft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+             "name": "drafter"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Review Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "type": "proceed",
+            "feedback": "Approved, send it.",
+            "startNodeId": "humanInputAgentflow_0",
+            "messages": [
+             {
+              "content": "Draft a reply to a customer whose shipment is delayed by a week.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "content": "Please mention the 10% discount code SORRY10.",
+              "role": "user"
+             },
+             {
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "content": "Approve",
+              "role": "user"
+             },
+             {
+              "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order.",
+              "role": "assistant"
+             },
+             {
+              "content": "Now draft a short SMS version of that message.",
+              "role": "user"
+             },
+             {
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "Approved, send it."
+             }
+            ]
+           },
+           "output": {
+            "conditions": [
+             {
+              "type": "proceed",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Approved, send it.",
+              "isFulfilled": true
+             },
+             {
+              "type": "reject",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Approved, send it.",
+              "isFulfilled": false
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Approved, send it."
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Finalizer",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "ba33b78ffcfaa0683130bf95675e638a789fea3de11c8570b7dbef675ce85cc9",
+               "length": 41001,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S06_finalizer"
+               ],
+               "head": "\\[\\[route:S06-finalizer\\]\\] SYSPROMPT_SENTINEL_S06_finalizer\n\nYou polish approved Northwind Outfitters drafts.\n\nSection "
+              }
+             },
+             {
+              "role": "user",
+              "content": "Draft a reply to a customer whose shipment is delayed by a week."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Please mention the 10% discount code SORRY10."
+             },
+             {
+              "role": "assistant",
+              "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Approve"
+             },
+             {
+              "role": "assistant",
+              "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+             },
+             {
+              "role": "user",
+              "content": "Now draft a short SMS version of that message."
+             },
+             {
+              "role": "assistant",
+              "content": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+             },
+             {
+              "role": "user",
+              "content": "Approved, send it."
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+            "timeMetadata": {
+             "start": 1795457411283,
+             "end": 1795457411286,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10551,
+             "output_tokens": 22,
+             "total_tokens": 10573
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10551,
+              "completion_tokens": 22,
+              "total_tokens": 10573
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+             "name": "finalizer"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 90501
+      }
+     ],
+     "chatMessages": []
+    }
+   },
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

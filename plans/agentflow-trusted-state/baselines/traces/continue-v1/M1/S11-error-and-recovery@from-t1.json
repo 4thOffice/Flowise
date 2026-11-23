@@ -1,0 +1,1187 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S11",
+  "file": "S11-error-and-recovery.json",
+  "title": "A parallel branch fails on turn 2, the conversation continues on turn 3",
+  "findings": [
+   "TS14"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtkxdd6-M1-S11",
+ "runTag": "mwtkxdd6",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t1"
+ },
+ "flows": [
+  {
+   "slug": "S11-error-and-recovery",
+   "chatflowId": "5111932b-5150-4198-8fdd-fbe972606460",
+   "name": "TS00b M1 S11-error-and-recovery",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:10.748Z",
+ "turns": [
+  {
+   "id": "t2",
+   "note": "Agent A gets HTTP 500 on every attempt (LangChain retries 6 times); LLM B finishes first",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M1-S11",
+     "streaming": true,
+     "question": "Now draft one about damaged items.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 37344,
+      "sha256": "29b2be7ca6168b6da3d09df0978c41ceeb773a6936eaf2e09b8b3b517ebbb91f"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 37344,
+    "sha256": "29b2be7ca6168b6da3d09df0978c41ceeb773a6936eaf2e09b8b3b517ebbb91f"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 94990.16,
+    "timedOut": false,
+    "error": "Error: predictionsServices.buildChatflow - Error in Agent node: 500 Injected fake LLM failure for Agent A",
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 10.47,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 10.51,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.54,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 10.55,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.56,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 333.25,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 94988.96,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "ERROR",
+       "error": "Error in Agent node: 500 Injected fake LLM failure for Agent A"
+      }
+     },
+     {
+      "offsetMs": 94990.06,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 328,
+       "sha256": "64099f131fd6bd7958fbe1f720ccdfaa1e00e2cccbeb64758d2b64c29cae9c86"
+      }
+     },
+     {
+      "offsetMs": 94990.09,
+      "event": "agentFlowEvent",
+      "data": "ERROR"
+     },
+     {
+      "offsetMs": 94990.09,
+      "event": "error",
+      "data": "Error: predictionsServices.buildChatflow - Error in Agent node: 500 Injected fake LLM failure for Agent A"
+     },
+     {
+      "offsetMs": 94990.1,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 94990.12,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "ERROR",
+   "statusSource": "sse",
+   "text": "",
+   "tokens": [],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "b_note": "Side note: the holiday peak adds two days."
+      }
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "LLM B",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Agent A",
+     "status": "ERROR",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "error": "Error in Agent node: 500 Injected fake LLM failure for Agent A"
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "agentAgentflow_0:ERROR"
+   ],
+   "finalState": {
+    "b_note": "Side note: photos are needed for damage claims."
+   },
+   "modelRequests": [
+    {
+     "seq": 1315,
+     "route": "S11-agentA",
+     "callIndex": 0,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 1316,
+     "route": "S11-llmB",
+     "callIndex": 0,
+     "ruleId": "llmB-t2",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+         "length": 40996,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_llmB"
+         ],
+         "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Side note: photos are needed for damage claims.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1317,
+     "route": "S11-agentA",
+     "callIndex": 1,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 1318,
+     "route": "S11-agentA",
+     "callIndex": 2,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 1319,
+     "route": "S11-agentA",
+     "callIndex": 3,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 1320,
+     "route": "S11-agentA",
+     "callIndex": 4,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 1321,
+     "route": "S11-agentA",
+     "callIndex": 5,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    },
+    {
+     "seq": 1322,
+     "route": "S11-agentA",
+     "callIndex": 6,
+     "ruleId": "agentA-error",
+     "stream": true,
+     "status": 500,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Now draft one about damaged items."
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": null,
+      "error": {
+       "status": 500,
+       "message": "Injected fake LLM failure for Agent A"
+      }
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 328,
+    "sha256": "64099f131fd6bd7958fbe1f720ccdfaa1e00e2cccbeb64758d2b64c29cae9c86",
+    "sizes": {
+     "base64Length": 328,
+     "payloadBytes": 245,
+     "gzipBytes": 217,
+     "rawJsonBytes": 295,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 161,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 60,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft an answer about late deliveries."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Joined answer (t1): main answer plus the side note."
+      }
+     ],
+     "flowState": {
+      "b_note": "Side note: photos are needed for damage claims."
+     },
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 8,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 7,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 610,
+    "executedDataGzipBytes": 272,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": [
+    "2026-11-23 19:10:10 [ERROR]: [server]: Error executing node agentAgentflow_0: Error in Agent node: 500 Injected fake LLM failure for Agent A",
+    "2026-11-23 19:10:10 [ERROR]: [server]:ea541ee1-81a9-4fb2-94bb-2cc4dbb48f60/5111932b-5150-4198-8fdd-fbe972606460/ts00b-mwtkxdd6-M1-S11 Error: Error in Agent node: 500 Injected fake LLM failure for Agent A",
+    "Error: Error in Agent node: 500 Injected fake LLM failure for Agent A"
+   ]
+  },
+  {
+   "id": "t3",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M1-S11",
+     "streaming": true,
+     "question": "Try the damaged items answer again.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 328,
+      "sha256": "64099f131fd6bd7958fbe1f720ccdfaa1e00e2cccbeb64758d2b64c29cae9c86"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 328,
+    "sha256": "64099f131fd6bd7958fbe1f720ccdfaa1e00e2cccbeb64758d2b64c29cae9c86"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 348.52,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 8.61,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 8.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 8.66,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.66,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 25.8,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 340.72,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 340.76,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 344.58,
+      "event": "token",
+      "data": "Joined answer (t3): main"
+     },
+     {
+      "offsetMs": 344.6,
+      "event": "token",
+      "data": " answer plus the side"
+     },
+     {
+      "offsetMs": 344.61,
+      "event": "token",
+      "data": " note."
+     },
+     {
+      "offsetMs": 345.61,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 345.63,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10340,
+       "output_tokens": 14,
+       "total_tokens": 10354
+      }
+     },
+     {
+      "offsetMs": 345.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 345.66,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 347.22,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 356,
+       "sha256": "42be8baf9cc21a44d34ce72a7c639a3df77bf923a592472c6e3a1eb6fb07ca68"
+      }
+     },
+     {
+      "offsetMs": 348.44,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M1-S11",
+       "chatMessageId": "93f3176f-69a5-46b0-bc26-7961791fa21c",
+       "question": "Try the damaged items answer again.",
+       "sessionId": "ts00b-mwtkxdd6-M1-S11"
+      }
+     },
+     {
+      "offsetMs": 348.46,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 348.47,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Joined answer (t3): main answer plus the side note.",
+   "tokens": [
+    "Joined answer (t3): main",
+    " answer plus the side",
+    " note."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Agent A",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      }
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "LLM B",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {
+       "b_note": "Side note: photos speed up the claim."
+      }
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_1",
+     "nodeLabel": "Joiner",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0",
+      "llmAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {
+       "b_note": "Side note: photos speed up the claim."
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_1:FINISHED"
+   ],
+   "finalState": {
+    "b_note": "Side note: photos speed up the claim."
+   },
+   "modelRequests": [
+    {
+     "seq": 1324,
+     "route": "S11-llmB",
+     "callIndex": 0,
+     "ruleId": "llmB-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+         "length": 40996,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_llmB"
+         ],
+         "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Side note: photos speed up the claim.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1325,
+     "route": "S11-agentA",
+     "callIndex": 0,
+     "ruleId": "agentA-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Damaged items are replaced free of charge.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1326,
+     "route": "S11-joiner",
+     "callIndex": 0,
+     "ruleId": "joiner",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+         "length": 41103,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_joiner"
+         ],
+         "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Answer: Damaged items are replaced free of charge.\n\nSide note: Side note: photos speed up the claim."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Joined answer (t3): main answer plus the side note.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 356,
+    "sha256": "42be8baf9cc21a44d34ce72a7c639a3df77bf923a592472c6e3a1eb6fb07ca68",
+    "sizes": {
+     "base64Length": 356,
+     "payloadBytes": 266,
+     "gzipBytes": 238,
+     "rawJsonBytes": 442,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 318,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 50,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft an answer about late deliveries."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Joined answer (t1): main answer plus the side note."
+      },
+      {
+       "role": "userMessage",
+       "content": "Try the damaged items answer again."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Joined answer (t3): main answer plus the side note."
+      }
+     ],
+     "flowState": {
+      "b_note": "Side note: photos speed up the claim."
+     },
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 819,
+    "executedDataGzipBytes": 236,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

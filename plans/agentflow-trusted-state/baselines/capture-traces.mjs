@@ -33,6 +33,11 @@ const SEED_CONFIGS = {
     M3: MODES.M3.clientState,
     'M1-reqflag': null
 }
+// Merged into the seeded clientState of a scenario's flows for its afterVariants; "off" is the default (no key)
+const VARIANT_CLIENT_STATE = {
+    'accept-client-history-on': { acceptClientHistory: true },
+    'accept-client-history-off': {}
+}
 
 function parseArgs(argv) {
     const env = loadCaptureEnv()
@@ -50,7 +55,9 @@ function parseArgs(argv) {
         timeoutMs: 90000,
         continueFrom: null,
         continueTurn: null,
-        variant: null
+        variant: null,
+        afterVariants: false,
+        emptyDb: null
     }
     for (let i = 0; i < argv.length; i++) {
         const arg = argv[i]
@@ -58,6 +65,8 @@ function parseArgs(argv) {
         if (arg === '--out-dir') opts.outDir = path.resolve(next())
         else if (arg === '--modes') opts.modes = next().split(',')
         else if (arg === '--scenarios') opts.scenarios = next().split(',')
+        else if (arg === '--after-variants') opts.afterVariants = true
+        else if (arg === '--empty-db') opts.emptyDb = path.resolve(next())
         else if (arg === '--run-tag') opts.runTag = next()
         else if (arg === '--server-log') opts.serverLog = path.resolve(next())
         else if (arg === '--commit') opts.commit = next()
@@ -71,6 +80,7 @@ function parseArgs(argv) {
     }
     for (const mode of opts.modes) if (!MODES[mode]) throw new Error(`Unknown mode ${mode}`)
     if (opts.continueFrom && !opts.continueTurn) throw new Error('--continue-from needs --turn <k>')
+    if (opts.variant && opts.afterVariants) throw new Error('--variant and --after-variants exclude each other')
     return opts
 }
 
@@ -148,13 +158,13 @@ async function upsertChatflow(client, { id, name, flowData, chatbotConfig, apiCo
     else await client.api('/api/v1/chatflows', { method: 'POST', body: { id, deployed: false, isPublic: false, ...body } })
 }
 
-async function seedFlows(client, credId, seedAs, flowSlugs) {
+async function seedFlows(client, credId, seedAs, flowSlugs, variantClientState = {}) {
     const seeded = {}
     const ordered = [...flowSlugs].sort((a, b) => dependencyRank(a) - dependencyRank(b))
     for (const slug of ordered) {
         const flowJson = readJson(path.join(BASELINES_DIR, 'flows', `${slug}.json`))
         const id = flowChatflowId(seedAs, slug)
-        const chatbotConfig = SEED_CONFIGS[seedAs] ? { clientState: SEED_CONFIGS[seedAs] } : null
+        const chatbotConfig = SEED_CONFIGS[seedAs] ? { clientState: { ...SEED_CONFIGS[seedAs], ...variantClientState } } : null
         const apiConfig = flowJson.chatflowSettings?.apiConfig ?? null
         await upsertChatflow(client, {
             id,
@@ -303,37 +313,93 @@ function finalStateOf(executed) {
     return null
 }
 
-function decodeToken(token, secret) {
-    const { json, state, sizes } = decodeTrustedState(token, secret)
-    const expanded = expandJsonStrings(state)
-    const history = Array.isArray(state.pastChatHistory) ? state.pastChatHistory : []
+const jsonBytes = (value) => (value === undefined ? 0 : Buffer.byteLength(JSON.stringify(value)))
+
+function v1Summary(state) {
     let records = null
     try {
         records = state.previousExecution?.executionData ? JSON.parse(state.previousExecution.executionData) : null
     } catch {
         records = null
     }
-    const summary = {
-        ...sizes,
-        topLevelKeys: Object.keys(state),
-        historyMessages: history.length,
-        historyBytes: Buffer.byteLength(JSON.stringify(history)),
-        historyRoles: history.map((m) => m.role),
-        historyMessagesWithAction: history.filter((m) => m.action).length,
-        previousExecutionBytes: state.previousExecution ? Buffer.byteLength(JSON.stringify(state.previousExecution)) : 0,
+    return {
+        previousExecutionBytes: jsonBytes(state.previousExecution),
         previousExecutionState: state.previousExecution?.state ?? null,
-        executionDataStringBytes: state.previousExecution?.executionData ? Buffer.byteLength(JSON.stringify(state.previousExecution.executionData)) : 0,
+        executionDataStringBytes: jsonBytes(state.previousExecution?.executionData),
         records: Array.isArray(records)
             ? records.map((r) => ({
                   nodeId: r.nodeId,
                   status: r.status,
-                  bytes: Buffer.byteLength(JSON.stringify(r)),
-                  inputMessagesBytes: r.data?.input?.messages ? Buffer.byteLength(JSON.stringify(r.data.input.messages)) : 0,
-                  stateBytes: r.data?.state ? Buffer.byteLength(JSON.stringify(r.data.state)) : 0
+                  bytes: jsonBytes(r),
+                  inputMessagesBytes: jsonBytes(r.data?.input?.messages),
+                  stateBytes: jsonBytes(r.data?.state)
               }))
             : null
     }
-    return { json, expanded, summary }
+}
+
+function v2Summary(state) {
+    const pending = state.pendingResume
+    return {
+        flowStateBytes: jsonBytes(state.flowState),
+        formValuesBytes: jsonBytes(state.formValues),
+        childFlowTokensBytes: jsonBytes(state.childFlowTokens),
+        pendingResumeBytes: jsonBytes(pending),
+        pendingNodes: Array.isArray(pending?.nodes)
+            ? pending.nodes.map((n) => ({
+                  nodeId: n.nodeId,
+                  status: n.status,
+                  bytes: jsonBytes(n),
+                  promptBytes: jsonBytes(n.prompt),
+                  checkpointBytes: jsonBytes(n.checkpoint),
+                  legacyMessagesBytes: jsonBytes(n.legacyMessages)
+              }))
+            : null
+    }
+}
+
+// Child flow tokens (Execute Flow) are encrypted inside the parent token, so they are decoded here, recursively
+function decodeToken(token, secret) {
+    const { json, state, sizes } = decodeTrustedState(token, secret)
+    const v2 = state?.version === 2
+    const history = (v2 ? state.history : state.pastChatHistory) ?? []
+    const childTokens = {}
+    for (const [nodeId, entry] of Object.entries(v2 && state.childFlowTokens ? state.childFlowTokens : {})) {
+        if (typeof entry?.token !== 'string') continue
+        try {
+            const child = decodeToken(entry.token, secret)
+            childTokens[nodeId] = {
+                flowId: entry.flowId,
+                base64Length: entry.token.length,
+                sizes: child.summary,
+                sentinels: child.sentinels,
+                decoded: child.expanded,
+                childTokens: child.childTokens
+            }
+        } catch (err) {
+            childTokens[nodeId] = { flowId: entry.flowId, base64Length: entry.token.length, error: err.message }
+        }
+    }
+    const summary = {
+        ...sizes,
+        version: v2 ? 2 : 1,
+        topLevelKeys: Object.keys(state),
+        historyMessages: history.length,
+        historyBytes: jsonBytes(history),
+        historyRoles: history.map((m) => m.role),
+        historyMessagesWithAction: history.filter((m) => m.action).length,
+        ...(v2 ? v2Summary(state) : v1Summary(state))
+    }
+    const childJsons = []
+    const collect = (children) => {
+        for (const child of Object.values(children)) {
+            if (child.decoded) childJsons.push(JSON.stringify(collapseJsonStrings(child.decoded)))
+            if (child.childTokens) collect(child.childTokens)
+        }
+    }
+    collect(childTokens)
+    const sentinels = countSentinels([json, ...childJsons].join('\n'))
+    return { json, expanded: expandJsonStrings(state), summary, childTokens, sentinels }
 }
 
 function sentinelReport(parts) {
@@ -411,6 +477,21 @@ async function fetchDbRows(client, chatflows, chatId) {
     return rows
 }
 
+// Invariant 1 (PLAN §3): a conversation works with these tables emptied before every turn
+let sqlite = null
+async function emptyConversationTables(file) {
+    sqlite ??= await import('node:sqlite')
+    const db = new sqlite.DatabaseSync(file, { timeout: 10000 })
+    try {
+        const count = (table) => db.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get().n
+        const removed = { chatMessages: count('chat_message'), executions: count('execution') }
+        db.exec('DELETE FROM chat_message; DELETE FROM execution;')
+        return removed
+    } finally {
+        db.close()
+    }
+}
+
 // ---------- scenario run ----------
 
 async function runScenario({ opts, client, fake, scenario, mode, seeded, blobs, resume }) {
@@ -432,6 +513,7 @@ async function runScenario({ opts, client, fake, scenario, mode, seeded, blobs, 
 
     for (const turn of scenario.turns.slice(startIndex)) {
         if (modeConfig.turnGapMs && turns.length) await new Promise((resolve) => setTimeout(resolve, modeConfig.turnGapMs))
+        const dbEmptied = opts.emptyDb ? await emptyConversationTables(opts.emptyDb) : null
         const mark = await fake.post('/__control/mark', { turn: turn.id })
         const body = buildRequestBody({ turn, scenario, mode, chatId, token, lastAction, conversation })
         const logOffset = logSize(opts.serverLog)
@@ -466,9 +548,10 @@ async function runScenario({ opts, client, fake, scenario, mode, seeded, blobs, 
                 sha256: sha256(newToken),
                 sizes: decoded.summary,
                 pathBytes: pathBytes(decoded.expanded),
-                decoded: decoded.expanded
+                decoded: decoded.expanded,
+                ...(Object.keys(decoded.childTokens).length ? { childTokens: decoded.childTokens } : {}),
+                sentinels: decoded.sentinels
             }
-            tokenRecord.sentinels = countSentinels(decoded.json)
         }
 
         const dbRows = modeConfig.dbRows ? await fetchDbRows(client, flows, chatId) : null
@@ -545,6 +628,7 @@ async function runScenario({ opts, client, fake, scenario, mode, seeded, blobs, 
                 restJsonBytes: !events && response.rawText ? Buffer.byteLength(response.rawText) : 0
             },
             db: dbRows,
+            ...(dbEmptied ? { dbEmptiedBeforeTurn: dbEmptied } : {}),
             serverLog
         }
         turns.push(record)
@@ -598,6 +682,7 @@ function summarizeTrace(trace) {
             unscriptedCalls: t.modelRequests.filter((r) => r.ruleId === 'unscripted').length,
             tokenReceived: t.token.received,
             tokenSent: Boolean(t.tokenSent),
+            tokenVersion: t.token.sizes?.version ?? null,
             tokenBase64Length: t.token.base64Length ?? 0,
             tokenRawJsonBytes: t.token.sizes?.rawJsonBytes ?? 0,
             tokenGzipBytes: t.token.sizes?.gzipBytes ?? 0,
@@ -615,9 +700,12 @@ function loadResumeState(opts, mode, scenario) {
     const trace = readJson(tracePath)
     const readBlob = makeBlobReader(opts.continueFrom)
     const index = trace.turns.findIndex((t) => t.id === opts.continueTurn)
-    if (index < 0) throw new Error(`${tracePath}: no turn ${opts.continueTurn}`)
     const turn = trace.turns[index]
-    if (!turn.token?.received) throw new Error(`${tracePath}: turn ${opts.continueTurn} has no token`)
+    const skip = index < 0 ? 'no such turn' : index === scenario.turns.length - 1 ? 'last turn' : !turn.token?.received ? 'no token' : null
+    if (skip) {
+        console.log(`  ${mode} ${scenario.id}: not continued from ${opts.continueTurn} (${skip})`)
+        return null
+    }
     const decoded = collapseJsonStrings(inflate(turn.token.decoded, readBlob))
     const conversation = []
     for (const t of trace.turns.slice(0, index + 1)) {
@@ -630,7 +718,7 @@ function loadResumeState(opts, mode, scenario) {
         if (t.text !== null) conversation.push({ role: 'apiMessage', content: inflate(t.text, readBlob) })
     }
     return {
-        traceDir: opts.continueFrom,
+        traceDir: path.relative(BASELINES_DIR, opts.continueFrom),
         afterTurn: opts.continueTurn,
         token: encodeTrustedState(typeof decoded === 'string' ? JSON.parse(decoded) : decoded, opts.env.CLIENT_STATE_SERVER_SECRET),
         lastAction: turn.action ? inflate(turn.action, readBlob) : null,
@@ -670,11 +758,31 @@ async function main() {
         for (const scenario of modeScenarios) {
             const resume = opts.continueFrom ? loadResumeState(opts, mode, scenario) : null
             if (opts.continueFrom && !resume) continue
-            const trace = await runScenario({ opts, client, fake, scenario, mode, seeded, blobs, resume })
-            trace.capture = { commit: opts.commit, label: opts.label, serverEnv: modeConfig.serverEnv ?? null, variant: opts.variant }
-            const suffix = opts.variant ? `@${opts.variant}` : ''
-            fs.writeFileSync(path.join(opts.outDir, mode, `${scenario.slug}${suffix}.json`), JSON.stringify(trace, null, 1) + '\n')
-            summary.runs[`${mode}/${scenario.id}${suffix}`] = summarizeTrace(trace)
+            const variants = opts.afterVariants && scenario.afterVariants?.length ? scenario.afterVariants : [opts.variant]
+            for (const variant of variants) {
+                let scenarioSeeded = seeded
+                if (opts.afterVariants && variant) {
+                    if (!(variant in VARIANT_CLIENT_STATE)) throw new Error(`No seed config for variant ${variant}`)
+                    const slugs = new Set([scenario.flow, ...(scenario.extraFlows ?? [])])
+                    scenarioSeeded = { ...seeded, ...(await seedFlows(client, credId, modeConfig.seedAs, slugs, VARIANT_CLIENT_STATE[variant])) }
+                }
+                const runResume = resume ? { ...resume, conversation: [...resume.conversation] } : null
+                const trace = await runScenario({ opts, client, fake, scenario, mode, seeded: scenarioSeeded, blobs, resume: runResume })
+                trace.capture = {
+                    commit: opts.commit,
+                    label: opts.label,
+                    serverEnv: modeConfig.serverEnv ?? null,
+                    variant,
+                    emptyDbBeforeEveryTurn: Boolean(opts.emptyDb)
+                }
+                const suffix = [variant, opts.continueFrom ? `from-${opts.continueTurn}` : null]
+                    .filter(Boolean)
+                    .map((part) => `@${part}`)
+                    .join('')
+                fs.writeFileSync(path.join(opts.outDir, mode, `${scenario.slug}${suffix}.json`), JSON.stringify(trace, null, 1) + '\n')
+                summary.runs[`${mode}/${scenario.id}${suffix}`] = summarizeTrace(trace)
+            }
+            if (opts.afterVariants && scenario.afterVariants?.length) await seedFlows(client, credId, modeConfig.seedAs, new Set([scenario.flow]))
         }
     }
 
@@ -687,8 +795,10 @@ async function main() {
         fakeUrl: opts.fakeUrl,
         node: process.version,
         modes: opts.modes,
-        continueFrom: opts.continueFrom ? { dir: opts.continueFrom, turn: opts.continueTurn } : null,
-        variant: opts.variant
+        continueFrom: opts.continueFrom ? { dir: path.relative(BASELINES_DIR, opts.continueFrom), turn: opts.continueTurn } : null,
+        variant: opts.variant,
+        afterVariants: opts.afterVariants,
+        emptyDbBeforeEveryTurn: Boolean(opts.emptyDb)
     }
     summary.captures = [...(summary.captures ?? []), capture]
     summary.runs = Object.fromEntries(Object.entries(summary.runs).sort(([a], [b]) => a.localeCompare(b)))

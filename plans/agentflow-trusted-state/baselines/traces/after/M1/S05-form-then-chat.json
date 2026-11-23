@@ -1,0 +1,1366 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S05",
+  "file": "S05-form-then-chat.json",
+  "title": "Form start, chat, a new form, chat",
+  "findings": [
+   "F04"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtkldjy-M1-S05",
+ "runTag": "mwtkldjy",
+ "resumedFrom": null,
+ "flows": [
+  {
+   "slug": "S05-form-then-chat",
+   "chatflowId": "b69b29e8-df61-4a98-8ebf-bd0193a12515",
+   "name": "TS00b M1 S05-form-then-chat",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T17:59:19.340Z",
+ "turns": [
+  {
+   "id": "t1",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkldjy-M1-S05",
+     "streaming": true,
+     "form": {
+      "name": "Ada Lovelace",
+      "topic": "billing"
+     }
+    }
+   },
+   "tokenSent": null,
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 13.11,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 5.44,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 5.46,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 5.47,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 5.48,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.71,
+      "event": "token",
+      "data": "Thanks, I have opened"
+     },
+     {
+      "offsetMs": 8.73,
+      "event": "token",
+      "data": " a billing request for"
+     },
+     {
+      "offsetMs": 8.74,
+      "event": "token",
+      "data": " you."
+     },
+     {
+      "offsetMs": 9.53,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 9.55,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10312,
+       "output_tokens": 13,
+       "total_tokens": 10325
+      }
+     },
+     {
+      "offsetMs": 9.57,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.59,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 10.38,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 304,
+       "sha256": "2b7edd1587f1b5558bad605af39711936f668416247253b2bdd4872fcc0f8bb4"
+      }
+     },
+     {
+      "offsetMs": 13,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkldjy-M1-S05",
+       "chatMessageId": "b9166596-42db-449a-a0d3-c8d85cbf27cb",
+       "sessionId": "ts00b-mwtkldjy-M1-S05"
+      }
+     },
+     {
+      "offsetMs": 13.04,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 13.05,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Thanks, I have opened a billing request for you.",
+   "tokens": [
+    "Thanks, I have opened",
+    " a billing request for",
+    " you."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Form Assistant",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 77,
+     "route": "S05-assistant",
+     "callIndex": 0,
+     "ruleId": "t1",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "74b0f4b7c85c197d756a4bbc0a12f4668787bfe3f266a7e0d5680615fc303acf",
+         "length": 41057,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S05_assistant"
+         ],
+         "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+        }
+       },
+       {
+        "role": "user",
+        "content": "name: Ada Lovelace\ntopic: billing"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Thanks, I have opened a billing request for you.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 304,
+    "sha256": "2b7edd1587f1b5558bad605af39711936f668416247253b2bdd4872fcc0f8bb4",
+    "sizes": {
+     "base64Length": 304,
+     "payloadBytes": 228,
+     "gzipBytes": 200,
+     "rawJsonBytes": 269,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 154,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 41,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "name: Ada Lovelace\ntopic: billing"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a billing request for you."
+      }
+     ],
+     "flowState": {},
+     "formValues": {
+      "name": "Ada Lovelace",
+      "topic": "billing"
+     },
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 294,
+    "executedDataGzipBytes": 155,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t2",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkldjy-M1-S05",
+     "streaming": true,
+     "question": "When will I be charged for the annual plan?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 304,
+      "sha256": "2b7edd1587f1b5558bad605af39711936f668416247253b2bdd4872fcc0f8bb4"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 304,
+    "sha256": "2b7edd1587f1b5558bad605af39711936f668416247253b2bdd4872fcc0f8bb4"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 17.79,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.76,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.78,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.8,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.8,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 14.89,
+      "event": "token",
+      "data": "The annual plan is"
+     },
+     {
+      "offsetMs": 14.92,
+      "event": "token",
+      "data": " charged on the first"
+     },
+     {
+      "offsetMs": 14.93,
+      "event": "token",
+      "data": " day of next month."
+     },
+     {
+      "offsetMs": 15.72,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 15.73,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10350,
+       "output_tokens": 15,
+       "total_tokens": 10365
+      }
+     },
+     {
+      "offsetMs": 15.74,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 15.75,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 16.33,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 384,
+       "sha256": "c17f9b1ff3de99af946e561805aa79957bc5eeca046d21da1d745dcbd8a02980"
+      }
+     },
+     {
+      "offsetMs": 17.73,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkldjy-M1-S05",
+       "chatMessageId": "0d5564fb-7ab3-41ed-8f8c-afb6cbb58e77",
+       "question": "When will I be charged for the annual plan?",
+       "sessionId": "ts00b-mwtkldjy-M1-S05"
+      }
+     },
+     {
+      "offsetMs": 17.75,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 17.75,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "The annual plan is charged on the first day of next month.",
+   "tokens": [
+    "The annual plan is",
+    " charged on the first",
+    " day of next month."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Form Assistant",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 79,
+     "route": "S05-assistant",
+     "callIndex": 0,
+     "ruleId": "t2",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "74b0f4b7c85c197d756a4bbc0a12f4668787bfe3f266a7e0d5680615fc303acf",
+         "length": 41057,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S05_assistant"
+         ],
+         "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+        }
+       },
+       {
+        "role": "user",
+        "content": "name: Ada Lovelace\ntopic: billing"
+       },
+       {
+        "role": "assistant",
+        "content": "Thanks, I have opened a billing request for you."
+       },
+       {
+        "role": "user",
+        "content": "When will I be charged for the annual plan?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "The annual plan is charged on the first day of next month.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 384,
+    "sha256": "c17f9b1ff3de99af946e561805aa79957bc5eeca046d21da1d745dcbd8a02980",
+    "sizes": {
+     "base64Length": 384,
+     "payloadBytes": 287,
+     "gzipBytes": 259,
+     "rawJsonBytes": 441,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 326,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 41,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "name: Ada Lovelace\ntopic: billing"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a billing request for you."
+      },
+      {
+       "role": "userMessage",
+       "content": "When will I be charged for the annual plan?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The annual plan is charged on the first day of next month."
+      }
+     ],
+     "flowState": {},
+     "formValues": {
+      "name": "Ada Lovelace",
+      "topic": "billing"
+     },
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 294,
+    "executedDataGzipBytes": 155,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t3",
+   "note": "New form submission: Start output.form keeps Ada, $form uses Grace",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkldjy-M1-S05",
+     "streaming": true,
+     "form": {
+      "name": "Grace Hopper",
+      "topic": "shipping"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 384,
+      "sha256": "c17f9b1ff3de99af946e561805aa79957bc5eeca046d21da1d745dcbd8a02980"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 384,
+    "sha256": "c17f9b1ff3de99af946e561805aa79957bc5eeca046d21da1d745dcbd8a02980"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 12.71,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 5.97,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 5.99,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.01,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.01,
+      "event": "token",
+      "data": "Thanks, I have opened"
+     },
+     {
+      "offsetMs": 9.02,
+      "event": "token",
+      "data": " a shipping request for"
+     },
+     {
+      "offsetMs": 9.03,
+      "event": "token",
+      "data": " you."
+     },
+     {
+      "offsetMs": 9.65,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 9.67,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10390,
+       "output_tokens": 13,
+       "total_tokens": 10403
+      }
+     },
+     {
+      "offsetMs": 9.67,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.7,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 10.24,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 416,
+       "sha256": "83a1ef258b6c76a90f8199ec4628686700f8e0fa0c6d97f951956a84cd00d39e"
+      }
+     },
+     {
+      "offsetMs": 12.62,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkldjy-M1-S05",
+       "chatMessageId": "36c06e24-fa95-401b-84c1-f76bf6f5e9a5",
+       "sessionId": "ts00b-mwtkldjy-M1-S05"
+      }
+     },
+     {
+      "offsetMs": 12.64,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 12.65,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Thanks, I have opened a shipping request for you.",
+   "tokens": [
+    "Thanks, I have opened",
+    " a shipping request for",
+    " you."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Form Assistant",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 81,
+     "route": "S05-assistant",
+     "callIndex": 0,
+     "ruleId": "t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2d37a8f8b468812c3c854675658f5d3194e299528a143d69bbc7321acaf43133",
+         "length": 41058,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S05_assistant"
+         ],
+         "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+        }
+       },
+       {
+        "role": "user",
+        "content": "name: Ada Lovelace\ntopic: billing"
+       },
+       {
+        "role": "assistant",
+        "content": "Thanks, I have opened a billing request for you."
+       },
+       {
+        "role": "user",
+        "content": "When will I be charged for the annual plan?"
+       },
+       {
+        "role": "assistant",
+        "content": "The annual plan is charged on the first day of next month."
+       },
+       {
+        "role": "user",
+        "content": "name: Grace Hopper\ntopic: shipping"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Thanks, I have opened a shipping request for you.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 416,
+    "sha256": "83a1ef258b6c76a90f8199ec4628686700f8e0fa0c6d97f951956a84cd00d39e",
+    "sizes": {
+     "base64Length": 416,
+     "payloadBytes": 310,
+     "gzipBytes": 282,
+     "rawJsonBytes": 597,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 481,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 42,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 597
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "name: Ada Lovelace\ntopic: billing"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a billing request for you."
+      },
+      {
+       "role": "userMessage",
+       "content": "When will I be charged for the annual plan?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The annual plan is charged on the first day of next month."
+      },
+      {
+       "role": "userMessage",
+       "content": "name: Grace Hopper\ntopic: shipping"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a shipping request for you."
+      }
+     ],
+     "flowState": {},
+     "formValues": {
+      "name": "Grace Hopper",
+      "topic": "shipping"
+     },
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 294,
+    "executedDataGzipBytes": 155,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": "$form falls back to the previous Start record (Ada), not to the new submission",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkldjy-M1-S05",
+     "streaming": true,
+     "question": "Where is my parcel right now?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 416,
+      "sha256": "83a1ef258b6c76a90f8199ec4628686700f8e0fa0c6d97f951956a84cd00d39e"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 416,
+    "sha256": "83a1ef258b6c76a90f8199ec4628686700f8e0fa0c6d97f951956a84cd00d39e"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 11.63,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 5.59,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 5.62,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 5.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 5.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.71,
+      "event": "token",
+      "data": "Your parcel is at"
+     },
+     {
+      "offsetMs": 8.73,
+      "event": "token",
+      "data": " the regional depot and"
+     },
+     {
+      "offsetMs": 8.74,
+      "event": "token",
+      "data": " will be delivered tomorrow."
+     },
+     {
+      "offsetMs": 9.48,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 9.5,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10425,
+       "output_tokens": 18,
+       "total_tokens": 10443
+      }
+     },
+     {
+      "offsetMs": 9.52,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.53,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 10.14,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 492,
+       "sha256": "fab6bdd64ee33c99d98e1060164b5786ac947286db6e350d9b7ed670754b83ff"
+      }
+     },
+     {
+      "offsetMs": 11.54,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkldjy-M1-S05",
+       "chatMessageId": "220b1652-0f28-4649-bbfd-4bfd53183105",
+       "question": "Where is my parcel right now?",
+       "sessionId": "ts00b-mwtkldjy-M1-S05"
+      }
+     },
+     {
+      "offsetMs": 11.56,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 11.57,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Your parcel is at the regional depot and will be delivered tomorrow.",
+   "tokens": [
+    "Your parcel is at",
+    " the regional depot and",
+    " will be delivered tomorrow."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Form Assistant",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 83,
+     "route": "S05-assistant",
+     "callIndex": 0,
+     "ruleId": "t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2d37a8f8b468812c3c854675658f5d3194e299528a143d69bbc7321acaf43133",
+         "length": 41058,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S05_assistant"
+         ],
+         "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+        }
+       },
+       {
+        "role": "user",
+        "content": "name: Ada Lovelace\ntopic: billing"
+       },
+       {
+        "role": "assistant",
+        "content": "Thanks, I have opened a billing request for you."
+       },
+       {
+        "role": "user",
+        "content": "When will I be charged for the annual plan?"
+       },
+       {
+        "role": "assistant",
+        "content": "The annual plan is charged on the first day of next month."
+       },
+       {
+        "role": "user",
+        "content": "name: Grace Hopper\ntopic: shipping"
+       },
+       {
+        "role": "assistant",
+        "content": "Thanks, I have opened a shipping request for you."
+       },
+       {
+        "role": "user",
+        "content": "Where is my parcel right now?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Your parcel is at the regional depot and will be delivered tomorrow.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 492,
+    "sha256": "fab6bdd64ee33c99d98e1060164b5786ac947286db6e350d9b7ed670754b83ff",
+    "sizes": {
+     "base64Length": 492,
+     "payloadBytes": 369,
+     "gzipBytes": 341,
+     "rawJsonBytes": 765,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 649,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 42,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 765
+     },
+     {
+      "path": "history",
+      "bytes": 649
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "name: Ada Lovelace\ntopic: billing"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a billing request for you."
+      },
+      {
+       "role": "userMessage",
+       "content": "When will I be charged for the annual plan?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The annual plan is charged on the first day of next month."
+      },
+      {
+       "role": "userMessage",
+       "content": "name: Grace Hopper\ntopic: shipping"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a shipping request for you."
+      },
+      {
+       "role": "userMessage",
+       "content": "Where is my parcel right now?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Your parcel is at the regional depot and will be delivered tomorrow."
+      }
+     ],
+     "flowState": {},
+     "formValues": {
+      "name": "Grace Hopper",
+      "topic": "shipping"
+     },
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 294,
+    "executedDataGzipBytes": 155,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "after",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

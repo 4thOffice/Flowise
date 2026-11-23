@@ -1,0 +1,2736 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S08",
+  "file": "S08-parallel-stops.json",
+  "title": "Two parallel stops: Agent tool approval and a HumanInput gate",
+  "findings": [
+   "F05",
+   "F07",
+   "F08",
+   "F09"
+  ]
+ },
+ "mode": "M2",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtkxdd6-M2-S08",
+ "runTag": "mwtkxdd6",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t1"
+ },
+ "flows": [
+  {
+   "slug": "S08-parallel-stops",
+   "chatflowId": "7d6962a4-3953-4f9b-8206-8fd54d4fcfbe",
+   "name": "TS00b M2 S08-parallel-stops",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": false
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:11.572Z",
+ "turns": [
+  {
+   "id": "t2",
+   "note": "Resumes the primary stopped node (from the action event)",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M2-S08",
+     "streaming": true,
+     "humanInput": {
+      "type": "proceed",
+      "startNodeId": "agentAgentflow_0"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 38832,
+      "sha256": "68710eaa731a38792093ff460f51f189c4921fe0f9666ef579fcd520b9b5c5ed"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 38832,
+    "sha256": "68710eaa731a38792093ff460f51f189c4921fe0f9666ef579fcd520b9b5c5ed"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 30.01,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.21,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.24,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Policy Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.78,
+      "event": "calledTools",
+      "data": [
+       {
+        "tool": "calculator",
+        "toolInput": {
+         "input": "120*0.85"
+        },
+        "toolOutput": ""
+       }
+      ]
+     },
+     {
+      "offsetMs": 25.29,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Policy Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 27.82,
+      "event": "action",
+      "data": {
+       "id": "ad215c93-502c-4bd5-83cf-549880cb18d2",
+       "mapping": {
+        "approve": "Proceed",
+        "reject": "Reject"
+       },
+       "elements": [
+        {
+         "type": "agentflowv2-approve-button",
+         "label": "Approve refund"
+        },
+        {
+         "type": "agentflowv2-reject-button",
+         "label": "Deny refund"
+        }
+       ],
+       "data": {
+        "nodeId": "humanInputAgentflow_0",
+        "nodeLabel": "Manager Gate",
+        "input": {
+         "humanInputEnableFeedback": true
+        }
+       }
+      }
+     },
+     {
+      "offsetMs": 27.88,
+      "event": "agentFlowEvent",
+      "data": "STOPPED"
+     },
+     {
+      "offsetMs": 28.42,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 848,
+       "sha256": "e7f52aec3e4acd5fffe1b360bc3fd5a5f38e84273e1d3f90c37f8220aea04fd1"
+      }
+     },
+     {
+      "offsetMs": 29.91,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M2-S08",
+       "chatMessageId": "176f7d32-fc11-4c04-837f-6fe90a04cfca",
+       "sessionId": "ts00b-mwtkxdd6-M2-S08"
+      }
+     },
+     {
+      "offsetMs": 29.94,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 29.97,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "STOPPED",
+   "statusSource": "sse",
+   "text": "",
+   "tokens": [],
+   "action": {
+    "id": "ad215c93-502c-4bd5-83cf-549880cb18d2",
+    "mapping": {
+     "approve": "Proceed",
+     "reject": "Reject"
+    },
+    "elements": [
+     {
+      "type": "agentflowv2-approve-button",
+      "label": "Approve refund"
+     },
+     {
+      "type": "agentflowv2-reject-button",
+      "label": "Deny refund"
+     }
+    ],
+    "data": {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Manager Gate",
+     "input": {
+      "humanInputEnableFeedback": true
+     }
+    }
+   },
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow"
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Manager Gate",
+     "status": "STOPPED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "output": {
+       "humanInputAction": {
+        "id": "ad215c93-502c-4bd5-83cf-549880cb18d2",
+        "mapping": {
+         "approve": "Proceed",
+         "reject": "Reject"
+        },
+        "elements": [
+         {
+          "type": "agentflowv2-approve-button",
+          "label": "Approve refund"
+         },
+         {
+          "type": "agentflowv2-reject-button",
+          "label": "Deny refund"
+         }
+        ],
+        "data": {
+         "nodeId": "humanInputAgentflow_0",
+         "nodeLabel": "Manager Gate",
+         "input": {
+          "humanInputEnableFeedback": true
+         }
+        }
+       }
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Policy Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:STOPPED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1369,
+     "route": "S08-policy",
+     "callIndex": 0,
+     "ruleId": "policy-after-tool",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "4d4a619d6716b2880b74250f341c74eebaa68d21a08e1497fb3a38adcbcc1443",
+         "length": 41548,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S08_policy"
+         ],
+         "head": "\\[\\[route:S08-policy\\]\\] SYSPROMPT_SENTINEL_S08_policy\n\nYou check Northwind Outfitters refund requests against policy.\n\n"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+       },
+       {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+         {
+          "id": "call_S08policy_t1_0_0",
+          "type": "function",
+          "function": {
+           "name": "calculator",
+           "arguments": {
+            "$json": {
+             "input": "120*0.85"
+            }
+           }
+          }
+         }
+        ]
+       },
+       {
+        "role": "tool",
+        "content": "102",
+        "name": "calculator",
+        "tool_call_id": "call_S08policy_t1_0_0"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Policy check: a refund of 102 euros is within policy.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 848,
+    "sha256": "e7f52aec3e4acd5fffe1b360bc3fd5a5f38e84273e1d3f90c37f8220aea04fd1",
+    "sizes": {
+     "base64Length": 848,
+     "payloadBytes": 635,
+     "gzipBytes": 607,
+     "rawJsonBytes": 1229,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens",
+      "pendingResume"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 506,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 630,
+     "pendingNodes": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "humanInputAgentflow_0",
+       "status": "STOPPED",
+       "bytes": 465,
+       "promptBytes": 51,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1229
+     },
+     {
+      "path": "pendingResume",
+      "bytes": 630
+     },
+     {
+      "path": "pendingResume.nodes",
+      "bytes": 567
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+      },
+      {
+       "role": "apiMessage",
+       "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": "Proceed"
+      },
+      {
+       "role": "apiMessage",
+       "content": "\n\nManager approval is required for this refund."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {},
+     "pendingResume": {
+      "nodes": [
+       {
+        "nodeId": "startAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "humanInputAgentflow_0",
+        "status": "STOPPED",
+        "action": {
+         "id": "ad215c93-502c-4bd5-83cf-549880cb18d2",
+         "mapping": {
+          "approve": "Proceed",
+          "reject": "Reject"
+         },
+         "elements": [
+          {
+           "type": "agentflowv2-approve-button",
+           "label": "Approve refund"
+          },
+          {
+           "type": "agentflowv2-reject-button",
+           "label": "Deny refund"
+          }
+         ],
+         "data": {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Manager Gate",
+          "input": {
+           "humanInputEnableFeedback": true
+          }
+         }
+        },
+        "prompt": "\n\nManager approval is required for this refund."
+       },
+       {
+        "nodeId": "agentAgentflow_0",
+        "status": "FINISHED"
+       }
+      ],
+      "executionId": "d3a9aa38-2aab-4a44-96f2-314a3967917e"
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "action": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S08_policy": 1
+     }
+    },
+    "dbRows": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S08_policy": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 341,
+    "actionInputBytes": 33,
+    "executedDataBytes": 815,
+    "executedDataGzipBytes": 349,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S08-parallel-stops": {
+     "executions": [
+      {
+       "id": "d3a9aa38-2aab-4a44-96f2-314a3967917e",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10662,
+        "sha256": "02f3c73b786c9429ae8c0e66a61ab3e13f0d0f86393b0468392ddb6075362f4e"
+       },
+       "state": "STOPPED",
+       "agentflowId": "7d6962a4-3953-4f9b-8206-8fd54d4fcfbe",
+       "sessionId": "ts00b-mwtkxdd6-M2-S08",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.494Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Policy Check",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "4d4a619d6716b2880b74250f341c74eebaa68d21a08e1497fb3a38adcbcc1443",
+               "length": 41548,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S08_policy"
+               ],
+               "head": "\\[\\[route:S08-policy\\]\\] SYSPROMPT_SENTINEL_S08_policy\n\nYou check Northwind Outfitters refund requests against policy.\n\n"
+              }
+             },
+             {
+              "role": "user",
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+             },
+             {
+              "id": "chatcmpl-fake-S08-policy-t1-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "120*0.85"
+                },
+                "id": "call_S08policy_t1_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10444,
+               "output_tokens": 20,
+               "total_tokens": 10464
+              }
+             },
+             {
+              "role": "tool",
+              "content": "102",
+              "tool_call_id": "call_S08policy_t1_0_0",
+              "name": "calculator",
+              "additional_kwargs": {}
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            },
+            "humanInput": {
+             "type": "proceed",
+             "startNodeId": "agentAgentflow_0"
+            }
+           },
+           "output": {
+            "content": "Policy check: a refund of 102 euros is within policy.",
+            "timeMetadata": {
+             "start": 1795457411475,
+             "end": 1795457411491,
+             "delta": 16
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10509,
+             "output_tokens": 14,
+             "total_tokens": 31510,
+             "tool_call_tokens": 20987
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9036,
+              "completionTokens": 12,
+              "totalTokens": 9048
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10509,
+              "completion_tokens": 14,
+              "total_tokens": 10523
+             }
+            },
+            "usedTools": [
+             {
+              "tool": "calculator",
+              "toolInput": {
+               "input": "120*0.85"
+              },
+              "toolOutput": "102"
+             }
+            ],
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Policy check: a refund of 102 euros is within policy.",
+             "name": "policy_check",
+             "additional_kwargs": {
+              "usedTools": [
+               {
+                "tool": "calculator",
+                "toolInput": {
+                 "input": "120*0.85"
+                },
+                "toolOutput": "102"
+               }
+              ]
+             }
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 44544
+      }
+     ],
+     "chatMessages": []
+    }
+   },
+   "serverLog": [
+    "2026-11-23 19:10:11 [WARN]: [agentflow]: Execution 366664fa-5953-4b74-a31e-6d4af397dd1c not found; it is not updated",
+    "2026-11-23 19:10:11 [WARN]: [agentflow]: Execution 366664fa-5953-4b74-a31e-6d4af397dd1c not found; it is not updated"
+   ]
+  },
+  {
+   "id": "t3",
+   "note": "Resumes the remaining stopped node",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M2-S08",
+     "streaming": true,
+     "humanInput": {
+      "type": "proceed",
+      "feedback": "Approved by the store manager.",
+      "startNodeId": "humanInputAgentflow_0"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 848,
+      "sha256": "e7f52aec3e4acd5fffe1b360bc3fd5a5f38e84273e1d3f90c37f8220aea04fd1"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 848,
+    "sha256": "e7f52aec3e4acd5fffe1b360bc3fd5a5f38e84273e1d3f90c37f8220aea04fd1"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 15.81,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.2,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.23,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Manager Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.24,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Manager Gate",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.25,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Summary",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.43,
+      "event": "token",
+      "data": "Refund approved: 102 euros"
+     },
+     {
+      "offsetMs": 10.45,
+      "event": "token",
+      "data": " will go back to"
+     },
+     {
+      "offsetMs": 10.46,
+      "event": "token",
+      "data": " the original payment method."
+     },
+     {
+      "offsetMs": 11.41,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 11.42,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10361,
+       "output_tokens": 19,
+       "total_tokens": 10380
+      }
+     },
+     {
+      "offsetMs": 11.43,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Summary",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 14.03,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 14.56,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 556,
+       "sha256": "341463111cc1aac5ecb4f18eb5e4a004fb340c6ee085d3314631cae00857e9d7"
+      }
+     },
+     {
+      "offsetMs": 15.74,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M2-S08",
+       "chatMessageId": "e5026688-c43e-4055-9eb0-aa8a2dd0a871",
+       "sessionId": "ts00b-mwtkxdd6-M2-S08"
+      }
+     },
+     {
+      "offsetMs": 15.76,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 15.77,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Refund approved: 102 euros will go back to the original payment method.",
+   "tokens": [
+    "Refund approved: 102 euros",
+    " will go back to",
+    " the original payment method."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow"
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Policy Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow"
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Manager Gate",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Summary",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0",
+      "humanInputAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1371,
+     "route": "S08-summary",
+     "callIndex": 0,
+     "ruleId": "summary",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "62e7b6813dceedd53b31bdc2677337f218a4dae052f9a4d2807c38d0269474ae",
+         "length": 40770,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S08_summary"
+         ],
+         "head": "\\[\\[route:S08-summary\\]\\] SYSPROMPT_SENTINEL_S08_summary\n\nYou summarise the Northwind Outfitters refund decision.\n\nSecti"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+       },
+       {
+        "role": "assistant",
+        "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+       },
+       {
+        "role": "user",
+        "content": "Proceed"
+       },
+       {
+        "role": "assistant",
+        "content": "\n\nManager approval is required for this refund."
+       },
+       {
+        "role": "user",
+        "content": "Approved by the store manager."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Refund approved: 102 euros will go back to the original payment method.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 556,
+    "sha256": "341463111cc1aac5ecb4f18eb5e4a004fb340c6ee085d3314631cae00857e9d7",
+    "sizes": {
+     "base64Length": 556,
+     "payloadBytes": 416,
+     "gzipBytes": 388,
+     "rawJsonBytes": 754,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 678,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 754
+     },
+     {
+      "path": "history",
+      "bytes": 678
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+      },
+      {
+       "role": "apiMessage",
+       "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": "Proceed"
+      },
+      {
+       "role": "apiMessage",
+       "content": "\n\nManager approval is required for this refund."
+      },
+      {
+       "role": "userMessage",
+       "content": "Approved by the store manager."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Refund approved: 102 euros will go back to the original payment method."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S08_summary": 1
+     }
+    },
+    "dbRows": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S08_policy": 1,
+      "SYSPROMPT_SENTINEL_S08_summary": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 619,
+    "executedDataGzipBytes": 206,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S08-parallel-stops": {
+     "executions": [
+      {
+       "id": "d3a9aa38-2aab-4a44-96f2-314a3967917e",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 19774,
+        "sha256": "80ef31a26aa89abe8385eccbdcd991b9a862a8b6b0588b6480293f7a6cba499a"
+       },
+       "state": "FINISHED",
+       "agentflowId": "7d6962a4-3953-4f9b-8206-8fd54d4fcfbe",
+       "sessionId": "ts00b-mwtkxdd6-M2-S08",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.494Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Policy Check",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "4d4a619d6716b2880b74250f341c74eebaa68d21a08e1497fb3a38adcbcc1443",
+               "length": 41548,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S08_policy"
+               ],
+               "head": "\\[\\[route:S08-policy\\]\\] SYSPROMPT_SENTINEL_S08_policy\n\nYou check Northwind Outfitters refund requests against policy.\n\n"
+              }
+             },
+             {
+              "role": "user",
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+             },
+             {
+              "id": "chatcmpl-fake-S08-policy-t1-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "120*0.85"
+                },
+                "id": "call_S08policy_t1_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10444,
+               "output_tokens": 20,
+               "total_tokens": 10464
+              }
+             },
+             {
+              "role": "tool",
+              "content": "102",
+              "tool_call_id": "call_S08policy_t1_0_0",
+              "name": "calculator",
+              "additional_kwargs": {}
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            },
+            "humanInput": {
+             "type": "proceed",
+             "startNodeId": "agentAgentflow_0"
+            }
+           },
+           "output": {
+            "content": "Policy check: a refund of 102 euros is within policy.",
+            "timeMetadata": {
+             "start": 1795457411475,
+             "end": 1795457411491,
+             "delta": 16
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10509,
+             "output_tokens": 14,
+             "total_tokens": 31510,
+             "tool_call_tokens": 20987
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9036,
+              "completionTokens": 12,
+              "totalTokens": 9048
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10509,
+              "completion_tokens": 14,
+              "total_tokens": 10523
+             }
+            },
+            "usedTools": [
+             {
+              "tool": "calculator",
+              "toolInput": {
+               "input": "120*0.85"
+              },
+              "toolOutput": "102"
+             }
+            ],
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Policy check: a refund of 102 euros is within policy.",
+             "name": "policy_check",
+             "additional_kwargs": {
+              "usedTools": [
+               {
+                "tool": "calculator",
+                "toolInput": {
+                 "input": "120*0.85"
+                },
+                "toolOutput": "102"
+               }
+              ]
+             }
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Manager Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "type": "proceed",
+            "feedback": "Approved by the store manager.",
+            "startNodeId": "humanInputAgentflow_0",
+            "messages": [
+             {
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee.",
+              "role": "user"
+             },
+             {
+              "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+              "role": "assistant"
+             },
+             {
+              "content": "Proceed",
+              "role": "user"
+             },
+             {
+              "content": "\n\nManager approval is required for this refund.",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "Approved by the store manager."
+             }
+            ]
+           },
+           "output": {
+            "conditions": [
+             {
+              "type": "proceed",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Approved by the store manager.",
+              "isFulfilled": true
+             },
+             {
+              "type": "reject",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Approved by the store manager.",
+              "isFulfilled": false
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Approved by the store manager."
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Summary",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "62e7b6813dceedd53b31bdc2677337f218a4dae052f9a4d2807c38d0269474ae",
+               "length": 40770,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S08_summary"
+               ],
+               "head": "\\[\\[route:S08-summary\\]\\] SYSPROMPT_SENTINEL_S08_summary\n\nYou summarise the Northwind Outfitters refund decision.\n\nSecti"
+              }
+             },
+             {
+              "role": "user",
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+             },
+             {
+              "role": "assistant",
+              "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+             },
+             {
+              "role": "user",
+              "content": "Proceed"
+             },
+             {
+              "role": "assistant",
+              "content": "\n\nManager approval is required for this refund."
+             },
+             {
+              "role": "user",
+              "content": "Approved by the store manager."
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Refund approved: 102 euros will go back to the original payment method.",
+            "timeMetadata": {
+             "start": 1795457411514,
+             "end": 1795457411517,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10361,
+             "output_tokens": 19,
+             "total_tokens": 10380
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10361,
+              "completion_tokens": 19,
+              "total_tokens": 10380
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Refund approved: 102 euros will go back to the original payment method.",
+             "name": "summary"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0",
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 88752
+      }
+     ],
+     "chatMessages": []
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": "New question: the gate stops again",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkxdd6-M2-S08",
+     "streaming": true,
+     "question": "Can I also get free return shipping?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 556,
+      "sha256": "341463111cc1aac5ecb4f18eb5e4a004fb340c6ee085d3314631cae00857e9d7"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 556,
+    "sha256": "341463111cc1aac5ecb4f18eb5e4a004fb340c6ee085d3314631cae00857e9d7"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 27.68,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.69,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.71,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.72,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.73,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Policy Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.74,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Manager Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.74,
+      "event": "token",
+      "data": "Refund approved: 102 euros will go back to the original payment method.\n\nManager approval is required for this refund."
+     },
+     {
+      "offsetMs": 7.75,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Manager Gate",
+       "status": "STOPPED"
+      }
+     },
+     {
+      "offsetMs": 23.2,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Policy Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 25.82,
+      "event": "action",
+      "data": {
+       "id": "322077c8-c1a9-4f68-b1fb-7d267d8cff61",
+       "mapping": {
+        "approve": "Proceed",
+        "reject": "Reject"
+       },
+       "elements": [
+        {
+         "type": "agentflowv2-approve-button",
+         "label": "Approve refund"
+        },
+        {
+         "type": "agentflowv2-reject-button",
+         "label": "Deny refund"
+        }
+       ],
+       "data": {
+        "nodeId": "humanInputAgentflow_0",
+        "nodeLabel": "Manager Gate",
+        "input": {
+         "humanInputEnableFeedback": true
+        }
+       }
+      }
+     },
+     {
+      "offsetMs": 25.85,
+      "event": "agentFlowEvent",
+      "data": "STOPPED"
+     },
+     {
+      "offsetMs": 26.26,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 964,
+       "sha256": "5ec7098aba33b5859ff2e52a0c7999eac657a192f87ae5061bfc211a76b3b375"
+      }
+     },
+     {
+      "offsetMs": 27.58,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkxdd6-M2-S08",
+       "chatMessageId": "ddb3f4a2-ee0a-48ae-bffc-8b5c0c0a435e",
+       "question": "Can I also get free return shipping?",
+       "sessionId": "ts00b-mwtkxdd6-M2-S08"
+      }
+     },
+     {
+      "offsetMs": 27.61,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 3
+      }
+     },
+     {
+      "offsetMs": 27.63,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "STOPPED",
+   "statusSource": "sse",
+   "text": "Refund approved: 102 euros will go back to the original payment method.\n\nManager approval is required for this refund.",
+   "tokens": [
+    "Refund approved: 102 euros will go back to the original payment method.\n\nManager approval is required for this refund."
+   ],
+   "action": {
+    "id": "322077c8-c1a9-4f68-b1fb-7d267d8cff61",
+    "mapping": {
+     "approve": "Proceed",
+     "reject": "Reject"
+    },
+    "elements": [
+     {
+      "type": "agentflowv2-approve-button",
+      "label": "Approve refund"
+     },
+     {
+      "type": "agentflowv2-reject-button",
+      "label": "Deny refund"
+     }
+    ],
+    "data": {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Manager Gate",
+     "input": {
+      "humanInputEnableFeedback": true
+     }
+    }
+   },
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Manager Gate",
+     "status": "STOPPED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {},
+      "output": {
+       "humanInputAction": {
+        "id": "322077c8-c1a9-4f68-b1fb-7d267d8cff61",
+        "mapping": {
+         "approve": "Proceed",
+         "reject": "Reject"
+        },
+        "elements": [
+         {
+          "type": "agentflowv2-approve-button",
+          "label": "Approve refund"
+         },
+         {
+          "type": "agentflowv2-reject-button",
+          "label": "Deny refund"
+         }
+        ],
+        "data": {
+         "nodeId": "humanInputAgentflow_0",
+         "nodeLabel": "Manager Gate",
+         "input": {
+          "humanInputEnableFeedback": true
+         }
+        }
+       }
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Policy Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:STOPPED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1373,
+     "route": "S08-policy",
+     "callIndex": 0,
+     "ruleId": "policy-t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "4d4a619d6716b2880b74250f341c74eebaa68d21a08e1497fb3a38adcbcc1443",
+         "length": 41548,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S08_policy"
+         ],
+         "head": "\\[\\[route:S08-policy\\]\\] SYSPROMPT_SENTINEL_S08_policy\n\nYou check Northwind Outfitters refund requests against policy.\n\n"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+       },
+       {
+        "role": "assistant",
+        "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+       },
+       {
+        "role": "user",
+        "content": "Proceed"
+       },
+       {
+        "role": "assistant",
+        "content": "\n\nManager approval is required for this refund."
+       },
+       {
+        "role": "user",
+        "content": "Approved by the store manager."
+       },
+       {
+        "role": "assistant",
+        "content": "Refund approved: 102 euros will go back to the original payment method."
+       },
+       {
+        "role": "user",
+        "content": "Can I also get free return shipping?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Free return shipping is available for premium members.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 964,
+    "sha256": "5ec7098aba33b5859ff2e52a0c7999eac657a192f87ae5061bfc211a76b3b375",
+    "sizes": {
+     "base64Length": 964,
+     "payloadBytes": 721,
+     "gzipBytes": 693,
+     "rawJsonBytes": 1699,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens",
+      "pendingResume"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 905,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 701,
+     "pendingNodes": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "humanInputAgentflow_0",
+       "status": "STOPPED",
+       "bytes": 536,
+       "promptBytes": 122,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1699
+     },
+     {
+      "path": "history",
+      "bytes": 905
+     },
+     {
+      "path": "pendingResume",
+      "bytes": 701
+     },
+     {
+      "path": "pendingResume.nodes",
+      "bytes": 638
+     },
+     {
+      "path": "pendingResume.nodes[1]",
+      "bytes": 536
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+      },
+      {
+       "role": "apiMessage",
+       "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": "Proceed"
+      },
+      {
+       "role": "apiMessage",
+       "content": "\n\nManager approval is required for this refund."
+      },
+      {
+       "role": "userMessage",
+       "content": "Approved by the store manager."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Refund approved: 102 euros will go back to the original payment method."
+      },
+      {
+       "role": "userMessage",
+       "content": "Can I also get free return shipping?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Refund approved: 102 euros will go back to the original payment method.\n\nManager approval is required for this refund."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {},
+     "pendingResume": {
+      "nodes": [
+       {
+        "nodeId": "startAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "humanInputAgentflow_0",
+        "status": "STOPPED",
+        "action": {
+         "id": "322077c8-c1a9-4f68-b1fb-7d267d8cff61",
+         "mapping": {
+          "approve": "Proceed",
+          "reject": "Reject"
+         },
+         "elements": [
+          {
+           "type": "agentflowv2-approve-button",
+           "label": "Approve refund"
+          },
+          {
+           "type": "agentflowv2-reject-button",
+           "label": "Deny refund"
+          }
+         ],
+         "data": {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Manager Gate",
+          "input": {
+           "humanInputEnableFeedback": true
+          }
+         }
+        },
+        "prompt": "Refund approved: 102 euros will go back to the original payment method.\n\nManager approval is required for this refund."
+       },
+       {
+        "nodeId": "agentAgentflow_0",
+        "status": "FINISHED"
+       }
+      ],
+      "executionId": "45d19e7c-a211-4cb3-8cae-d25a06c56c68"
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "action": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S08_policy": 1
+     }
+    },
+    "dbRows": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S08_policy": 2,
+      "SYSPROMPT_SENTINEL_S08_summary": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 341,
+    "actionInputBytes": 33,
+    "executedDataBytes": 837,
+    "executedDataGzipBytes": 353,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S08-parallel-stops": {
+     "executions": [
+      {
+       "id": "45d19e7c-a211-4cb3-8cae-d25a06c56c68",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 11272,
+        "sha256": "0936d237766dbfcd68874f1f7dcd2096364a0a730a1dd2e9f4087a70880092f0"
+       },
+       "state": "STOPPED",
+       "agentflowId": "7d6962a4-3953-4f9b-8206-8fd54d4fcfbe",
+       "sessionId": "ts00b-mwtkxdd6-M2-S08",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.556Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "Can I also get free return shipping?"
+           },
+           "output": {
+            "question": "Can I also get free return shipping?"
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Manager Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "messages": [
+             {
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee.",
+              "role": "user"
+             },
+             {
+              "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+              "role": "assistant"
+             },
+             {
+              "content": "Proceed",
+              "role": "user"
+             },
+             {
+              "content": "\n\nManager approval is required for this refund.",
+              "role": "assistant"
+             },
+             {
+              "content": "Approved by the store manager.",
+              "role": "user"
+             },
+             {
+              "content": "Refund approved: 102 euros will go back to the original payment method.",
+              "role": "assistant"
+             }
+            ],
+            "humanInputEnableFeedback": true
+           },
+           "output": {
+            "content": "Refund approved: 102 euros will go back to the original payment method.\n\nManager approval is required for this refund.",
+            "humanInputAction": {
+             "id": "322077c8-c1a9-4f68-b1fb-7d267d8cff61",
+             "mapping": {
+              "approve": "Proceed",
+              "reject": "Reject"
+             },
+             "elements": [
+              {
+               "type": "agentflowv2-approve-button",
+               "label": "Approve refund"
+              },
+              {
+               "type": "agentflowv2-reject-button",
+               "label": "Deny refund"
+              }
+             ],
+             "data": {
+              "nodeId": "humanInputAgentflow_0",
+              "nodeLabel": "Manager Gate",
+              "input": {
+               "humanInputEnableFeedback": true
+              }
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Refund approved: 102 euros will go back to the original payment method.\n\nManager approval is required for this refund."
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "STOPPED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Policy Check",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "4d4a619d6716b2880b74250f341c74eebaa68d21a08e1497fb3a38adcbcc1443",
+               "length": 41548,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S08_policy"
+               ],
+               "head": "\\[\\[route:S08-policy\\]\\] SYSPROMPT_SENTINEL_S08_policy\n\nYou check Northwind Outfitters refund requests against policy.\n\n"
+              }
+             },
+             {
+              "role": "user",
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+             },
+             {
+              "role": "assistant",
+              "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+             },
+             {
+              "role": "user",
+              "content": "Proceed"
+             },
+             {
+              "role": "assistant",
+              "content": "\n\nManager approval is required for this refund."
+             },
+             {
+              "role": "user",
+              "content": "Approved by the store manager."
+             },
+             {
+              "role": "assistant",
+              "content": "Refund approved: 102 euros will go back to the original payment method."
+             },
+             {
+              "role": "user",
+              "content": "Can I also get free return shipping?"
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Free return shipping is available for premium members.",
+            "timeMetadata": {
+             "start": 1795457411540,
+             "end": 1795457411553,
+             "delta": 13
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10600,
+             "output_tokens": 14,
+             "total_tokens": 10614,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9183,
+              "completionTokens": 9,
+              "totalTokens": 9192
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10600,
+              "completion_tokens": 14,
+              "total_tokens": 10614
+             }
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Can I also get free return shipping?"
+            },
+            {
+             "role": "assistant",
+             "content": "Free return shipping is available for premium members.",
+             "name": "policy_check"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 46450
+      },
+      {
+       "id": "d3a9aa38-2aab-4a44-96f2-314a3967917e",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 19774,
+        "sha256": "80ef31a26aa89abe8385eccbdcd991b9a862a8b6b0588b6480293f7a6cba499a"
+       },
+       "state": "FINISHED",
+       "agentflowId": "7d6962a4-3953-4f9b-8206-8fd54d4fcfbe",
+       "sessionId": "ts00b-mwtkxdd6-M2-S08",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:11.000Z",
+       "updatedDate": "2026-11-23T18:10:11.000Z",
+       "stoppedDate": "2026-11-23T18:10:11.494Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Policy Check",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "4d4a619d6716b2880b74250f341c74eebaa68d21a08e1497fb3a38adcbcc1443",
+               "length": 41548,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S08_policy"
+               ],
+               "head": "\\[\\[route:S08-policy\\]\\] SYSPROMPT_SENTINEL_S08_policy\n\nYou check Northwind Outfitters refund requests against policy.\n\n"
+              }
+             },
+             {
+              "role": "user",
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+             },
+             {
+              "id": "chatcmpl-fake-S08-policy-t1-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "120*0.85"
+                },
+                "id": "call_S08policy_t1_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10444,
+               "output_tokens": 20,
+               "total_tokens": 10464
+              }
+             },
+             {
+              "role": "tool",
+              "content": "102",
+              "tool_call_id": "call_S08policy_t1_0_0",
+              "name": "calculator",
+              "additional_kwargs": {}
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            },
+            "humanInput": {
+             "type": "proceed",
+             "startNodeId": "agentAgentflow_0"
+            }
+           },
+           "output": {
+            "content": "Policy check: a refund of 102 euros is within policy.",
+            "timeMetadata": {
+             "start": 1795457411475,
+             "end": 1795457411491,
+             "delta": 16
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10509,
+             "output_tokens": 14,
+             "total_tokens": 31510,
+             "tool_call_tokens": 20987
+            },
+            "responseMetadata": {
+             "estimatedTokenUsage": {
+              "promptTokens": 9036,
+              "completionTokens": 12,
+              "totalTokens": 9048
+             },
+             "prompt": 0,
+             "completion": 0,
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model",
+             "usage": {
+              "prompt_tokens": 10509,
+              "completion_tokens": 14,
+              "total_tokens": 10523
+             }
+            },
+            "usedTools": [
+             {
+              "tool": "calculator",
+              "toolInput": {
+               "input": "120*0.85"
+              },
+              "toolOutput": "102"
+             }
+            ],
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Policy check: a refund of 102 euros is within policy.",
+             "name": "policy_check",
+             "additional_kwargs": {
+              "usedTools": [
+               {
+                "tool": "calculator",
+                "toolInput": {
+                 "input": "120*0.85"
+                },
+                "toolOutput": "102"
+               }
+              ]
+             }
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "humanInputAgentflow_0",
+          "nodeLabel": "Manager Gate",
+          "data": {
+           "id": "humanInputAgentflow_0",
+           "name": "humanInputAgentflow",
+           "input": {
+            "type": "proceed",
+            "feedback": "Approved by the store manager.",
+            "startNodeId": "humanInputAgentflow_0",
+            "messages": [
+             {
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee.",
+              "role": "user"
+             },
+             {
+              "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+              "role": "assistant"
+             },
+             {
+              "content": "Proceed",
+              "role": "user"
+             },
+             {
+              "content": "\n\nManager approval is required for this refund.",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "Approved by the store manager."
+             }
+            ]
+           },
+           "output": {
+            "conditions": [
+             {
+              "type": "proceed",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Approved by the store manager.",
+              "isFulfilled": true
+             },
+             {
+              "type": "reject",
+              "startNodeId": "humanInputAgentflow_0",
+              "feedback": "Approved by the store manager.",
+              "isFulfilled": false
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Approved by the store manager."
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Summary",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "62e7b6813dceedd53b31bdc2677337f218a4dae052f9a4d2807c38d0269474ae",
+               "length": 40770,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S08_summary"
+               ],
+               "head": "\\[\\[route:S08-summary\\]\\] SYSPROMPT_SENTINEL_S08_summary\n\nYou summarise the Northwind Outfitters refund decision.\n\nSecti"
+              }
+             },
+             {
+              "role": "user",
+              "content": "I want a refund of 120 euros minus the 15 percent restocking fee."
+             },
+             {
+              "role": "assistant",
+              "content": "\n\nManager approval is required for this refund.\n\n\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"120*0.85\"\n  },\n  \"id\": \"call_S08policy_t1_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+             },
+             {
+              "role": "user",
+              "content": "Proceed"
+             },
+             {
+              "role": "assistant",
+              "content": "\n\nManager approval is required for this refund."
+             },
+             {
+              "role": "user",
+              "content": "Approved by the store manager."
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Refund approved: 102 euros will go back to the original payment method.",
+            "timeMetadata": {
+             "start": 1795457411514,
+             "end": 1795457411517,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10361,
+             "output_tokens": 19,
+             "total_tokens": 10380
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10361,
+              "completion_tokens": 19,
+              "total_tokens": 10380
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Refund approved: 102 euros will go back to the original payment method.",
+             "name": "summary"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "agentAgentflow_0",
+           "humanInputAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 88752
+      }
+     ],
+     "chatMessages": []
+    }
+   },
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

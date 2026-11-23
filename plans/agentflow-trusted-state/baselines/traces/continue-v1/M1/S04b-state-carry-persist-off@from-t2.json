@@ -1,0 +1,936 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S04b",
+  "file": "S04b-state-carry-persist-off.json",
+  "title": "State carry-over with Persist State off and a startState override",
+  "findings": [
+   "F03"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl08na-M1-S04b",
+ "runTag": "mwtl08na",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t2"
+ },
+ "flows": [
+  {
+   "slug": "S04b-state-carry-persist-off",
+   "chatflowId": "4001a64c-267a-4650-8894-dbf696a780ab",
+   "name": "TS00b M1 S04b-state-carry-persist-off",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": {
+    "overrideConfig": {
+     "status": true,
+     "nodes": {
+      "Start": [
+       {
+        "name": "startState",
+        "enabled": true
+       }
+      ]
+     },
+     "variables": []
+    }
+   }
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:47.774Z",
+ "turns": [
+  {
+   "id": "t3",
+   "note": "startState override (enabled for the Start node in the API config)",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M1-S04b",
+     "streaming": true,
+     "question": "Please restart the intake for my second shop.",
+     "overrideConfig": {
+      "startState": [
+       {
+        "key": "stage",
+        "value": "new"
+       }
+      ]
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14904,
+      "sha256": "598f373867a2f6a0081322483908e634bed1fd6ffcd8899eee4c0e404a3d5301"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14904,
+    "sha256": "598f373867a2f6a0081322483908e634bed1fd6ffcd8899eee4c0e404a3d5301"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 17.79,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 9.28,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 9.34,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.36,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.37,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Count Turns",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.38,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Count Turns",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.39,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentflow_0",
+       "nodeLabel": "Stage Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.39,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentflow_0",
+       "nodeLabel": "Stage Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.4,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Intake Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 12.66,
+      "event": "token",
+      "data": "Intake (t3): I have"
+     },
+     {
+      "offsetMs": 12.7,
+      "event": "token",
+      "data": " recorded the shop details"
+     },
+     {
+      "offsetMs": 12.71,
+      "event": "token",
+      "data": " and marked the request"
+     },
+     {
+      "offsetMs": 12.72,
+      "event": "token",
+      "data": " as qualified."
+     },
+     {
+      "offsetMs": 13.33,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 13.34,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10391,
+       "output_tokens": 21,
+       "total_tokens": 10412
+      }
+     },
+     {
+      "offsetMs": 13.35,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Intake Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 13.36,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 13.96,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 412,
+       "sha256": "6c10ddf4cafc5a038ca1de5d600954fc03dcb8fced50e6451ffceec5c5690ba5"
+      }
+     },
+     {
+      "offsetMs": 17.71,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M1-S04b",
+       "chatMessageId": "d3db3d59-3672-4375-a40c-64e0e8077619",
+       "question": "Please restart the intake for my second shop.",
+       "sessionId": "ts00b-mwtl08na-M1-S04b"
+      }
+     },
+     {
+      "offsetMs": 17.73,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 17.75,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Intake (t3): I have recorded the shop details and marked the request as qualified.",
+   "tokens": [
+    "Intake (t3): I have",
+    " recorded the shop details",
+    " and marked the request",
+    " as qualified."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "stage": "new",
+       "count": "1"
+      }
+     }
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Count Turns",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "customFunctionAgentflow",
+      "state": {
+       "stage": "new",
+       "count": "2"
+      }
+     }
+    },
+    {
+     "nodeId": "conditionAgentflow_0",
+     "nodeLabel": "Stage Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "data": {
+      "name": "conditionAgentflow",
+      "state": {
+       "stage": "new",
+       "count": "2"
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Intake Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "conditionAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {
+       "stage": "qualified",
+       "count": "2"
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "conditionAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "stage": "qualified",
+    "count": "2"
+   },
+   "modelRequests": [
+    {
+     "seq": 1493,
+     "route": "S04b-intake",
+     "callIndex": 0,
+     "ruleId": "intake",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "8663a4495ad9a5dc47ec46db7fe8aa69dd0ebf2043db7a7671560692cb5e2b2f",
+         "length": 40995,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S04b_intake"
+         ],
+         "head": "\\[\\[route:S04b-intake\\]\\] SYSPROMPT_SENTINEL_S04b_intake\n\nYou run the Northwind Outfitters intake interview.\n\nSection 1 "
+        }
+       },
+       {
+        "role": "user",
+        "content": "I would like to open a business account for my shop."
+       },
+       {
+        "role": "assistant",
+        "content": "Intake (t1): I have recorded the shop details and marked the request as qualified."
+       },
+       {
+        "role": "user",
+        "content": "What are the next steps?"
+       },
+       {
+        "role": "assistant",
+        "content": "Intake (t2): I have recorded the shop details and marked the request as qualified."
+       },
+       {
+        "role": "user",
+        "content": "Please restart the intake for my second shop."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Intake (t3): I have recorded the shop details and marked the request as qualified.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 412,
+    "sha256": "6c10ddf4cafc5a038ca1de5d600954fc03dcb8fced50e6451ffceec5c5690ba5",
+    "sizes": {
+     "base64Length": 412,
+     "payloadBytes": 309,
+     "gzipBytes": 281,
+     "rawJsonBytes": 688,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 581,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 33,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 688
+     },
+     {
+      "path": "history",
+      "bytes": 581
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I would like to open a business account for my shop."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Intake (t1): I have recorded the shop details and marked the request as qualified."
+      },
+      {
+       "role": "userMessage",
+       "content": "What are the next steps?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Intake (t2): I have recorded the shop details and marked the request as qualified."
+      },
+      {
+       "role": "userMessage",
+       "content": "Please restart the intake for my second shop."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Intake (t3): I have recorded the shop details and marked the request as qualified."
+      }
+     ],
+     "flowState": {
+      "stage": "qualified",
+      "count": "2"
+     },
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S04b_intake": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 759,
+    "executedDataGzipBytes": 236,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M1-S04b",
+     "streaming": true,
+     "question": "How long does the approval take?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 412,
+      "sha256": "6c10ddf4cafc5a038ca1de5d600954fc03dcb8fced50e6451ffceec5c5690ba5"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 412,
+    "sha256": "6c10ddf4cafc5a038ca1de5d600954fc03dcb8fced50e6451ffceec5c5690ba5"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 14.53,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 8.52,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 8.55,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.57,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 8.62,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Count Turns",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.63,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Count Turns",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 8.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentflow_0",
+       "nodeLabel": "Stage Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 8.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentflow_0",
+       "nodeLabel": "Stage Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 8.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Follow Up",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 11.73,
+      "event": "token",
+      "data": "Follow-up (t4): our onboarding"
+     },
+     {
+      "offsetMs": 11.75,
+      "event": "token",
+      "data": " team will call you"
+     },
+     {
+      "offsetMs": 11.76,
+      "event": "token",
+      "data": " within two business days."
+     },
+     {
+      "offsetMs": 12.35,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 12.36,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10442,
+       "output_tokens": 20,
+       "total_tokens": 10462
+      }
+     },
+     {
+      "offsetMs": 12.37,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Follow Up",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 12.38,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 13.08,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 508,
+       "sha256": "04fe899246769f669da7efcd658165e50d83fdb9d0201e51f44d79d98e03dabf"
+      }
+     },
+     {
+      "offsetMs": 14.46,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M1-S04b",
+       "chatMessageId": "2b4b9c2a-c306-4fac-aaf3-5713613e9531",
+       "question": "How long does the approval take?",
+       "sessionId": "ts00b-mwtl08na-M1-S04b"
+      }
+     },
+     {
+      "offsetMs": 14.48,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 14.49,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Follow-up (t4): our onboarding team will call you within two business days.",
+   "tokens": [
+    "Follow-up (t4): our onboarding",
+    " team will call you",
+    " within two business days."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "stage": "qualified",
+       "count": "2"
+      }
+     }
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Count Turns",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "customFunctionAgentflow",
+      "state": {
+       "stage": "qualified",
+       "count": "3"
+      }
+     }
+    },
+    {
+     "nodeId": "conditionAgentflow_0",
+     "nodeLabel": "Stage Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "data": {
+      "name": "conditionAgentflow",
+      "state": {
+       "stage": "qualified",
+       "count": "3"
+      }
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Follow Up",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "conditionAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {
+       "stage": "qualified",
+       "count": "3"
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "conditionAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {
+    "stage": "qualified",
+    "count": "3"
+   },
+   "modelRequests": [
+    {
+     "seq": 1495,
+     "route": "S04b-followup",
+     "callIndex": 0,
+     "ruleId": "followup",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "5590110bd647c9d1efc98dec05ad849cbb2c8149f56fedc9aa5b73ac5d5d007b",
+         "length": 41025,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S04b_followup"
+         ],
+         "head": "\\[\\[route:S04b-followup\\]\\] SYSPROMPT_SENTINEL_S04b_followup\n\nYou handle Northwind Outfitters follow-up questions.\n\nSect"
+        }
+       },
+       {
+        "role": "user",
+        "content": "I would like to open a business account for my shop."
+       },
+       {
+        "role": "assistant",
+        "content": "Intake (t1): I have recorded the shop details and marked the request as qualified."
+       },
+       {
+        "role": "user",
+        "content": "What are the next steps?"
+       },
+       {
+        "role": "assistant",
+        "content": "Intake (t2): I have recorded the shop details and marked the request as qualified."
+       },
+       {
+        "role": "user",
+        "content": "Please restart the intake for my second shop."
+       },
+       {
+        "role": "assistant",
+        "content": "Intake (t3): I have recorded the shop details and marked the request as qualified."
+       },
+       {
+        "role": "user",
+        "content": "How long does the approval take?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Follow-up (t4): our onboarding team will call you within two business days.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 508,
+    "sha256": "04fe899246769f669da7efcd658165e50d83fdb9d0201e51f44d79d98e03dabf",
+    "sizes": {
+     "base64Length": 508,
+     "payloadBytes": 380,
+     "gzipBytes": 352,
+     "rawJsonBytes": 866,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 759,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 33,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 866
+     },
+     {
+      "path": "history",
+      "bytes": 759
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "I would like to open a business account for my shop."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Intake (t1): I have recorded the shop details and marked the request as qualified."
+      },
+      {
+       "role": "userMessage",
+       "content": "What are the next steps?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Intake (t2): I have recorded the shop details and marked the request as qualified."
+      },
+      {
+       "role": "userMessage",
+       "content": "Please restart the intake for my second shop."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Intake (t3): I have recorded the shop details and marked the request as qualified."
+      },
+      {
+       "role": "userMessage",
+       "content": "How long does the approval take?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Follow-up (t4): our onboarding team will call you within two business days."
+      }
+     ],
+     "flowState": {
+      "stage": "qualified",
+      "count": "3"
+     },
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S04b_followup": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 770,
+    "executedDataGzipBytes": 233,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

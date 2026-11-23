@@ -1,0 +1,454 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S06",
+  "file": "S06-human-review-with-feedback.json",
+  "title": "Drafter, human review with feedback, revise loop, companion reply",
+  "findings": [
+   "F05",
+   "F07",
+   "F08",
+   "F09",
+   "F19"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl13g6-M1-S06",
+ "runTag": "mwtl13g6",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t4"
+ },
+ "flows": [
+  {
+   "slug": "S06-human-review-with-feedback",
+   "chatflowId": "de48c443-ba39-4fe1-8a26-089da3198410",
+   "name": "TS00b M1 S06-human-review-with-feedback",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:11:27.481Z",
+ "turns": [
+  {
+   "id": "t5",
+   "note": "Proceed with feedback",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl13g6-M1-S06",
+     "streaming": true,
+     "humanInput": {
+      "type": "proceed",
+      "feedback": "Approved, send it.",
+      "startNodeId": "humanInputAgentflow_0"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 16108,
+      "sha256": "489fb1c20ffda5f9c63c3c54384bd5a5a1c0a3d2bab6254b78314dd79fe2b5bf"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 16108,
+    "sha256": "489fb1c20ffda5f9c63c3c54384bd5a5a1c0a3d2bab6254b78314dd79fe2b5bf"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 19.31,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 12.26,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 12.32,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 12.34,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "humanInputAgentflow_0",
+       "nodeLabel": "Review Gate",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 12.36,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Finalizer",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 16.45,
+      "event": "token",
+      "data": "Final SMS: Sorry for"
+     },
+     {
+      "offsetMs": 16.49,
+      "event": "token",
+      "data": " the delay! Your order"
+     },
+     {
+      "offsetMs": 16.51,
+      "event": "token",
+      "data": " arrives Friday. Use SORRY10"
+     },
+     {
+      "offsetMs": 16.52,
+      "event": "token",
+      "data": " for 10% off."
+     },
+     {
+      "offsetMs": 17.22,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 17.26,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10524,
+       "output_tokens": 22,
+       "total_tokens": 10546
+      }
+     },
+     {
+      "offsetMs": 17.28,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Finalizer",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 17.29,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 17.86,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 612,
+       "sha256": "8155fabe68ec802525d495f741df89d9531ca673a4150f0f1255e7ea6246d0f4"
+      }
+     },
+     {
+      "offsetMs": 19.2,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl13g6-M1-S06",
+       "chatMessageId": "b742c6c7-6d30-4b9d-9b38-9bc79243b630",
+       "sessionId": "ts00b-mwtl13g6-M1-S06"
+      }
+     },
+     {
+      "offsetMs": 19.24,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 5
+      }
+     },
+     {
+      "offsetMs": 19.26,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+   "tokens": [
+    "Final SMS: Sorry for",
+    " the delay! Your order",
+    " arrives Friday. Use SORRY10",
+    " for 10% off."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow"
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Companion",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow"
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Drafter",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow"
+     }
+    },
+    {
+     "nodeId": "humanInputAgentflow_0",
+     "nodeLabel": "Review Gate",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "humanInputAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Finalizer",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "humanInputAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "humanInputAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1793,
+     "route": "S06-finalizer",
+     "callIndex": 0,
+     "ruleId": "finalizer-t5",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "ba33b78ffcfaa0683130bf95675e638a789fea3de11c8570b7dbef675ce85cc9",
+         "length": 41001,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S06_finalizer"
+         ],
+         "head": "\\[\\[route:S06-finalizer\\]\\] SYSPROMPT_SENTINEL_S06_finalizer\n\nYou polish approved Northwind Outfitters drafts.\n\nSection "
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft a reply to a customer whose shipment is delayed by a week."
+       },
+       {
+        "role": "assistant",
+        "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+       },
+       {
+        "role": "assistant",
+        "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+       },
+       {
+        "role": "assistant",
+        "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+       },
+       {
+        "role": "user",
+        "content": "Now draft a short SMS version of that message."
+       },
+       {
+        "role": "assistant",
+        "content": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+       },
+       {
+        "role": "user",
+        "content": "Approved, send it."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 612,
+    "sha256": "8155fabe68ec802525d495f741df89d9531ca673a4150f0f1255e7ea6246d0f4",
+    "sizes": {
+     "base64Length": 612,
+     "payloadBytes": 457,
+     "gzipBytes": 429,
+     "rawJsonBytes": 1192,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 1116,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "apiMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1192
+     },
+     {
+      "path": "history",
+      "bytes": 1116
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft a reply to a customer whose shipment is delayed by a week."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft: Dear customer, we are sorry that your shipment is delayed by a week. It will arrive next Friday.\n\nApprove this draft?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Draft v2: Dear customer, we are sorry for the one-week delay. Please use code SORRY10 for 10% off your next order.\n\nApprove this draft?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Final: Dear customer, we apologise for the one-week delay. Your order arrives next Friday, and code SORRY10 gives you 10% off your next order."
+      },
+      {
+       "role": "userMessage",
+       "content": "Now draft a short SMS version of that message."
+      },
+      {
+       "role": "apiMessage",
+       "content": "A reviewer will check the draft before it goes out.\n\nDraft SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off.\n\nApprove this draft?"
+      },
+      {
+       "role": "userMessage",
+       "content": "Approved, send it."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Final SMS: Sorry for the delay! Your order arrives Friday. Use SORRY10 for 10% off."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S06_finalizer": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 754,
+    "executedDataGzipBytes": 223,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

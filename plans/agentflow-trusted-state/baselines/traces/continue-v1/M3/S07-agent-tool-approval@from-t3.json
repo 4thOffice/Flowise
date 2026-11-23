@@ -1,0 +1,2973 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S07",
+  "file": "S07-agent-tool-approval.json",
+  "title": "Agent with a tool that requires approval",
+  "findings": [
+   "F05",
+   "F07",
+   "F08",
+   "F19",
+   "TS-O1"
+  ]
+ },
+ "mode": "M3",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl0v19-M3-S07",
+ "runTag": "mwtl0v19",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t3"
+ },
+ "flows": [
+  {
+   "slug": "S07-agent-tool-approval",
+   "chatflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+   "name": "TS00b M3 S07-agent-tool-approval",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": false,
+     "enabledFull": false
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:11:26.615Z",
+ "turns": [
+  {
+   "id": "t4",
+   "note": "Stops again",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl0v19-M3-S07",
+     "streaming": true,
+     "question": "And 20 percent of 80 for the second item?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 28384,
+      "sha256": "4c670ffdad5d46a7462dbdcc5d91d8b49fca60037c3b2b029cb309410b0092a7"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 28384,
+    "sha256": "4c670ffdad5d46a7462dbdcc5d91d8b49fca60037c3b2b029cb309410b0092a7"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 24.93,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 13.17,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 13.23,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 13.25,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 13.27,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ops Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 18.77,
+      "event": "calledTools",
+      "data": [
+       {
+        "tool": "calculator",
+        "toolInput": {
+         "input": "80*0.2"
+        },
+        "toolOutput": ""
+       }
+      ]
+     },
+     {
+      "offsetMs": 18.8,
+      "event": "token",
+      "data": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+     },
+     {
+      "offsetMs": 18.81,
+      "event": "calledTools",
+      "data": [
+       {
+        "tool": "calculator",
+        "toolInput": {
+         "input": "80*0.2"
+        },
+        "toolOutput": ""
+       }
+      ]
+     },
+     {
+      "offsetMs": 18.82,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10528,
+       "output_tokens": 20,
+       "total_tokens": 10548
+      }
+     },
+     {
+      "offsetMs": 18.83,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ops Agent",
+       "status": "STOPPED"
+      }
+     },
+     {
+      "offsetMs": 21.81,
+      "event": "action",
+      "data": {
+       "id": "5c1d8d3d-3154-405f-897b-634b477c4d46",
+       "mapping": {
+        "approve": "Proceed",
+        "reject": "Reject"
+       },
+       "elements": [
+        {
+         "type": "agentflowv2-approve-button",
+         "label": "Proceed"
+        },
+        {
+         "type": "agentflowv2-reject-button",
+         "label": "Reject"
+        }
+       ],
+       "data": {
+        "nodeId": "agentAgentflow_0",
+        "nodeLabel": "Ops Agent"
+       }
+      }
+     },
+     {
+      "offsetMs": 21.85,
+      "event": "agentFlowEvent",
+      "data": "STOPPED"
+     },
+     {
+      "offsetMs": 22.33,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 1132,
+       "sha256": "7f3c5eb0cf0fe9dd41645342f1adce3d2e0ca3f069203a5a0152712c594aa62e"
+      }
+     },
+     {
+      "offsetMs": 24.78,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "chatMessageId": "88222d4c-b3d2-46f0-a375-55e9d3de74b1",
+       "question": "And 20 percent of 80 for the second item?",
+       "sessionId": "ts00b-mwtl0v19-M3-S07"
+      }
+     },
+     {
+      "offsetMs": 24.82,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 24.87,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "STOPPED",
+   "statusSource": "sse",
+   "text": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+   "tokens": [
+    "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+   ],
+   "action": {
+    "id": "5c1d8d3d-3154-405f-897b-634b477c4d46",
+    "mapping": {
+     "approve": "Proceed",
+     "reject": "Reject"
+    },
+    "elements": [
+     {
+      "type": "agentflowv2-approve-button",
+      "label": "Proceed"
+     },
+     {
+      "type": "agentflowv2-reject-button",
+      "label": "Reject"
+     }
+    ],
+    "data": {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Ops Agent"
+    }
+   },
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Ops Agent",
+     "status": "STOPPED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {},
+      "output": {
+       "humanInputAction": {
+        "id": "5c1d8d3d-3154-405f-897b-634b477c4d46",
+        "mapping": {
+         "approve": "Proceed",
+         "reject": "Reject"
+        },
+        "elements": [
+         {
+          "type": "agentflowv2-approve-button",
+          "label": "Proceed"
+         },
+         {
+          "type": "agentflowv2-reject-button",
+          "label": "Reject"
+         }
+        ],
+        "data": {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Ops Agent"
+        }
+       }
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:STOPPED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1755,
+     "route": "S07-agent",
+     "callIndex": 0,
+     "ruleId": "t4-tool",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "fe905b61208857fea06e94eab3021c39b032582217dc8133c72889df704f017a",
+         "length": 41383,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S07_agent"
+         ],
+         "head": "\\[\\[route:S07-agent\\]\\] SYSPROMPT_SENTINEL_S07_agent\n\nYou are the Northwind Outfitters operations agent. Calculations ne"
+        }
+       },
+       {
+        "role": "user",
+        "content": "What day is it today?"
+       },
+       {
+        "role": "assistant",
+        "content": "Today is a regular business day, so our warehouse is open."
+       },
+       {
+        "role": "user",
+        "content": "Please calculate the refund: 15 percent of 249.99."
+       },
+       {
+        "role": "assistant",
+        "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+       },
+       {
+        "role": "user",
+        "content": " "
+       },
+       {
+        "role": "assistant",
+        "content": "The refund is 37.50 euros."
+       },
+       {
+        "role": "user",
+        "content": "And 20 percent of 80 for the second item?"
+       }
+      ]
+     },
+     "reply": {
+      "content": null,
+      "toolCalls": [
+       {
+        "id": "call_S07agent_t4_0_0",
+        "name": "calculator",
+        "args": {
+         "input": "80*0.2"
+        }
+       }
+      ],
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 1132,
+    "sha256": "7f3c5eb0cf0fe9dd41645342f1adce3d2e0ca3f069203a5a0152712c594aa62e",
+    "sizes": {
+     "base64Length": 1132,
+     "payloadBytes": 848,
+     "gzipBytes": 820,
+     "rawJsonBytes": 2073,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens",
+      "pendingResume"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 859,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 1121,
+     "pendingNodes": [
+      {
+       "nodeId": "startAgentflow_0",
+       "status": "FINISHED",
+       "bytes": 49,
+       "promptBytes": 0,
+       "checkpointBytes": 0,
+       "legacyMessagesBytes": 0
+      },
+      {
+       "nodeId": "agentAgentflow_0",
+       "status": "STOPPED",
+       "bytes": 951,
+       "promptBytes": 188,
+       "checkpointBytes": 402,
+       "legacyMessagesBytes": 0
+      }
+     ]
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 2073
+     },
+     {
+      "path": "history",
+      "bytes": 859
+     },
+     {
+      "path": "pendingResume",
+      "bytes": 1121
+     },
+     {
+      "path": "pendingResume.nodes",
+      "bytes": 1003
+     },
+     {
+      "path": "pendingResume.nodes[1]",
+      "bytes": 951
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "What day is it today?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Today is a regular business day, so our warehouse is open."
+      },
+      {
+       "role": "userMessage",
+       "content": "Please calculate the refund: 15 percent of 249.99."
+      },
+      {
+       "role": "apiMessage",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": " "
+      },
+      {
+       "role": "apiMessage",
+       "content": "The refund is 37.50 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "And 20 percent of 80 for the second item?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {},
+     "pendingResume": {
+      "nodes": [
+       {
+        "nodeId": "startAgentflow_0",
+        "status": "FINISHED"
+       },
+       {
+        "nodeId": "agentAgentflow_0",
+        "status": "STOPPED",
+        "action": {
+         "id": "5c1d8d3d-3154-405f-897b-634b477c4d46",
+         "mapping": {
+          "approve": "Proceed",
+          "reject": "Reject"
+         },
+         "elements": [
+          {
+           "type": "agentflowv2-approve-button",
+           "label": "Proceed"
+          },
+          {
+           "type": "agentflowv2-reject-button",
+           "label": "Reject"
+          }
+         ],
+         "data": {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Ops Agent"
+         }
+        },
+        "prompt": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+        "checkpoint": {
+         "historyLength": 6,
+         "conversation": [
+          {
+           "history": [
+            0,
+            6
+           ]
+          },
+          {
+           "role": "user",
+           "content": "And 20 percent of 80 for the second item?"
+          }
+         ],
+         "toolCallMessage": {
+          "id": "chatcmpl-fake-S07-agent-t4-0",
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+           {
+            "name": "calculator",
+            "args": {
+             "input": "80*0.2"
+            },
+            "id": "call_S07agent_t4_0_0",
+            "type": "tool_call"
+           }
+          ],
+          "usage_metadata": {
+           "input_tokens": 10528,
+           "output_tokens": 20,
+           "total_tokens": 10548
+          }
+         }
+        }
+       }
+      ],
+      "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+      "stopMessageId": "88222d4c-b3d2-46f0-a375-55e9d3de74b1"
+     }
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "action": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S07_agent": 1
+     }
+    },
+    "dbRows": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S07_agent": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 279,
+    "actionInputBytes": 0,
+    "executedDataBytes": 602,
+    "executedDataGzipBytes": 296,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S07-agent-tool-approval": {
+     "executions": [
+      {
+       "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 11085,
+        "sha256": "230a3d67481813040daad9f907983ed93c06ec1e56b03f9a09c742769476234a"
+       },
+       "state": "STOPPED",
+       "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:11:20.000Z",
+       "updatedDate": "2026-11-23T18:11:20.000Z",
+       "stoppedDate": "2026-11-23T18:11:20.564Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "And 20 percent of 80 for the second item?"
+           },
+           "output": {
+            "question": "And 20 percent of 80 for the second item?"
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Ops Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "fe905b61208857fea06e94eab3021c39b032582217dc8133c72889df704f017a",
+               "length": 41383,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S07_agent"
+               ],
+               "head": "\\[\\[route:S07-agent\\]\\] SYSPROMPT_SENTINEL_S07_agent\n\nYou are the Northwind Outfitters operations agent. Calculations ne"
+              }
+             },
+             {
+              "role": "user",
+              "content": "What day is it today?"
+             },
+             {
+              "role": "assistant",
+              "content": "Today is a regular business day, so our warehouse is open."
+             },
+             {
+              "role": "user",
+              "content": "Please calculate the refund: 15 percent of 249.99."
+             },
+             {
+              "role": "assistant",
+              "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+             },
+             {
+              "role": "user",
+              "content": " "
+             },
+             {
+              "role": "assistant",
+              "content": "The refund is 37.50 euros."
+             },
+             {
+              "role": "user",
+              "content": "And 20 percent of 80 for the second item?"
+             },
+             {
+              "id": "chatcmpl-fake-S07-agent-t4-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "80*0.2"
+                },
+                "id": "call_S07agent_t4_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10528,
+               "output_tokens": 20,
+               "total_tokens": 10548
+              }
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+            "timeMetadata": {
+             "start": 1795457480559,
+             "end": 1795457480562,
+             "delta": 3
+            },
+            "calledTools": [
+             {
+              "name": "calculator",
+              "args": {
+               "input": "80*0.2"
+              },
+              "id": "call_S07agent_t4_0_0",
+              "type": "tool_call"
+             }
+            ],
+            "usageMetadata": {
+             "input_tokens": 10528,
+             "output_tokens": 20,
+             "total_tokens": 21096,
+             "tool_call_tokens": 10548
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10528,
+              "completion_tokens": 20,
+              "total_tokens": 10548
+             },
+             "finish_reason": "tool_calls",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ],
+            "isWaitingForHumanInput": true,
+            "resumeCheckpoint": {
+             "historyLength": 6,
+             "conversation": [
+              {
+               "history": [
+                0,
+                6
+               ]
+              },
+              {
+               "role": "user",
+               "content": "And 20 percent of 80 for the second item?"
+              }
+             ],
+             "toolCallMessage": {
+              "id": "chatcmpl-fake-S07-agent-t4-0",
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+               {
+                "name": "calculator",
+                "args": {
+                 "input": "80*0.2"
+                },
+                "id": "call_S07agent_t4_0_0",
+                "type": "tool_call"
+               }
+              ],
+              "usage_metadata": {
+               "input_tokens": 10528,
+               "output_tokens": 20,
+               "total_tokens": 10548
+              }
+             }
+            },
+            "humanInputAction": {
+             "id": "5c1d8d3d-3154-405f-897b-634b477c4d46",
+             "mapping": {
+              "approve": "Proceed",
+              "reject": "Reject"
+             },
+             "elements": [
+              {
+               "type": "agentflowv2-approve-button",
+               "label": "Proceed"
+              },
+              {
+               "type": "agentflowv2-reject-button",
+               "label": "Reject"
+              }
+             ],
+             "data": {
+              "nodeId": "agentAgentflow_0",
+              "nodeLabel": "Ops Agent"
+             }
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "And 20 percent of 80 for the second item?"
+            },
+            {
+             "role": "assistant",
+             "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+             "name": "ops_agent"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "STOPPED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 46257
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "ae444737-561d-43b1-b2f7-b2e93916decc",
+       "role": "userMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "And 20 percent of 80 for the second item?",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:20.547Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "230a3d67481813040daad9f907983ed93c06ec1e56b03f9a09c742769476234a",
+         "length": 14780,
+         "head": "H4sIAAAAAAAAA+V9W4/jRrLmXyEILOA9EAXeRdY+HPTaPZiG7XbD1V7jwG3UsKSsEqcpUkNSXV1j1H8/yMyIyCsllefs2Yd9K1GXyktkxBdfXPK3P8J+2LF3"
+        },
+        "state": "STOPPED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:20.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "88222d4c-b3d2-46f0-a375-55e9d3de74b1",
+       "role": "apiMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": {
+        "id": "5c1d8d3d-3154-405f-897b-634b477c4d46",
+        "mapping": {
+         "approve": "Proceed",
+         "reject": "Reject"
+        },
+        "elements": [
+         {
+          "type": "agentflowv2-approve-button",
+          "label": "Proceed"
+         },
+         {
+          "type": "agentflowv2-reject-button",
+          "label": "Reject"
+         }
+        ],
+        "data": {
+         "nodeId": "agentAgentflow_0",
+         "nodeLabel": "Ops Agent"
+        }
+       },
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:20.566Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "230a3d67481813040daad9f907983ed93c06ec1e56b03f9a09c742769476234a",
+         "length": 14780,
+         "head": "H4sIAAAAAAAAA+V9W4/jRrLmXyEILOA9EAXeRdY+HPTaPZiG7XbD1V7jwG3UsKSsEqcpUkNSXV1j1H8/yMyIyCsllefs2Yd9K1GXyktkxBdfXPK3P8J+2LF3"
+        },
+        "state": "STOPPED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:20.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t5",
+   "note": "Reject with feedback",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl0v19-M3-S07",
+     "streaming": true,
+     "humanInput": {
+      "type": "reject",
+      "feedback": "Do not calculate it; escalate to a manager instead.",
+      "startNodeId": "agentAgentflow_0"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 1132,
+      "sha256": "7f3c5eb0cf0fe9dd41645342f1adce3d2e0ca3f069203a5a0152712c594aa62e"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 1132,
+    "sha256": "7f3c5eb0cf0fe9dd41645342f1adce3d2e0ca3f069203a5a0152712c594aa62e"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 30.1,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 15.62,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 15.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ops Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 17.41,
+      "event": "calledTools",
+      "data": [
+       {
+        "tool": "calculator",
+        "toolInput": {
+         "input": "80*0.2"
+        },
+        "toolOutput": ""
+       }
+      ]
+     },
+     {
+      "offsetMs": 19.78,
+      "event": "token",
+      "data": "Understood, I will not"
+     },
+     {
+      "offsetMs": 19.81,
+      "event": "token",
+      "data": " run the calculation and"
+     },
+     {
+      "offsetMs": 19.82,
+      "event": "token",
+      "data": " have passed it to"
+     },
+     {
+      "offsetMs": 19.83,
+      "event": "token",
+      "data": " a manager."
+     },
+     {
+      "offsetMs": 21.57,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 21.58,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10528,
+       "output_tokens": 20,
+       "total_tokens": 10548
+      }
+     },
+     {
+      "offsetMs": 21.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ops Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 26.69,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 27.86,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 644,
+       "sha256": "12fbd6851374cf7add61ff723b839e1d163c738d57ff643fd74999337f5d27c7"
+      }
+     },
+     {
+      "offsetMs": 30,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "chatMessageId": "b0a41136-d3ad-4a32-acdd-8b44535294bb",
+       "sessionId": "ts00b-mwtl0v19-M3-S07"
+      }
+     },
+     {
+      "offsetMs": 30.04,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 30.05,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Understood, I will not run the calculation and have passed it to a manager.",
+   "tokens": [
+    "Understood, I will not",
+    " run the calculation and",
+    " have passed it to",
+    " a manager."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow"
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Ops Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1757,
+     "route": "S07-agent",
+     "callIndex": 0,
+     "ruleId": "t5-answer",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "fe905b61208857fea06e94eab3021c39b032582217dc8133c72889df704f017a",
+         "length": 41383,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S07_agent"
+         ],
+         "head": "\\[\\[route:S07-agent\\]\\] SYSPROMPT_SENTINEL_S07_agent\n\nYou are the Northwind Outfitters operations agent. Calculations ne"
+        }
+       },
+       {
+        "role": "user",
+        "content": "What day is it today?"
+       },
+       {
+        "role": "assistant",
+        "content": "Today is a regular business day, so our warehouse is open."
+       },
+       {
+        "role": "user",
+        "content": "Please calculate the refund: 15 percent of 249.99."
+       },
+       {
+        "role": "assistant",
+        "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+       },
+       {
+        "role": "user",
+        "content": " "
+       },
+       {
+        "role": "assistant",
+        "content": "The refund is 37.50 euros."
+       },
+       {
+        "role": "user",
+        "content": "And 20 percent of 80 for the second item?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Understood, I will not run the calculation and have passed it to a manager.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 644,
+    "sha256": "12fbd6851374cf7add61ff723b839e1d163c738d57ff643fd74999337f5d27c7",
+    "sizes": {
+     "base64Length": 644,
+     "payloadBytes": 482,
+     "gzipBytes": 454,
+     "rawJsonBytes": 1132,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 10,
+     "historyBytes": 1056,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1132
+     },
+     {
+      "path": "history",
+      "bytes": 1056
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "What day is it today?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Today is a regular business day, so our warehouse is open."
+      },
+      {
+       "role": "userMessage",
+       "content": "Please calculate the refund: 15 percent of 249.99."
+      },
+      {
+       "role": "apiMessage",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": " "
+      },
+      {
+       "role": "apiMessage",
+       "content": "The refund is 37.50 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "And 20 percent of 80 for the second item?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": "Do not calculate it; escalate to a manager instead."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Understood, I will not run the calculation and have passed it to a manager."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S07_agent": 1
+     }
+    },
+    "dbRows": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S07_agent": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 282,
+    "executedDataGzipBytes": 150,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S07-agent-tool-approval": {
+     "executions": [
+      {
+       "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10912,
+        "sha256": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8"
+       },
+       "state": "FINISHED",
+       "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:11:20.000Z",
+       "updatedDate": "2026-11-23T18:11:23.000Z",
+       "stoppedDate": "2026-11-23T18:11:20.564Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "And 20 percent of 80 for the second item?"
+           },
+           "output": {
+            "question": "And 20 percent of 80 for the second item?"
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Ops Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "fe905b61208857fea06e94eab3021c39b032582217dc8133c72889df704f017a",
+               "length": 41383,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S07_agent"
+               ],
+               "head": "\\[\\[route:S07-agent\\]\\] SYSPROMPT_SENTINEL_S07_agent\n\nYou are the Northwind Outfitters operations agent. Calculations ne"
+              }
+             },
+             {
+              "content": "What day is it today?",
+              "role": "user"
+             },
+             {
+              "content": "Today is a regular business day, so our warehouse is open.",
+              "role": "assistant"
+             },
+             {
+              "content": "Please calculate the refund: 15 percent of 249.99.",
+              "role": "user"
+             },
+             {
+              "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+              "role": "assistant"
+             },
+             {
+              "content": " ",
+              "role": "user"
+             },
+             {
+              "content": "The refund is 37.50 euros.",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "And 20 percent of 80 for the second item?"
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            },
+            "humanInput": {
+             "type": "reject",
+             "feedback": "Do not calculate it; escalate to a manager instead.",
+             "startNodeId": "agentAgentflow_0"
+            }
+           },
+           "output": {
+            "content": "Understood, I will not run the calculation and have passed it to a manager.",
+            "timeMetadata": {
+             "start": 1795457483565,
+             "end": 1795457483568,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10528,
+             "output_tokens": 20,
+             "total_tokens": 31644,
+             "tool_call_tokens": 21096
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10528,
+              "completion_tokens": 20,
+              "total_tokens": 10548
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Understood, I will not run the calculation and have passed it to a manager.",
+             "name": "ops_agent"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 44984
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "ae444737-561d-43b1-b2f7-b2e93916decc",
+       "role": "userMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "And 20 percent of 80 for the second item?",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:20.547Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "88222d4c-b3d2-46f0-a375-55e9d3de74b1",
+       "role": "apiMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:20.566Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "e438061e-30ad-40a5-b606-bd8a8695eba4",
+       "role": "userMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "Do not calculate it; escalate to a manager instead.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:23.556Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "b0a41136-d3ad-4a32-acdd-8b44535294bb",
+       "role": "apiMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "Understood, I will not run the calculation and have passed it to a manager.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:23.574Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t6",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl0v19-M3-S07",
+     "streaming": true,
+     "question": "Thanks, that is all for today.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 644,
+      "sha256": "12fbd6851374cf7add61ff723b839e1d163c738d57ff643fd74999337f5d27c7"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 644,
+    "sha256": "12fbd6851374cf7add61ff723b839e1d163c738d57ff643fd74999337f5d27c7"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 20.3,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.01,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.04,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.05,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.06,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ops Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 12.03,
+      "event": "token",
+      "data": "You are welcome, have"
+     },
+     {
+      "offsetMs": 12.07,
+      "event": "token",
+      "data": " a good day."
+     },
+     {
+      "offsetMs": 14.16,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 14.2,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10645,
+       "output_tokens": 9,
+       "total_tokens": 10654
+      }
+     },
+     {
+      "offsetMs": 14.22,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Ops Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 18.4,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 19.06,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 692,
+       "sha256": "6d27616e27ddcaa3d5e9281c2a2e035e086fff1bc0695ab11987afe4403b07af"
+      }
+     },
+     {
+      "offsetMs": 20.23,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "chatMessageId": "dc93a9da-9e8f-4129-a3cd-1de1b6d98c6c",
+       "question": "Thanks, that is all for today.",
+       "sessionId": "ts00b-mwtl0v19-M3-S07"
+      }
+     },
+     {
+      "offsetMs": 20.25,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 20.26,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "You are welcome, have a good day.",
+   "tokens": [
+    "You are welcome, have",
+    " a good day."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Ops Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1759,
+     "route": "S07-agent",
+     "callIndex": 0,
+     "ruleId": "t6",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "fe905b61208857fea06e94eab3021c39b032582217dc8133c72889df704f017a",
+         "length": 41383,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S07_agent"
+         ],
+         "head": "\\[\\[route:S07-agent\\]\\] SYSPROMPT_SENTINEL_S07_agent\n\nYou are the Northwind Outfitters operations agent. Calculations ne"
+        }
+       },
+       {
+        "role": "user",
+        "content": "What day is it today?"
+       },
+       {
+        "role": "assistant",
+        "content": "Today is a regular business day, so our warehouse is open."
+       },
+       {
+        "role": "user",
+        "content": "Please calculate the refund: 15 percent of 249.99."
+       },
+       {
+        "role": "assistant",
+        "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+       },
+       {
+        "role": "user",
+        "content": " "
+       },
+       {
+        "role": "assistant",
+        "content": "The refund is 37.50 euros."
+       },
+       {
+        "role": "user",
+        "content": "And 20 percent of 80 for the second item?"
+       },
+       {
+        "role": "assistant",
+        "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+       },
+       {
+        "role": "user",
+        "content": "Do not calculate it; escalate to a manager instead."
+       },
+       {
+        "role": "assistant",
+        "content": "Understood, I will not run the calculation and have passed it to a manager."
+       },
+       {
+        "role": "user",
+        "content": "Thanks, that is all for today."
+       }
+      ]
+     },
+     "reply": {
+      "content": "You are welcome, have a good day.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 692,
+    "sha256": "6d27616e27ddcaa3d5e9281c2a2e035e086fff1bc0695ab11987afe4403b07af",
+    "sizes": {
+     "base64Length": 692,
+     "payloadBytes": 519,
+     "gzipBytes": 491,
+     "rawJsonBytes": 1266,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 12,
+     "historyBytes": 1190,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 1266
+     },
+     {
+      "path": "history",
+      "bytes": 1190
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "What day is it today?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Today is a regular business day, so our warehouse is open."
+      },
+      {
+       "role": "userMessage",
+       "content": "Please calculate the refund: 15 percent of 249.99."
+      },
+      {
+       "role": "apiMessage",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": " "
+      },
+      {
+       "role": "apiMessage",
+       "content": "The refund is 37.50 euros."
+      },
+      {
+       "role": "userMessage",
+       "content": "And 20 percent of 80 for the second item?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+      },
+      {
+       "role": "userMessage",
+       "content": "Do not calculate it; escalate to a manager instead."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Understood, I will not run the calculation and have passed it to a manager."
+      },
+      {
+       "role": "userMessage",
+       "content": "Thanks, that is all for today."
+      },
+      {
+       "role": "apiMessage",
+       "content": "You are welcome, have a good day."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S07_agent": 1
+     }
+    },
+    "dbRows": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S07_agent": 2
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 293,
+    "executedDataGzipBytes": 151,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S07-agent-tool-approval": {
+     "executions": [
+      {
+       "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10912,
+        "sha256": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8"
+       },
+       "state": "FINISHED",
+       "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:11:20.000Z",
+       "updatedDate": "2026-11-23T18:11:23.000Z",
+       "stoppedDate": "2026-11-23T18:11:20.564Z",
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "And 20 percent of 80 for the second item?"
+           },
+           "output": {
+            "question": "And 20 percent of 80 for the second item?"
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Ops Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "fe905b61208857fea06e94eab3021c39b032582217dc8133c72889df704f017a",
+               "length": 41383,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S07_agent"
+               ],
+               "head": "\\[\\[route:S07-agent\\]\\] SYSPROMPT_SENTINEL_S07_agent\n\nYou are the Northwind Outfitters operations agent. Calculations ne"
+              }
+             },
+             {
+              "content": "What day is it today?",
+              "role": "user"
+             },
+             {
+              "content": "Today is a regular business day, so our warehouse is open.",
+              "role": "assistant"
+             },
+             {
+              "content": "Please calculate the refund: 15 percent of 249.99.",
+              "role": "user"
+             },
+             {
+              "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+              "role": "assistant"
+             },
+             {
+              "content": " ",
+              "role": "user"
+             },
+             {
+              "content": "The refund is 37.50 euros.",
+              "role": "assistant"
+             },
+             {
+              "role": "user",
+              "content": "And 20 percent of 80 for the second item?"
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            },
+            "humanInput": {
+             "type": "reject",
+             "feedback": "Do not calculate it; escalate to a manager instead.",
+             "startNodeId": "agentAgentflow_0"
+            }
+           },
+           "output": {
+            "content": "Understood, I will not run the calculation and have passed it to a manager.",
+            "timeMetadata": {
+             "start": 1795457483565,
+             "end": 1795457483568,
+             "delta": 3
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10528,
+             "output_tokens": 20,
+             "total_tokens": 31644,
+             "tool_call_tokens": 21096
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10528,
+              "completion_tokens": 20,
+              "total_tokens": 10548
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "assistant",
+             "content": "Understood, I will not run the calculation and have passed it to a manager.",
+             "name": "ops_agent"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 44984
+      },
+      {
+       "id": "87ff9ab0-f519-49c5-bd33-72eec78884cd",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10924,
+        "sha256": "97f270411ab14636f4704435a2b19a7ced73c4544099e965c88a7dd245ff5cf5"
+       },
+       "state": "FINISHED",
+       "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:11:26.000Z",
+       "updatedDate": "2026-11-23T18:11:26.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "question": "Thanks, that is all for today."
+           },
+           "output": {
+            "question": "Thanks, that is all for today."
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "agentAgentflow_0",
+          "nodeLabel": "Ops Agent",
+          "data": {
+           "id": "agentAgentflow_0",
+           "name": "agentAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "fe905b61208857fea06e94eab3021c39b032582217dc8133c72889df704f017a",
+               "length": 41383,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S07_agent"
+               ],
+               "head": "\\[\\[route:S07-agent\\]\\] SYSPROMPT_SENTINEL_S07_agent\n\nYou are the Northwind Outfitters operations agent. Calculations ne"
+              }
+             },
+             {
+              "role": "user",
+              "content": "What day is it today?"
+             },
+             {
+              "role": "assistant",
+              "content": "Today is a regular business day, so our warehouse is open."
+             },
+             {
+              "role": "user",
+              "content": "Please calculate the refund: 15 percent of 249.99."
+             },
+             {
+              "role": "assistant",
+              "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"249.99*0.15\"\n  },\n  \"id\": \"call_S07agent_t2_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+             },
+             {
+              "role": "user",
+              "content": " "
+             },
+             {
+              "role": "assistant",
+              "content": "The refund is 37.50 euros."
+             },
+             {
+              "role": "user",
+              "content": "And 20 percent of 80 for the second item?"
+             },
+             {
+              "role": "assistant",
+              "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```"
+             },
+             {
+              "role": "user",
+              "content": "Do not calculate it; escalate to a manager instead."
+             },
+             {
+              "role": "assistant",
+              "content": "Understood, I will not run the calculation and have passed it to a manager."
+             },
+             {
+              "role": "user",
+              "content": "Thanks, that is all for today."
+             }
+            ],
+            "agentModel": "chatOpenAI",
+            "agentTools": [
+             {
+              "agentSelectedTool": "calculator",
+              "agentSelectedToolRequiresHumanInput": true,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "calculator"
+              }
+             },
+             {
+              "agentSelectedTool": "currentDateTime",
+              "agentSelectedToolRequiresHumanInput": false,
+              "agentSelectedToolConfig": {
+               "agentSelectedTool": "currentDateTime"
+              }
+             }
+            ],
+            "agentEnableMemory": true,
+            "agentMemoryType": "allMessages",
+            "agentMemoryWindowSize": "20",
+            "agentMemoryMaxTokenLimit": "2000",
+            "agentReturnResponseAs": "userMessage",
+            "agentModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "agentModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "You are welcome, have a good day.",
+            "timeMetadata": {
+             "start": 1795457486590,
+             "end": 1795457486594,
+             "delta": 4
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10645,
+             "output_tokens": 9,
+             "total_tokens": 10654,
+             "tool_call_tokens": 0
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10645,
+              "completion_tokens": 9,
+              "total_tokens": 10654
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            },
+            "availableTools": [
+             {
+              "name": "calculator",
+              "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+              "schema": {
+               "type": "object",
+               "properties": {
+                "input": {
+                 "type": "string"
+                }
+               },
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "Calculator",
+               "name": "calculator"
+              }
+             },
+             {
+              "name": "current_date_time",
+              "description": "Useful to get current day, date and time.",
+              "schema": {
+               "type": "object",
+               "properties": {},
+               "additionalProperties": false
+              },
+              "toolNode": {
+               "label": "CurrentDateTime",
+               "name": "currentDateTime"
+              }
+             }
+            ]
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Thanks, that is all for today."
+            },
+            {
+             "role": "assistant",
+             "content": "You are welcome, have a good day.",
+             "name": "ops_agent"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 45270
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "ae444737-561d-43b1-b2f7-b2e93916decc",
+       "role": "userMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "And 20 percent of 80 for the second item?",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:20.547Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "88222d4c-b3d2-46f0-a375-55e9d3de74b1",
+       "role": "apiMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "\nAttempting to use tool:\n```json\n{\n  \"name\": \"calculator\",\n  \"args\": {\n    \"input\": \"80*0.2\"\n  },\n  \"id\": \"call_S07agent_t4_0_0\",\n  \"type\": \"tool_call\"\n}\n```",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:20.566Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "e438061e-30ad-40a5-b606-bd8a8695eba4",
+       "role": "userMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "Do not calculate it; escalate to a manager instead.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:23.556Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "b0a41136-d3ad-4a32-acdd-8b44535294bb",
+       "role": "apiMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+       "content": "Understood, I will not run the calculation and have passed it to a manager.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:23.574Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "7665a59f-f94e-45d7-b4f2-8136cfbeeb34",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "272df088f1a48a0773fe6ef382e420c6357212c72f582f3ecf2519ecc7e3c5d8",
+         "length": 14552,
+         "head": "H4sIAAAAAAAAA7Vd+4/bRpL+VwgCB+QOksC3yLkfFr7EizWSOEbGueAQB7McqWfENUVq+fB4Npj//dDdVdVPSpoc7hfDkjhSP6qrvvrq0b/9EXb9nr3bhzfh"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:20.000Z",
+        "updatedDate": "2026-11-23T18:11:23.000Z",
+        "stoppedDate": "2026-11-23T18:11:20.564Z",
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "5e3b046a-c68e-4e81-90da-fc73c4411f01",
+       "role": "userMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "87ff9ab0-f519-49c5-bd33-72eec78884cd",
+       "content": "Thanks, that is all for today.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:26.585Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "87ff9ab0-f519-49c5-bd33-72eec78884cd",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "97f270411ab14636f4704435a2b19a7ced73c4544099e965c88a7dd245ff5cf5",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a2/jxpL2XyEELJBdSALvIr0fFrPJHJxBkkkQTzY4yAQ+balt8QxF6pDUeHwC//dFd1dVXynJsy/eb5ZEWX2prnqq6qnq3/9cdP2Ov9st"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:26.000Z",
+        "updatedDate": "2026-11-23T18:11:26.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "dc93a9da-9e8f-4129-a3cd-1de1b6d98c6c",
+       "role": "apiMessage",
+       "chatflowid": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+       "executionId": "87ff9ab0-f519-49c5-bd33-72eec78884cd",
+       "content": "You are welcome, have a good day.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl0v19-M3-S07",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl0v19-M3-S07",
+       "createdDate": "2026-11-23T18:11:26.599Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "87ff9ab0-f519-49c5-bd33-72eec78884cd",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "97f270411ab14636f4704435a2b19a7ced73c4544099e965c88a7dd245ff5cf5",
+         "length": 14568,
+         "head": "H4sIAAAAAAAAA719a2/jxpL2XyEELJBdSALvIr0fFrPJHJxBkkkQTzY4yAQ+balt8QxF6pDUeHwC//dFd1dVXynJsy/eb5ZEWX2prnqq6qnq3/9cdP2Ov9st"
+        },
+        "state": "FINISHED",
+        "agentflowId": "3c3aeeb4-f4e9-4479-8d5d-61862a5f7515",
+        "sessionId": "ts00b-mwtl0v19-M3-S07",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:11:26.000Z",
+        "updatedDate": "2026-11-23T18:11:26.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

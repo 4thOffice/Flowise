@@ -1,0 +1,523 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S11",
+  "file": "S11-error-and-recovery.json",
+  "title": "A parallel branch fails on turn 2, the conversation continues on turn 3",
+  "findings": [
+   "TS14"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl08na-M1-S11",
+ "runTag": "mwtl08na",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t2"
+ },
+ "flows": [
+  {
+   "slug": "S11-error-and-recovery",
+   "chatflowId": "5111932b-5150-4198-8fdd-fbe972606460",
+   "name": "TS00b M1 S11-error-and-recovery",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:48.851Z",
+ "turns": [
+  {
+   "id": "t3",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M1-S11",
+     "streaming": true,
+     "question": "Try the damaged items answer again.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14696,
+      "sha256": "4a6098fa48d5d92b3c54df75bd2bad667f58951fe581352bb47880de9b84ba32"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14696,
+    "sha256": "4a6098fa48d5d92b3c54df75bd2bad667f58951fe581352bb47880de9b84ba32"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 339.59,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.94,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.96,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.97,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.98,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.98,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 23.25,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Agent A",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 333.83,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "LLM B",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 333.87,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 336.95,
+      "event": "token",
+      "data": "Joined answer (t3): main"
+     },
+     {
+      "offsetMs": 336.97,
+      "event": "token",
+      "data": " answer plus the side"
+     },
+     {
+      "offsetMs": 336.98,
+      "event": "token",
+      "data": " note."
+     },
+     {
+      "offsetMs": 337.66,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 337.67,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10340,
+       "output_tokens": 14,
+       "total_tokens": 10354
+      }
+     },
+     {
+      "offsetMs": 337.69,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_1",
+       "nodeLabel": "Joiner",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 337.7,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 338.55,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 356,
+       "sha256": "2b24e6651ffa04da4fd4b180b3d497fd8f9e02daba886738b641aa70b315714f"
+      }
+     },
+     {
+      "offsetMs": 339.53,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M1-S11",
+       "chatMessageId": "1270ba2b-e5d4-46a4-9784-551ab6348162",
+       "question": "Try the damaged items answer again.",
+       "sessionId": "ts00b-mwtl08na-M1-S11"
+      }
+     },
+     {
+      "offsetMs": 339.54,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 4
+      }
+     },
+     {
+      "offsetMs": 339.56,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Joined answer (t3): main answer plus the side note.",
+   "tokens": [
+    "Joined answer (t3): main",
+    " answer plus the side",
+    " note."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      }
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Agent A",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {
+       "b_note": "Side note: photos are needed for damage claims."
+      }
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "LLM B",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {
+       "b_note": "Side note: photos speed up the claim."
+      }
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_1",
+     "nodeLabel": "Joiner",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0",
+      "llmAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {
+       "b_note": "Side note: photos speed up the claim."
+      }
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_1:FINISHED"
+   ],
+   "finalState": {
+    "b_note": "Side note: photos speed up the claim."
+   },
+   "modelRequests": [
+    {
+     "seq": 1559,
+     "route": "S11-agentA",
+     "callIndex": 0,
+     "ruleId": "agentA-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "54425c35d9725d7a558188ff36a28a39449df8ff2604269ec954558af9ce6a3e",
+         "length": 40915,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_agentA"
+         ],
+         "head": "\\[\\[route:S11-agentA\\]\\] SYSPROMPT_SENTINEL_S11_agentA\n\nYou draft the main Northwind Outfitters answer.\n\nSection 1 - War"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Damaged items are replaced free of charge.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1560,
+     "route": "S11-llmB",
+     "callIndex": 0,
+     "ruleId": "llmB-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "f9e669b40c64dc5afa15d8e617c436386a1918ea9bbf1491a868ba4332c9487e",
+         "length": 40996,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_llmB"
+         ],
+         "head": "\\[\\[route:S11-llmB\\]\\] SYSPROMPT_SENTINEL_S11_llmB\n\nYou write a short Northwind Outfitters side note.\n\nSection 1 - Shipp"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Draft an answer about late deliveries."
+       },
+       {
+        "role": "assistant",
+        "content": "Joined answer (t1): main answer plus the side note."
+       },
+       {
+        "role": "user",
+        "content": "Try the damaged items answer again."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Side note: photos speed up the claim.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 1561,
+     "route": "S11-joiner",
+     "callIndex": 0,
+     "ruleId": "joiner",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "1c10276f749d32c888c02d9d69ebd0209e03bbd992fbb865f68b549af2c2fe9b",
+         "length": 41103,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S11_joiner"
+         ],
+         "head": "\\[\\[route:S11-joiner\\]\\] SYSPROMPT_SENTINEL_S11_joiner\n\nYou merge the Northwind Outfitters answer and side note.\n\nSectio"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Answer: Damaged items are replaced free of charge.\n\nSide note: Side note: photos speed up the claim."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Joined answer (t3): main answer plus the side note.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 356,
+    "sha256": "2b24e6651ffa04da4fd4b180b3d497fd8f9e02daba886738b641aa70b315714f",
+    "sizes": {
+     "base64Length": 356,
+     "payloadBytes": 266,
+     "gzipBytes": 238,
+     "rawJsonBytes": 442,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 318,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 50,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Draft an answer about late deliveries."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Joined answer (t1): main answer plus the side note."
+      },
+      {
+       "role": "userMessage",
+       "content": "Try the damaged items answer again."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Joined answer (t3): main answer plus the side note."
+      }
+     ],
+     "flowState": {
+      "b_note": "Side note: photos speed up the claim."
+     },
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 3,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S11_agentA": 1,
+      "SYSPROMPT_SENTINEL_S11_llmB": 1,
+      "SYSPROMPT_SENTINEL_S11_joiner": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 819,
+    "executedDataGzipBytes": 236,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

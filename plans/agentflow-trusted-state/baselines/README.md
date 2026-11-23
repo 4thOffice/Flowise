@@ -2,11 +2,13 @@
 
 Offline, deterministic capture-and-compare suite for Agentflow V2 conversations. For every turn of 17 multi-turn
 scenarios it records what each model received, what the client received and what the `trustedState` token held.
-`traces/before/` is today's behaviour; Task 10 captures `traces/after/` and compares (TS6).
+`traces/before/` is the behaviour before the plan; `traces/after/` is the token-only implementation (Task 10), compared
+with `before/` per scenario, mode and turn (TS6).
 
 - **Baseline commit**: `99e8d4b0d3806d95aeb29fedd4432843b190eaba` (`master`, detached worktree, built with `pnpm build`)
 - **Before captured**: see `captures` in [`traces/before/summary.json`](./traces/before/summary.json)
 - **Repeatability**: two full captures compare clean on class A ([`reports/00b-before-repeatability.md`](./reports/00b-before-repeatability.md))
+- **After commit**: `2622c9929e0b7d6a498e1e139cfa3d214eea18f1` (`master`, Tasks 05–09; built in the shared checkout with a clean working tree). Results: [`reports/10-after-vs-before.md`](./reports/10-after-vs-before.md) (0 failures, every intended difference seen), [`reports/size-anatomy-after.md`](./reports/size-anatomy-after.md), and the Task 10 reports listed in §2.1.
 
 ---
 
@@ -22,14 +24,20 @@ scenarios it records what each model received, what the client received and what
 | [`lib/trusted-state-codec.mjs`](./lib/trusted-state-codec.mjs) | Decodes/encodes the token with the test secret (mirror of `trustedStateHelper.ts`). |
 | [`lib/trace-store.mjs`](./lib/trace-store.mjs) | Lossless trace storage: nested JSON strings as `{"$json": …}`, strings ≥ 2 KB once under `blobs/<sha256>.txt`; sentinel counting; bytes per path. |
 | [`lib/normalize.mjs`](./lib/normalize.mjs) | Stabilises chat ids, UUIDs, `mock-…` execution ids, dates, `current_date_time` tool output, durations, `timeMetadata`, offsets. Raw values stay in the traces. |
-| [`compare-traces.mjs`](./compare-traces.mjs), [`compare.config.json`](./compare.config.json) | Class A comparison with intended differences per finding, plus checks of the expected after-behaviour. |
+| [`compare-traces.mjs`](./compare-traces.mjs), [`compare.config.json`](./compare.config.json) | Class A comparison with intended differences per finding, plus checks of the expected after-behaviour. `--partial` compares only the traces the after directory holds; a continuation trace is compared from the turn after its start. |
+| [`compare-continuations.mjs`](./compare-continuations.mjs) | v1 continuations (Task 10): each `traces/continue-v1/` trace against the `after/` conversation, carried on from the content of the `before/` token it started from (§2.1). |
+| [`analyze-token-v2.mjs`](./analyze-token-v2.mjs) | Size anatomy of the v2 tokens in `after/` next to `before/` ([`reports/size-anatomy-after.md`](./reports/size-anatomy-after.md)); `--readme-table` prints the after columns of §6. |
 | [`capture.env`](./capture.env), [`start-server.sh`](./start-server.sh) | Fixed test values (ports, test `CLIENT_STATE_SERVER_SECRET`, dummy API key, login) and an isolated server launcher. |
 | `traces/before/` | Baseline traces: `M1/`, `M2/`, `M3/`, `M1-internal/`, `M1-reqflag/`, `M3-envflags/`, `blobs/`, `summary.json`. |
+| `traces/after/` | Task 10: the same modes on the token-only build; S10a as `S10a…@accept-client-history-on` and `…-off` instead of the plain run. |
+| `traces/continue-v1/` | Task 10: every `before/` token of turn k sent to the new build, turns k+1… captured as `<scenario>[@variant]@from-tk.json`. |
 | `reports/` | Comparison reports. |
 
 ### 1.1 Trace format (`ts-00b-trace/1`)
 
 Per turn: `request` (token replaced by length and SHA-256), `response.sseEvents` (with offsets; `trustedStateData` replaced by length + hash, `agentFlowExecutedData` moved to `executedData`), `response.restJson` for non-streaming turns, `status`, `text`, `tokens` (streamed chunks), `action`, `executedData`, `nodeSequence`, `finalState`, `modelRequests` (fake server log: route, call index, matched rule, full body, reply), `token` (`sizes`: base64 length, gzip bytes, raw JSON bytes, history and record sizes; `pathBytes`: bytes per path ≥ 512 B, nested JSON strings with escaped and parsed size; `decoded`: the whole decoded token; `sentinels`), `sentinels` per payload (token, action, executed data, REST JSON, other SSE events, model requests, DB rows), `sizes`, `db` (M2/M3/M1-internal/M1-reqflag: saved `Execution` rows with `executionDataFromBlob`, `ChatMessage` rows) and `serverLog` (warn/error lines written during the turn). `inflate()` in `lib/trace-store.mjs` restores exact values.
+
+Task 10 additions: for a v2 token, `token.sizes` gives `version`, the history and the bytes of `flowState`, `formValues`, `childFlowTokens` and `pendingResume` (with its entries); `token.childTokens` holds each child flow token decoded (sizes, sentinels, `decoded`), and `token.sentinels` counts the parent and every child token. `dbEmptiedBeforeTurn` (with `--empty-db`) gives the ChatMessage and Execution rows deleted before the turn. A continuation trace has `resumedFrom` (`traceDir`, `afterTurn`).
 
 ---
 
@@ -66,6 +74,37 @@ git worktree remove --force /tmp/ts-baseline
 ```
 
 Other capture options: `--modes M1,M3`, `--scenarios S01,S07`, `--variant <name>` (writes `<scenario>@<variant>.json`, paired with the plain before trace; used for S10a's two after runs), `--continue-from <trace dir> --turn <k>` (re-encodes the decoded token of turn k with the test secret and runs turns k+1…; token modes only, Task 10), `--run-tag`, `--timeout-ms`. `build-flows.mjs` needs a running server and rewrites `flows/`.
+
+### 2.1 Task 10 runs
+
+Same server, data dir and fake LLM as above, built from the commit under test (`$C`); `$S` is a scratch directory.
+
+```bash
+# after/: default modes with the S10a variants, then M3-envflags after a restart with the DISABLE_* flags (§2 step 5)
+node $B/capture-traces.mjs --out-dir $B/traces/after --commit $C --label after --server-log /tmp/ts-server.log --after-variants --timeout-ms 300000
+node $B/capture-traces.mjs --out-dir $B/traces/after --modes M3-envflags --commit $C --label after --server-log /tmp/ts-server.log
+node $B/compare-traces.mjs --before $B/traces/before --after $B/traces/after --markdown $B/reports/10-after-vs-before.md
+
+# Determinism: a second capture, compared without intended differences
+node $B/capture-traces.mjs --out-dir $S/after-rerun --commit $C --label after-rerun --server-log /tmp/ts-server.log --after-variants --timeout-ms 300000
+node $B/compare-traces.mjs --before $B/traces/after --after $S/after-rerun --no-intended --markdown $B/reports/10-after-repeatability.md
+
+# Empty DB: the ChatMessage and Execution tables emptied before every turn (sqlite file of the data dir)
+node $B/capture-traces.mjs --out-dir $S/after-emptydb --empty-db /tmp/ts-data/database.sqlite --commit $C --label after-emptydb --server-log /tmp/ts-server.log --after-variants --timeout-ms 300000
+node $B/compare-traces.mjs --before $B/traces/after --after $S/after-emptydb --no-intended --markdown $B/reports/10-empty-db.md
+
+# v1 continuation: every before/ token of turn k, for k = t1 … t5 (M3-envflags with its server restart)
+for k in t1 t2 t3 t4 t5; do node $B/capture-traces.mjs --out-dir $B/traces/continue-v1 --continue-from $B/traces/before --turn $k --commit $C --label continue-v1 --server-log /tmp/ts-server.log --after-variants --timeout-ms 300000; done
+node $B/compare-continuations.mjs --v1 $B/traces/before --expected $B/traces/after --continued $B/traces/continue-v1 --markdown $B/reports/10-continue-v1.md
+
+# Size anatomy and the after columns of §6
+node $B/analyze-token-v2.mjs --markdown $B/reports/size-anatomy-after.md
+node $B/analyze-token-v2.mjs --readme-table
+```
+
+- `--after-variants` captures each scenario's `afterVariants` (S10a) with the matching seed (`accept-client-history-on`: `clientState.acceptClientHistory: true`; `-off`: the setting left unset, its default) instead of the plain run.
+- `--empty-db <sqlite file>` deletes every ChatMessage and Execution row before each turn (`node:sqlite`, Node 22.13 or later) and records the counts in `dbEmptiedBeforeTurn`.
+- `--continue-from` skips a scenario whose turn k is missing, is its last turn or has no token (S13 has none in `before/`), and names the traces `@from-tk`.
 
 The flows use an **OpenAI API credential** (`TS00b Fake OpenAI`, dummy key `sk-fake-00b-test-key`, Base URL `http://localhost:3199/v1`) and `ChatOpenAI` with the typed model name `fake-model`, streaming on, reasoning off.
 
@@ -143,40 +182,42 @@ Every finding except F17's UI part is visible in at least one trace. `compare.co
 
 ## 6. Before / After
 
-Token sizes are raw decoded JSON. "Prompts" columns give the highest `SYSPROMPT_SENTINEL` count of any turn in that payload. After columns are filled by Task 10.
+Token sizes are raw decoded JSON. "Prompts" columns give the highest `SYSPROMPT_SENTINEL` count of any turn in that payload; after, child flow tokens are decoded and counted with the parent token. After columns: Task 10, `traces/after/` built from `2622c992` ([size-anatomy-after.md](./reports/size-anatomy-after.md)).
 
-| Scenario | Mode | Statuses (before) | Token max / last (before) | Prompts in token (before) | Prompts in executed data (before) | Statuses (after) | Token max / last (after) | Prompts in token (after) |
-| :--- | :--- | :--- | ---: | ---: | ---: | :--- | ---: | ---: |
-| S01 | M1 | F F F F F | 48.7 KB (t5) / 48.7 KB | 1 | 1 |  |  |  |
-| S01 | M2 | F F F F F | 48.8 KB (t5) / 48.8 KB | 1 | 1 |  |  |  |
-| S01 | M3 | F F F F F | 50.7 KB (t5) / 50.7 KB | 1 | 1 |  |  |  |
-| S01 | M1-internal | F F F F F | 48.9 KB (t5) / 48.9 KB | 1 | 1 |  |  |  |
-| S01 | M1-reqflag | F F F F F | 49.0 KB (t5) / 49.0 KB | 1 | 1 |  |  |  |
-| S01 | M3-envflags | F F F F F | 48.9 KB (t5) / 48.9 KB | 1 | 1 |  |  |  |
-| S01r | M1 | F F F | 46.3 KB (t3) / 46.3 KB | 1 | 1 |  |  |  |
-| S02 | M1 | F F F F F F | 90.0 KB (t6) / 90.0 KB | 2 | 2 |  |  |  |
-| S03 | M1 | F F F F | 134.1 KB (t4) / 134.1 KB | 3 | 3 |  |  |  |
-| S04a | M1 | F F F F | 47.7 KB (t4) / 47.7 KB | 1 | 1 |  |  |  |
-| S04b | M1 | F F F F | 47.3 KB (t4) / 47.3 KB | 1 | 1 |  |  |  |
-| S05 | M1 | F F F F | 46.3 KB (t4) / 46.3 KB | 1 | 1 |  |  |  |
-| S05 | M3 | F F F F | 47.8 KB (t4) / 47.8 KB | 1 | 1 |  |  |  |
-| S06 | M1 | S S F S F | 133.0 KB (t3) / 92.2 KB | 3 | 3 |  |  |  |
-| S06 | M2 | S S F S F | 133.0 KB (t3) / 92.2 KB | 3 | 3 |  |  |  |
-| S06 | M3 | S S F S F | 136.6 KB (t3) / 98.4 KB | 3 | 3 |  |  |  |
-| S06b | M1 | S S F S | 131.4 KB (t3) / 49.4 KB | 3 | 3 |  |  |  |
-| S07 | M1 | F S F S F F | 136.0 KB (t4) / 49.6 KB | 3 | 2 |  |  |  |
-| S07 | M2 | F S F S F F | 136.1 KB (t4) / 49.7 KB | 3 | 2 |  |  |  |
-| S07 | M3 | F S F S F F | 180.9 KB (t4) / 139.3 KB | 4 | 2 |  |  |  |
-| S07 | M1-internal | F S F S F F | 136.2 KB (t4) / 49.8 KB | 3 | 2 |  |  |  |
-| S08 | M1 | S S F S | 131.6 KB (t1) / 50.0 KB | 3 | 2 |  |  |  |
-| S08 | M2 | S S F S | 131.6 KB (t1) / 50.0 KB | 3 | 2 |  |  |  |
-| S09 | M1 | F F F | 300.8 KB (t3) / 300.8 KB | 7 | 7 |  |  |  |
-| S10a | M1 | F F F F | 132.5 KB (t4) / 132.5 KB | 3 | 3 |  |  |  |
-| S10b | M1 | F F F | 44.5 KB (t1) / 44.2 KB | 1 | 1 |  |  |  |
-| S11 | M1 | F E F | 128.8 KB (t3) / 128.8 KB | 3 | 3 |  |  |  |
-| S12 | M1 | F F F F | 47.5 KB (t4) / 47.5 KB | 1 | 1 |  |  |  |
-| S12 | M3 | F F F F | 49.0 KB (t4) / 49.0 KB | 1 | 1 |  |  |  |
-| S13 | M1 | F F F | none | 0 | 1 |  |  |  |
+**Headline**: S01 at turn 5 (M1) is 48.7 KB raw / 16,068 base64 characters before and **1,073 bytes raw / 664 base64 characters** after (2.15 %), with the same ten history messages. Every after token is at most 2.03 KB raw (S07 M3 t4, paused); external executed data drops from 41.8–295.8 KB to 0.3–1.9 KB per turn with no prompt.
+
+| Scenario | Mode | Statuses (before) | Token max / last (before) | Prompts in token (before) | Prompts in executed data (before) | Statuses (after) | Token max / last (after) | Prompts in token (after) | Prompts in executed data (after) |
+| :--- | :--- | :--- | ---: | ---: | ---: | :--- | ---: | ---: | ---: |
+| S01 | M1 | F F F F F | 48.7 KB (t5) / 48.7 KB | 1 | 1 | F F F F F | 1.05 KB (t5) / 1.05 KB | 0 | 0 |
+| S01 | M2 | F F F F F | 48.8 KB (t5) / 48.8 KB | 1 | 1 | F F F F F | 1.05 KB (t5) / 1.05 KB | 0 | 0 |
+| S01 | M3 | F F F F F | 50.7 KB (t5) / 50.7 KB | 1 | 1 | F F F F F | 1.05 KB (t5) / 1.05 KB | 0 | 0 |
+| S01 | M1-internal | F F F F F | 48.9 KB (t5) / 48.9 KB | 1 | 1 | F F F F F | 1.05 KB (t5) / 1.05 KB | 0 | 1 |
+| S01 | M1-reqflag | F F F F F | 49.0 KB (t5) / 49.0 KB | 1 | 1 | F F F F F | 1.05 KB (t5) / 1.05 KB | 0 | 0 |
+| S01 | M3-envflags | F F F F F | 48.9 KB (t5) / 48.9 KB | 1 | 1 | F F F F F | 1.05 KB (t5) / 1.05 KB | 0 | 0 |
+| S01r | M1 | F F F | 46.3 KB (t3) / 46.3 KB | 1 | 1 | F F F | 492 B (t3) / 492 B | 0 | 0 |
+| S02 | M1 | F F F F F F | 90.0 KB (t6) / 90.0 KB | 2 | 2 | F F F F F F | 1.17 KB (t6) / 1.17 KB | 0 | 0 |
+| S03 | M1 | F F F F | 134.1 KB (t4) / 134.1 KB | 3 | 3 | F F F F | 1.19 KB (t4) / 1.19 KB | 0 | 0 |
+| S04a | M1 | F F F F | 47.7 KB (t4) / 47.7 KB | 1 | 1 | F F F F | 859 B (t4) / 859 B | 0 | 0 |
+| S04b | M1 | F F F F | 47.3 KB (t4) / 47.3 KB | 1 | 1 | F F F F | 859 B (t4) / 859 B | 0 | 0 |
+| S05 | M1 | F F F F | 46.3 KB (t4) / 46.3 KB | 1 | 1 | F F F F | 765 B (t4) / 765 B | 0 | 0 |
+| S05 | M3 | F F F F | 47.8 KB (t4) / 47.8 KB | 1 | 1 | F F F F | 765 B (t4) / 765 B | 0 | 0 |
+| S06 | M1 | S S F S F | 133.0 KB (t3) / 92.2 KB | 3 | 3 | S S F S F | 1.80 KB (t4) / 1.29 KB | 0 | 0 |
+| S06 | M2 | S S F S F | 133.0 KB (t3) / 92.2 KB | 3 | 3 | S S F S F | 1.86 KB (t4) / 1.29 KB | 0 | 0 |
+| S06 | M3 | S S F S F | 136.6 KB (t3) / 98.4 KB | 3 | 3 | S S F S F | 1.91 KB (t4) / 1.29 KB | 0 | 0 |
+| S06b | M1 | S S F S | 131.4 KB (t3) / 49.4 KB | 3 | 3 | S S F S | 1.12 KB (t2) / 1.11 KB | 0 | 0 |
+| S07 | M1 | F S F S F F | 136.0 KB (t4) / 49.6 KB | 3 | 2 | F S F S F F | 1.92 KB (t4) / 1.24 KB | 0 | 0 |
+| S07 | M2 | F S F S F F | 136.1 KB (t4) / 49.7 KB | 3 | 2 | F S F S F F | 1.98 KB (t4) / 1.24 KB | 0 | 0 |
+| S07 | M3 | F S F S F F | 180.9 KB (t4) / 139.3 KB | 4 | 2 | F S F S F F | 2.03 KB (t4) / 1.24 KB | 0 | 0 |
+| S07 | M1-internal | F S F S F F | 136.2 KB (t4) / 49.8 KB | 3 | 2 | F S F S F F | 1.92 KB (t4) / 1.24 KB | 0 | 1 |
+| S08 | M1 | S S F S | 131.6 KB (t1) / 50.0 KB | 3 | 2 | S S F S | 1.92 KB (t1) / 1.61 KB | 0 | 0 |
+| S08 | M2 | S S F S | 131.6 KB (t1) / 50.0 KB | 3 | 2 | S S F S | 1.97 KB (t1) / 1.66 KB | 0 | 0 |
+| S09 | M1 | F F F | 300.8 KB (t3) / 300.8 KB | 7 | 7 | F F F | 656 B (t3) / 656 B | 0 | 0 |
+| S10a | M1 | F F F F | 132.5 KB (t4) / 132.5 KB | 3 | 3 | F F F F (on and off) | on: 796 B (t4) / 796 B; off: 703 B (t4) / 703 B | 0 | 0 |
+| S10b | M1 | F F F | 44.5 KB (t1) / 44.2 KB | 1 | 1 | F F F | 573 B (t3) / 573 B | 0 | 0 |
+| S11 | M1 | F E F | 128.8 KB (t3) / 128.8 KB | 3 | 3 | F E F | 442 B (t3) / 442 B | 0 | 0 |
+| S12 | M1 | F F F F | 47.5 KB (t4) / 47.5 KB | 1 | 1 | F F F F | 1.51 KB (t4) / 1.51 KB | 0 | 0 |
+| S12 | M3 | F F F F | 49.0 KB (t4) / 49.0 KB | 1 | 1 | F F F F | 1.51 KB (t4) / 1.51 KB | 0 | 0 |
+| S13 | M1 | F F F | none | 0 | 1 | F F F | 482 B (t3) / 482 B | 0 | 0 |
 
 Statuses per turn: F finished, S stopped, E error. Token max / last: largest token of any turn (turn) and the token of the last turn. S13 receives no token in `before/` (F14).
 
@@ -194,6 +235,13 @@ Statuses per turn: F finished, S stopped, E error. Token max / last: largest tok
 - **S10a variants**: the "Accept conversation history from the client" setting does not exist yet; Task 10 captures `S10a…@accept-client-history-on` and `@accept-client-history-off` with `--variant`.
 - **F17** is a UI behaviour; the trace only shows that the internal chat has no saved messages to reload.
 - No scenario needed a production change.
+
+**Task 10 (after/)**
+- **S03 parallel reply order**: the Composer receives the Researcher's and the Critic's same-turn replies in the order their model calls finish. `before/` itself shows both orders (critic first at t1/t2, researcher first at t3/t4); in a second `after/` capture t1/t2 came researcher first, so the repeatability report shows S03 t1/t2 model requests as different ([`reports/10-after-repeatability.md`](./reports/10-after-repeatability.md)). `after/` has the order of `before/`. A timing race of the scenario, not a change of the build; left as is (user, Task 10).
+- **Queue mode** was not run against a real Redis (user, Task 10: no Redis image pulled). It is covered by the Jest test that runs S07 through a captured `RedisEventPublisher` (09 §4.2).
+- **Non-streaming status**: `deriveStatus` skips records with `data.parentNodeId`, which external records no longer carry. Only a non-streaming flow with iterations would be affected; no scenario has one (09 §4.3).
+- **Empty DB**: resumes in M2/M3 whose recorded row was deleted before the turn log `Execution … not found; it is not updated` (24 times) and insert a new row (D10); class A is unchanged.
+- **Sync Nodes**: the seeded flows keep their saved node versions (Start 1.1, Agent 3.2, LLM 1.1, Execute Flow 1.2) and show the update badges; the server ignores the removed options whatever the version.
 
 **Observations for later tasks** (today's behaviour, not decided)
 1. DB mode picks the latest execution by second-resolution `createdDate` (see above); moot once F01 removes DB reads.

@@ -1,0 +1,1588 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S05",
+  "file": "S05-form-then-chat.json",
+  "title": "Form start, chat, a new form, chat",
+  "findings": [
+   "F04"
+  ]
+ },
+ "mode": "M3",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl08na-M3-S05",
+ "runTag": "mwtl08na",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t2"
+ },
+ "flows": [
+  {
+   "slug": "S05-form-then-chat",
+   "chatflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+   "name": "TS00b M3 S05-form-then-chat",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": false,
+     "enabledFull": false
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:57.441Z",
+ "turns": [
+  {
+   "id": "t3",
+   "note": "New form submission: Start output.form keeps Ada, $form uses Grace",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M3-S05",
+     "streaming": true,
+     "form": {
+      "name": "Grace Hopper",
+      "topic": "shipping"
+     },
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14952,
+      "sha256": "92f073210ae9b993f6eb0cbfab6b8ee0127200838091379491274f8ed192874f"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14952,
+    "sha256": "92f073210ae9b993f6eb0cbfab6b8ee0127200838091379491274f8ed192874f"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 15.3,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 6.8,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 6.82,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 6.84,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 6.85,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.83,
+      "event": "token",
+      "data": "Thanks, I have opened"
+     },
+     {
+      "offsetMs": 9.85,
+      "event": "token",
+      "data": " a shipping request for"
+     },
+     {
+      "offsetMs": 9.85,
+      "event": "token",
+      "data": " you."
+     },
+     {
+      "offsetMs": 10.63,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 10.64,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10390,
+       "output_tokens": 13,
+       "total_tokens": 10403
+      }
+     },
+     {
+      "offsetMs": 10.66,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 13.58,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 14.06,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 416,
+       "sha256": "620db72cd5c3dc75804a366e0616ca5d7d623c07a4da04afc5c7ccad84c47117"
+      }
+     },
+     {
+      "offsetMs": 15.23,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "chatMessageId": "03b3e7cc-2f68-472d-9289-05350da41ab3",
+       "sessionId": "ts00b-mwtl08na-M3-S05"
+      }
+     },
+     {
+      "offsetMs": 15.25,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 15.26,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Thanks, I have opened a shipping request for you.",
+   "tokens": [
+    "Thanks, I have opened",
+    " a shipping request for",
+    " you."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Form Assistant",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1608,
+     "route": "S05-assistant",
+     "callIndex": 0,
+     "ruleId": "t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2d37a8f8b468812c3c854675658f5d3194e299528a143d69bbc7321acaf43133",
+         "length": 41058,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S05_assistant"
+         ],
+         "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+        }
+       },
+       {
+        "role": "user",
+        "content": "name: Ada Lovelace\ntopic: billing"
+       },
+       {
+        "role": "assistant",
+        "content": "Thanks, I have opened a billing request for you."
+       },
+       {
+        "role": "user",
+        "content": "When will I be charged for the annual plan?"
+       },
+       {
+        "role": "assistant",
+        "content": "The annual plan is charged on the first day of next month."
+       },
+       {
+        "role": "user",
+        "content": "name: Grace Hopper\ntopic: shipping"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Thanks, I have opened a shipping request for you.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 416,
+    "sha256": "620db72cd5c3dc75804a366e0616ca5d7d623c07a4da04afc5c7ccad84c47117",
+    "sizes": {
+     "base64Length": 416,
+     "payloadBytes": 310,
+     "gzipBytes": 282,
+     "rawJsonBytes": 597,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 481,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 42,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 597
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "name: Ada Lovelace\ntopic: billing"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a billing request for you."
+      },
+      {
+       "role": "userMessage",
+       "content": "When will I be charged for the annual plan?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The annual plan is charged on the first day of next month."
+      },
+      {
+       "role": "userMessage",
+       "content": "name: Grace Hopper\ntopic: shipping"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a shipping request for you."
+      }
+     ],
+     "flowState": {},
+     "formValues": {
+      "name": "Grace Hopper",
+      "topic": "shipping"
+     },
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 1
+     }
+    },
+    "dbRows": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 294,
+    "executedDataGzipBytes": 155,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S05-form-then-chat": {
+     "executions": [
+      {
+       "id": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10522,
+        "sha256": "52ce4729d064b43a24f6c9f1c8be9251a6ab89f4658175f6e2143e662a2922c9"
+       },
+       "state": "FINISHED",
+       "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:54.000Z",
+       "updatedDate": "2026-11-23T18:10:54.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "form": {
+             "title": "Support request",
+             "description": "Tell us who you are and what the request is about",
+             "inputs": [
+              {
+               "type": "string",
+               "label": "Name",
+               "name": "name",
+               "addOptions": ""
+              },
+              {
+               "type": "options",
+               "label": "Topic",
+               "name": "topic",
+               "addOptions": [
+                {
+                 "option": "billing"
+                },
+                {
+                 "option": "shipping"
+                }
+               ]
+              }
+             ]
+            }
+           },
+           "output": {
+            "form": {
+             "name": "Grace Hopper",
+             "topic": "shipping"
+            }
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Form Assistant",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "2d37a8f8b468812c3c854675658f5d3194e299528a143d69bbc7321acaf43133",
+               "length": 41058,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S05_assistant"
+               ],
+               "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+              }
+             },
+             {
+              "role": "user",
+              "content": "name: Ada Lovelace\ntopic: billing"
+             },
+             {
+              "role": "assistant",
+              "content": "Thanks, I have opened a billing request for you."
+             },
+             {
+              "role": "user",
+              "content": "When will I be charged for the annual plan?"
+             },
+             {
+              "role": "assistant",
+              "content": "The annual plan is charged on the first day of next month."
+             },
+             {
+              "role": "user",
+              "content": "name: Grace Hopper\ntopic: shipping"
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Thanks, I have opened a shipping request for you.",
+            "timeMetadata": {
+             "start": 1795457454471,
+             "end": 1795457454473,
+             "delta": 2
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10390,
+             "output_tokens": 13,
+             "total_tokens": 10403
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10390,
+              "completion_tokens": 13,
+              "total_tokens": 10403
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "name: Grace Hopper\ntopic: shipping"
+            },
+            {
+             "role": "assistant",
+             "content": "Thanks, I have opened a shipping request for you.",
+             "name": "form_assistant"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 43637
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "c30c9932-ca20-4f61-97e7-3e866a25fd99",
+       "role": "userMessage",
+       "chatflowid": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "executionId": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+       "content": "name: Grace Hopper\ntopic: shipping",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "createdDate": "2026-11-23T18:10:54.466Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "52ce4729d064b43a24f6c9f1c8be9251a6ab89f4658175f6e2143e662a2922c9",
+         "length": 14032,
+         "head": "H4sIAAAAAAAAA6V9a4/bxpL2X2kIWCALSALvpGY/LLyJszFO4gQZ5w0WsWFwpNaIa4rUISmP5xj+7y+6u6r6SkmT/XJOJEuabnZdnnrq0n99XXT9jr/ZLe4W"
+        },
+        "state": "FINISHED",
+        "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+        "sessionId": "ts00b-mwtl08na-M3-S05",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:54.000Z",
+        "updatedDate": "2026-11-23T18:10:54.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "03b3e7cc-2f68-472d-9289-05350da41ab3",
+       "role": "apiMessage",
+       "chatflowid": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "executionId": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+       "content": "Thanks, I have opened a shipping request for you.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "createdDate": "2026-11-23T18:10:54.476Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "52ce4729d064b43a24f6c9f1c8be9251a6ab89f4658175f6e2143e662a2922c9",
+         "length": 14032,
+         "head": "H4sIAAAAAAAAA6V9a4/bxpL2X2kIWCALSALvpGY/LLyJszFO4gQZ5w0WsWFwpNaIa4rUISmP5xj+7y+6u6r6SkmT/XJOJEuabnZdnnrq0n99XXT9jr/ZLe4W"
+        },
+        "state": "FINISHED",
+        "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+        "sessionId": "ts00b-mwtl08na-M3-S05",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:54.000Z",
+        "updatedDate": "2026-11-23T18:10:54.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  },
+  {
+   "id": "t4",
+   "note": "$form falls back to the previous Start record (Ada), not to the new submission",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M3-S05",
+     "streaming": true,
+     "question": "Where is my parcel right now?",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 416,
+      "sha256": "620db72cd5c3dc75804a366e0616ca5d7d623c07a4da04afc5c7ccad84c47117"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 416,
+    "sha256": "620db72cd5c3dc75804a366e0616ca5d7d623c07a4da04afc5c7ccad84c47117"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 20.36,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 11.59,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 11.61,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 11.62,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 11.63,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 14.69,
+      "event": "token",
+      "data": "Your parcel is at"
+     },
+     {
+      "offsetMs": 14.71,
+      "event": "token",
+      "data": " the regional depot and"
+     },
+     {
+      "offsetMs": 14.72,
+      "event": "token",
+      "data": " will be delivered tomorrow."
+     },
+     {
+      "offsetMs": 15.53,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 15.56,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10425,
+       "output_tokens": 18,
+       "total_tokens": 10443
+      }
+     },
+     {
+      "offsetMs": 15.57,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Form Assistant",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 18.1,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 19.09,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 492,
+       "sha256": "10ecac0ada19a1907ac0269ac35c9b1ca497d4098fd1d6a5e9bbc8bba831faff"
+      }
+     },
+     {
+      "offsetMs": 20.28,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "chatMessageId": "a0fc6508-49c4-46d5-a67e-b416a9e66c19",
+       "question": "Where is my parcel right now?",
+       "sessionId": "ts00b-mwtl08na-M3-S05"
+      }
+     },
+     {
+      "offsetMs": 20.32,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 20.32,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Your parcel is at the regional depot and will be delivered tomorrow.",
+   "tokens": [
+    "Your parcel is at",
+    " the regional depot and",
+    " will be delivered tomorrow."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Form Assistant",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1610,
+     "route": "S05-assistant",
+     "callIndex": 0,
+     "ruleId": "t4",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2d37a8f8b468812c3c854675658f5d3194e299528a143d69bbc7321acaf43133",
+         "length": 41058,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S05_assistant"
+         ],
+         "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+        }
+       },
+       {
+        "role": "user",
+        "content": "name: Ada Lovelace\ntopic: billing"
+       },
+       {
+        "role": "assistant",
+        "content": "Thanks, I have opened a billing request for you."
+       },
+       {
+        "role": "user",
+        "content": "When will I be charged for the annual plan?"
+       },
+       {
+        "role": "assistant",
+        "content": "The annual plan is charged on the first day of next month."
+       },
+       {
+        "role": "user",
+        "content": "name: Grace Hopper\ntopic: shipping"
+       },
+       {
+        "role": "assistant",
+        "content": "Thanks, I have opened a shipping request for you."
+       },
+       {
+        "role": "user",
+        "content": "Where is my parcel right now?"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Your parcel is at the regional depot and will be delivered tomorrow.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 492,
+    "sha256": "10ecac0ada19a1907ac0269ac35c9b1ca497d4098fd1d6a5e9bbc8bba831faff",
+    "sizes": {
+     "base64Length": 492,
+     "payloadBytes": 369,
+     "gzipBytes": 341,
+     "rawJsonBytes": 765,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 8,
+     "historyBytes": 649,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 42,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 765
+     },
+     {
+      "path": "history",
+      "bytes": 649
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "name: Ada Lovelace\ntopic: billing"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a billing request for you."
+      },
+      {
+       "role": "userMessage",
+       "content": "When will I be charged for the annual plan?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "The annual plan is charged on the first day of next month."
+      },
+      {
+       "role": "userMessage",
+       "content": "name: Grace Hopper\ntopic: shipping"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Thanks, I have opened a shipping request for you."
+      },
+      {
+       "role": "userMessage",
+       "content": "Where is my parcel right now?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Your parcel is at the regional depot and will be delivered tomorrow."
+      }
+     ],
+     "flowState": {},
+     "formValues": {
+      "name": "Grace Hopper",
+      "topic": "shipping"
+     },
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 1
+     }
+    },
+    "dbRows": {
+     "total": 2,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S05_assistant": 2
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 294,
+    "executedDataGzipBytes": 155,
+    "restJsonBytes": 0
+   },
+   "db": {
+    "S05-form-then-chat": {
+     "executions": [
+      {
+       "id": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10522,
+        "sha256": "52ce4729d064b43a24f6c9f1c8be9251a6ab89f4658175f6e2143e662a2922c9"
+       },
+       "state": "FINISHED",
+       "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:54.000Z",
+       "updatedDate": "2026-11-23T18:10:54.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "form": {
+             "title": "Support request",
+             "description": "Tell us who you are and what the request is about",
+             "inputs": [
+              {
+               "type": "string",
+               "label": "Name",
+               "name": "name",
+               "addOptions": ""
+              },
+              {
+               "type": "options",
+               "label": "Topic",
+               "name": "topic",
+               "addOptions": [
+                {
+                 "option": "billing"
+                },
+                {
+                 "option": "shipping"
+                }
+               ]
+              }
+             ]
+            }
+           },
+           "output": {
+            "form": {
+             "name": "Grace Hopper",
+             "topic": "shipping"
+            }
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Form Assistant",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "2d37a8f8b468812c3c854675658f5d3194e299528a143d69bbc7321acaf43133",
+               "length": 41058,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S05_assistant"
+               ],
+               "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+              }
+             },
+             {
+              "role": "user",
+              "content": "name: Ada Lovelace\ntopic: billing"
+             },
+             {
+              "role": "assistant",
+              "content": "Thanks, I have opened a billing request for you."
+             },
+             {
+              "role": "user",
+              "content": "When will I be charged for the annual plan?"
+             },
+             {
+              "role": "assistant",
+              "content": "The annual plan is charged on the first day of next month."
+             },
+             {
+              "role": "user",
+              "content": "name: Grace Hopper\ntopic: shipping"
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Thanks, I have opened a shipping request for you.",
+            "timeMetadata": {
+             "start": 1795457454471,
+             "end": 1795457454473,
+             "delta": 2
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10390,
+             "output_tokens": 13,
+             "total_tokens": 10403
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10390,
+              "completion_tokens": 13,
+              "total_tokens": 10403
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "name: Grace Hopper\ntopic: shipping"
+            },
+            {
+             "role": "assistant",
+             "content": "Thanks, I have opened a shipping request for you.",
+             "name": "form_assistant"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 43637
+      },
+      {
+       "id": "c30bb5b9-e70e-49d8-94f7-396e51461a8f",
+       "executionData": {
+        "$json": []
+       },
+       "executionDataBlob": {
+        "gzipBytes": 10568,
+        "sha256": "bdeba0763c94af921c30d6a0cac62b0663316521d001e87355272004df002faf"
+       },
+       "state": "FINISHED",
+       "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "action": null,
+       "isPublic": null,
+       "createdDate": "2026-11-23T18:10:57.000Z",
+       "updatedDate": "2026-11-23T18:10:57.000Z",
+       "stoppedDate": null,
+       "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2",
+       "executionDataFromBlob": {
+        "$json": [
+         {
+          "nodeId": "startAgentflow_0",
+          "nodeLabel": "Start",
+          "data": {
+           "id": "startAgentflow_0",
+           "name": "startAgentflow",
+           "input": {
+            "form": {
+             "title": "Support request",
+             "description": "Tell us who you are and what the request is about",
+             "inputs": [
+              {
+               "type": "string",
+               "label": "Name",
+               "name": "name",
+               "addOptions": ""
+              },
+              {
+               "type": "options",
+               "label": "Topic",
+               "name": "topic",
+               "addOptions": [
+                {
+                 "option": "billing"
+                },
+                {
+                 "option": "shipping"
+                }
+               ]
+              }
+             ]
+            }
+           },
+           "output": {
+            "form": {
+             "name": "Grace Hopper",
+             "topic": "shipping"
+            }
+           },
+           "state": {}
+          },
+          "previousNodeIds": [],
+          "status": "FINISHED"
+         },
+         {
+          "nodeId": "llmAgentflow_0",
+          "nodeLabel": "Form Assistant",
+          "data": {
+           "id": "llmAgentflow_0",
+           "name": "llmAgentflow",
+           "input": {
+            "messages": [
+             {
+              "role": "system",
+              "content": {
+               "$blob": "2d37a8f8b468812c3c854675658f5d3194e299528a143d69bbc7321acaf43133",
+               "length": 41058,
+               "sentinels": [
+                "SYSPROMPT_SENTINEL_S05_assistant"
+               ],
+               "head": "\\[\\[route:S05-assistant\\]\\] SYSPROMPT_SENTINEL_S05_assistant\n\nYou help Northwind Outfitters customers after they fill in"
+              }
+             },
+             {
+              "role": "user",
+              "content": "name: Ada Lovelace\ntopic: billing"
+             },
+             {
+              "role": "assistant",
+              "content": "Thanks, I have opened a billing request for you."
+             },
+             {
+              "role": "user",
+              "content": "When will I be charged for the annual plan?"
+             },
+             {
+              "role": "assistant",
+              "content": "The annual plan is charged on the first day of next month."
+             },
+             {
+              "role": "user",
+              "content": "name: Grace Hopper\ntopic: shipping"
+             },
+             {
+              "role": "assistant",
+              "content": "Thanks, I have opened a shipping request for you."
+             },
+             {
+              "role": "user",
+              "content": "Where is my parcel right now?"
+             }
+            ],
+            "llmModel": "chatOpenAI",
+            "llmEnableMemory": true,
+            "llmMemoryType": "allMessages",
+            "llmMemoryWindowSize": "20",
+            "llmMemoryWindowDisableStrict": false,
+            "llmMemoryMaxTokenLimit": "2000",
+            "llmReturnResponseAs": "userMessage",
+            "llmModelConfig": {
+             "credential": "41eff7e8-c369-4e8d-8232-2106b9d24e37",
+             "cache": "",
+             "modelName": "fake-model",
+             "temperature": 0.9,
+             "streaming": true,
+             "maxTokens": "",
+             "topP": "",
+             "frequencyPenalty": "",
+             "presencePenalty": "",
+             "timeout": "",
+             "dontSetStoreParam": "",
+             "strictToolCalling": "",
+             "stopSequence": "",
+             "basepath": "",
+             "proxyUrl": "",
+             "baseOptions": "",
+             "allowImageUploads": "",
+             "imageResolution": "low",
+             "reasoning": "",
+             "reasoningEffort": "",
+             "reasoningSummary": "",
+             "llmModel": "chatOpenAI",
+             "FLOWISE_CREDENTIAL_ID": "41eff7e8-c369-4e8d-8232-2106b9d24e37"
+            }
+           },
+           "output": {
+            "content": "Your parcel is at the regional depot and will be delivered tomorrow.",
+            "timeMetadata": {
+             "start": 1795457457423,
+             "end": 1795457457425,
+             "delta": 2
+            },
+            "calledTools": [],
+            "usageMetadata": {
+             "input_tokens": 10425,
+             "output_tokens": 18,
+             "total_tokens": 10443
+            },
+            "responseMetadata": {
+             "prompt": 0,
+             "completion": 0,
+             "usage": {
+              "prompt_tokens": 10425,
+              "completion_tokens": 18,
+              "total_tokens": 10443
+             },
+             "finish_reason": "stop",
+             "system_fingerprint": "fp_fake00b",
+             "model_name": "fake-model"
+            }
+           },
+           "state": {},
+           "chatHistory": [
+            {
+             "role": "user",
+             "content": "Where is my parcel right now?"
+            },
+            {
+             "role": "assistant",
+             "content": "Your parcel is at the regional depot and will be delivered tomorrow.",
+             "name": "form_assistant"
+            }
+           ]
+          },
+          "previousNodeIds": [
+           "startAgentflow_0"
+          ],
+          "status": "FINISHED"
+         }
+        ]
+       },
+       "executionDataFromBlobBytes": 43810
+      }
+     ],
+     "chatMessages": [
+      {
+       "id": "c30c9932-ca20-4f61-97e7-3e866a25fd99",
+       "role": "userMessage",
+       "chatflowid": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "executionId": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+       "content": "name: Grace Hopper\ntopic: shipping",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "createdDate": "2026-11-23T18:10:54.466Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "52ce4729d064b43a24f6c9f1c8be9251a6ab89f4658175f6e2143e662a2922c9",
+         "length": 14032,
+         "head": "H4sIAAAAAAAAA6V9a4/bxpL2X2kIWCALSALvpGY/LLyJszFO4gQZ5w0WsWFwpNaIa4rUISmP5xj+7y+6u6r6SkmT/XJOJEuabnZdnnrq0n99XXT9jr/ZLe4W"
+        },
+        "state": "FINISHED",
+        "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+        "sessionId": "ts00b-mwtl08na-M3-S05",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:54.000Z",
+        "updatedDate": "2026-11-23T18:10:54.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "03b3e7cc-2f68-472d-9289-05350da41ab3",
+       "role": "apiMessage",
+       "chatflowid": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "executionId": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+       "content": "Thanks, I have opened a shipping request for you.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "createdDate": "2026-11-23T18:10:54.476Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "a3ee1225-3441-42fb-a8a9-4416f0108d53",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "52ce4729d064b43a24f6c9f1c8be9251a6ab89f4658175f6e2143e662a2922c9",
+         "length": 14032,
+         "head": "H4sIAAAAAAAAA6V9a4/bxpL2X2kIWCALSALvpGY/LLyJszFO4gQZ5w0WsWFwpNaIa4rUISmP5xj+7y+6u6r6SkmT/XJOJEuabnZdnnrq0n99XXT9jr/ZLe4W"
+        },
+        "state": "FINISHED",
+        "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+        "sessionId": "ts00b-mwtl08na-M3-S05",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:54.000Z",
+        "updatedDate": "2026-11-23T18:10:54.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "adbf9b7a-80f3-4e66-b6fe-9ec9520cb0da",
+       "role": "userMessage",
+       "chatflowid": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "executionId": "c30bb5b9-e70e-49d8-94f7-396e51461a8f",
+       "content": "Where is my parcel right now?",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "createdDate": "2026-11-23T18:10:57.416Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "c30bb5b9-e70e-49d8-94f7-396e51461a8f",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "bdeba0763c94af921c30d6a0cac62b0663316521d001e87355272004df002faf",
+         "length": 14092,
+         "head": "H4sIAAAAAAAAA619a4/bRrbtXykIuEAOIAl8k+r74cA3cU6MSZwg7dxgEBsGWyq1eE2RGpJyu8fwfz+oqr13PSmpc8+XmUiW1FWs/Vh77Uf99XXR9Tv+Zre4"
+        },
+        "state": "FINISHED",
+        "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+        "sessionId": "ts00b-mwtl08na-M3-S05",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:57.000Z",
+        "updatedDate": "2026-11-23T18:10:57.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      },
+      {
+       "id": "a0fc6508-49c4-46d5-a67e-b416a9e66c19",
+       "role": "apiMessage",
+       "chatflowid": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+       "executionId": "c30bb5b9-e70e-49d8-94f7-396e51461a8f",
+       "content": "Your parcel is at the regional depot and will be delivered tomorrow.",
+       "sourceDocuments": null,
+       "usedTools": null,
+       "fileAnnotations": null,
+       "agentReasoning": null,
+       "fileUploads": null,
+       "artifacts": null,
+       "action": null,
+       "chatType": "EXTERNAL",
+       "chatId": "ts00b-mwtl08na-M3-S05",
+       "memoryType": null,
+       "sessionId": "ts00b-mwtl08na-M3-S05",
+       "createdDate": "2026-11-23T18:10:57.428Z",
+       "leadEmail": null,
+       "followUpPrompts": null,
+       "execution": {
+        "id": "c30bb5b9-e70e-49d8-94f7-396e51461a8f",
+        "executionData": {
+         "$json": []
+        },
+        "executionDataBlob": {
+         "$blob": "bdeba0763c94af921c30d6a0cac62b0663316521d001e87355272004df002faf",
+         "length": 14092,
+         "head": "H4sIAAAAAAAAA619a4/bRrbtXykIuEAOIAl8k+r74cA3cU6MSZwg7dxgEBsGWyq1eE2RGpJyu8fwfz+oqr13PSmpc8+XmUiW1FWs/Vh77Uf99XXR9Tv+Zre4"
+        },
+        "state": "FINISHED",
+        "agentflowId": "cf15b133-af91-4780-8d5f-c796d1baefa3",
+        "sessionId": "ts00b-mwtl08na-M3-S05",
+        "action": null,
+        "isPublic": null,
+        "createdDate": "2026-11-23T18:10:57.000Z",
+        "updatedDate": "2026-11-23T18:10:57.000Z",
+        "stoppedDate": null,
+        "workspaceId": "c84f2a75-cf56-4de8-9756-05602fb5b2e2"
+       }
+      }
+     ]
+    }
+   },
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

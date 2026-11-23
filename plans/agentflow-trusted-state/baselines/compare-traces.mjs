@@ -2,22 +2,33 @@
 // Compares two capture directories (TS6). Class A must be identical unless compare.config.json lists the
 // difference for that finding, scenario, mode, turn and aspect; class B (token, payload sizes) is reported.
 // Usage: node compare-traces.mjs --before <dir> --after <dir> [--config compare.config.json | --no-intended]
-//        [--report <file.json>] [--markdown <file.md>]
+//        [--partial] [--report <file.json>] [--markdown <file.md>]
+// --partial compares only the traces the after directory holds (a capture of some modes or scenarios).
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { normalizeValue, traceReader } from './lib/normalize.mjs'
 import { BASELINES_DIR } from './lib/flowise-client.mjs'
 
 const ASPECTS = ['modelRequests', 'streamedTokens', 'finalText', 'nodeSequence', 'status', 'finalState', 'action', 'error']
 
 function parseArgs(argv) {
-    const opts = { before: null, after: null, config: path.join(BASELINES_DIR, 'compare.config.json'), intended: true, report: null, markdown: null }
+    const opts = {
+        before: null,
+        after: null,
+        config: path.join(BASELINES_DIR, 'compare.config.json'),
+        intended: true,
+        partial: false,
+        report: null,
+        markdown: null
+    }
     for (let i = 0; i < argv.length; i++) {
         const arg = argv[i]
         if (arg === '--before') opts.before = path.resolve(argv[++i])
         else if (arg === '--after') opts.after = path.resolve(argv[++i])
         else if (arg === '--config') opts.config = path.resolve(argv[++i])
         else if (arg === '--no-intended') opts.intended = false
+        else if (arg === '--partial') opts.partial = true
         else if (arg === '--report') opts.report = path.resolve(argv[++i])
         else if (arg === '--markdown') opts.markdown = path.resolve(argv[++i])
         else throw new Error(`Unknown argument ${arg}`)
@@ -29,7 +40,7 @@ function parseArgs(argv) {
 const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'))
 const stable = (value) => JSON.stringify(value)
 
-function listTraces(dir) {
+export function listTraces(dir) {
     const out = new Map()
     for (const mode of fs.readdirSync(dir)) {
         const modeDir = path.join(dir, mode)
@@ -63,7 +74,7 @@ export function classA(turn, resolve) {
     })
 }
 
-function firstDifference(a, b, pathLabel = '') {
+export function firstDifference(a, b, pathLabel = '') {
     if (stable(a) === stable(b)) return null
     if (a && b && typeof a === 'object' && typeof b === 'object' && Array.isArray(a) === Array.isArray(b)) {
         const keys = Array.isArray(a) ? [...Array(Math.max(a.length, b.length)).keys()] : [...new Set([...Object.keys(a), ...Object.keys(b)])]
@@ -87,12 +98,13 @@ function turnMatches(spec, turnId, turnIds) {
 
 const listMatches = (spec, value) => !spec || spec === '*' || (Array.isArray(spec) ? spec.includes(value) : spec === value)
 
-function coveringEntries(entries, { scenario, mode, variant, turnId, turnIds, aspect }) {
+function coveringEntries(entries, { scenario, mode, variant, continuedFrom, turnId, turnIds, aspect }) {
     return entries.filter(
         (entry) =>
             listMatches(entry.scenarios ?? entry.scenario, scenario) &&
             listMatches(entry.modes, mode) &&
             (entry.variant === undefined || entry.variant === variant) &&
+            (entry.continuedFrom === undefined || listMatches(entry.continuedFrom, continuedFrom)) &&
             turnMatches(entry.turns, turnId, turnIds) &&
             listMatches(entry.aspects, aspect)
     )
@@ -164,6 +176,15 @@ function runCheck(check, ctx) {
                     : [prefix]
             return flatten(action).every((key) => check.allowed.includes(key))
         }
+        case 'executedDataKeysOnly': {
+            const records = resolve(turn.executedData)
+            if (!Array.isArray(records) || !records.length) return false
+            const flatten = (value, prefix = '') =>
+                value && typeof value === 'object' && !Array.isArray(value) && !check.allowed.includes(prefix)
+                    ? Object.entries(value).flatMap(([k, v]) => flatten(v, prefix ? `${prefix}.${k}` : k))
+                    : [prefix]
+            return records.every((record) => flatten(record).every((key) => check.allowed.includes(key)))
+        }
         case 'textIncludes':
             return String(resolve(turn.text) ?? '').includes(check.value)
         case 'finalStateEquals':
@@ -214,14 +235,15 @@ function compare(opts) {
 
     const pairsToRun = []
     for (const [key, beforeFile] of beforeTraces) {
-        const variants = [...afterTraces.keys()].filter((k) => k.startsWith(key.replace(/\.json$/, '@')))
+        const prefix = key.replace(/\.json$/, '@')
+        const variants = [...afterTraces.keys()].filter((k) => k.startsWith(prefix))
         if (!afterTraces.has(key) && !variants.length) {
-            report.failures.push({ key, kind: 'missing-after', message: `${key} has no after trace` })
+            if (!opts.partial) report.failures.push({ key, kind: 'missing-after', message: `${key} has no after trace` })
             continue
         }
         if (afterTraces.has(key)) pairsToRun.push({ key, beforeFile, afterFile: afterTraces.get(key), variant: null })
         for (const variantKey of variants) {
-            pairsToRun.push({ key: variantKey, beforeFile, afterFile: afterTraces.get(variantKey), variant: variantKey.split('@')[1].replace(/\.json$/, '') })
+            pairsToRun.push({ key: variantKey, beforeFile, afterFile: afterTraces.get(variantKey), variant: variantKey.slice(prefix.length).replace(/\.json$/, '') })
         }
     }
 
@@ -231,9 +253,11 @@ function compare(opts) {
         const scenario = before.scenario.id
         const mode = before.mode
         const turnIds = before.turns.map((t) => t.id)
-        const pair = { key, scenario, mode, variant, turns: [] }
+        const continuedFrom = after.resumedFrom?.afterTurn ?? null
+        const pair = { key, scenario, mode, variant, ...(continuedFrom ? { continuedFrom } : {}), turns: [] }
 
         for (const beforeTurn of before.turns) {
+            if (continuedFrom && turnIds.indexOf(beforeTurn.id) <= turnIds.indexOf(continuedFrom)) continue
             const afterTurn = after.turns.find((t) => t.id === beforeTurn.id)
             if (!afterTurn) {
                 report.failures.push({ key, turn: beforeTurn.id, kind: 'missing-turn', message: `turn ${beforeTurn.id} missing in after` })
@@ -244,7 +268,7 @@ function compare(opts) {
             const turnReport = { id: beforeTurn.id, aspects: {}, sizes: {} }
             for (const aspect of ASPECTS) {
                 const diff = firstDifference(a[aspect], b[aspect])
-                const covering = coveringEntries(entries, { scenario, mode, variant, turnId: beforeTurn.id, turnIds, aspect })
+                const covering = coveringEntries(entries, { scenario, mode, variant, continuedFrom, turnId: beforeTurn.id, turnIds, aspect })
                 if (!diff) {
                     turnReport.aspects[aspect] = 'same'
                     continue
@@ -269,6 +293,7 @@ function compare(opts) {
                 if (!entry.checks?.length) continue
                 if (!listMatches(entry.scenarios ?? entry.scenario, scenario) || !listMatches(entry.modes, mode)) continue
                 if (entry.variant !== undefined && entry.variant !== variant) continue
+                if (entry.continuedFrom !== undefined && !listMatches(entry.continuedFrom, continuedFrom)) continue
                 for (const check of entry.checks) {
                     if (!turnMatches(check.turns ?? entry.turns, beforeTurn.id, turnIds)) continue
                     let passed
@@ -295,9 +320,8 @@ function compare(opts) {
         report.pairs.push(pair)
     }
 
-    for (const key of afterTraces.keys()) {
-        if (!beforeTraces.has(key) && !beforeTraces.has(key.replace(/@[^/]+\.json$/, '.json'))) report.pairs.push({ key, afterOnly: true })
-    }
+    const paired = new Set(pairsToRun.map((p) => p.key))
+    for (const key of afterTraces.keys()) if (!paired.has(key)) report.pairs.push({ key, afterOnly: true })
 
     for (const entry of entries) {
         if (entry.mustDiffer === false) continue
@@ -370,23 +394,27 @@ function toMarkdown(report) {
     return lines.join('\n') + '\n'
 }
 
-const opts = parseArgs(process.argv.slice(2))
-const report = compare(opts)
-if (opts.report) {
-    fs.mkdirSync(path.dirname(opts.report), { recursive: true })
-    fs.writeFileSync(opts.report, JSON.stringify(report, null, 1) + '\n')
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main()
+
+function main() {
+    const opts = parseArgs(process.argv.slice(2))
+    const report = compare(opts)
+    if (opts.report) {
+        fs.mkdirSync(path.dirname(opts.report), { recursive: true })
+        fs.writeFileSync(opts.report, JSON.stringify(report, null, 1) + '\n')
+    }
+    if (opts.markdown) {
+        fs.mkdirSync(path.dirname(opts.markdown), { recursive: true })
+        fs.writeFileSync(opts.markdown, toMarkdown(report))
+    }
+    const turns = report.pairs.reduce((n, p) => n + (p.turns?.length ?? 0), 0)
+    const pending = report.checks.filter((c) => c.passed === 'pending').length
+    console.log(
+        `Compared ${report.pairs.length} traces, ${turns} turns: ${report.failures.length} failure(s), ` +
+            `${report.checks.length - pending} checks run, ${pending} pending.`
+    )
+    for (const failure of report.failures.slice(0, 40)) {
+        console.log(`  ${failure.kind} ${failure.key ?? ''} ${failure.turn ?? ''} ${failure.aspect ?? failure.entry ?? ''}${failure.diff ? ` at ${failure.diff.path}\n      before: ${failure.diff.before}\n      after:  ${failure.diff.after}` : ''}`)
+    }
+    process.exit(report.failures.length ? 1 : 0)
 }
-if (opts.markdown) {
-    fs.mkdirSync(path.dirname(opts.markdown), { recursive: true })
-    fs.writeFileSync(opts.markdown, toMarkdown(report))
-}
-const turns = report.pairs.reduce((n, p) => n + (p.turns?.length ?? 0), 0)
-const pending = report.checks.filter((c) => c.passed === 'pending').length
-console.log(
-    `Compared ${report.pairs.length} traces, ${turns} turns: ${report.failures.length} failure(s), ` +
-        `${report.checks.length - pending} checks run, ${pending} pending.`
-)
-for (const failure of report.failures.slice(0, 40)) {
-    console.log(`  ${failure.kind} ${failure.key ?? ''} ${failure.turn ?? ''} ${failure.aspect ?? failure.entry ?? ''}${failure.diff ? ` at ${failure.diff.path}\n      before: ${failure.diff.before}\n      after:  ${failure.diff.after}` : ''}`)
-}
-process.exit(report.failures.length ? 1 : 0)

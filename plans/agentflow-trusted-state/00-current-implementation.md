@@ -1,4 +1,6 @@
-# Task 00: Current Trusted State Implementation (Reference)
+# Task 00: Trusted State Implementation before the Plan (Previous Behaviour)
+
+> **Previous behaviour.** This file describes the trusted state as it worked before this plan: the code before Task 05 (`c5666620`), captured in `traces/before/` at `99e8d4b0`. Tasks 05–09 replaced it; the current behaviour is [11-new-implementation.md](./11-new-implementation.md).
 
 - **Status**: Done (code reading at `d183966b`; verified field by field and line references moved to `6b10339e` by Task 02: [field-inventory.md](./field-inventory.md), [client-inventory.md](./client-inventory.md), [size-anatomy-before.md](./baselines/reports/size-anatomy-before.md))
 - **Scope**: Agentflow V2 with Client State on (`chatbotConfig.clientState.enabled`), with Zero-Retention (`clientState.enabledFull`) on or off.

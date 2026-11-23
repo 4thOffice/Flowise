@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Usage: start-server.sh <flowise checkout or worktree> <empty data dir>
+# Usage: start-server.sh <flowise checkout or worktree> <empty data dir> [start|worker]
 # Starts Flowise on the capture port with every path under <data dir>, so ~/.flowise and port 3000 stay untouched.
+# Queue mode (Task 10): run it once with `start` and once with `worker`, both with MODE=queue and REDIS_URL set.
 set -euo pipefail
 
-if [ $# -ne 2 ]; then
-    echo "usage: $0 <flowise worktree> <data dir>" >&2
+if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+    echo "usage: $0 <flowise worktree> <data dir> [start|worker]" >&2
     exit 2
 fi
+COMMAND="${3:-start}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKTREE="$(cd "$1" && pwd)"
@@ -25,4 +27,4 @@ export BLOB_STORAGE_PATH="$DATA_DIR/storage"
 export LOG_PATH="$DATA_DIR/logs"
 
 cd "$WORKTREE/packages/server/bin"
-exec ./run start
+exec ./run "$COMMAND"

@@ -1,0 +1,2449 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S09",
+  "file": "S09-iteration-and-loop.json",
+  "title": "Iteration with an LLM per item, aggregate agent and a loop",
+  "findings": [
+   "F12"
+  ]
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtkldjy-M1-S09",
+ "runTag": "mwtkldjy",
+ "resumedFrom": null,
+ "flows": [
+  {
+   "slug": "S09-iteration-and-loop",
+   "chatflowId": "df4093a3-4dcf-44a6-859a-b35b511eefba",
+   "name": "TS00b M1 S09-iteration-and-loop",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T17:59:20.329Z",
+ "turns": [
+  {
+   "id": "t1",
+   "note": "One extra pass",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkldjy-M1-S09",
+     "streaming": true,
+     "question": "Review the open case items for customer C-881."
+    }
+   },
+   "tokenSent": null,
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 181.47,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 16.15,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 16.19,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 16.2,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 16.21,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Split Items",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 16.21,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Split Items",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 16.22,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "iterationAgentflow_0",
+       "nodeLabel": "For Each Item",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 16.22,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 47.5,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 47.54,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 67.19,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 67.22,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 89.99,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 90.06,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "iterationAgentflow_0",
+       "nodeLabel": "For Each Item",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 90.07,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 115.65,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 115.74,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 133.56,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 133.58,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Retry Loop",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 133.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Retry Loop",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 133.6,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 157.14,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 157.18,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 179.42,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 179.48,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Final Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 179.48,
+      "event": "token",
+      "data": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+     },
+     {
+      "offsetMs": 179.49,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Final Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 179.49,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 180.13,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 348,
+       "sha256": "0fff13d2ee8c8b9c05de96ec4b7c7c7cddf34312b81f5c68019f22e3682be3c3"
+      }
+     },
+     {
+      "offsetMs": 181.37,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkldjy-M1-S09",
+       "chatMessageId": "044e6408-c073-4ab6-9a82-828bb365384d",
+       "question": "Review the open case items for customer C-881.",
+       "sessionId": "ts00b-mwtkldjy-M1-S09"
+      }
+     },
+     {
+      "offsetMs": 181.39,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 12
+      }
+     },
+     {
+      "offsetMs": 181.41,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call.",
+   "tokens": [
+    "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Split Items",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "customFunctionAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "iterationAgentflow_0",
+     "nodeLabel": "For Each Item",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "data": {
+      "name": "iterationAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Aggregator",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "iterationAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Quality Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "conditionAgentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "loopAgentflow_0",
+     "nodeLabel": "Retry Loop",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "data": {
+      "name": "loopAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Aggregator",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "iterationAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Quality Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "conditionAgentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Final Reply",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "iterationAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "loopAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 129,
+     "route": "S09-item",
+     "callIndex": 0,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: invoice"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 0: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 130,
+     "route": "S09-item",
+     "callIndex": 1,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: shipping"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 1: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 131,
+     "route": "S09-item",
+     "callIndex": 2,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: returns"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 2: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 132,
+     "route": "S09-aggregator",
+     "callIndex": 0,
+     "ruleId": "aggregator",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "c2d255c9aec514303f721985b32b9532e09f1011bcac8a894444c668b39c54ae",
+         "length": 41031,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_aggregator"
+         ],
+         "head": "\\[\\[route:S09-aggregator\\]\\] SYSPROMPT_SENTINEL_S09_aggregator\n\nYou merge per-item analyses into one Northwind Outfitter"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Review the open case items for customer C-881."
+       },
+       {
+        "role": "user",
+        "content": "Item analyses:\n\nItem analysis 0: no blocking issue, one note for the aggregator.\nItem analysis 1: no blocking issue, one note for the aggregator.\nItem analysis 2: no blocking issue, one note for the aggregator."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Aggregate (t1, pass 0): invoice and shipping are fine; returns need a follow-up call.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 133,
+     "route": "S09-quality",
+     "callIndex": 0,
+     "ruleId": "quality-more-t1",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "b0bf1f075577cdfc2f2e9e2ca5648c61e8401b14abeb87c33990e09a4f6a95ed",
+         "length": 40664,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_quality"
+         ],
+         "head": "\\[\\[route:S09-quality\\]\\] SYSPROMPT_SENTINEL_S09_quality\n\nYou decide whether a Northwind Outfitters answer needs another"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": Review the open case items for customer C-881., \"scenarios\": [\"needs another pass\",\"complete\"], \"instruction\": Check whether the aggregated answer is complete.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"needs another pass\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 134,
+     "route": "S09-aggregator",
+     "callIndex": 1,
+     "ruleId": "aggregator",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "c2d255c9aec514303f721985b32b9532e09f1011bcac8a894444c668b39c54ae",
+         "length": 41031,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_aggregator"
+         ],
+         "head": "\\[\\[route:S09-aggregator\\]\\] SYSPROMPT_SENTINEL_S09_aggregator\n\nYou merge per-item analyses into one Northwind Outfitter"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Review the open case items for customer C-881."
+       },
+       {
+        "role": "assistant",
+        "content": "Aggregate (t1, pass 0): invoice and shipping are fine; returns need a follow-up call.",
+        "name": "aggregator"
+       },
+       {
+        "role": "user",
+        "content": "Item analyses:\n\nItem analysis 0: no blocking issue, one note for the aggregator.\nItem analysis 1: no blocking issue, one note for the aggregator.\nItem analysis 2: no blocking issue, one note for the aggregator."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 135,
+     "route": "S09-quality",
+     "callIndex": 1,
+     "ruleId": "quality-complete",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "b0bf1f075577cdfc2f2e9e2ca5648c61e8401b14abeb87c33990e09a4f6a95ed",
+         "length": 40664,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_quality"
+         ],
+         "head": "\\[\\[route:S09-quality\\]\\] SYSPROMPT_SENTINEL_S09_quality\n\nYou decide whether a Northwind Outfitters answer needs another"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": Review the open case items for customer C-881., \"scenarios\": [\"needs another pass\",\"complete\"], \"instruction\": Check whether the aggregated answer is complete.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"complete\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 348,
+    "sha256": "0fff13d2ee8c8b9c05de96ec4b7c7c7cddf34312b81f5c68019f22e3682be3c3",
+    "sizes": {
+     "base64Length": 348,
+     "payloadBytes": 259,
+     "gzipBytes": 231,
+     "rawJsonBytes": 298,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 2,
+     "historyBytes": 222,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Review the open case items for customer C-881."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 7,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S09_item": 3,
+      "SYSPROMPT_SENTINEL_S09_aggregator": 2,
+      "SYSPROMPT_SENTINEL_S09_quality": 2
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 1932,
+    "executedDataGzipBytes": 311,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t2",
+   "note": "No extra pass",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkldjy-M1-S09",
+     "streaming": true,
+     "question": "Re-check only the returns item.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 348,
+      "sha256": "0fff13d2ee8c8b9c05de96ec4b7c7c7cddf34312b81f5c68019f22e3682be3c3"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 348,
+    "sha256": "0fff13d2ee8c8b9c05de96ec4b7c7c7cddf34312b81f5c68019f22e3682be3c3"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 110.06,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 10.09,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 10.11,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.12,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 10.13,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Split Items",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.13,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Split Items",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 10.14,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "iterationAgentflow_0",
+       "nodeLabel": "For Each Item",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.14,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 29.93,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 29.97,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 51.32,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 51.35,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 70.27,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 70.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "iterationAgentflow_0",
+       "nodeLabel": "For Each Item",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 70.67,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 88.33,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 88.35,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 107.89,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 107.92,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Final Reply",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 107.92,
+      "event": "token",
+      "data": "Analysis complete: Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call."
+     },
+     {
+      "offsetMs": 107.93,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "directReplyAgentflow_0",
+       "nodeLabel": "Final Reply",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 107.93,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 108.62,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 388,
+       "sha256": "655fc880e587930bf82af58b83adfb7e5b796d1230d46dbc45fe1d97734d2080"
+      }
+     },
+     {
+      "offsetMs": 109.91,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkldjy-M1-S09",
+       "chatMessageId": "88e36e15-064b-4eaa-935d-203e914c67e7",
+       "question": "Re-check only the returns item.",
+       "sessionId": "ts00b-mwtkldjy-M1-S09"
+      }
+     },
+     {
+      "offsetMs": 109.93,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 9
+      }
+     },
+     {
+      "offsetMs": 109.95,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Analysis complete: Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call.",
+   "tokens": [
+    "Analysis complete: Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Split Items",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "customFunctionAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "iterationAgentflow_0",
+     "nodeLabel": "For Each Item",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "data": {
+      "name": "iterationAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Aggregator",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "iterationAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Quality Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "conditionAgentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "directReplyAgentflow_0",
+     "nodeLabel": "Final Reply",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "data": {
+      "name": "directReplyAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "iterationAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "directReplyAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 137,
+     "route": "S09-item",
+     "callIndex": 0,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: invoice"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 0: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 138,
+     "route": "S09-item",
+     "callIndex": 1,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: shipping"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 1: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 139,
+     "route": "S09-item",
+     "callIndex": 2,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: returns"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 2: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 140,
+     "route": "S09-aggregator",
+     "callIndex": 0,
+     "ruleId": "aggregator",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "c2d255c9aec514303f721985b32b9532e09f1011bcac8a894444c668b39c54ae",
+         "length": 41031,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_aggregator"
+         ],
+         "head": "\\[\\[route:S09-aggregator\\]\\] SYSPROMPT_SENTINEL_S09_aggregator\n\nYou merge per-item analyses into one Northwind Outfitter"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Review the open case items for customer C-881."
+       },
+       {
+        "role": "assistant",
+        "content": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+       },
+       {
+        "role": "user",
+        "content": "Re-check only the returns item."
+       },
+       {
+        "role": "user",
+        "content": "Item analyses:\n\nItem analysis 0: no blocking issue, one note for the aggregator.\nItem analysis 1: no blocking issue, one note for the aggregator.\nItem analysis 2: no blocking issue, one note for the aggregator."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 141,
+     "route": "S09-quality",
+     "callIndex": 0,
+     "ruleId": "quality-complete",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "b0bf1f075577cdfc2f2e9e2ca5648c61e8401b14abeb87c33990e09a4f6a95ed",
+         "length": 40664,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_quality"
+         ],
+         "head": "\\[\\[route:S09-quality\\]\\] SYSPROMPT_SENTINEL_S09_quality\n\nYou decide whether a Northwind Outfitters answer needs another"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": Re-check only the returns item., \"scenarios\": [\"needs another pass\",\"complete\"], \"instruction\": Check whether the aggregated answer is complete.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"complete\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 388,
+    "sha256": "655fc880e587930bf82af58b83adfb7e5b796d1230d46dbc45fe1d97734d2080",
+    "sizes": {
+     "base64Length": 388,
+     "payloadBytes": 289,
+     "gzipBytes": 261,
+     "rawJsonBytes": 504,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 4,
+     "historyBytes": 428,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Review the open case items for customer C-881."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+      },
+      {
+       "role": "userMessage",
+       "content": "Re-check only the returns item."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Analysis complete: Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 5,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S09_item": 3,
+      "SYSPROMPT_SENTINEL_S09_aggregator": 1,
+      "SYSPROMPT_SENTINEL_S09_quality": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 1426,
+    "executedDataGzipBytes": 287,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  },
+  {
+   "id": "t3",
+   "note": "Loop hits its max count (2) and returns the fallback message",
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtkldjy-M1-S09",
+     "streaming": true,
+     "question": "Do a full audit of every item.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 388,
+      "sha256": "655fc880e587930bf82af58b83adfb7e5b796d1230d46dbc45fe1d97734d2080"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 388,
+    "sha256": "655fc880e587930bf82af58b83adfb7e5b796d1230d46dbc45fe1d97734d2080"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 153.39,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 9.71,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 9.73,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.74,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.75,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Split Items",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.75,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "customFunctionAgentflow_0",
+       "nodeLabel": "Split Items",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 9.76,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "iterationAgentflow_0",
+       "nodeLabel": "For Each Item",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 9.76,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 28.34,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 28.37,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 48.38,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 48.42,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 71.54,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "llmAgentflow_0",
+       "nodeLabel": "Item Analyst",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 71.58,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "iterationAgentflow_0",
+       "nodeLabel": "For Each Item",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 71.59,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 94.17,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 94.21,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 111.45,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 111.49,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Retry Loop",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 111.5,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Retry Loop",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 111.5,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 135.61,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Aggregator",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 135.64,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 151.27,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "conditionAgentAgentflow_0",
+       "nodeLabel": "Quality Check",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 151.29,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Retry Loop",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 151.3,
+      "event": "token",
+      "data": "Stopped: the review loop reached its maximum count."
+     },
+     {
+      "offsetMs": 151.31,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "loopAgentflow_0",
+       "nodeLabel": "Retry Loop",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 151.31,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 151.98,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 452,
+       "sha256": "c7c6f81d6ea3be3df59b6f250e2dfd4097b1ef691252256cf71f044adf7268cf"
+      }
+     },
+     {
+      "offsetMs": 153.33,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtkldjy-M1-S09",
+       "chatMessageId": "bef48370-cc94-4edd-87ef-10c1dfa28889",
+       "question": "Do a full audit of every item.",
+       "sessionId": "ts00b-mwtkldjy-M1-S09"
+      }
+     },
+     {
+      "offsetMs": 153.35,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 12
+      }
+     },
+     {
+      "offsetMs": 153.36,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Stopped: the review loop reached its maximum count.",
+   "tokens": [
+    "Stopped: the review loop reached its maximum count."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "customFunctionAgentflow_0",
+     "nodeLabel": "Split Items",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "customFunctionAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "llmAgentflow_0",
+     "nodeLabel": "Item Analyst",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "llmAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "iterationAgentflow_0",
+     "nodeLabel": "For Each Item",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "customFunctionAgentflow_0"
+     ],
+     "data": {
+      "name": "iterationAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Aggregator",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "iterationAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Quality Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "conditionAgentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "loopAgentflow_0",
+     "nodeLabel": "Retry Loop",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "data": {
+      "name": "loopAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Aggregator",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "iterationAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "conditionAgentAgentflow_0",
+     "nodeLabel": "Quality Check",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "agentAgentflow_0"
+     ],
+     "data": {
+      "name": "conditionAgentAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "loopAgentflow_0",
+     "nodeLabel": "Retry Loop",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "conditionAgentAgentflow_0"
+     ],
+     "data": {
+      "name": "loopAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "customFunctionAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "llmAgentflow_0:FINISHED",
+    "iterationAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "loopAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED",
+    "conditionAgentAgentflow_0:FINISHED",
+    "loopAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 143,
+     "route": "S09-item",
+     "callIndex": 0,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: invoice"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 0: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 144,
+     "route": "S09-item",
+     "callIndex": 1,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: shipping"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 1: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 145,
+     "route": "S09-item",
+     "callIndex": 2,
+     "ruleId": "item",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "2e08ce68175aab28661a15182965c781e51b1b25dccb2098d94b71bea8e3cded",
+         "length": 41185,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_item"
+         ],
+         "head": "\\[\\[route:S09-item\\]\\] SYSPROMPT_SENTINEL_S09_item\n\nYou analyse one Northwind Outfitters case item at a time.\n\nSection 1"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Analyse the item: returns"
+       }
+      ]
+     },
+     "reply": {
+      "content": "Item analysis 2: no blocking issue, one note for the aggregator.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 146,
+     "route": "S09-aggregator",
+     "callIndex": 0,
+     "ruleId": "aggregator",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "c2d255c9aec514303f721985b32b9532e09f1011bcac8a894444c668b39c54ae",
+         "length": 41031,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_aggregator"
+         ],
+         "head": "\\[\\[route:S09-aggregator\\]\\] SYSPROMPT_SENTINEL_S09_aggregator\n\nYou merge per-item analyses into one Northwind Outfitter"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Review the open case items for customer C-881."
+       },
+       {
+        "role": "assistant",
+        "content": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+       },
+       {
+        "role": "user",
+        "content": "Re-check only the returns item."
+       },
+       {
+        "role": "assistant",
+        "content": "Analysis complete: Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call."
+       },
+       {
+        "role": "user",
+        "content": "Do a full audit of every item."
+       },
+       {
+        "role": "user",
+        "content": "Item analyses:\n\nItem analysis 0: no blocking issue, one note for the aggregator.\nItem analysis 1: no blocking issue, one note for the aggregator.\nItem analysis 2: no blocking issue, one note for the aggregator."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Aggregate (t3, pass 0): invoice and shipping are fine; returns need a follow-up call.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 147,
+     "route": "S09-quality",
+     "callIndex": 0,
+     "ruleId": "quality-more-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "b0bf1f075577cdfc2f2e9e2ca5648c61e8401b14abeb87c33990e09a4f6a95ed",
+         "length": 40664,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_quality"
+         ],
+         "head": "\\[\\[route:S09-quality\\]\\] SYSPROMPT_SENTINEL_S09_quality\n\nYou decide whether a Northwind Outfitters answer needs another"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": Do a full audit of every item., \"scenarios\": [\"needs another pass\",\"complete\"], \"instruction\": Check whether the aggregated answer is complete.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"needs another pass\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 148,
+     "route": "S09-aggregator",
+     "callIndex": 1,
+     "ruleId": "aggregator",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "c2d255c9aec514303f721985b32b9532e09f1011bcac8a894444c668b39c54ae",
+         "length": 41031,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_aggregator"
+         ],
+         "head": "\\[\\[route:S09-aggregator\\]\\] SYSPROMPT_SENTINEL_S09_aggregator\n\nYou merge per-item analyses into one Northwind Outfitter"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Review the open case items for customer C-881."
+       },
+       {
+        "role": "assistant",
+        "content": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+       },
+       {
+        "role": "user",
+        "content": "Re-check only the returns item."
+       },
+       {
+        "role": "assistant",
+        "content": "Analysis complete: Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call."
+       },
+       {
+        "role": "user",
+        "content": "Do a full audit of every item."
+       },
+       {
+        "role": "assistant",
+        "content": "Aggregate (t3, pass 0): invoice and shipping are fine; returns need a follow-up call.",
+        "name": "aggregator"
+       },
+       {
+        "role": "user",
+        "content": "Item analyses:\n\nItem analysis 0: no blocking issue, one note for the aggregator.\nItem analysis 1: no blocking issue, one note for the aggregator.\nItem analysis 2: no blocking issue, one note for the aggregator."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Aggregate (t3, pass 1): invoice and shipping are fine; returns need a follow-up call.",
+      "toolCalls": null,
+      "error": null
+     }
+    },
+    {
+     "seq": 149,
+     "route": "S09-quality",
+     "callIndex": 1,
+     "ruleId": "quality-more-t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "b0bf1f075577cdfc2f2e9e2ca5648c61e8401b14abeb87c33990e09a4f6a95ed",
+         "length": 40664,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S09_quality"
+         ],
+         "head": "\\[\\[route:S09-quality\\]\\] SYSPROMPT_SENTINEL_S09_quality\n\nYou decide whether a Northwind Outfitters answer needs another"
+        }
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": \"Hello\", \"scenarios\": [\"user is asking about AI\", \"user is not asking about AI\"], \"instruction\": \"Your task is to check if the user is asking about AI.\"}"
+       },
+       {
+        "role": "assistant",
+        "content": "```json\n{\"output\": \"user is not asking about AI\"}\n```"
+       },
+       {
+        "role": "user",
+        "content": "{\"input\": Do a full audit of every item., \"scenarios\": [\"needs another pass\",\"complete\"], \"instruction\": Check whether the aggregated answer is complete.}"
+       }
+      ]
+     },
+     "reply": {
+      "content": "```json\n{\"output\": \"needs another pass\"}\n```",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 452,
+    "sha256": "c7c6f81d6ea3be3df59b6f250e2dfd4097b1ef691252256cf71f044adf7268cf",
+    "sizes": {
+     "base64Length": 452,
+     "payloadBytes": 338,
+     "gzipBytes": 310,
+     "rawJsonBytes": 656,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 580,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [
+     {
+      "path": "$",
+      "bytes": 656
+     },
+     {
+      "path": "history",
+      "bytes": 580
+     }
+    ],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Review the open case items for customer C-881."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Analysis complete: Aggregate (t1, pass 1): invoice and shipping are fine; returns need a follow-up call."
+      },
+      {
+       "role": "userMessage",
+       "content": "Re-check only the returns item."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Analysis complete: Aggregate (t2, pass 0): invoice and shipping are fine; returns need a follow-up call."
+      },
+      {
+       "role": "userMessage",
+       "content": "Do a full audit of every item."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Stopped: the review loop reached its maximum count."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 7,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S09_item": 3,
+      "SYSPROMPT_SENTINEL_S09_aggregator": 2,
+      "SYSPROMPT_SENTINEL_S09_quality": 2
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 1917,
+    "executedDataGzipBytes": 289,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "after",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}

@@ -1,10 +1,11 @@
 {
     "schema": "ts-00b-compare-config/1",
-    "status": "Task 04: token v2 paths set and every intended difference listed (dry run against before/: reports/04-config-dry-run.md). Each fix task activates and refines its entries.",
+    "status": "Task 10: evaluated on the after/ capture (reports/10-after-vs-before.md). Task 04 set the token v2 paths and listed every intended difference (dry run: reports/04-config-dry-run.md); Tasks 05-09 refined the entries; Task 10 added the F18 record-key and internal-like-external checks.",
     "notes": [
         "An entry allows class A differences for its scenarios x modes x turns x aspects (TS6). With mustDiffer (default true) the run fails when none of them differs.",
         "turns: a list of turn ids, 't3+' for t3 and every later turn, or '*'. modes and scenarios: a list or '*'. variant: only after traces named <scenario>@<variant>.json.",
         "Checks run on the after trace. A check with 'pending' is reported but not evaluated until its path or decision exists.",
+        "executedDataKeysOnly: every record of the executed data has only the allowed key paths (an allowed path that holds an object is not looked into).",
         "Aspects: modelRequests, streamedTokens, finalText, nodeSequence, status, finalState, action (mapping, elements, data.nodeId), error.",
         "History checks (tokenHistoryRoles, tokenHistoryHasNoKey, tokenHistoryAlternates) read tokenV2.historyPath unless the check names its own historyPath. tokenHistoryAlternates: userMessage first, then strictly alternating, no blank content.",
         "tokenPendingWhileStopped: the token has pending resume data (tokenV2.pendingResumePath) exactly when the turn ended STOPPED.",
@@ -321,6 +322,35 @@
             "mustDiffer": false,
             "expect": "/internal-prediction keeps the full executed data the execution viewer shows.",
             "checks": [{ "type": "payloadSentinelMin", "payload": "executedData", "min": 1 }]
+        },
+        {
+            "id": "F18-external-record-keys",
+            "finding": "F18",
+            "decision": "TS18",
+            "scenarios": "*",
+            "modes": ["M1", "M2", "M3", "M1-reqflag", "M3-envflags"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Task 10: every external record holds only nodeId, nodeLabel, status, previousNodeIds, data.name, data.state, the error text and the slim action of a stopped record.",
+            "checks": [
+                {
+                    "type": "executedDataKeysOnly",
+                    "allowed": ["nodeId", "nodeLabel", "status", "previousNodeIds", "data.name", "data.state", "data.error", "data.output.humanInputAction"]
+                }
+            ]
+        },
+        {
+            "id": "F18-internal-like-external",
+            "finding": "F18",
+            "decision": "TS18",
+            "scenarios": ["S01", "S07"],
+            "modes": ["M1-internal"],
+            "turns": "*",
+            "aspects": [],
+            "mustDiffer": false,
+            "expect": "Task 10: the internal chat runs the same conversation as /prediction; only the executed data it receives differs.",
+            "checks": [{ "type": "sameClassAAsMode", "mode": "M1" }]
         },
         {
             "id": "F19-slim-action",

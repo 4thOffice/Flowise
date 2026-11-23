@@ -1,0 +1,414 @@
+{
+ "schema": "ts-00b-trace/1",
+ "scenario": {
+  "id": "S01r",
+  "file": "S01r-redirect-mapping.json",
+  "title": "Mapping flow that redirects to S01",
+  "findings": []
+ },
+ "mode": "M1",
+ "endpoint": "prediction",
+ "chatId": "ts00b-mwtl08na-M1-S01r",
+ "runTag": "mwtl08na",
+ "resumedFrom": {
+  "traceDir": "traces/before",
+  "afterTurn": "t2"
+ },
+ "flows": [
+  {
+   "slug": "S01r-redirect-mapping",
+   "chatflowId": "387b80f2-bf7f-4dc8-8465-74e2ca121a1c",
+   "name": "TS00b M1 S01r-redirect-mapping",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  },
+  {
+   "slug": "S01-single-agent-memory",
+   "chatflowId": "29200ad8-57d6-431e-8456-78a1478fb21a",
+   "name": "TS00b M1 S01-single-agent-memory",
+   "chatbotConfig": {
+    "clientState": {
+     "enabled": true,
+     "enabledFull": true
+    }
+   },
+   "apiConfig": null
+  }
+ ],
+ "capturedAt": "2026-11-23T18:10:47.430Z",
+ "turns": [
+  {
+   "id": "t3",
+   "note": null,
+   "request": {
+    "endpoint": "prediction",
+    "body": {
+     "chatId": "ts00b-mwtl08na-M1-S01r",
+     "streaming": true,
+     "question": "Thanks, bye.",
+     "trustedState": {
+      "$token": true,
+      "base64Length": 14968,
+      "sha256": "9e8a7e64b2b91017bbccd37ce2ec0ac1680c82177f9bb2b6e089db117a6b2c7b"
+     }
+    }
+   },
+   "tokenSent": {
+    "base64Length": 14968,
+    "sha256": "9e8a7e64b2b91017bbccd37ce2ec0ac1680c82177f9bb2b6e089db117a6b2c7b"
+   },
+   "response": {
+    "httpStatus": 200,
+    "durationMs": 13.23,
+    "timedOut": false,
+    "error": null,
+    "streaming": true,
+    "sseEvents": [
+     {
+      "offsetMs": 7.33,
+      "event": "agentFlowEvent",
+      "data": "INPROGRESS"
+     },
+     {
+      "offsetMs": 7.38,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 7.4,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "startAgentflow_0",
+       "nodeLabel": "Start",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 7.41,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "INPROGRESS"
+      }
+     },
+     {
+      "offsetMs": 10.66,
+      "event": "token",
+      "data": "Bye, have a nice"
+     },
+     {
+      "offsetMs": 10.69,
+      "event": "token",
+      "data": " day."
+     },
+     {
+      "offsetMs": 11.33,
+      "event": "calledTools",
+      "data": []
+     },
+     {
+      "offsetMs": 11.35,
+      "event": "usageMetadata",
+      "data": {
+       "input_tokens": 10478,
+       "output_tokens": 6,
+       "total_tokens": 10484
+      }
+     },
+     {
+      "offsetMs": 11.37,
+      "event": "nextAgentFlow",
+      "data": {
+       "nodeId": "agentAgentflow_0",
+       "nodeLabel": "Support Agent",
+       "status": "FINISHED"
+      }
+     },
+     {
+      "offsetMs": 11.38,
+      "event": "agentFlowEvent",
+      "data": "FINISHED"
+     },
+     {
+      "offsetMs": 11.96,
+      "event": "trustedStateData",
+      "data": {
+       "$token": true,
+       "base64Length": 380,
+       "sha256": "ef4887577fd8005200f5a9e0c7bd7a85813e530bc15b2df4f4ac985f5d42ee7d"
+      }
+     },
+     {
+      "offsetMs": 13.15,
+      "event": "metadata",
+      "data": {
+       "chatId": "ts00b-mwtl08na-M1-S01r",
+       "chatMessageId": "41dc740f-0916-41fc-9688-5a9d4bbba847",
+       "question": "Thanks, bye.",
+       "sessionId": "ts00b-mwtl08na-M1-S01r"
+      }
+     },
+     {
+      "offsetMs": 13.17,
+      "event": "agentFlowExecutedData",
+      "data": {
+       "$see": "executedData",
+       "records": 2
+      }
+     },
+     {
+      "offsetMs": 13.18,
+      "event": "end",
+      "data": "[DONE]"
+     }
+    ],
+    "restJson": null
+   },
+   "status": "FINISHED",
+   "statusSource": "sse",
+   "text": "Bye, have a nice day.",
+   "tokens": [
+    "Bye, have a nice",
+    " day."
+   ],
+   "action": null,
+   "executedData": [
+    {
+     "nodeId": "startAgentflow_0",
+     "nodeLabel": "Start",
+     "status": "FINISHED",
+     "previousNodeIds": [],
+     "data": {
+      "name": "startAgentflow",
+      "state": {}
+     }
+    },
+    {
+     "nodeId": "agentAgentflow_0",
+     "nodeLabel": "Support Agent",
+     "status": "FINISHED",
+     "previousNodeIds": [
+      "startAgentflow_0"
+     ],
+     "data": {
+      "name": "agentAgentflow",
+      "state": {}
+     }
+    }
+   ],
+   "nodeSequence": [
+    "startAgentflow_0:FINISHED",
+    "agentAgentflow_0:FINISHED"
+   ],
+   "finalState": {},
+   "modelRequests": [
+    {
+     "seq": 1462,
+     "route": "S01-agent",
+     "callIndex": 0,
+     "ruleId": "t3",
+     "stream": true,
+     "status": 200,
+     "body": {
+      "model": "fake-model",
+      "temperature": 0.9,
+      "stream": true,
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "calculator",
+         "description": "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+         "parameters": {
+          "type": "object",
+          "properties": {
+           "input": {
+            "type": "string"
+           }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       },
+       {
+        "type": "function",
+        "function": {
+         "name": "current_date_time",
+         "description": "Useful to get current day, date and time.",
+         "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+         }
+        }
+       }
+      ],
+      "stream_options": {
+       "include_usage": true
+      },
+      "store": false,
+      "messages": [
+       {
+        "role": "system",
+        "content": {
+         "$blob": "6c2493204eba34a029c698f652b655eb4e1dc5544905095bc74c4c338395b08b",
+         "length": 41448,
+         "sentinels": [
+          "SYSPROMPT_SENTINEL_S01_agent"
+         ],
+         "head": "\\[\\[route:S01-agent\\]\\] SYSPROMPT_SENTINEL_S01_agent\n\nYou are the Support Agent for Northwind Outfitters. Answer order q"
+        }
+       },
+       {
+        "role": "user",
+        "content": "Hello, is my order ORD-2002 on its way?"
+       },
+       {
+        "role": "assistant",
+        "content": "Yes, order ORD-2002 shipped yesterday and should arrive on Thursday."
+       },
+       {
+        "role": "user",
+        "content": "What was the order number again?"
+       },
+       {
+        "role": "assistant",
+        "content": "Your order number is ORD-2002."
+       },
+       {
+        "role": "user",
+        "content": "Thanks, bye."
+       }
+      ]
+     },
+     "reply": {
+      "content": "Bye, have a nice day.",
+      "toolCalls": null,
+      "error": null
+     }
+    }
+   ],
+   "token": {
+    "received": true,
+    "source": "sse",
+    "base64Length": 380,
+    "sha256": "ef4887577fd8005200f5a9e0c7bd7a85813e530bc15b2df4f4ac985f5d42ee7d",
+    "sizes": {
+     "base64Length": 380,
+     "payloadBytes": 283,
+     "gzipBytes": 255,
+     "rawJsonBytes": 492,
+     "version": 2,
+     "topLevelKeys": [
+      "version",
+      "history",
+      "flowState",
+      "formValues",
+      "childFlowTokens"
+     ],
+     "historyMessages": 6,
+     "historyBytes": 416,
+     "historyRoles": [
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage",
+      "userMessage",
+      "apiMessage"
+     ],
+     "historyMessagesWithAction": 0,
+     "flowStateBytes": 2,
+     "formValuesBytes": 2,
+     "childFlowTokensBytes": 2,
+     "pendingResumeBytes": 0,
+     "pendingNodes": null
+    },
+    "pathBytes": [],
+    "decoded": {
+     "version": 2,
+     "history": [
+      {
+       "role": "userMessage",
+       "content": "Hello, is my order ORD-2002 on its way?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Yes, order ORD-2002 shipped yesterday and should arrive on Thursday."
+      },
+      {
+       "role": "userMessage",
+       "content": "What was the order number again?"
+      },
+      {
+       "role": "apiMessage",
+       "content": "Your order number is ORD-2002."
+      },
+      {
+       "role": "userMessage",
+       "content": "Thanks, bye."
+      },
+      {
+       "role": "apiMessage",
+       "content": "Bye, have a nice day."
+      }
+     ],
+     "flowState": {},
+     "formValues": {},
+     "childFlowTokens": {}
+    },
+    "sentinels": {
+     "total": 0,
+     "bySentinel": {}
+    }
+   },
+   "sentinels": {
+    "token": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "executedData": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "sseOtherEvents": {
+     "total": 0,
+     "bySentinel": {}
+    },
+    "modelRequests": {
+     "total": 1,
+     "bySentinel": {
+      "SYSPROMPT_SENTINEL_S01_agent": 1
+     }
+    }
+   },
+   "sizes": {
+    "actionBytes": 0,
+    "actionInputBytes": 0,
+    "executedDataBytes": 297,
+    "executedDataGzipBytes": 152,
+    "restJsonBytes": 0
+   },
+   "db": null,
+   "serverLog": []
+  }
+ ],
+ "capture": {
+  "commit": "2622c9929e0b7d6a498e1e139cfa3d214eea18f1",
+  "label": "continue-v1",
+  "serverEnv": null,
+  "variant": null,
+  "emptyDbBeforeEveryTurn": false
+ }
+}
