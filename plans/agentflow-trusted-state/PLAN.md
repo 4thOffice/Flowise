@@ -14,7 +14,8 @@ The token is the only thing carried between turns. It holds these separate field
 Every other way of retrieving memory is removed: no ChatMessage or Execution reads, no mode switches, no records of past runs. Clients are assumed to always round-trip the token. As a result the token no longer carries system prompts or node records, and external clients no longer receive them either.
 
 References:
-- How it works today: [00-current-implementation.md](./00-current-implementation.md)
+- How it works now: [11-new-implementation.md](./11-new-implementation.md); before this plan: [00-current-implementation.md](./00-current-implementation.md)
+- Rollout (client note, flow migration, deploy note, open production checks): [rollout.md](./rollout.md)
 - What is handled incorrectly and must be fixed: [00c-findings.md](./00c-findings.md)
 - Items raised along the way that are outside this plan: [BACKLOG.md](./BACKLOG.md)
 
@@ -128,9 +129,13 @@ flowchart LR
 | 07 | [07-human-input-stop-and-resume.md](./07-human-input-stop-and-resume.md) | Done (decisions in 07 §4.2; TS-O5 resolved as TS29; notes for 09 in its spec) | — | F05–F09 | Approval answers in history, no state flags, resume from slim pending data, v1 paused tokens. |
 | 08 | [08-execute-flow-child-tokens.md](./08-execute-flow-child-tokens.md) | Done (decisions and the paused-child limitation in 08 §4.2) | — | F10 | Child flow tokens kept in parent state. |
 | 09 | [09-client-payloads-and-ui.md](./09-client-payloads-and-ui.md) | Done (F17 decided as TS30, accepted consequences in TS18; decisions in 09 §4.2) | — | F17, F18, F19 | Slim `action`, executed data full internal / pruned external, UI token handling. |
-| 10 | [10-replay-compare-and-rollout.md](./10-replay-compare-and-rollout.md) | Not started | — | — | `after/` capture, compare, v1 continuation, queue mode, rollout. |
+| 10 | [10-replay-compare-and-rollout.md](./10-replay-compare-and-rollout.md) | Done (queue mode not run and the S03 reply-order race left as is, by the user; production checks open, rollout.md §3–4) | — | — | `after/` capture, compare, v1 continuation, queue mode, rollout. |
 
 08 runs after 06 although their production files are disjoint: both change the characterization tests and need a components build in the one shared checkout, and 08's version sync uses 06's `updateOutdatedNodeData` change.
+
+**Plan complete** (2026-11-23, all tasks on `master`, not pushed). Open for the user:
+- The production VoIP and Celery flow checks and the TS29 `{{question}}` Agents ([rollout.md](./rollout.md) §3–4).
+- Queue mode against a real Redis, if wanted; Jest covers it through a captured `RedisEventPublisher` (10 §4).
 
 ---
 

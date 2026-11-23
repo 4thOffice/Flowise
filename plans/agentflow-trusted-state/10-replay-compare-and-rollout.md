@@ -51,7 +51,7 @@ Prove end to end on a real server that history and state are correct with no DB 
   - [11-new-implementation.md](./11-new-implementation.md): round trip, token v2 fields, turn input, write-back rules, settings, recorded data, client payloads, observability and limitations, with line references at `2622c992`. `00-current-implementation.md` has a "Previous behaviour" banner pointing to it.
 - [x] `AGENTS.md` and the memory note on trusted state updated to the new contract.
   - `AGENTS.md`: new section "Conversation state (`trustedState`)". Memory note `trusted-state-always-on.md` (and its `MEMORY.md` line): the token is the only conversation state in every mode, Client State only switches recording.
-- [ ] Every task Done in `PLAN.md`. (The plan session owns `PLAN.md`; what to record is in §4.3.)
+- [x] Every task Done in `PLAN.md` (recorded by the plan session).
 
 ---
 
