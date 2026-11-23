@@ -64,7 +64,7 @@ Target: one history and separate state fields, all in the token; nothing from th
 
 ### Seen in Task 02, not assigned to a finding
 
-User decisions from the Task 02 session (2026-11-22, [client-inventory.md](./client-inventory.md) §0) bear on F02, F11, TS17 and TS22: node memory settings alone decide the history (same-turn replies appended to it are assistant messages; others are output variables only), the `startEphemeralMemory` and `llmEnableMemory` client overrides are blocked, ephemeral memory is dropped for now, and callers without the token are ignored. Recorded in PLAN §2 as TS17 (changed), TS22–TS25 and the open TS-O3, TS-O4.
+User decisions from the Task 02 session (2026-11-22, [client-inventory.md](./client-inventory.md) §0) bear on F02, F11, TS17 and TS22: node memory settings alone decide the history (same-turn replies appended to it are assistant messages; others are output variables only), the `startEphemeralMemory` and `llmEnableMemory` client overrides are blocked, ephemeral memory is dropped for now, and callers without the token are ignored. Recorded in PLAN §2 as TS17 (changed) and TS22–TS25. Task 04 reversed the override block (TS24, D13) and resolved TS-O3 and TS-O4 as TS27 and TS28.
 
 Recorded for Task 04 to triage ([field-inventory.md](./field-inventory.md) §4, [client-inventory.md](./client-inventory.md) §6):
 - **Credential ids**: `FLOWISE_CREDENTIAL_ID` reaches clients in every streamed `agentFlowExecutedData`, in the SSE and history `action` and in the fatal-error token (`:2010`), because all three are taken before `_removeCredentialId` (`:2124`). Removed with the records and the full action by F13, F18 and F19, except the internal chat's executed data.

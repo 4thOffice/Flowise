@@ -10,7 +10,7 @@ What the clients of Agentflow V2 predictions send and read, for TS13/TS13a, TS18
 
 ## 0. Decisions (user, 2026-11-22)
 
-Recorded in PLAN §2 as TS17 (changed) and TS22–TS25; decision 4 continues as the open TS-O3:
+Recorded in PLAN §2 as TS17 (changed) and TS22–TS25. Task 04 reversed decision 3's override block (TS24, D13) and resolved decision 4 as TS27:
 
 1. **Every client that matters round-trips the token**, on every turn and with approval answers. Callers that do not send it are obsolete and ignored (listed in §1).
 2. **Node memory settings decide the history.** A node's own memory settings (on/off, all messages, window, summary, …) alone decide which history it sees. History is the conversation's user and assistant messages; anything else from earlier nodes in the flow reaches a node only through its own "Add Messages" list.
