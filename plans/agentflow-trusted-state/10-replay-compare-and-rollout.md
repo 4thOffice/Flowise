@@ -18,14 +18,14 @@ Prove end to end on a real server that history and state are correct with no DB 
 
 ## 2. Verification Matrix
 
-1. **Full replay**: capture M1–M3 into `traces/after/` and compare with `before/`. Class A identical except the `compare.config.json` intended differences, each of which must appear.
+1. **Full replay**: capture M1–M3 into `traces/after/` and compare with `before/`. Class A identical except the `compare.config.json` intended differences, each of which must appear. The tooling's status for non-streaming turns skips records with `data.parentNodeId`, which external records no longer carry; that matters only for a non-streaming flow with iterations, which no scenario has (09 §4.3).
 2. **Empty DB**: M1–M3 `after/` runs with the ChatMessage and Execution tables emptied before every turn give the same traces.
 3. **M3 = M1**: flows with Client State off behave exactly like M1.
 4. **Internal vs external**: S01 and S07 through `/internal-prediction` keep full executed data; through `/prediction` it is pruned (TS18).
 5. **v1 continuation**: for each scenario and turn k (including paused turns), send the `before/` token from turn k to the new server and compare turns k+1… with the expected results. Paused v1 Agent tokens (S07 t2, S08 t1) replay their stored checkpoint once, so their next tokens may still hold that prompt until the Agent is resumed (04 D4).
 6. **Determinism**: two `after/` captures compare clean.
 7. **Size goals**: token size per turn grows by about that turn's messages, raw JSON ≤ 5 % of `before/` (S12 ≤ 10 %, S13 ≤ 4 KB; `SIZE-token-v2` in `compare.config.json`); sentinel counts 0, paused turns included (TS26), except item 5's v1 Agent checkpoints; decode the child tokens inside parent tokens for these counts (08 §4.2).
-8. **Queue mode**: S01, S07 and S13 with `MODE=queue` and a local Redis; class A identical to non-queue; job and pub/sub message sizes recorded.
+8. **Queue mode**: S01, S07 and S13 with `MODE=queue` and a local Redis; class A identical to non-queue; job and pub/sub message sizes recorded. Jest covers queue mode only through a captured `RedisEventPublisher` (09 §4.2).
 9. **Flowise UI** pass in the browser on the isolated server.
 10. **Full test suites**: server, components, UI build.
 
@@ -38,7 +38,7 @@ Prove end to end on a real server that history and state are correct with no DB 
 - [ ] Flow migration: turn on "Accept conversation history from the client" for flows whose clients send `history`, and memory for nodes that relied on the first-node prepend (from `client-inventory.md`); sync saved nodes to Start 1.2, Agent 3.3, LLM 1.2, Execute Flow 1.3 (04 D14, D15). The canvas Sync Nodes button shows only when the flow is opened by in-app navigation; after a full page load it can stay hidden while the per-node badges show (06 §4.2).
 - [ ] VoIP and Celery flows (04 §2.7 VoIP, §3 Q2): list each production flow's node memory settings and enabled overrides; nodes that today rely on the client's `startEphemeralMemory` to hide the token history (Agent or Condition Agent with memory on, LLM without an enabled `llmEnableMemory` override) will see it after the deploy, so decide per node; set `legacy_history` off in the VoIP configs (its `history` is ignored with a warning).
 - [ ] Agents with approval tools whose Messages list uses `{{question}}` (TS29): list them in the production flows; on resume they get the answer request's question, not the stopped turn's.
-- [ ] Deploy note: older builds cannot read new tokens (TS2); Persist State and Ephemeral Memory are gone from the Start node; the Client State switches only control what is recorded (TS9, D12), and "Accept conversation history from the client" is new (TS13a). Agent, LLM and Execute Flow nodes on the old default "Return Response As: User Message" now add an assistant message, which changes model input only where a memory-on node runs after them in the same turn (TS25).
+- [ ] Deploy note: older builds cannot read new tokens (TS2); Persist State and Ephemeral Memory are gone from the Start node; the Client State switches only control what is recorded (TS9, D12), and "Accept conversation history from the client" is new (TS13a). Agent, LLM and Execute Flow nodes on the old default "Return Response As: User Message" now add an assistant message, which changes model input only where a memory-on node runs after them in the same turn (TS25). External executed data is pruned: Flowise Evaluations lose Agentflow V2 token usage and model names (TS18). The internal chat keeps its token with its saved messages (TS30).
 - [ ] What to watch after deploy: token size debug log, decode errors, resume failures.
 - [ ] `11-new-implementation.md` written; `00-current-implementation.md` marked as the previous behaviour.
 - [ ] `AGENTS.md` and the memory note on trusted state updated to the new contract.
