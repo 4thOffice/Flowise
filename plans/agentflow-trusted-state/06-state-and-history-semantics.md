@@ -2,7 +2,7 @@
 
 - **Status**: Not started (spec finalised in the Task 04 design review)
 - **Depends On**: [05-token-only-core.md](./05-token-only-core.md); design: [04 §2](./04-decision-gate-and-token-v2-design.md), decisions D7, D13–D16
-- **Parallel with**: Task 08 (disjoint files)
+- **Parallel with**: none; Task 08 runs after it (shared characterization tests and components build in one checkout)
 - **Fixes**: F02, F03, F04, F11; TS25 for Agent and LLM
 - **Primary Files**:
   - `packages/components/nodes/agentflow/Start/Start.ts`

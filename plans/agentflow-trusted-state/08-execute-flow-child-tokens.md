@@ -2,7 +2,7 @@
 
 - **Status**: Not started (spec finalised in the Task 04 design review)
 - **Depends On**: [05-token-only-core.md](./05-token-only-core.md) (child token in the JSON response, F14; child flow tokens field and its plumbing); design: [04 §2.10](./04-decision-gate-and-token-v2-design.md), D15
-- **Parallel with**: Task 06 (disjoint files)
+- **Runs after**: Task 06 (shared characterization tests and components build in one checkout; the version sync uses Task 06's `updateOutdatedNodeData` change)
 - **Fixes**: F10; TS25 for Execute Flow
 - **Primary Files**:
   - `packages/components/nodes/agentflow/ExecuteFlow/ExecuteFlow.ts` (only this node: the server plumbing comes from Task 05, which keeps this task disjoint from Task 06)

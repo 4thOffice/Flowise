@@ -105,7 +105,7 @@ flowchart LR
     T03 --> T04["04: Token v2<br/>design review"]
     T04 --> T05["05: Token-only core"]
     T05 --> T06["06: State & history<br/>semantics"]
-    T05 --> T08["08: Execute Flow<br/>child tokens"]
+    T06 --> T08["08: Execute Flow<br/>child tokens"]
     T06 --> T07["07: Human-input<br/>stop & resume"]
     T07 --> T09["09: Client payloads<br/>& UI"]
     T08 --> T09
@@ -121,12 +121,14 @@ flowchart LR
 | 02 | [02-field-inventory-and-size-anatomy.md](./02-field-inventory-and-size-anatomy.md) | Done (decisions recorded as TS17, TS22–TS25) | 01 | — | Field and client inventory (incl. `history` usage), size report. |
 | 03 | [03-field-removal-tests.md](./03-field-removal-tests.md) | Done (TS-O1 resolved as TS26) | — | — | Prove that the token fields suffice for normal turns; measure and resolve TS-O1. |
 | 04 | [04-decision-gate-and-token-v2-design.md](./04-decision-gate-and-token-v2-design.md) | Done (D1–D17; TS-O3 and TS-O4 resolved as TS27, TS28; TS24 amended) | — | — | Token v2 design review: field names, v1 upgrade, builder and history rules, compare entries. |
-| 05 | [05-token-only-core.md](./05-token-only-core.md) | Not started | — | F01, F03, F12–F16 | v2 codec and builder, no DB reads, state in the token, token in JSON responses. |
-| 06 | [06-state-and-history-semantics.md](./06-state-and-history-semantics.md) | Not started | 08 | F02, F03, F04, F11 | Persist State and ephemeral memory removed, form values field, client `history`, overrides that repeat the history (TS27), Return Response As (TS25). |
+| 05 | [05-token-only-core.md](./05-token-only-core.md) | Done (interim deviations for Task 07 in 05 §4.2) | — | F01, F03, F12–F16 | v2 codec and builder, no DB reads, state in the token, token in JSON responses. |
+| 06 | [06-state-and-history-semantics.md](./06-state-and-history-semantics.md) | Not started | — | F02, F03, F04, F11 | Persist State and ephemeral memory removed, form values field, client `history`, overrides that repeat the history (TS27), Return Response As (TS25). |
 | 07 | [07-human-input-stop-and-resume.md](./07-human-input-stop-and-resume.md) | Not started | — | F05–F09 | Approval answers in history, no state flags, resume from slim pending data, v1 paused tokens. |
-| 08 | [08-execute-flow-child-tokens.md](./08-execute-flow-child-tokens.md) | Not started | 06 | F10 | Child flow tokens kept in parent state. |
+| 08 | [08-execute-flow-child-tokens.md](./08-execute-flow-child-tokens.md) | Not started | — | F10 | Child flow tokens kept in parent state. |
 | 09 | [09-client-payloads-and-ui.md](./09-client-payloads-and-ui.md) | Not started | — | F17, F18, F19 | Slim `action`, executed data full internal / pruned external, UI token handling. |
 | 10 | [10-replay-compare-and-rollout.md](./10-replay-compare-and-rollout.md) | Not started | — | — | `after/` capture, compare, v1 continuation, queue mode, rollout. |
+
+08 runs after 06 although their production files are disjoint: both change the characterization tests and need a components build in the one shared checkout, and 08's version sync uses 06's `updateOutdatedNodeData` change.
 
 ---
 
@@ -135,7 +137,7 @@ flowchart LR
 - **Scenario suite and traces**: [baselines/](./baselines/) (`flows/`, `scenarios/`, `fake-llm/`, `traces/before/`, `traces/after/`, `reports/`).
 - **Run from the repo root with `--filter ./packages/server`**, not `--filter flowise`: the root package has the same name, and its turbo run passes the test path to every package's jest, which fails in `flowise-components`.
 - **Build**: `pnpm --filter flowise-components build` (when nodes change), then `pnpm --filter ./packages/server build`
-- **All server tests**: `pnpm --filter ./packages/server test`
+- **All server tests**: `pnpm --filter ./packages/server test` (about 5 min)
 - **Agentflow tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow`
 - **Trusted state tests**: `pnpm --filter ./packages/server test -- test/utils/buildAgentflow/trustedState` (about 60 s)
 - **Components tests**: `pnpm --filter flowise-components test`
