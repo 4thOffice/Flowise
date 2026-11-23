@@ -317,22 +317,26 @@ export function countSentinels(payload: unknown): { total: number; bySentinel: R
     return { total, bySentinel }
 }
 
-// Token field accessors. They know the v1 layout only; an unknown layout throws so that a token format change
-// cannot make a check pass by reading a field that no longer exists. Task 04/05 adds the v2 field names here.
-const assertV1Token = (state: any) => {
+// Token field accessors for the v1 and v2 layouts. An unknown layout throws so that a token format change cannot make
+// a check pass by reading a field that no longer exists.
+export const isV2Token = (state: any) => Boolean(state) && typeof state === 'object' && state.version === 2
+
+const assertKnownToken = (state: any) => {
+    if (isV2Token(state)) return
     if (!state || typeof state !== 'object' || !('pastChatHistory' in state)) {
         throw new Error(`Unknown trustedState layout (keys: ${Object.keys(state ?? {}).join(', ')}); update the harness token accessors`)
     }
 }
 
 export function tokenHistory(state: any): any[] {
-    assertV1Token(state)
-    return state.pastChatHistory ?? []
+    assertKnownToken(state)
+    return (isV2Token(state) ? state.history : state.pastChatHistory) ?? []
 }
 
+// v2 tokens carry node records only in the interim pending data of a stopped run
 export function tokenRecords(state: any): any[] {
-    assertV1Token(state)
-    const raw = state.previousExecution?.executionData
+    assertKnownToken(state)
+    const raw = isV2Token(state) ? state.pendingResume?.legacyExecution?.executionData : state.previousExecution?.executionData
     return raw ? JSON.parse(raw) : []
 }
 
@@ -456,7 +460,7 @@ export interface TurnResult {
     modelCallsByRoute: Record<string, ModelCall[]>
     token: string | null
     tokenSource: 'sse' | 'json' | null
-    /** Tokens the server built this turn, including any it could not deliver (e.g. non-streaming responses today) */
+    /** Tokens the server built this turn, over SSE or for the JSON response */
     serverTokens: string[]
     decoded: DecodedToken | null
     tokenSummary: TokenSummary | null

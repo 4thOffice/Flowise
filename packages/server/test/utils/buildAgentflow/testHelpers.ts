@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { ICommonObject, IServerSideEventStreamer } from 'flowise-components'
 import { executeAgentFlow } from '../../../src/utils/buildAgentflow'
 import { SSEStreamer } from '../../../src/utils/SSEStreamer'
+import { trusted_state_to_string } from '../../../src/utils/trustedStateHelper'
+import { TrustedHistoryMessage, buildTrustedState, writeToken } from '../../../src/utils/agentflow/trustedState'
 import { IAgentflowNodeInstance, NodeInstanceFactory } from '../../../src/utils/agentflow/types'
 import {
     IComponentNodes,
@@ -558,6 +560,13 @@ export interface RunTestAgentFlowOptions {
     maxNodeConcurrency?: number
     isInternal?: boolean
 }
+
+// A v1 token carrying a stored run, as clients sent it before the token became the only source (the server upgrades it)
+export const legacyTokenFor = (previousExecution: Record<string, any>, pastChatHistory: any[] = []) =>
+    trusted_state_to_string({ pastChatHistory, previousExecution })
+
+export const tokenWithHistory = (history: TrustedHistoryMessage[]) =>
+    writeToken(buildTrustedState({ history, childFlowTokens: {}, flowNodeIds: new Set() }))
 
 export async function runTestAgentFlow({
     flow,

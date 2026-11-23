@@ -552,13 +552,15 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 const chatflow = createChatflow(loadBaselineFlow(file), { id: `cf-parity-${file}` })
                 const db = createMockDataSource()
                 const normalized = []
+                let trustedState: string | undefined
                 for (const incomingInput of turns) {
                     const result = await runFlow({
                         chatflow,
-                        incomingInput,
+                        incomingInput: { ...incomingInput, trustedState },
                         appDataSource: db.appDataSource,
                         componentNodes: realComponentNodes
                     })
+                    trustedState = result.trustedState
                     normalized.push(normalizeRun(result, db))
                 }
                 return normalized
@@ -868,7 +870,8 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                     flow,
                     incomingInput: {
                         humanInput: { type: resumeType, startNodeId: 'gate', feedback: `${resumeType} via test` },
-                        overrideConfig: { sessionId }
+                        overrideConfig: { sessionId },
+                        trustedState: turn1.trustedState
                     },
                     appDataSource: db.appDataSource,
                     componentNodes: realComponentNodes,
@@ -883,7 +886,8 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 expect(records.filter((r) => r.nodeId === 'companion')).toHaveLength(1)
                 expect(records.filter((r) => r.nodeId === 'gate').map((r) => r.status)).toEqual(['FINISHED'])
                 expect(records.some((r) => r.status === 'STOPPED')).toBe(false)
-                expect(db.chatMessages.filter((m) => Boolean(m.action))).toHaveLength(0)
+                // Task 07 (D11) clears the recorded stop message's action by its id; until then the row keeps it
+                expect(db.chatMessages.filter((m) => Boolean(m.action))).toHaveLength(1)
             },
             10000
         )
@@ -1311,7 +1315,8 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                                 startNodeId: 'humanInputAgentflow_0',
                                 feedback: request.sessionId
                             },
-                            overrideConfig: { sessionId: request.sessionId }
+                            overrideConfig: { sessionId: request.sessionId },
+                            trustedState: (gateResults[i] as PromiseFulfilledResult<ICommonObject>).value.trustedState
                         },
                         appDataSource: db.appDataSource,
                         componentNodes: realComponentNodes,
@@ -1548,7 +1553,8 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 chatflow,
                 incomingInput: {
                     humanInput: { type: 'proceed', startNodeId: 'humanInputAgentflow_0', feedback: 'ship it' },
-                    overrideConfig: { sessionId: 'sess-thread-05' }
+                    overrideConfig: { sessionId: 'sess-thread-05' },
+                    trustedState: turn1.trustedState
                 },
                 appDataSource: hitlDb.appDataSource,
                 componentNodes: realComponentNodes
@@ -1634,14 +1640,22 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
             const decodeTrustedState = async (recorder: ReturnType<typeof createRealSSERecorder>) => {
                 const trustedEvents = recorder.getEvents().filter((e) => e.event === 'trustedStateData')
                 expect(trustedEvents).toHaveLength(1)
-                const decoded = await trusted_state_from_string(trustedEvents[0].data)
+                const decoded = (await trusted_state_from_string(trustedEvents[0].data)) as any
+                expect(decoded.version).toBe(2)
+                const pending = decoded.pendingResume?.legacyExecution
                 return {
                     raw: trustedEvents[0].data as string,
-                    state: decoded?.previousExecution?.state,
-                    records: JSON.parse(decoded!.previousExecution.executionData) as IAgentflowExecutedData[],
-                    pastChatHistory: decoded!.pastChatHistory
+                    history: decoded.history as Array<{ role: string; content: string }>,
+                    flowState: decoded.flowState,
+                    pendingState: pending?.state,
+                    pendingRecords: (pending ? JSON.parse(pending.executionData) : []) as IAgentflowExecutedData[]
                 }
             }
+            const lastExecutedData = (recorder: ReturnType<typeof createRealSSERecorder>): IAgentflowExecutedData[] =>
+                recorder
+                    .getEvents()
+                    .filter((e) => e.event === 'agentFlowExecutedData')
+                    .slice(-1)[0].data
 
             const forkJoinFlow = () =>
                 createFlow(
@@ -1695,14 +1709,15 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 finishedRecorder.close()
                 expect(finished.text).toBe('join:ok+ok')
                 const finishedState = await decodeTrustedState(finishedRecorder)
-                expect(finishedState.state).toBe('FINISHED')
-                expect(countBy(finishedState.records.map((r) => `${r.nodeId}:${r.status}`))).toEqual({
+                expect(finishedState.pendingState).toBeUndefined()
+                expect(finishedState.flowState).toEqual({ w1: 'ok', w2: 'ok' })
+                expect(countBy(finished.agentFlowExecutedData.map((r: IAgentflowExecutedData) => `${r.nodeId}:${r.status}`))).toEqual({
                     'start_0:FINISHED': 1,
                     'w1:FINISHED': 1,
                     'w2:FINISHED': 1,
                     'join:FINISHED': 1
                 })
-                expect(finishedState.pastChatHistory.map((m) => [m.role, m.content])).toEqual([
+                expect(finishedState.history.map((m) => [m.role, m.content])).toEqual([
                     ['userMessage', 'zr finished'],
                     ['apiMessage', 'join:ok+ok']
                 ])
@@ -1722,9 +1737,9 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 })
                 stoppedRecorder.close()
                 const stoppedState = await decodeTrustedState(stoppedRecorder)
-                expect(stoppedState.state).toBe('STOPPED')
-                expect(stoppedState.records.find((r) => r.nodeId === 'directReplyAgentflow_0')?.status).toBe('FINISHED')
-                expect(stoppedState.records.find((r) => r.nodeId === 'humanInputAgentflow_0')?.status).toBe('STOPPED')
+                expect(stoppedState.pendingState).toBe('STOPPED')
+                expect(stoppedState.pendingRecords.find((r) => r.nodeId === 'directReplyAgentflow_0')?.status).toBe('FINISHED')
+                expect(stoppedState.pendingRecords.find((r) => r.nodeId === 'humanInputAgentflow_0')?.status).toBe('STOPPED')
 
                 const resumeRecorder = createRealSSERecorder('chat-zr-resume')
                 const resumed = await runFlow({
@@ -1742,8 +1757,10 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 resumeRecorder.close()
                 expect(resumed.text).toBe('Approved!')
                 const resumedState = await decodeTrustedState(resumeRecorder)
-                expect(resumedState.state).toBe('FINISHED')
-                expect(resumedState.records.filter((r) => r.nodeId === 'directReplyAgentflow_0')).toHaveLength(1)
+                expect(resumedState.pendingState).toBeUndefined()
+                expect(
+                    resumed.agentFlowExecutedData.filter((r: IAgentflowExecutedData) => r.nodeId === 'directReplyAgentflow_0')
+                ).toHaveLength(1)
 
                 const errorRecorder = createRealSSERecorder('chat-zr-error')
                 await expect(
@@ -1768,9 +1785,10 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 ).rejects.toThrow('zr-boom')
                 errorRecorder.close()
                 const errorState = await decodeTrustedState(errorRecorder)
-                expect(errorState.state).toBe('ERROR')
-                expect(errorState.records.find((r) => r.nodeId === 'w1')?.status).toBe('ERROR')
-                expect(errorState.records.find((r) => r.nodeId === 'w2')?.status).toBe('TERMINATED')
+                expect(errorState.pendingState).toBeUndefined()
+                expect(errorState.history).toEqual([])
+                expect(lastExecutedData(errorRecorder).find((r) => r.nodeId === 'w1')?.status).toBe('ERROR')
+                expect(lastExecutedData(errorRecorder).find((r) => r.nodeId === 'w2')?.status).toBe('TERMINATED')
 
                 expect(db.executions).toHaveLength(0)
                 expect(db.chatMessages).toHaveLength(0)
@@ -1794,8 +1812,8 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                 })
                 recorder.close()
                 const trusted = await decodeTrustedState(recorder)
-                expect(trusted.state).toBe('FINISHED')
-                expect(trusted.pastChatHistory.map((m) => m.content)).toEqual(['trusted only', result.text])
+                expect(trusted.pendingState).toBeUndefined()
+                expect(trusted.history.map((m) => m.content)).toEqual(['trusted only', result.text])
                 expect(db.executions).toHaveLength(1)
                 expect(db.executions[0].state).toBe('FINISHED')
                 expect(db.chatMessages).toHaveLength(0)
@@ -1861,6 +1879,12 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
                         .map((c) => c.args[1])
                         .join('')
                 ).toBe(concurrent.text)
+                // The job result carries the token for non-streaming callers, the same one published over Redis (F14)
+                expect(
+                    mockRedisPublisherCalls
+                        .filter((c) => c.method === 'streamTrustedStateDataEvent' && c.args[0] === 'chat-queue-par')
+                        .map((c) => c.args[1])
+                ).toEqual([concurrent.trustedState])
 
                 setConcurrency(1)
                 const sequential = await queue.processJob(createJob(chatflow, 'chat-queue-seq', 'run flow 01'))
@@ -2159,7 +2183,8 @@ describe('Agentflow V2 Task 07: end-to-end concurrent execution integration', ()
             const kinds = events.map((e) => e.event)
             expect(events.filter((e) => e.event === 'agentFlowEvent').map((e) => e.data)).toEqual(['INPROGRESS', 'FINISHED'])
             const trusted = events.find((e) => e.event === 'trustedStateData')
-            expect((await trusted_state_from_string(trusted!.data))?.previousExecution?.state).toBe('FINISHED')
+            expect(await trusted_state_from_string(trusted!.data)).toMatchObject({ version: 2, flowState: {} })
+            expect(result.trustedState).toBe(trusted!.data)
             const executedData = events.filter((e) => e.event === 'agentFlowExecutedData')
             expect(executedData).toHaveLength(1)
             expect(executedData[0].data.map((r: IAgentflowExecutedData) => r.nodeLabel).sort()).toEqual(

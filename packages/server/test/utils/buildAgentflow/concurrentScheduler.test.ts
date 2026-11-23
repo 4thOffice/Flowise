@@ -15,6 +15,7 @@ import {
     loadBaselineFlow,
     loadRealComponentNodes,
     runTestAgentFlow,
+    tokenWithHistory,
     waitUntil
 } from './testHelpers'
 
@@ -940,17 +941,9 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
             ]
         )
 
-        const { appDataSource, chatMessages } = createMockDataSource()
+        const { appDataSource } = createMockDataSource()
         const { sseStreamer, getEvents } = createMockSSEStreamer()
-        chatMessages.push({
-            id: 'cm-concurrent-1',
-            role: 'userMessage',
-            content: 'seed-chat-message',
-            chatflowid: 'cf-test-1',
-            sessionId: 'chat-midflight-iso',
-            chatId: 'chat-midflight-iso',
-            createdDate: new Date()
-        })
+        const trustedState = await tokenWithHistory([{ role: 'userMessage', content: 'seed-chat-message' }])
 
         const slowEntered = createDeferred<void>()
         const fastCommitted = createDeferred<void>()
@@ -987,7 +980,7 @@ describe('Agentflow V2 Task 03: Concurrent Scheduler & Sync Helpers', () => {
 
         const runPromise = runTestAgentFlow({
             flow,
-            incomingInput: { question: 'check-history' },
+            incomingInput: { question: 'check-history', trustedState },
             appDataSource,
             sseStreamer,
             chatId: 'chat-midflight-iso',

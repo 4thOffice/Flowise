@@ -15,6 +15,7 @@ import {
     createNode,
     loadRealComponentNodes,
     runTestAgentFlow,
+    tokenWithHistory,
     waitUntil
 } from './testHelpers'
 
@@ -168,10 +169,7 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
             { message: 'orig question', content: 'orig question', type: 'userMessage' },
             { message: 'feedback prompt', content: 'feedback prompt', type: 'apiMessage' }
         ]
-        const trustedData: any = {
-            pastChatHistory: [{ content: 'orig' }, { content: 'feedback' }],
-            previousExecution: {}
-        }
+        const tokenHistory: any[] = [{ content: 'orig' }, { content: 'feedback' }]
         const incomingInput: { question?: string } = { question: 'initial' }
 
         const commitResult = reconcileRuntimeCommit({
@@ -179,7 +177,7 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
             startStateSnapshot,
             nodeResult: { state: nodeRuntimeSnapshot.state },
             pastChatHistory,
-            trustedData,
+            tokenHistory,
             incomingInput,
             question: 'initial'
         })
@@ -188,7 +186,7 @@ describe('Agentflow V2 Task 02: stateReconciler unit tests', () => {
         expect(commitResult.question).toBe('orig question')
         expect(incomingInput.question).toBe('orig question')
         expect(pastChatHistory).toHaveLength(0)
-        expect(trustedData.pastChatHistory).toHaveLength(1)
+        expect(tokenHistory).toHaveLength(1)
         expect(liveRuntime.state).toEqual({ keep: 'yes', extra: 'ok' })
         expect('doNotIncludeFeedbackHistory' in (liveRuntime.state || {})).toBe(false)
     })
@@ -549,7 +547,7 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
             })
         })
 
-        await runTestAgentFlow({
+        const paused = await runTestAgentFlow({
             flow,
             incomingInput: { question: 'start', overrideConfig: { sessionId: 'hitl-execdata-1' } },
             appDataSource,
@@ -563,7 +561,8 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
             flow,
             incomingInput: {
                 humanInput: { type: 'proceed', startNodeId: 'human_0', feedback: 'go' },
-                overrideConfig: { sessionId: 'hitl-execdata-1' }
+                overrideConfig: { sessionId: 'hitl-execdata-1' },
+                trustedState: paused.trustedState
             },
             appDataSource,
             componentNodes: realComponentNodes,
@@ -607,16 +606,8 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
             [createEdge('start_0', 'iter_0'), createEdge('iter_0', 'after_0')]
         )
 
-        const { appDataSource, chatMessages } = createMockDataSource()
-        chatMessages.push({
-            id: 'cm-seed-1',
-            role: 'userMessage',
-            content: 'original-past-history',
-            chatflowid: 'cf-test-1',
-            sessionId: 'chat-iter-iso',
-            chatId: 'chat-iter-iso',
-            createdDate: new Date()
-        })
+        const { appDataSource } = createMockDataSource()
+        const trustedState = await tokenWithHistory([{ role: 'userMessage', content: 'original-past-history' }])
         const seedPrepended = [
             {
                 role: 'userMessage' as const,
@@ -669,7 +660,7 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
 
         const res = await runTestAgentFlow({
             flow,
-            incomingInput: { question: 'run', history: seedPrepended },
+            incomingInput: { question: 'run', history: seedPrepended, trustedState },
             appDataSource,
             chatId: 'chat-iter-iso',
             componentNodes: realComponentNodes,
@@ -793,7 +784,8 @@ describe('Agentflow V2 Task 02: executeAgentFlow runtime isolation & delta merge
             flow,
             incomingInput: {
                 humanInput: { type: 'proceed', startNodeId: 'agent_0' },
-                overrideConfig: { sessionId: 'agent-hitl-1' }
+                overrideConfig: { sessionId: 'agent-hitl-1' },
+                trustedState: paused.trustedState
             },
             appDataSource,
             componentNodes: realComponentNodes,

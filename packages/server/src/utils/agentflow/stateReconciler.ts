@@ -1,6 +1,6 @@
 import { cloneDeep, isEqual } from 'lodash'
 import { ICommonObject, IMessage } from 'flowise-components'
-import { IAgentflowExecutedData, TrustedState } from '../../Interface'
+import { IAgentflowExecutedData } from '../../Interface'
 import { IAgentFlowRuntime } from './types'
 
 export interface IStateDelta {
@@ -26,7 +26,7 @@ export interface IReconcileRuntimeCommitParams {
     startChatHistoryLength?: number
     nodeResult: any
     pastChatHistory: IMessage[]
-    trustedData?: TrustedState
+    tokenHistory?: unknown[]
     incomingInput: { question?: string }
     question?: string
 }
@@ -162,7 +162,7 @@ export function reconcileRuntimeCommit({
     startChatHistoryLength,
     nodeResult,
     pastChatHistory,
-    trustedData,
+    tokenHistory,
     incomingInput,
     question
 }: IReconcileRuntimeCommitParams): IReconcileRuntimeCommitResult {
@@ -181,8 +181,8 @@ export function reconcileRuntimeCommit({
 
     if (nodeResult && nodeResult.output && nodeResult.output.ephemeralMemory) {
         pastChatHistory.length = 0
-        if (trustedData?.pastChatHistory) {
-            trustedData.pastChatHistory.length = 0
+        if (tokenHistory) {
+            tokenHistory.length = 0
         }
     }
 
@@ -190,8 +190,8 @@ export function reconcileRuntimeCommit({
     if (nodeResult && isPlainStateObject(nodeResult.state) && nodeResult.state.doNotIncludeFeedbackHistory) {
         hadDoNotIncludeFeedbackHistory = true
         pastChatHistory.length = Math.max(0, pastChatHistory.length - 1)
-        if (trustedData?.pastChatHistory) {
-            trustedData.pastChatHistory.length = Math.max(0, trustedData.pastChatHistory.length - 1)
+        if (tokenHistory) {
+            tokenHistory.length = Math.max(0, tokenHistory.length - 1)
         }
         if (pastChatHistory.length) {
             updatedQuestion = pastChatHistory[pastChatHistory.length - 1].message || pastChatHistory[pastChatHistory.length - 1].content

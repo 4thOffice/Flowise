@@ -22,8 +22,7 @@ import {
     IReactFlowNode,
     IReactFlowEdge,
     IComponentNodes,
-    IVariableOverride,
-    TrustedState
+    IVariableOverride
 } from '../Interface'
 import {
     RUNTIME_MESSAGES_LENGTH_VAR_PREFIX,
@@ -46,11 +45,9 @@ import logger from './logger'
 import { getErrorMessage } from '../errors/utils'
 import { Compression, Execution } from '../database/entities/Execution'
 import { utilAddChatMessage } from './addChatMesage'
-import { ChatMessage } from '../database/entities/ChatMessage'
 import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
 import { generateTTSForResponseStream, shouldAutoPlayTTS } from './buildChatflow'
 import { executionsUpdater } from '../DataSource'
-import { trusted_state_from_string, trusted_state_to_string } from './trustedStateHelper'
 import {
     IAgentflowNodeInstance,
     IAgentFlowRuntime,
@@ -82,49 +79,17 @@ import {
     ITerminalMetadata,
     resolveTerminalContent
 } from './agentflow/terminalCoordinator'
-
-function mapChatMessageToIMessage(message: IChatMessage): IMessage {
-    const mappedMessage: any = {
-        content: message.content,
-        role: message.role === 'userMessage' ? 'user' : 'assistant'
-    }
-    const hasFileUploads = message.fileUploads && message.fileUploads !== ''
-    const hasArtifacts = message.artifacts && message.artifacts !== ''
-    const hasFileAnnotations = message.fileAnnotations && message.fileAnnotations !== ''
-    const hasUsedTools = message.usedTools && message.usedTools !== ''
-    if (hasFileUploads || hasArtifacts || hasFileAnnotations || hasUsedTools) {
-        mappedMessage.additional_kwargs = {}
-        if (hasFileUploads) {
-            try {
-                mappedMessage.additional_kwargs.fileUploads = JSON.parse(message.fileUploads!)
-            } catch {
-                mappedMessage.additional_kwargs.fileUploads = message.fileUploads
-            }
-        }
-        if (hasArtifacts) {
-            try {
-                mappedMessage.additional_kwargs.artifacts = JSON.parse(message.artifacts!)
-            } catch {
-                mappedMessage.additional_kwargs.artifacts = message.artifacts
-            }
-        }
-        if (hasFileAnnotations) {
-            try {
-                mappedMessage.additional_kwargs.fileAnnotations = JSON.parse(message.fileAnnotations!)
-            } catch {
-                mappedMessage.additional_kwargs.fileAnnotations = message.fileAnnotations
-            }
-        }
-        if (hasUsedTools) {
-            try {
-                mappedMessage.additional_kwargs.usedTools = JSON.parse(message.usedTools!)
-            } catch {
-                mappedMessage.additional_kwargs.usedTools = message.usedTools
-            }
-        }
-    }
-    return mappedMessage as IMessage
-}
+import {
+    PendingResume,
+    TrustedHistoryMessage,
+    TrustedStateV2,
+    buildTrustedState,
+    isResumableExecution,
+    logTurnTokens,
+    readTurnInput,
+    toNodeMessage,
+    writeToken
+} from './agentflow/trustedState'
 
 /**
  * Add execution to database
@@ -186,7 +151,7 @@ const addExecution = async (
  * @param {DataSource} appDataSource
  * @param {string} executionId
  * @param {Partial<IExecution>} data
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>} false when the row to update does not exist
  */
 const updateExecution = async (
     appDataSource: DataSource,
@@ -194,9 +159,9 @@ const updateExecution = async (
     workspaceId: string,
     data?: Partial<IExecution>,
     zeroRetention?: boolean
-) => {
+): Promise<boolean> => {
     if (process.env.DISABLE_EXECUTION_RECORDING || zeroRetention) {
-        return
+        return true
     }
 
     if (process.env.EXECUTIONS_DB_THREAD) {
@@ -210,7 +175,7 @@ const updateExecution = async (
         } catch (err) {
             logger.warn(`updateExecution err ${err}`)
         }
-        return
+        return true
     }
     const execution = await appDataSource.getRepository(Execution).findOneBy({
         id: executionId,
@@ -218,7 +183,8 @@ const updateExecution = async (
     })
 
     if (!execution) {
-        throw new Error(`Execution ${executionId} not found`)
+        logger.warn(`[agentflow]: Execution ${executionId} not found; it is not updated`)
+        return false
     }
 
     const updateExecution = new Execution()
@@ -242,6 +208,7 @@ const updateExecution = async (
 
     appDataSource.getRepository(Execution).merge(execution, updateExecution)
     await appDataSource.getRepository(Execution).save(execution)
+    return true
 }
 
 export const resolveVariables = async (
@@ -680,7 +647,8 @@ const executeNode = async ({
     maxNodeConcurrency,
     enqueueDbUpdate,
     getExecutedData,
-    getAvailableVariables
+    getAvailableVariables,
+    turnInput
 }: IExecuteNodeParams): Promise<IExecuteNodeResult> => {
     try {
         if (abortController?.signal?.aborted) {
@@ -834,11 +802,22 @@ const executeNode = async ({
             humanInputAction,
             iterationContext: iterationContext ? cloneDeep(iterationContext) : undefined,
             evaluationRunId,
-            overrideConfig
+            overrideConfig,
+            childFlowToken: turnInput.childFlowTokens[nodeId]
         }
 
         // Execute node
         let results = await newNodeInstance.run(reactFlowNodeData, finalInput, runParams)
+
+        if (results && typeof results === 'object') {
+            const childFlowToken = results.childFlowToken
+            delete results.childFlowToken
+            if (childFlowToken?.token) {
+                turnInput.childFlowTokens[nodeId] = { flowId: childFlowToken.flowId, token: childFlowToken.token }
+            } else {
+                delete turnInput.childFlowTokens[nodeId]
+            }
+        }
 
         // Handle iteration node with recursive execution
         if (
@@ -920,7 +899,8 @@ const executeNode = async ({
                             subscriptionId,
                             productId,
                             nodeInstanceFactory,
-                            maxNodeConcurrency
+                            maxNodeConcurrency,
+                            turnInput
                         })
 
                         // Store the result
@@ -1138,20 +1118,6 @@ const checkForMultipleStartNodes = (startingNodeIds: string[], isRecursive: bool
     }
 }
 
-const parseFormStringToJson = (formString: string): Record<string, string> => {
-    const result: Record<string, string> = {}
-    const lines = formString.split('\n')
-
-    for (const line of lines) {
-        const [key, value] = line.split(': ').map((part) => part.trim())
-        if (key && value) {
-            result[key] = value
-        }
-    }
-
-    return result
-}
-
 /*
  * Function to traverse the flow graph and execute the nodes
  */
@@ -1181,7 +1147,8 @@ export const executeAgentFlow = async ({
     productId,
     nodeInstanceFactory,
     maxNodeConcurrency,
-    onNodeError
+    onNodeError,
+    turnInput: parentTurnInput
 }: IExecuteAgentFlowParams) => {
     logger.debug('\n🚀 Starting flow execution')
 
@@ -1232,11 +1199,10 @@ export const executeAgentFlow = async ({
     } catch (e) {
         logger.error('[server]: Error parsing chatflow config:', e)
     }
-    const useTrustedState: boolean = chatflowConfig.clientState?.enabled ?? incomingInput.enableTrustedState ?? false
+    const disableChatMessageRecording: boolean = chatflowConfig.clientState?.enabled ?? incomingInput.enableTrustedState ?? false
     const zeroRetention: boolean = chatflowConfig.clientState?.enabledFull
-    let trustedData: TrustedState | undefined = incomingInput.trustedState
-        ? await trusted_state_from_string(incomingInput.trustedState)
-        : undefined
+    const turnInput = parentTurnInput ?? (await readTurnInput(incomingInput))
+    let writtenToken: { token: string; state: TrustedStateV2 } | undefined
     let availableVariablesTask: Promise<Variable[]> | undefined
     const getAvailableVariables = () =>
         (availableVariablesTask ??= appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId)))
@@ -1281,58 +1247,10 @@ export const executeAgentFlow = async ({
             form: {}
         }
 
-        let previousExecution: IExecution | undefined
-
-        // If not a recursive call or parent execution not found, proceed normally
-        const lazyLoadExecution = (() => {
-            let task: Promise<IExecution | null>
-            return async () => {
-                if (process.env.DISABLE_EXECUTION_RECORDING || useTrustedState) {
-                    // check for client-provided state (server encrypted - trusted data, compressed)
-                    if (trustedData?.previousExecution) {
-                        previousExecution = trustedData.previousExecution
-                        return trustedData.previousExecution
-                    }
-                    return null
-                }
-                if (task) {
-                    return await task
-                }
-                task = appDataSource.getRepository(Execution).findOne({
-                    where: {
-                        sessionId,
-                        agentflowId: chatflowid,
-                        workspaceId
-                    },
-                    order: {
-                        createdDate: 'DESC'
-                    }
-                })
-                previousExecution = (await task) || undefined
-                return previousExecution
-            }
-        })()
-
-        // If the state is persistent, get the state from the previous execution
+        // Persist State and the form values read the previous run, which exists exactly when the request carries a token
         const startPersistState = nodes.find((node) => node.data.name === 'startAgentflow')?.data.inputs?.startPersistState
-        if (startPersistState === true && (await lazyLoadExecution()) && previousExecution) {
-            const previousExecutionData =
-                (JSON.parse(
-                    previousExecution.executionDataBlob
-                        ? await Compression.decompress(previousExecution.executionDataBlob)
-                        : previousExecution.executionData
-                ) as IAgentflowExecutedData[]) ?? []
-
-            let previousState = {}
-            if (Array.isArray(previousExecutionData) && previousExecutionData.length) {
-                previousExecutionData.reverse()
-                for (const execData of previousExecutionData) {
-                    if (execData.data.state) {
-                        previousState = execData.data.state
-                        break
-                    }
-                }
-            }
+        if (startPersistState === true && turnInput.incoming.version > 0) {
+            let previousState: ICommonObject = cloneDeep(turnInput.flowState)
 
             // Check if startState has been overridden from overrideConfig.startState and is enabled
             const startAgentflowNode = nodes.find((node) => node.data.name === 'startAgentflow')
@@ -1360,35 +1278,16 @@ export const executeAgentFlow = async ({
             agentflowRuntime.state = previousState
         }
 
-        // If the start input type is form input, get the form values from the previous execution (form values are persisted in the same session)
-        if (startInputType === 'formInput' && (await lazyLoadExecution()) && previousExecution) {
-            const previousExecutionData =
-                (JSON.parse(
-                    previousExecution.executionDataBlob
-                        ? await Compression.decompress(previousExecution.executionDataBlob)
-                        : previousExecution.executionData
-                ) as IAgentflowExecutedData[]) ?? []
-
-            const previousStartAgent = previousExecutionData.find((execData) => execData.data.name === 'startAgentflow')
-
-            if (previousStartAgent) {
-                const previousStartAgentOutput = previousStartAgent.data.output
-                if (previousStartAgentOutput && typeof previousStartAgentOutput === 'object' && 'form' in previousStartAgentOutput) {
-                    const formValues = previousStartAgentOutput.form
-                    if (typeof formValues === 'string') {
-                        agentflowRuntime.form = parseFormStringToJson(formValues)
-                    } else {
-                        agentflowRuntime.form = formValues
-                    }
-                }
-            }
+        if (startInputType === 'formInput' && turnInput.incoming.version > 0) {
+            agentflowRuntime.form = cloneDeep(turnInput.formValues)
         }
 
         // If it is human input, find the last checkpoint and resume
         // Skip human input resumption for recursive iteration calls - they should start fresh
         if (humanInput && !(isRecursive && iterationContext)) {
-            if (!((await lazyLoadExecution()) && previousExecution)) {
-                throw new Error(`No previous execution found for session ${sessionId}`)
+            const previousExecution = turnInput.pendingResume?.legacyExecution
+            if (!previousExecution) {
+                throw new Error(`No previous execution found for session ${sessionId}: the trustedState holds no stopped run to resume`)
             }
 
             let executionData = JSON.parse(
@@ -1502,30 +1401,8 @@ export const executeAgentFlow = async ({
             startingNodeIds.push(...startingNodeIdsFromFlow)
             checkForMultipleStartNodes(startingNodeIds, isRecursive, nodes)
 
-            // For recursive calls with a valid parent execution ID, don't create a new execution
-            // Instead, fetch the parent execution to use it
-            const parentExecution = process.env.DISABLE_EXECUTION_RECORDING
-                ? null
-                : await appDataSource.getRepository(Execution).findOne({
-                      where: { id: parentExecutionId, workspaceId }
-                  })
-
-            if (parentExecution) {
-                logger.debug(`   📝 Using parent execution ID: ${parentExecutionId} for recursive call (iteration: ${!!iterationContext})`)
-                newExecution = parentExecution
-            } else {
-                console.warn(`   ⚠️ Parent execution ID ${parentExecutionId} not found, will create new execution`)
-                newExecution = await addExecution(
-                    appDataSource,
-                    chatflowid,
-                    agentFlowExecutedData,
-                    sessionId,
-                    workspaceId,
-                    zeroRetention,
-                    dbUpdateQueue.enqueue
-                )
-                parentExecutionId = newExecution.id
-            }
+            // Recursive calls record into the parent's execution
+            newExecution = { id: parentExecutionId } as IExecution
         } else {
             const { startingNodeIds: startingNodeIdsFromFlow } = getStartingNode(nodeDependencies)
             startingNodeIds.push(...startingNodeIdsFromFlow)
@@ -1563,22 +1440,9 @@ export const executeAgentFlow = async ({
 
         const maxIterations = process.env.MAX_ITERATIONS ? parseInt(process.env.MAX_ITERATIONS) : 1000
 
-        // Get chat history from ChatMessage table
-        const pastChatHistory: IMessage[] =
-            process.env.DISABLE_CHAT_MESSAGE_RECORDING || useTrustedState || zeroRetention
-                ? trustedData?.pastChatHistory?.map(mapChatMessageToIMessage) ?? []
-                : ((await appDataSource
-                      .getRepository(ChatMessage)
-                      .find({
-                          where: {
-                              chatflowid,
-                              sessionId
-                          },
-                          order: {
-                              createdDate: 'ASC'
-                          }
-                      })
-                      .then((messages) => messages.map(mapChatMessageToIMessage))) as IMessage[])
+        const pastChatHistory: IMessage[] = turnInput.history.map(toNodeMessage)
+        // The history the token carries out; node commits may shorten it (ephemeral memory, a review without history)
+        const tokenHistory: TrustedHistoryMessage[] = isRecursive ? [] : cloneDeep(turnInput.history)
 
         let currentHumanInput = humanInput
 
@@ -1631,13 +1495,18 @@ export const executeAgentFlow = async ({
                 updatedDate: newExecution.updatedDate ?? new Date()
             } as IExecution
         }
-        const ensureTrustedData = () => {
-            if (!trustedData) {
-                trustedData = { pastChatHistory: [], previousExecution: getPreviousExecution() } as TrustedState
-            } else {
-                trustedData.previousExecution = getPreviousExecution()
-            }
-            return trustedData
+        const flowNodeIds = new Set(nodes.map((node) => node.id))
+        const writeTurnToken = async (pendingResume?: PendingResume) => {
+            const state = buildTrustedState({
+                history: tokenHistory,
+                flowState: agentflowRuntime.state,
+                form: agentflowRuntime.form,
+                childFlowTokens: turnInput.childFlowTokens,
+                flowNodeIds,
+                pendingResume
+            })
+            writtenToken = { token: await writeToken(state), state }
+            return writtenToken.token
         }
 
         const effectiveMaxNodeConcurrency = getMaxNodeConcurrency(maxNodeConcurrency)
@@ -1764,7 +1633,8 @@ export const executeAgentFlow = async ({
                         maxNodeConcurrency,
                         enqueueDbUpdate: dbUpdateQueue.enqueue,
                         getExecutedData: () => agentFlowExecutedData,
-                        getAvailableVariables
+                        getAvailableVariables,
+                        turnInput
                     })
 
                     return {
@@ -1840,7 +1710,7 @@ export const executeAgentFlow = async ({
                             startChatHistoryLength,
                             nodeResult,
                             pastChatHistory,
-                            trustedData,
+                            tokenHistory,
                             incomingInput,
                             question
                         })
@@ -1982,16 +1852,38 @@ export const executeAgentFlow = async ({
         // By now the answer (or the root node error) is decided; a failed Execution write must neither replace it nor stop the final events
         const persistFinalExecution = async (finalState: ExecutionState) => {
             try {
-                await serializedUpdateExecution(newExecution.id, {
+                const updated = await serializedUpdateExecution(newExecution.id, {
                     executionData: JSON.stringify(agentFlowExecutedData),
                     state: finalState
                 })
+                if (!updated) {
+                    newExecution = await addExecution(
+                        appDataSource,
+                        chatflowid,
+                        agentFlowExecutedData,
+                        sessionId,
+                        workspaceId,
+                        zeroRetention,
+                        dbUpdateQueue.enqueue
+                    )
+                    await serializedUpdateExecution(newExecution.id, { state: finalState })
+                }
             } catch (error) {
                 logger.warn(
                     `[agentflow]: Failed to persist ${finalState} state for execution ${newExecution.id}: ${getErrorMessage(error)}`
                 )
             }
             await dbUpdateQueue.drain()
+        }
+
+        // An error right after a stop can be retried by answering again, so the stopped run stays pending
+        const pendingAfterFailure = (): PendingResume | undefined => {
+            if (!isResumableExecution(status, agentFlowExecutedData)) return undefined
+            const actionMessageIndex = turnInput.pendingResume?.actionMessageIndex
+            return {
+                legacyExecution: getPreviousExecution(),
+                ...(actionMessageIndex !== undefined && actionMessageIndex < tokenHistory.length ? { actionMessageIndex } : {})
+            }
         }
 
         const persistAndThrowFatalError = async (
@@ -2005,9 +1897,7 @@ export const executeAgentFlow = async ({
 
                 await persistFinalExecution(errorStatus)
 
-                // trusted data update
-                trustedData = ensureTrustedData()
-                sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
+                sseStreamer?.streamTrustedStateDataEvent(chatId, await writeTurnToken(pendingAfterFailure()))
 
                 sseStreamer?.streamAgentFlowEvent(chatId, errorStatus)
             } else {
@@ -2136,46 +2026,11 @@ export const executeAgentFlow = async ({
             }
         }
 
-        let doNotIncludeFeedbackHistory: boolean = false
-        // Find the previous chat message with the same session/chat id and remove the action
-        if (humanInput && Object.keys(humanInput).length) {
-            let query: IChatMessage[]
-            if (useTrustedState && trustedData) {
-                query = trustedData.pastChatHistory
-            } else {
-                query = await appDataSource
-                    .getRepository(ChatMessage)
-                    .createQueryBuilder('chat_message')
-                    .where('chat_message.chatId = :chatId', { chatId })
-                    .orWhere('chat_message.sessionId = :sessionId', { sessionId })
-                    .orderBy('chat_message.createdDate', 'DESC')
-                    .getMany()
-            }
-            for (const result of query) {
-                if (result.action) {
-                    try {
-                        doNotIncludeFeedbackHistory =
-                            result.action?.includes('doNotIncludeFeedbackHistory') ||
-                            Boolean(process.env.DISABLE_CHAT_MESSAGE_RECORDING) ||
-                            useTrustedState
-                        result.action = null
-                        const cm = appDataSource.getRepository(ChatMessage).create(result)
-                        if (doNotIncludeFeedbackHistory) {
-                            if (!useTrustedState) {
-                                // !cm.id.startswith('mock-') ?
-                                await appDataSource.getRepository(ChatMessage).remove(cm)
-                            }
-                        } else {
-                            await appDataSource.getRepository(ChatMessage).save(cm)
-                        }
-                        break
-                    } catch (e) {
-                        // error converting action to JSON
-                    }
-                }
-            }
-        }
-        let userMessage: ChatMessage | undefined = undefined
+        // A resume saves no user message while the message that announced the action is still in the history
+        const actionMessageIndex = turnInput.pendingResume?.actionMessageIndex
+        const doNotIncludeFeedbackHistory = Boolean(
+            humanInput && Object.keys(humanInput).length && actionMessageIndex !== undefined && actionMessageIndex < tokenHistory.length
+        )
         if (!doNotIncludeFeedbackHistory) {
             let finalUserInput = incomingInput.question || ' '
 
@@ -2203,7 +2058,12 @@ export const executeAgentFlow = async ({
                 leadEmail: incomingInput.leadEmail,
                 executionId: newExecution.id
             }
-            userMessage = await utilAddChatMessage(userMessageStub, appDataSource, useTrustedState)
+            await utilAddChatMessage(userMessageStub, appDataSource, disableChatMessageRecording)
+            tokenHistory.push({
+                role: 'userMessage',
+                content: finalUserInput,
+                ...(uploads && fileUploads !== undefined ? { fileUploads } : {})
+            })
         }
 
         const apiMessage: Omit<IChatMessage, 'createdDate'> = {
@@ -2237,15 +2097,21 @@ export const executeAgentFlow = async ({
         if (status === 'STOPPED' && primaryStopped.action && Object.keys(primaryStopped.action).length)
             apiMessage.action = JSON.stringify(primaryStopped.action)
 
-        const chatMessage = await utilAddChatMessage(apiMessage, appDataSource, useTrustedState)
-        trustedData = ensureTrustedData()
-        if (userMessage) {
-            trustedData.pastChatHistory.push(userMessage)
-        }
-        trustedData.pastChatHistory.push(chatMessage)
+        const chatMessage = await utilAddChatMessage(apiMessage, appDataSource, disableChatMessageRecording)
+        tokenHistory.push({
+            role: 'apiMessage',
+            content,
+            ...(terminalMetadata.artifacts ? { artifacts: terminalMetadata.artifacts } : {})
+        })
 
-        // stream trusted state to client, replacing Executions and ChatMessage persistent DB collections holding user data
-        sseStreamer?.streamTrustedStateDataEvent(chatId, await trusted_state_to_string(trustedData))
+        const pendingResume: PendingResume | undefined = isResumableExecution(status, agentFlowExecutedData)
+            ? {
+                  legacyExecution: getPreviousExecution(),
+                  ...(apiMessage.action ? { actionMessageIndex: tokenHistory.length - 1 } : {})
+              }
+            : undefined
+        const trustedState = await writeTurnToken(pendingResume)
+        sseStreamer?.streamTrustedStateDataEvent(chatId, trustedState)
 
         logger.debug(`[server]: Finished running agentflow ${chatflowid}`)
 
@@ -2273,6 +2139,7 @@ export const executeAgentFlow = async ({
         result.followUpPrompts = JSON.stringify(apiMessage.followUpPrompts)
         result.executionId = newExecution.id
         result.agentFlowExecutedData = agentFlowExecutedData
+        result.trustedState = trustedState
 
         if (sessionId) result.sessionId = sessionId
 
@@ -2302,5 +2169,6 @@ export const executeAgentFlow = async ({
     } finally {
         abortScope.cleanup()
         await dbUpdateQueue.drain()
+        if (!isRecursive) logTurnTokens(chatId, turnInput, writtenToken)
     }
 }

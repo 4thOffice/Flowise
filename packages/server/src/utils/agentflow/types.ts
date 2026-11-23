@@ -17,6 +17,7 @@ import { ChatFlow } from '../../database/entities/ChatFlow'
 import { CachePool } from '../../CachePool'
 import { Telemetry } from '../telemetry'
 import { UsageCacheManager } from '../../UsageCacheManager'
+import { TrustedTurnInput } from './trustedState'
 
 export interface IWaitingNode {
     nodeId: string
@@ -123,6 +124,7 @@ export interface IExecuteNodeParams {
     enqueueDbUpdate?: <T>(task: () => Promise<T>) => Promise<T>
     getExecutedData?: () => IAgentflowExecutedData[]
     getAvailableVariables: () => Promise<Variable[]>
+    turnInput: TrustedTurnInput
 }
 
 export interface IExecuteNodeResult {
@@ -140,4 +142,5 @@ export interface IExecuteAgentFlowParams extends Omit<IExecuteFlowParams, 'incom
     nodeInstanceFactory?: NodeInstanceFactory
     maxNodeConcurrency?: number
     onNodeError?: NodeErrorPolicyHook
+    turnInput?: TrustedTurnInput
 }

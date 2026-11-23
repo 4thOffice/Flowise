@@ -95,15 +95,15 @@ const ClientState = ({ dialogProps, onConfirm }) => {
                 <TooltipWithParser
                     style={{ mb: 1, mt: 2, marginLeft: 10 }}
                     title={
-                        'Client is holding the state instead of server, supporting zero-retention on the Flowise server (executions and chat messages are not recorded).'
+                        'Conversations always continue from the state token the client sends back with each request. These settings only control what the Flowise server records.'
                     }
                 />
             </Typography>
             <Stack direction='column' spacing={2} sx={{ width: '100%' }}>
                 <Stack direction='column' spacing={2}>
-                    <Typography>Enable basic client state</Typography>
+                    <Typography>Chat messages</Typography>
                     <SwitchInput
-                        label='Disable recording chat history'
+                        label='Disable recording chat messages'
                         onChange={() => {
                             if (!chatbotConfig?.clientState) return
                             chatbotConfig.clientState.enabled = !chatbotConfig.clientState.enabled
@@ -112,9 +112,9 @@ const ClientState = ({ dialogProps, onConfirm }) => {
                     />
                 </Stack>
                 <Stack direction='column' spacing={2}>
-                    <Typography>Enable Zero-Retention</Typography>
+                    <Typography>Executions</Typography>
                     <SwitchInput
-                        label='Disable recording Executions'
+                        label='Disable recording executions'
                         onChange={() => {
                             if (!chatbotConfig?.clientState) return
                             chatbotConfig.clientState.enabledFull = !chatbotConfig.clientState.enabledFull

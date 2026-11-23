@@ -1,7 +1,6 @@
 import { gzip, gunzip } from 'node:zlib'
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 import { promisify } from 'util'
-import { TrustedState } from '../Interface'
 import logger from './logger'
 import path from 'path'
 import fs from 'fs'
@@ -55,13 +54,13 @@ async function decryptAndDecompress(base64Payload: string): Promise<string> {
     return decompressedBuffer.toString('utf8')
 }
 
-export async function trusted_state_to_string(trustedState: TrustedState): Promise<string> {
+export async function trusted_state_to_string(trustedState: unknown): Promise<string> {
     return await compressAndEncrypt(JSON.stringify(trustedState))
 }
 
-export async function trusted_state_from_string(trustedStateString: string): Promise<TrustedState | undefined> {
+export async function trusted_state_from_string(trustedStateString: string): Promise<unknown> {
     try {
-        return JSON.parse(await decryptAndDecompress(trustedStateString)) as TrustedState
+        return JSON.parse(await decryptAndDecompress(trustedStateString))
     } catch (e) {
         logger.warn(e)
     }

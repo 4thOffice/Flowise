@@ -903,7 +903,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S01-agent': ['t1'] },
-            history: null
+            history: 'ua'
         },
         t2: {
             status: 'FINISHED',
@@ -911,7 +911,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S01-agent': ['t2'] },
-            history: null
+            history: 'uaua'
         },
         t3: {
             status: 'FINISHED',
@@ -919,7 +919,7 @@ export const EXPECTED_TURN_FACTS: Record<string, Record<string, TurnFacts>> = {
             nodes: ['agentAgentflow_0:FINISHED', 'startAgentflow_0:FINISHED'],
             state: {},
             calls: { 'S01-agent': ['t3-tool', 't3-answer'] },
-            history: null
+            history: 'uauaua'
         }
     }
 }
@@ -931,106 +931,110 @@ export interface TokenContents {
     historyWithAction: number
 }
 
-// Token contents today (raw decoded JSON bytes, prompt sentinels, node records, history messages carrying an action).
-// Tasks 05-09 change these deliberately.
+// Token contents (raw decoded JSON bytes, prompt sentinels, node records, history messages carrying an action): v2 tokens
+// since Task 05. A stopped turn still carries the stopped run's records as interim pending data until Task 07.
 export const EXPECTED_TOKEN_CONTENTS: Record<string, Record<string, TokenContents | null>> = {
     S01: {
-        t1: { bytes: 46045, sentinels: 1, records: 2, historyWithAction: 0 },
-        t2: { bytes: 46905, sentinels: 1, records: 2, historyWithAction: 0 },
-        t3: { bytes: 48618, sentinels: 1, records: 2, historyWithAction: 0 },
-        t4: { bytes: 49056, sentinels: 1, records: 2, historyWithAction: 0 },
-        t5: { bytes: 49766, sentinels: 1, records: 2, historyWithAction: 0 }
+        t1: { bytes: 311, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 506, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 689, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 919, sentinels: 0, records: 0, historyWithAction: 0 },
+        t5: { bytes: 1073, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S01r: {
-        t1: { bytes: 45833, sentinels: 1, records: 2, historyWithAction: 0 },
-        t2: { bytes: 46576, sentinels: 1, records: 2, historyWithAction: 0 },
-        t3: { bytes: 47253, sentinels: 1, records: 2, historyWithAction: 0 }
+        t1: { bytes: 255, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 388, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 492, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S02: {
-        t1: { bytes: 87477, sentinels: 2, records: 3, historyWithAction: 0 },
-        t2: { bytes: 88339, sentinels: 2, records: 3, historyWithAction: 0 },
-        t3: { bytes: 89300, sentinels: 2, records: 3, historyWithAction: 0 },
-        t4: { bytes: 46327, sentinels: 1, records: 3, historyWithAction: 0 },
-        t5: { bytes: 90534, sentinels: 2, records: 3, historyWithAction: 0 },
-        t6: { bytes: 92011, sentinels: 2, records: 3, historyWithAction: 0 }
+        t1: { bytes: 272, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 467, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 651, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 840, sentinels: 0, records: 0, historyWithAction: 0 },
+        t5: { bytes: 1020, sentinels: 0, records: 0, historyWithAction: 0 },
+        t6: { bytes: 1203, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S03: {
-        t1: { bytes: 132557, sentinels: 3, records: 4, historyWithAction: 0 },
-        t2: { bytes: 134517, sentinels: 3, records: 4, historyWithAction: 0 },
-        t3: { bytes: 136529, sentinels: 3, records: 4, historyWithAction: 0 },
-        t4: { bytes: 137211, sentinels: 3, records: 4, historyWithAction: 0 }
+        t1: { bytes: 495, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 807, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 1086, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 1219, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S04a: {
-        t1: { bytes: 45507, sentinels: 1, records: 4, historyWithAction: 0 },
-        t2: { bytes: 46882, sentinels: 1, records: 4, historyWithAction: 0 },
-        t3: { bytes: 47314, sentinels: 1, records: 4, historyWithAction: 0 },
-        t4: { bytes: 48750, sentinels: 1, records: 4, historyWithAction: 0 }
+        t1: { bytes: 313, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 483, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 681, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 859, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S04b: {
-        t1: { bytes: 45688, sentinels: 1, records: 4, historyWithAction: 0 },
-        t2: { bytes: 46506, sentinels: 1, records: 4, historyWithAction: 0 },
-        t3: { bytes: 47513, sentinels: 1, records: 4, historyWithAction: 0 },
-        t4: { bytes: 48392, sentinels: 1, records: 4, historyWithAction: 0 }
+        t1: { bytes: 313, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 490, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 688, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 873, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S05: {
-        t1: { bytes: 44619, sentinels: 1, records: 2, historyWithAction: 0 },
-        t2: { bytes: 45515, sentinels: 1, records: 2, historyWithAction: 0 },
-        t3: { bytes: 46335, sentinels: 1, records: 2, historyWithAction: 0 },
-        t4: { bytes: 47206, sentinels: 1, records: 2, historyWithAction: 0 }
+        t1: { bytes: 269, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 441, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 596, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 764, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S06: {
-        t1: { bytes: 48160, sentinels: 1, records: 4, historyWithAction: 1 },
-        t2: { bytes: 95489, sentinels: 2, records: 7, historyWithAction: 1 },
-        t3: { bytes: 136088, sentinels: 3, records: 7, historyWithAction: 0 },
-        t4: { bytes: 52401, sentinels: 1, records: 4, historyWithAction: 1 },
-        t5: { bytes: 94291, sentinels: 2, records: 5, historyWithAction: 0 }
+        t1: { bytes: 47028, sentinels: 1, records: 4, historyWithAction: 0 },
+        t2: { bytes: 93753, sentinels: 2, records: 7, historyWithAction: 0 },
+        t3: { bytes: 742, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 49506, sentinels: 1, records: 4, historyWithAction: 0 },
+        t5: { bytes: 1138, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S06b: {
-        t1: { bytes: 47331, sentinels: 1, records: 4, historyWithAction: 1 },
-        t2: { bytes: 92569, sentinels: 2, records: 7, historyWithAction: 1 },
-        t3: { bytes: 134438, sentinels: 3, records: 7, historyWithAction: 0 },
-        t4: { bytes: 50556, sentinels: 1, records: 4, historyWithAction: 1 }
+        t1: { bytes: 46170, sentinels: 1, records: 4, historyWithAction: 0 },
+        t2: { bytes: 91126, sentinels: 2, records: 7, historyWithAction: 0 },
+        t3: { bytes: 554, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 47862, sentinels: 1, records: 4, historyWithAction: 0 }
     },
     S07: {
-        t1: { bytes: 47343, sentinels: 1, records: 2, historyWithAction: 0 },
-        t2: { bytes: 136240, sentinels: 3, records: 2, historyWithAction: 1 },
-        t3: { bytes: 48497, sentinels: 1, records: 2, historyWithAction: 0 },
-        t4: { bytes: 139139, sentinels: 3, records: 2, historyWithAction: 1 },
-        t5: { bytes: 49733, sentinels: 1, records: 2, historyWithAction: 0 },
-        t6: { bytes: 50664, sentinels: 1, records: 2, historyWithAction: 0 }
+        t1: { bytes: 227, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 90203, sentinels: 2, records: 2, historyWithAction: 0 },
+        t3: { bytes: 600, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 91362, sentinels: 2, records: 2, historyWithAction: 0 },
+        t5: { bytes: 1008, sentinels: 0, records: 0, historyWithAction: 0 },
+        t6: { bytes: 1142, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S08: {
-        t1: { bytes: 134637, sentinels: 3, records: 3, historyWithAction: 1 },
-        t2: { bytes: 48175, sentinels: 1, records: 3, historyWithAction: 1 },
-        t3: { bytes: 91731, sentinels: 2, records: 4, historyWithAction: 0 },
-        t4: { bytes: 51047, sentinels: 1, records: 3, historyWithAction: 1 }
+        t1: { bytes: 90682, sentinels: 2, records: 3, historyWithAction: 0 },
+        t2: { bytes: 47052, sentinels: 1, records: 3, historyWithAction: 0 },
+        t3: { bytes: 597, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 48544, sentinels: 1, records: 3, historyWithAction: 0 }
     },
     S09: {
-        t1: { bytes: 305613, sentinels: 7, records: 12, historyWithAction: 0 },
-        t2: { bytes: 220130, sentinels: 5, records: 9, historyWithAction: 0 },
-        t3: { bytes: 307905, sentinels: 7, records: 12, historyWithAction: 0 }
+        t1: { bytes: 298, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 504, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 656, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S10a: {
-        t1: { bytes: 131851, sentinels: 3, records: 4, historyWithAction: 0 },
-        t2: { bytes: 133048, sentinels: 3, records: 4, historyWithAction: 0 },
-        t3: { bytes: 134018, sentinels: 3, records: 4, historyWithAction: 0 },
-        t4: { bytes: 135501, sentinels: 3, records: 4, historyWithAction: 0 }
+        t1: { bytes: 221, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 381, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 532, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 703, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S10b: {
-        t1: { bytes: 45504, sentinels: 1, records: 4, historyWithAction: 0 },
-        t2: { bytes: 45337, sentinels: 1, records: 4, historyWithAction: 0 },
-        t3: { bytes: 45156, sentinels: 1, records: 4, historyWithAction: 0 }
+        t1: { bytes: 290, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 252, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 211, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S11: {
-        t1: { bytes: 130753, sentinels: 3, records: 4, historyWithAction: 0 },
-        t2: { bytes: 45069, sentinels: 1, records: 3, historyWithAction: 0 },
-        t3: { bytes: 131805, sentinels: 3, records: 4, historyWithAction: 0 }
+        t1: { bytes: 290, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 295, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 442, sentinels: 0, records: 0, historyWithAction: 0 }
     },
     S12: {
-        t1: { bytes: 45637, sentinels: 1, records: 4, historyWithAction: 0 },
-        t2: { bytes: 46671, sentinels: 1, records: 4, historyWithAction: 0 },
-        t3: { bytes: 47629, sentinels: 1, records: 4, historyWithAction: 0 },
-        t4: { bytes: 48535, sentinels: 1, records: 4, historyWithAction: 0 }
+        t1: { bytes: 341, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 583, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 810, sentinels: 0, records: 0, historyWithAction: 0 },
+        t4: { bytes: 1019, sentinels: 0, records: 0, historyWithAction: 0 }
     },
-    S13: { t1: null, t2: null, t3: null }
+    S13: {
+        t1: { bytes: 237, sentinels: 0, records: 0, historyWithAction: 0 },
+        t2: { bytes: 363, sentinels: 0, records: 0, historyWithAction: 0 },
+        t3: { bytes: 482, sentinels: 0, records: 0, historyWithAction: 0 }
+    }
 }

@@ -17,6 +17,7 @@ import {
     createMockDataSource,
     createMockNodeFactory,
     createNode,
+    legacyTokenFor,
     loadBaselineFlow,
     loadRealComponentNodes,
     runTestAgentFlow,
@@ -1725,7 +1726,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 }
             })
 
-            await runTestAgentFlow({
+            const paused = await runTestAgentFlow({
                 flow,
                 incomingInput: { question: 'routeA', overrideConfig: { sessionId: 'sess-mid-join' } },
                 appDataSource,
@@ -1739,7 +1740,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 flow,
                 incomingInput: {
                     humanInput: { type: 'proceed', startNodeId: 'human_0', feedback: 'ok' },
-                    overrideConfig: { sessionId: 'sess-mid-join' }
+                    overrideConfig: { sessionId: 'sess-mid-join' },
+                    trustedState: paused.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -1753,7 +1755,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
 
             // Also verify reject resume path on a fresh session
             parRuns = 0
-            await runTestAgentFlow({
+            const pausedForReject = await runTestAgentFlow({
                 flow,
                 incomingInput: { question: 'routeA', overrideConfig: { sessionId: 'sess-mid-join-reject' } },
                 appDataSource,
@@ -1767,7 +1769,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 flow,
                 incomingInput: {
                     humanInput: { type: 'reject', startNodeId: 'human_0', feedback: 'no' },
-                    overrideConfig: { sessionId: 'sess-mid-join-reject' }
+                    overrideConfig: { sessionId: 'sess-mid-join-reject' },
+                    trustedState: pausedForReject.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -1836,7 +1839,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
 
             // Task 06 (D5): non-interrupting STOPPED drain runs ready siblings in Turn 1, so seed the legacy
             // partial STOPPED checkpoint directly to verify mid-graph resume of unexecuted siblings.
-            await appDataSource.getRepository(Execution).save(
+            const seeded = await appDataSource.getRepository(Execution).save(
                 appDataSource.getRepository(Execution).create({
                     agentflowId: 'cf-test-1',
                     sessionId: 'sess-seq-stop',
@@ -1867,7 +1870,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 flow,
                 incomingInput: {
                     humanInput: { type: 'proceed', startNodeId: 'human_0', feedback: 'go' },
-                    overrideConfig: { sessionId: 'sess-seq-stop' }
+                    overrideConfig: { sessionId: 'sess-seq-stop' },
+                    trustedState: await legacyTokenFor(seeded)
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -1948,7 +1952,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 })
             })
 
-            await runTestAgentFlow({
+            const paused = await runTestAgentFlow({
                 flow,
                 incomingInput: { question: 'start', overrideConfig: { sessionId: 'sess-loop-hitl' } },
                 appDataSource,
@@ -1959,11 +1963,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
             expect(bodyCount).toBe(1)
 
             // Reject -> loops back to body_0 -> stops again at human_0
-            await runTestAgentFlow({
+            const pausedAgain = await runTestAgentFlow({
                 flow,
                 incomingInput: {
                     humanInput: { type: 'reject', startNodeId: 'human_0', feedback: 'retry' },
-                    overrideConfig: { sessionId: 'sess-loop-hitl' }
+                    overrideConfig: { sessionId: 'sess-loop-hitl' },
+                    trustedState: paused.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -1977,7 +1982,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 flow,
                 incomingInput: {
                     humanInput: { type: 'proceed', startNodeId: 'human_0', feedback: 'looks good' },
-                    overrideConfig: { sessionId: 'sess-loop-hitl' }
+                    overrideConfig: { sessionId: 'sess-loop-hitl' },
+                    trustedState: pausedAgain.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -2072,7 +2078,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
 
                 // Task 06 (D5): seed legacy partial STOPPED checkpoint before parSibling ran so Turn 2
                 // exercises concurrent human_0 resume racing with parSibling -> human_1.
-                await appDataSource.getRepository(Execution).save(
+                const seeded = await appDataSource.getRepository(Execution).save(
                     appDataSource.getRepository(Execution).create({
                         agentflowId: 'cf-test-1',
                         sessionId: `sess-${mode}`,
@@ -2106,11 +2112,12 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     setTimeout(() => h0CanFinish.resolve(), 15)
                 }
 
-                await runTestAgentFlow({
+                const turn2 = await runTestAgentFlow({
                     flow,
                     incomingInput: {
                         humanInput: { type: 'proceed', startNodeId: 'human_0', feedback: 'go0' },
-                        overrideConfig: { sessionId: `sess-${mode}` }
+                        overrideConfig: { sessionId: `sess-${mode}` },
+                        trustedState: await legacyTokenFor(seeded)
                     },
                     appDataSource,
                     componentNodes: realComponentNodes,
@@ -2165,7 +2172,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                     flow,
                     incomingInput: {
                         humanInput: { type: 'proceed', feedback: 'go1' } as any,
-                        overrideConfig: { sessionId: `sess-${mode}` }
+                        overrideConfig: { sessionId: `sess-${mode}` },
+                        trustedState: turn2.trustedState
                     },
                     appDataSource,
                     componentNodes: realComponentNodes,
@@ -2262,7 +2270,7 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 }
             })
 
-            await runTestAgentFlow({
+            const paused = await runTestAgentFlow({
                 flow,
                 incomingInput: { question: 'race-stop-loop', overrideConfig: { sessionId: 'sess-stop-loop' } },
                 appDataSource,
@@ -2277,7 +2285,8 @@ describe('Agentflow V2 Task 04: DAG Joins, Condition Pruning, & Loop Semantics',
                 flow,
                 incomingInput: {
                     humanInput: { type: 'proceed', feedback: 'ok' } as any,
-                    overrideConfig: { sessionId: 'sess-stop-loop' }
+                    overrideConfig: { sessionId: 'sess-stop-loop' },
+                    trustedState: paused.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,

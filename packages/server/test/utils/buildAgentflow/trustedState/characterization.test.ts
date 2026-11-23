@@ -164,14 +164,6 @@ describe.each(SCENARIOS)('%s %s', (id) => {
         const conversation = await runOf(id)
         for (const turnId of TOKEN_DEPENDENT_TURNS[id]) {
             const actual = conversation.turn(turnId)
-            if (id === 'S13') {
-                // Non-streaming responses carry no token today (F14); the one the server built does change the next turn
-                const built = conversation.turn('t1').serverTokens
-                expect(actual.tokenSent).toBeNull()
-                const withToken = await conversation.replay(turnId, { token: built[built.length - 1] })
-                expect(comparableRequests(withToken.modelCalls)).not.toEqual(comparableRequests(actual.modelCalls))
-                continue
-            }
             const withoutToken = await conversation.replay(turnId, { sendToken: false })
             if (id === 'S10b') {
                 // Ephemeral memory: the model sees no history either way, only the carried state depends on the token
@@ -235,7 +227,24 @@ const BEFORE_CASES = BEFORE_MODES.flatMap((mode) =>
 
 describe('before/ traces', () => {
     // Intended differences from traces/before/, by "<mode>/<scenario>/<turn>": the finding whose fix causes them
-    const INTENDED_DIFFERENCES: Record<string, string> = {}
+    const INTENDED_DIFFERENCES: Record<string, string> = {
+        // The JSON response carries the token, so S13 has a token history and continues the conversation
+        'M1/S13/t1': 'F14',
+        'M1/S13/t2': 'F14',
+        'M1/S13/t3': 'F14',
+        // Client State off reads nothing from the database: resumes save no answer (as M1) and the child flow has no memory (as M1)
+        'M3/S06/t2': 'F01',
+        'M3/S06/t3': 'F01',
+        'M3/S06/t4': 'F01',
+        'M3/S06/t5': 'F01',
+        'M3/S07/t3': 'F01',
+        'M3/S07/t4': 'F01',
+        'M3/S07/t5': 'F01',
+        'M3/S07/t6': 'F01',
+        'M3/S12/t2': 'F01',
+        'M3/S12/t3': 'F01',
+        'M3/S12/t4': 'F01'
+    }
 
     test.each(BEFORE_CASES)('%s %s matches the captured model requests and responses', async (mode, id) => {
         const conversation = await runOf(id, mode)
@@ -285,6 +294,56 @@ describe('kept behaviour', () => {
     })
 })
 
+describe('token-only conversations (Task 05)', () => {
+    const TOKEN_ONLY_SCENARIOS = ['S01', 'S01r', 'S02', 'S03', 'S04a', 'S04b', 'S05', 'S09', 'S10a', 'S10b', 'S11', 'S13']
+
+    test.each(TOKEN_ONLY_SCENARIOS)('%s runs with Client State off and every conversation read failing, as with it on', async (id) => {
+        const tokenMode = await runOf(id)
+        const dbMode = await runConversation({ scenario: id, mode: 'M3', readGuard: 'throw' })
+        expect(dbMode.dataSource.reads.filter((read) => !read.allowed)).toEqual([])
+        expect(dbMode.turns.map((t) => [t.id, t.status, t.error])).toEqual(tokenMode.turns.map((t) => [t.id, t.status, t.error]))
+        for (const turn of dbMode.turns) {
+            expect({ turn: turn.id, requests: comparableRequests(turn.modelCalls) }).toEqual({
+                turn: turn.id,
+                requests: comparableRequests(tokenMode.turn(turn.id).modelCalls)
+            })
+        }
+    })
+
+    test('D10 a resume whose recorded execution is gone continues, warns, and records the run as a new execution', async () => {
+        const recorded = await runOf('S06', 'M2')
+        const missing = await runConversation({ scenario: 'S06', mode: 'M2', turns: ['t1', 't2'], freshDataSourcePerTurn: true })
+        const resumed = missing.turn('t2')
+        expect([resumed.status, resumed.error]).toEqual(['STOPPED', null])
+        expect(comparableRequests(resumed.modelCalls)).toEqual(comparableRequests(recorded.turn('t2').modelCalls))
+        expect(resumed.logs.filter((entry) => entry.level === 'warn' && /Execution .* not found/.test(entry.message)).length).toBe(2)
+        expect(resumed.db.executions.map((row) => row.state)).toEqual(['STOPPED'])
+        expect(decodeToken(resumed.token!).state.pendingResume.legacyExecution.id).toBe(resumed.db.executions[0].id)
+    })
+
+    test('the v2 token of every turn that does not end stopped holds no system prompt and is at most 5 % of the v1 token', async () => {
+        const problems: string[] = []
+        for (const [id] of SCENARIOS) {
+            const before = loadBeforeTrace('M1', loadScenario(id).slug)
+            for (const turn of (await runOf(id)).turns) {
+                if (turn.status === 'STOPPED') continue
+                if (!turn.decoded) {
+                    problems.push(`${id} ${turn.id}: no token`)
+                    continue
+                }
+                // S13 has no v1 token (F14)
+                const beforeBytes = before.turns.find((t) => t.id === turn.id)?.token?.sizes?.rawJsonBytes
+                const maxBytes = beforeBytes ? 0.05 * beforeBytes : 4096
+                if (turn.decoded.state.version !== 2) problems.push(`${id} ${turn.id}: version ${turn.decoded.state.version}`)
+                if (turn.sentinels.token) problems.push(`${id} ${turn.id}: ${turn.sentinels.token} prompt sentinels`)
+                if (turn.decoded.sizes.rawJsonBytes > maxBytes)
+                    problems.push(`${id} ${turn.id}: ${turn.decoded.sizes.rawJsonBytes} bytes, more than ${Math.floor(maxBytes)}`)
+            }
+        }
+        expect(problems).toEqual([])
+    })
+})
+
 function conversationOf(turn: TurnResult, route: string, index = 0) {
     const call = turn.modelCallsByRoute[route]?.[index]
     if (!call) throw new Error(`Turn ${turn.id} made no call ${index} on route ${route}`)
@@ -306,7 +365,7 @@ const S10A_WELCOME = 'Welcome to Northwind Outfitters! How can I help you today?
  */
 describe('findings: target behaviour', () => {
     describe('F01 no ChatMessage or Execution reads (TS9)', () => {
-        test.failing('F01 conversations with approvals run with conversation reads failing, with Client State off as well', async () => {
+        test('F01 conversations with approvals run with conversation reads failing, with Client State off as well', async () => {
             for (const id of ['S06', 'S07']) {
                 const tokenMode = await runOf(id)
                 const dbMode = await runConversation({ scenario: id, mode: 'M3', readGuard: 'throw' })
@@ -486,7 +545,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F08 pending action outside history', () => {
-        test.failing('F08 no history message carries an action while a turn is stopped', async () => {
+        test('F08 no history message carries an action while a turn is stopped', async () => {
             for (const [id, turnId] of [
                 ['S06', 't1'],
                 ['S07', 't2'],
@@ -544,7 +603,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F12 iteration', () => {
-        test.failing('F12 iteration items reuse the decoded token: one decode per turn and no parent execution lookup (S09)', async () => {
+        test('F12 iteration items reuse the decoded token: one decode per turn and no parent execution lookup (S09)', async () => {
             const conversation = await startConversation({ scenario: 'S09' })
             await conversation.run('t1')
             const decode = jest.spyOn(trustedStateHelper, 'trusted_state_from_string')
@@ -561,7 +620,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F13 token contents', () => {
-        test.failing('F13 the token of a finished turn holds no node records and no system prompt', async () => {
+        test('F13 the token of a finished turn holds no node records and no system prompt', async () => {
             const problems: string[] = []
             for (const [id] of SCENARIOS) {
                 for (const turn of (await runOf(id)).turns) {
@@ -576,7 +635,7 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F14 non-streaming responses', () => {
-        test.failing('F14 a non-streaming response carries a token that continues the conversation (S13)', async () => {
+        test('F14 a non-streaming response carries a token that continues the conversation (S13)', async () => {
             const conversation = await runOf('S13')
             expect(conversation.turn('t1').tokenSource).toBe('json')
             expect(conversationOf(conversation.turn('t2'), 'S01-agent')).toEqual([
@@ -588,32 +647,26 @@ describe('findings: target behaviour', () => {
     })
 
     describe('F15 one path whatever the Client State settings (TS9)', () => {
-        test.failing(
-            'F15 with Client State off or only the request flag, the token continues the conversation like with Client State on',
-            async () => {
-                const turns = ['t1', 't2']
-                const clientState = await runConversation({ scenario: 'S01', turns })
-                const requestFlag = await runConversation({ scenario: 'S01', mode: 'M1-reqflag', turns, freshDataSourcePerTurn: true })
-                const off = await runConversation({ scenario: 'S01', mode: 'M3', turns, freshDataSourcePerTurn: true })
-                const expected = comparableRequests(clientState.turn('t2').modelCalls)
-                expect(comparableRequests(requestFlag.turn('t2').modelCalls)).toEqual(expected)
-                expect(comparableRequests(off.turn('t2').modelCalls)).toEqual(expected)
-            }
-        )
+        test('F15 with Client State off or only the request flag, the token continues the conversation like with Client State on', async () => {
+            const turns = ['t1', 't2']
+            const clientState = await runConversation({ scenario: 'S01', turns })
+            const requestFlag = await runConversation({ scenario: 'S01', mode: 'M1-reqflag', turns, freshDataSourcePerTurn: true })
+            const off = await runConversation({ scenario: 'S01', mode: 'M3', turns, freshDataSourcePerTurn: true })
+            const expected = comparableRequests(clientState.turn('t2').modelCalls)
+            expect(comparableRequests(requestFlag.turn('t2').modelCalls)).toEqual(expected)
+            expect(comparableRequests(off.turn('t2').modelCalls)).toEqual(expected)
+        })
     })
 
     describe('F16 recording env flags', () => {
-        test.failing(
-            'F16 DISABLE_*_RECORDING change only what is written: history comes from the token with and without them',
-            async () => {
-                const turns = ['t1', 't2']
-                const withFlags = await runConversation({ scenario: 'S01', mode: 'M3-envflags', turns, freshDataSourcePerTurn: true })
-                const withoutFlags = await runConversation({ scenario: 'S01', mode: 'M3', turns, freshDataSourcePerTurn: true })
-                expect(withFlags.turns.map((t) => t.db.newChatMessages + t.db.newExecutions)).toEqual([0, 0])
-                expect(withoutFlags.turns.map((t) => t.db.newChatMessages > 0 && t.db.newExecutions > 0)).toEqual([true, true])
-                expect(comparableRequests(withoutFlags.turn('t2').modelCalls)).toEqual(comparableRequests(withFlags.turn('t2').modelCalls))
-            }
-        )
+        test('F16 DISABLE_*_RECORDING change only what is written: history comes from the token with and without them', async () => {
+            const turns = ['t1', 't2']
+            const withFlags = await runConversation({ scenario: 'S01', mode: 'M3-envflags', turns, freshDataSourcePerTurn: true })
+            const withoutFlags = await runConversation({ scenario: 'S01', mode: 'M3', turns, freshDataSourcePerTurn: true })
+            expect(withFlags.turns.map((t) => t.db.newChatMessages + t.db.newExecutions)).toEqual([0, 0])
+            expect(withoutFlags.turns.map((t) => t.db.newChatMessages > 0 && t.db.newExecutions > 0)).toEqual([true, true])
+            expect(comparableRequests(withoutFlags.turn('t2').modelCalls)).toEqual(comparableRequests(withFlags.turn('t2').modelCalls))
+        })
     })
 
     describe('F17 internal chat reload', () => {

@@ -566,7 +566,8 @@ describe('Agentflow V2 Task 01: baseline scenarios via test harness', () => {
             flow,
             incomingInput: {
                 humanInput: { type: 'proceed', startNodeId: 'human_0', feedback: 'ship it' },
-                overrideConfig: { sessionId: 'sess-hitl' }
+                overrideConfig: { sessionId: 'sess-hitl' },
+                trustedState: paused.trustedState
             },
             appDataSource,
             componentNodes: realComponentNodes,
@@ -577,7 +578,7 @@ describe('Agentflow V2 Task 01: baseline scenarios via test harness', () => {
         expect(resumedProceed.text).toBe('Approved!')
         expect(executions[0].state).toBe('FINISHED')
 
-        await runTestAgentFlow({
+        const pausedForReject = await runTestAgentFlow({
             flow,
             incomingInput: { question: 'run', overrideConfig: { sessionId: 'sess-hitl-reject' } },
             appDataSource,
@@ -590,7 +591,8 @@ describe('Agentflow V2 Task 01: baseline scenarios via test harness', () => {
             flow,
             incomingInput: {
                 humanInput: { type: 'reject', startNodeId: 'human_0', feedback: 'cancel it' },
-                overrideConfig: { sessionId: 'sess-hitl-reject' }
+                overrideConfig: { sessionId: 'sess-hitl-reject' },
+                trustedState: pausedForReject.trustedState
             },
             appDataSource,
             componentNodes: realComponentNodes,

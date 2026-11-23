@@ -298,13 +298,8 @@ export interface IncomingInput {
     streaming?: boolean
 
     // TrustedState: compressed, encrypted, base64 string
-    trustedState?: string // { state (Map<string, string>), message history (ChatMessage), execution data (Execution) }
+    trustedState?: string
     enableTrustedState?: boolean
-}
-
-export interface TrustedState {
-    pastChatHistory: IChatMessage[]
-    previousExecution: IExecution
 }
 
 export interface IncomingAgentflowInput extends Omit<IncomingInput, 'question'> {

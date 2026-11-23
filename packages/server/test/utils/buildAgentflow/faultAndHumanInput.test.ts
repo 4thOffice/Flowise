@@ -413,7 +413,8 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
                 chatflow,
                 incomingInput: {
                     humanInput: { type: 'proceed', startNodeId: 'humanInputAgentflow_0', feedback: 'looks good' },
-                    overrideConfig: { sessionId: sessionSse }
+                    overrideConfig: { sessionId: sessionSse },
+                    trustedState: turn1Sse.trustedState
                 },
                 appDataSource: streamDs.appDataSource,
                 componentNodes: realComponentNodes,
@@ -423,7 +424,8 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
             expect(streamDs.executions[0].state).toBe('FINISHED')
             expect(turn2Sse.agentFlowExecutedData.filter((d: any) => d.nodeId === 'customFunctionAgentflow_0')).toHaveLength(1)
             expect(turn2Sse.agentFlowExecutedData.filter((d: any) => d.nodeId === 'directReplyAgentflow_0')).toHaveLength(1)
-            expect(streamDs.chatMessages.filter((m) => Boolean(m.action))).toHaveLength(0)
+            // Task 07 (D11) clears the recorded stop message's action by its id; until then the row keeps it
+            expect(streamDs.chatMessages.filter((m) => Boolean(m.action))).toHaveLength(1)
 
             // Non-streaming Turn 1 + Turn 2 Reject
             const restDs = createMockDataSource()
@@ -442,7 +444,8 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
                 chatflow,
                 incomingInput: {
                     humanInput: { type: 'reject', startNodeId: 'humanInputAgentflow_0', feedback: 'no' },
-                    overrideConfig: { sessionId: sessionRest }
+                    overrideConfig: { sessionId: sessionRest },
+                    trustedState: turn1Rest.trustedState
                 },
                 appDataSource: restDs.appDataSource,
                 componentNodes: realComponentNodes
@@ -524,7 +527,8 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
                 flow,
                 incomingInput: {
                     humanInput: { type: 'proceed', startNodeId: 'agent_0', feedback: 'go' },
-                    overrideConfig: { sessionId: 'sess-agent-sibling' }
+                    overrideConfig: { sessionId: 'sess-agent-sibling' },
+                    trustedState: turn1.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -624,7 +628,8 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
                 flow,
                 incomingInput: {
                     humanInput: { type: 'proceed', startNodeId: 'humanBottom', feedback: 'b-ok' },
-                    overrideConfig: { sessionId: 'sess-dual-gates' }
+                    overrideConfig: { sessionId: 'sess-dual-gates' },
+                    trustedState: turn1.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -638,7 +643,8 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
                 flow,
                 incomingInput: {
                     humanInput: { type: 'proceed', feedback: 't-ok' } as any,
-                    overrideConfig: { sessionId: 'sess-dual-gates' }
+                    overrideConfig: { sessionId: 'sess-dual-gates' },
+                    trustedState: turn2a.trustedState
                 },
                 appDataSource,
                 componentNodes: realComponentNodes,
@@ -1156,9 +1162,10 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
             expect(executions).toHaveLength(0)
             expect(chatMessages).toHaveLength(0)
             const trustedStopEvt = sse1.getEvents().find((e) => e.event === 'trustedStateData')
-            const decodedStop = await trusted_state_from_string(trustedStopEvt!.data)
-            expect(decodedStop?.previousExecution?.state).toBe('STOPPED')
-            const decodedStopData = JSON.parse(decodedStop!.previousExecution.executionData)
+            const decodedStop = (await trusted_state_from_string(trustedStopEvt!.data)) as any
+            expect(decodedStop.version).toBe(2)
+            expect(decodedStop.pendingResume.legacyExecution.state).toBe('STOPPED')
+            const decodedStopData = JSON.parse(decodedStop.pendingResume.legacyExecution.executionData)
             expect(decodedStopData.some((d: any) => d.nodeId === 'companion_0' && d.status === 'FINISHED')).toBe(true)
             expect(decodedStopData.some((d: any) => d.nodeId === 'human_0' && d.status === 'STOPPED')).toBe(true)
 
@@ -1205,8 +1212,9 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
             ).rejects.toThrow('trusted-boom')
             sseErr.sseStreamer.removeClient('chat-trusted-err')
             const errTrustedEvt = sseErr.getEvents().find((e) => e.event === 'trustedStateData')
-            const decodedErr = await trusted_state_from_string(errTrustedEvt!.data)
-            expect(decodedErr?.previousExecution?.state).toBe('ERROR')
+            const decodedErr = (await trusted_state_from_string(errTrustedEvt!.data)) as any
+            expect(decodedErr).toMatchObject({ version: 2, history: [] })
+            expect(decodedErr.pendingResume).toBeUndefined()
 
             // 3. External TERMINATED abort trustedState parity
             const abortCtrl = new AbortController()
@@ -1225,8 +1233,9 @@ describe('Agentflow V2 Task 06: Fault Handling & Non-Interrupting HumanInput Sem
             ).rejects.toThrow(/cancelled/i)
             sseTerm.sseStreamer.removeClient('chat-trusted-term')
             const termTrustedEvt = sseTerm.getEvents().find((e) => e.event === 'trustedStateData')
-            const decodedTerm = await trusted_state_from_string(termTrustedEvt!.data)
-            expect(decodedTerm?.previousExecution?.state).toBe('TERMINATED')
+            const decodedTerm = (await trusted_state_from_string(termTrustedEvt!.data)) as any
+            expect(decodedTerm).toMatchObject({ version: 2, history: [] })
+            expect(decodedTerm.pendingResume).toBeUndefined()
         })
     })
 })

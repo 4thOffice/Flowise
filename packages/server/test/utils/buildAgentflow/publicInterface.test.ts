@@ -393,7 +393,7 @@ describe('Agentflow V2 public interface contract', () => {
 
         const turn2 = await runFlow({
             chatflow,
-            incomingInput: { question: 'two', overrideConfig: { sessionId } },
+            incomingInput: { question: 'two', overrideConfig: { sessionId }, trustedState: turn1.trustedState },
             appDataSource,
             chatId: 'chat-turn-2'
         })
@@ -600,19 +600,20 @@ describe('Agentflow V2 public interface contract', () => {
             chatflow,
             incomingInput: {
                 humanInput: { type: 'proceed', startNodeId: 'humanInputAgentflow_0', feedback: 'looks good' },
-                overrideConfig: { sessionId: sessionProceed }
+                overrideConfig: { sessionId: sessionProceed },
+                trustedState: stopRes.trustedState
             },
             appDataSource,
             chatId: 'chat-hitl-2'
         })
         expect(resumeProceed.text).toBe('Approved!')
         expect(executions[0].state).toBe('FINISHED')
-        // Previous pending action button is cleared after resume
-        expect(chatMessages.filter((m) => Boolean(m.action))).toHaveLength(0)
+        // Task 07 (D11) clears the recorded pending action button by the stop message's id; until then the row keeps it
+        expect(chatMessages.filter((m) => Boolean(m.action))).toHaveLength(1)
 
         // Reject flow
         const rejectSession = 'hitl-reject-1'
-        await runFlow({
+        const stopForReject = await runFlow({
             chatflow,
             incomingInput: { question: 'review', overrideConfig: { sessionId: rejectSession } },
             appDataSource,
@@ -622,14 +623,15 @@ describe('Agentflow V2 public interface contract', () => {
             chatflow,
             incomingInput: {
                 humanInput: { type: 'reject', startNodeId: 'humanInputAgentflow_0' },
-                overrideConfig: { sessionId: rejectSession }
+                overrideConfig: { sessionId: rejectSession },
+                trustedState: stopForReject.trustedState
             },
             appDataSource,
             chatId: 'chat-hitl-r2'
         })
         expect(resumeReject.text).toBe('Rejected.')
 
-        // Resuming missing session throws
+        // Resuming without a stopped run in the token throws
         await expect(
             runFlow({
                 chatflow,
@@ -758,8 +760,9 @@ describe('Agentflow V2 public interface contract', () => {
 
         const trustedEvt = sse1.getEvents().find((e) => e.event === 'trustedStateData')
         expect(trustedEvt?.data).toBeTruthy()
-        const decoded = await trusted_state_from_string(trustedEvt!.data)
-        expect(decoded?.previousExecution?.state).toBe('STOPPED')
+        const decoded = (await trusted_state_from_string(trustedEvt!.data)) as any
+        expect(decoded.version).toBe(2)
+        expect(decoded.pendingResume.legacyExecution.state).toBe('STOPPED')
 
         const turn2 = await runFlow({
             chatflow,

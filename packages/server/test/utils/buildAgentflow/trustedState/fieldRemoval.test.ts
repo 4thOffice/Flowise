@@ -9,6 +9,8 @@ import {
     countSentinels,
     decodeToken,
     encodeToken,
+    isV2Token,
+    loadBeforeTrace,
     loadHarnessComponentNodes,
     loadHarnessScenario,
     normalizeValue,
@@ -20,8 +22,10 @@ import {
 
 /*
  * Task 03 of plans/agentflow-trusted-state: which token fields the next turn needs, proven by running turn n+1 of every
- * scenario with a token built from T(n) and comparing the outcome with the run on T(n). The code is unchanged, so every
- * built token uses today's (v1) layout, with each field placed where today's code reads it.
+ * scenario with a token built from T(n) and comparing the outcome with the run on T(n). Every built token uses the v1
+ * layout, with each field placed where the v1 code read it, so these runs also exercise the v1 upgrade. Since Task 05
+ * the server writes v2 tokens: the removals edit their v2 fields, a stopped run's records sit in the interim pending
+ * data, and the pending action is marked by its history index instead of an `action` on the history message.
  */
 
 jest.setTimeout(180000)
@@ -170,8 +174,7 @@ const boundariesOf = (c: Case, conversation: Conversation): Boundary[] =>
 
 const at = (name: string, turns: string) => turns.split(' ').map((turn) => `${name} ${turn}`)
 
-// S13's responses are non-streaming and carry no token today (F14): its turns continue from the token the server built
-const tokenOf = (turn: TurnResult): string | null => turn.token ?? turn.serverTokens[turn.serverTokens.length - 1] ?? null
+const tokenOf = (turn: TurnResult): string | null => turn.token
 
 const tokenStateOf = (turn: TurnResult) => decodeToken(tokenOf(turn) as string).state
 
@@ -182,11 +185,14 @@ const pick = (value: Record<string, any>, keys: string[]) =>
 const omit = (value: Record<string, any>, keys: string[]) =>
     Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key)))
 
-const withHistory = (state: any, map: (message: any) => any) => ({ ...state, pastChatHistory: tokenHistory(state).map(map) })
-const withRecords = (state: any, map: (records: any[]) => any[]) => ({
-    ...state,
-    previousExecution: { ...state.previousExecution, executionData: JSON.stringify(map(tokenRecords(state))) }
-})
+const withHistory = (state: any, map: (message: any) => any) =>
+    isV2Token(state) ? { ...state, history: tokenHistory(state).map(map) } : { ...state, pastChatHistory: tokenHistory(state).map(map) }
+const withExecution = (state: any, map: (execution: any) => any) =>
+    isV2Token(state)
+        ? { ...state, pendingResume: { ...state.pendingResume, legacyExecution: map(state.pendingResume.legacyExecution) } }
+        : { ...state, previousExecution: map(state.previousExecution) }
+const withRecords = (state: any, map: (records: any[]) => any[]) =>
+    withExecution(state, (execution) => ({ ...execution, executionData: JSON.stringify(map(tokenRecords(state))) }))
 const eachRecord = (state: any, map: (record: any) => any) => withRecords(state, (records) => records.map(map))
 const withOutput = (record: any, map: (output: any) => any) =>
     record.data?.output && typeof record.data.output === 'object'
@@ -220,9 +226,13 @@ function latestFlowState(records: any[]) {
 }
 
 function contractFieldsOf(state: any): ContractFields {
+    const history = tokenHistory(state).map((message: any) => pick(message, CONTRACT_MESSAGE_FIELDS))
+    if (isV2Token(state)) {
+        return { history, flowState: state.flowState, form: Object.keys(state.formValues).length ? state.formValues : undefined }
+    }
     const records = tokenRecords(state)
     return {
-        history: tokenHistory(state).map((message: any) => pick(message, CONTRACT_MESSAGE_FIELDS)),
+        history,
         flowState: latestFlowState(records),
         form: records.find((record) => record.data?.name === 'startAgentflow')?.data?.output?.form
     }
@@ -283,14 +293,9 @@ function outcome(turn: TurnResult) {
 }
 
 const baselines = new Map<string, Promise<any>>()
-function baselineOf(c: Case, conversation: Conversation, boundary: Boundary): Promise<any> {
+function baselineOf(conversation: Conversation, boundary: Boundary): Promise<any> {
     if (!baselines.has(boundary.label)) {
-        baselines.set(
-            boundary.label,
-            c.name === 'S13'
-                ? conversation.replay(boundary.to, { token: tokenOf(conversation.turn(boundary.from)) }).then(outcome)
-                : Promise.resolve(outcome(conversation.turn(boundary.to)))
-        )
+        baselines.set(boundary.label, Promise.resolve(outcome(conversation.turn(boundary.to))))
     }
     return baselines.get(boundary.label) as Promise<any>
 }
@@ -311,7 +316,7 @@ async function changedBoundaries(cases: Case[], filter: (b: Boundary) => boolean
             const original = tokenStateOf(conversation.turn(boundary.from))
             const modified = build(cloneDeep(original))
             if (modified === null || isEqual(modified, original)) continue
-            if (!isEqual(await runWithToken(conversation, boundary, modified), await baselineOf(c, conversation, boundary)))
+            if (!isEqual(await runWithToken(conversation, boundary, modified), await baselineOf(conversation, boundary)))
                 changed.push(boundary.label)
             if (firstPerCase) break
         }
@@ -333,7 +338,7 @@ describe('normal turns: the contract token', () => {
             const token = contractToken(contractFieldsOf(tokenStateOf(conversation.turn(boundary.from))))
             expect({ boundary: boundary.label, ...(await runWithToken(conversation, boundary, token)) }).toEqual({
                 boundary: boundary.label,
-                ...(await baselineOf(c, conversation, boundary))
+                ...(await baselineOf(conversation, boundary))
             })
         }
     })
@@ -424,24 +429,28 @@ describe('normal turns: each contract field is required', () => {
 // Every field the inventory marks drop or reads only on normal turns, removed at once
 function withoutDropFields(state: any) {
     const kept = withHistory(state, (m) => pick(m, [...CONTRACT_MESSAGE_FIELDS, 'action']))
-    return withRecords({ ...kept, previousExecution: pick(state.previousExecution, ['state', 'executionData']) }, (records) =>
-        records.map((record, i) => {
-            const output = record.data?.output ?? {}
-            const action = output.humanInputAction
-            return {
-                nodeId: record.nodeId,
-                status: record.status,
-                data: {
-                    ...pick(record.data ?? {}, ['parentNodeId']),
-                    ...(i === latestStateIndex(records) ? { state: record.data.state } : {}),
-                    output: {
-                        ...pick(output, ['content', 'nodeID', 'maxLoopCount']),
-                        ...(isDecision(output) ? { conditions: output.conditions.map((c: any) => ({ isFulfilled: c?.isFulfilled })) } : {}),
-                        ...(action ? { humanInputAction: slimAction(action, ['messages', 'humanInputEnableFeedback']) } : {})
+    return withRecords(
+        withExecution(kept, (execution) => pick(execution, ['state', 'executionData'])),
+        (records) =>
+            records.map((record, i) => {
+                const output = record.data?.output ?? {}
+                const action = output.humanInputAction
+                return {
+                    nodeId: record.nodeId,
+                    status: record.status,
+                    data: {
+                        ...pick(record.data ?? {}, ['parentNodeId']),
+                        ...(i === latestStateIndex(records) ? { state: record.data.state } : {}),
+                        output: {
+                            ...pick(output, ['content', 'nodeID', 'maxLoopCount']),
+                            ...(isDecision(output)
+                                ? { conditions: output.conditions.map((c: any) => ({ isFulfilled: c?.isFulfilled })) }
+                                : {}),
+                            ...(action ? { humanInputAction: slimAction(action, ['messages', 'humanInputEnableFeedback']) } : {})
+                        }
                     }
                 }
-            }
-        })
+            })
     )
 }
 
@@ -464,11 +473,19 @@ const RESUME_REMOVALS: Removal[] = [
     // Without a pending action the resume saves a user message; S06b's history toggle removes it again
     removal(
         'history message action',
-        (s) => withHistory(s, (m) => omit(m, ['action'])),
+        (s) =>
+            isV2Token(s)
+                ? { ...s, pendingResume: omit(s.pendingResume, ['actionMessageIndex']) }
+                : withHistory(s, (m) => omit(m, ['action'])),
         ALL_RESUMES.filter((label) => !label.startsWith('S06b '))
     ),
-    removal('history message action, replaced by a marker', (s) => withHistory(s, (m) => (m.action ? { ...m, action: 'pending' } : m)), []),
-    removal('execution state', (s) => ({ ...s, previousExecution: omit(s.previousExecution, ['state']) }), ALL_RESUMES),
+    // A v2 token marks the pending action by its history index already
+    removal(
+        'history message action, replaced by a marker',
+        (s) => (isV2Token(s) ? null : withHistory(s, (m) => (m.action ? { ...m, action: 'pending' } : m))),
+        []
+    ),
+    removal('execution state', (s) => withExecution(s, (execution) => omit(execution, ['state'])), ALL_RESUMES),
     removal('record nodeId', (s) => eachRecord(s, (record) => omit(record, ['nodeId'])), ALL_RESUMES),
     removal('record status', (s) => eachRecord(s, (record) => omit(record, ['status'])), [
         ...at('S06', 't2'),
@@ -673,7 +690,7 @@ async function rehydrate(paused: PausedToken, nodes: any[]) {
 }
 
 interface PausedSizes {
-    today: number
+    today?: number
     contract: number
     a: number
     b: number
@@ -681,7 +698,8 @@ interface PausedSizes {
     promptsInC: number
 }
 
-// Base64 characters of the paused token: today's, the contract fields alone, and the contract fields with each variant's pending data
+// Base64 characters of the paused token: today's (v1, as captured in traces/before/), the contract fields alone, and the contract
+// fields with each variant's pending data
 const EXPECTED_PAUSED_SIZES: Record<string, PausedSizes> = {
     'S06 t1': { today: 15268, contract: 344, a: 680, b: 680, c: 724, promptsInC: 0 },
     'S06 t2': { today: 27716, contract: 420, a: 808, b: 808, c: 908, promptsInC: 0 },
@@ -728,7 +746,7 @@ describe('TS-O1: pending resume data', () => {
             for (const boundary of boundariesOf(c, conversation).filter((b) => b.resume)) {
                 const paused = pausedTokenOf(conversation, conversation.turn(boundary.from), variant)
                 const actual = await runWithToken(conversation, boundary, await rehydrate(paused, nodes))
-                if (!isEqual(actual, await baselineOf(c, conversation, boundary))) differences.push(boundary.label)
+                if (!isEqual(actual, await baselineOf(conversation, boundary))) differences.push(boundary.label)
             }
         }
         report.variants[variant] = differences
@@ -739,10 +757,12 @@ describe('TS-O1: pending resume data', () => {
         const measured: Record<string, PausedSizes> = {}
         for (const c of RESUME_CASES) {
             const conversation = await caseConversation(c)
+            const before = SCENARIOS.includes(c.name) ? loadBeforeTrace('M1', loadHarnessScenario(c.name).slug) : undefined
             for (const turn of conversation.turns.filter((t) => t.status === 'STOPPED')) {
                 const paused = (variant: Variant) => pausedTokenOf(conversation, turn, variant)
+                const today = before?.turns.find((t) => t.id === turn.id)?.token?.base64Length
                 const sizes: PausedSizes = {
-                    today: (tokenOf(turn) as string).length,
+                    ...(today !== undefined ? { today } : {}),
                     contract: encodeToken(omit(paused('a'), ['pending'])).length,
                     a: encodeToken(paused('a')).length,
                     b: encodeToken(paused('b')).length,
@@ -766,7 +786,7 @@ describe('TS-O1: pending resume data', () => {
             const { promptsInC, ...sizes } = measured[turn]
             expect({ turn, promptsInC }).toEqual({ turn, promptsInC: expected.promptsInC })
             for (const [key, value] of Object.entries(sizes)) {
-                const pinned = expected[key as keyof PausedSizes]
+                const pinned = expected[key as keyof PausedSizes] as number
                 if (Math.abs(value - pinned) / pinned >= 0.03)
                     throw new Error(`${turn} ${key}: ${value} base64 characters, pinned ${pinned}`)
             }

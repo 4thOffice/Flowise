@@ -280,7 +280,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     const isTTSActionRef = useRef(false)
     const ttsTimeoutRef = useRef(null)
 
-    // Server-encrypted conversation state; for clientState/zero-retention flows it is the only copy of history and the previous execution
+    // Server-encrypted conversation state: the server continues an Agentflow V2 conversation only from this token
     const trustedStateRef = useRef(null)
 
     const isFileAllowedForUpload = (file) => {
@@ -1021,6 +1021,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                 if (response.data) {
                     const data = response.data
 
+                    if (data.trustedState) trustedStateRef.current = data.trustedState
                     updateMetadata(data, input)
 
                     let text = ''
