@@ -25,6 +25,7 @@ No system prompt or other unneeded data reaches clients unencrypted, and the Flo
 - **Internal** = `isInternal` (`/internal-prediction`), unchanged; API-key callers there count as internal (04 §3 Q6).
 - **UI**: approval buttons, feedback dialog and execution viewer work with the slim payloads (all read paths guard `data.input`). Decide with the user whether the internal chat keeps the token across page reloads (F17).
 - Recorded executions unchanged (TS5).
+- From Task 07 (07 §4.2): enable the `actionKeysOnly` check of `F06-S06b-toggle-off`, which the harness skips in `TASK_09_CHECKS`. A carried stopped node is already announced again with its slim action (S08 t2). `fieldRemoval`'s D5 = D4 test reads the stored prompt from M1's external executed data: read it from M1-internal or the recorded execution once that data is pruned.
 
 ---
 
