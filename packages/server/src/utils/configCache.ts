@@ -11,8 +11,8 @@ import logger from './logger'
 
 /*
  * The configuration a prediction reads is served from memory unless DISABLE_CONFIG_CACHE=true. Writes through TypeORM in this
- * process reload the written kind after commit; writes made by other instances only arrive with the periodic reload
- * (CONFIG_CACHE_REFRESH_SECONDS, default 30, 0 = never).
+ * process reload the written kind before the write resolves. A row another instance created is read from the database on
+ * the first miss; its other changes only arrive with the periodic reload (CONFIG_CACHE_REFRESH_SECONDS, default 30, 0 = never).
  */
 
 type Kind = 'chatflows' | 'workspaces' | 'variables' | 'credentials'
@@ -51,7 +51,7 @@ let snapshot: Partial<Snapshot> = {}
 let dataSource: DataSource | undefined
 let refreshTimer: NodeJS.Timeout | undefined
 const inFlight = new Map<Kind, Promise<void>>()
-const reloadAgain = new Set<Kind>()
+const queued = new Map<Kind, Promise<void>>()
 const pendingByQueryRunner = new WeakMap<QueryRunner, Set<Kind>>()
 
 const loaders: { [K in Kind]: (ds: DataSource) => Promise<Snapshot[K]> } = {
@@ -89,9 +89,16 @@ const reload = (kind: Kind): Promise<void> => {
     if (!ds) return Promise.resolve()
     const running = inFlight.get(kind)
     if (running) {
-        // A write committed while this load was reading may be missing from it
-        reloadAgain.add(kind)
-        return running
+        // A write committed while this load was reading may be missing from it, so load once more after it
+        let next = queued.get(kind)
+        if (!next) {
+            next = running.then(() => {
+                queued.delete(kind)
+                return reload(kind)
+            })
+            queued.set(kind, next)
+        }
+        return next
     }
     const task = (async () => {
         try {
@@ -102,7 +109,6 @@ const reload = (kind: Kind): Promise<void> => {
             logger.warn(`[configCache]: Failed to load ${kind}: ${getErrorMessage(error)}`)
         } finally {
             inFlight.delete(kind)
-            if (reloadAgain.delete(kind)) void reload(kind)
         }
     })()
     inFlight.set(kind, task)
@@ -111,6 +117,7 @@ const reload = (kind: Kind): Promise<void> => {
 
 const reloadAll = () => Promise.all((Object.keys(loaders) as Kind[]).map(reload)).then(() => undefined)
 
+// TypeORM awaits the promises these return, so a save resolves only once this process serves what it wrote
 class ConfigCacheSubscriber implements EntitySubscriberInterface {
     private written({ queryRunner, metadata }: InsertEvent<any> | UpdateEvent<any> | RemoveEvent<any>) {
         const target = metadata.target
@@ -121,7 +128,7 @@ class ConfigCacheSubscriber implements EntitySubscriberInterface {
             kinds.add(kind)
             pendingByQueryRunner.set(queryRunner, kinds)
         } else {
-            void reload(kind)
+            return reload(kind)
         }
     }
     afterInsert = this.written
@@ -132,7 +139,7 @@ class ConfigCacheSubscriber implements EntitySubscriberInterface {
         const kinds = pendingByQueryRunner.get(event.queryRunner)
         if (!kinds) return
         pendingByQueryRunner.delete(event.queryRunner)
-        kinds.forEach((kind) => void reload(kind))
+        return Promise.all([...kinds].map(reload))
     }
     afterTransactionRollback(event: TransactionCommitEvent) {
         pendingByQueryRunner.delete(event.queryRunner)
@@ -169,31 +176,37 @@ export const stopConfigCache = () => {
 
 /** Waits for reloads already triggered by writes; for tests. */
 export const settleConfigCache = async () => {
-    while (inFlight.size) await Promise.all(inFlight.values())
+    while (inFlight.size || queued.size) await Promise.all([...inFlight.values(), ...queued.values()])
 }
 
 const served = <K extends Kind>(kind: K, id?: string): Snapshot[K] | undefined => (cachePolicy(kind, id) ? snapshot[kind] : undefined)
+
+// A miss may be a row another instance or a queue worker's server wrote since the last load
+const readMissed = async <T>(kind: Kind, read: () => Promise<T | null>): Promise<T | null> => {
+    const row = await read()
+    if (row) void reload(kind)
+    return row
+}
 
 // Callers get copies so a change they make to a row (an evaluation run sets chatflow.analytic) stays in their request
 const copy = <T extends object>(Entity: new () => T, row: T): T => Object.assign(new Entity(), row)
 
 export const getChatflow = async (appDataSource: DataSource, id: string, workspaceId?: string): Promise<ChatFlow | null> => {
+    const read = () => appDataSource.getRepository(ChatFlow).findOneBy({ id, ...(workspaceId ? { workspaceId } : {}) })
     const chatflows = served('chatflows', id)
-    if (!chatflows) {
-        return appDataSource.getRepository(ChatFlow).findOneBy({ id, ...(workspaceId ? { workspaceId } : {}) })
-    }
+    if (!chatflows) return read()
     const entry = chatflows.get(id)
-    if (!entry || (workspaceId && entry.row.workspaceId !== workspaceId)) return null
+    if (!entry) return readMissed('chatflows', read)
+    if (workspaceId && entry.row.workspaceId !== workspaceId) return null
     return copy(ChatFlow, entry.row)
 }
 
 export const getWorkspaceWithOrganization = async (appDataSource: DataSource, id: string): Promise<Workspace | null> => {
+    const read = () => appDataSource.getRepository(Workspace).findOne({ where: { id }, relations: { organization: true } })
     const workspaces = served('workspaces', id)
-    if (!workspaces) {
-        return appDataSource.getRepository(Workspace).findOne({ where: { id }, relations: { organization: true } })
-    }
+    if (!workspaces) return read()
     const row = workspaces.get(id)
-    if (!row) return null
+    if (!row) return readMissed('workspaces', read)
     return Object.assign(copy(Workspace, row), { organization: row.organization && copy(Organization, row.organization) })
 }
 
@@ -205,10 +218,11 @@ export const getVariables = async (appDataSource: DataSource, workspaceId?: stri
 }
 
 export const getCredential = async (appDataSource: DataSource, id: string): Promise<Credential | null> => {
+    const read = () => appDataSource.getRepository(Credential).findOneBy({ id })
     const credentials = served('credentials', id)
-    if (!credentials) return appDataSource.getRepository(Credential).findOneBy({ id })
+    if (!credentials) return read()
     const row = credentials.get(id)
-    return row ? copy(Credential, row) : null
+    return row ? copy(Credential, row) : readMissed('credentials', read)
 }
 
 const deepFreeze = <T>(value: T): T => {

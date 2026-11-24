@@ -105,6 +105,39 @@ describe('configCache', () => {
         expect(await getChatflow(ds, FLOW)).toBeNull()
     })
 
+    it('serves a local write as soon as the write resolves', async () => {
+        await start()
+        const repo = ds.getRepository(ChatFlow)
+
+        await repo.save({ ...(await repo.findOneByOrFail({ id: FLOW })), flowData: flowData('v2') })
+        expect(labelOf(await getChatflow(ds, FLOW))).toBe('v2')
+
+        const created = await repo.save({ name: 'Copy', flowData: flowData('copy'), type: 'AGENTFLOW', workspaceId: WS })
+        await ds.getRepository(Variable).update({ name: 'greeting' }, { value: 'hello' })
+        expect(labelOf(await getChatflow(ds, created.id, WS))).toBe('copy')
+        expect((await getVariables(ds, WS)).map((v) => v.value)).toEqual(['hello'])
+    })
+
+    it('reads rows another instance created from the database on a miss', async () => {
+        await start()
+        const NEW = '88888888-8888-4888-8888-888888888888'
+        await ds.query('INSERT INTO chat_flow (id, name, "flowData", type, "workspaceId") VALUES (?, ?, ?, ?, ?)', [
+            NEW,
+            'Elsewhere',
+            flowData('elsewhere'),
+            'AGENTFLOW',
+            WS
+        ])
+
+        expect(labelOf(await getChatflow(ds, NEW, WS))).toBe('elsewhere')
+        expect(await getChatflow(ds, NEW, OTHER_WS)).toBeNull()
+
+        // The miss reloads the chatflows, so the next read comes from memory
+        await settleConfigCache()
+        await ds.query('DELETE FROM chat_flow WHERE id = ?', [NEW])
+        expect(labelOf(await getChatflow(ds, NEW))).toBe('elsewhere')
+    })
+
     it('ignores writes of a rolled back transaction', async () => {
         await start()
 
