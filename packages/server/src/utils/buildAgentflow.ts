@@ -46,7 +46,6 @@ import { getErrorMessage } from '../errors/utils'
 import { Compression, Execution } from '../database/entities/Execution'
 import { ChatMessage } from '../database/entities/ChatMessage'
 import { utilAddChatMessage } from './addChatMesage'
-import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
 import { generateTTSForResponseStream, shouldAutoPlayTTS } from './buildChatflow'
 import { executionsUpdater } from '../DataSource'
 import {
@@ -96,6 +95,7 @@ import {
     writeToken
 } from './agentflow/trustedState'
 import { toClientExecutedData } from './agentflow/clientPayloads'
+import { getCredential, getParsedFlow, getVariables } from './configCache'
 
 /**
  * Add execution to database
@@ -842,7 +842,8 @@ const executeNode = async ({
             evaluationRunId,
             overrideConfig,
             childFlowToken: turnInput.childFlowTokens[nodeId],
-            getAvailableVariables
+            getAvailableVariables,
+            getCredential: (id: string) => getCredential(appDataSource, id)
         }
 
         // Execute node
@@ -1243,8 +1244,7 @@ export const executeAgentFlow = async ({
     const apiMessageId = uuidv4()
 
     /*** Get chatflows and prepare data  ***/
-    const flowData = chatflow.flowData
-    const parsedFlowData: IReactFlowObject = JSON.parse(flowData)
+    const parsedFlowData: IReactFlowObject = getParsedFlow(chatflow)
     const nodes = (parsedFlowData.nodes || []).filter((node) => node.data.name !== 'stickyNoteAgentflow')
     const edges = parsedFlowData.edges
     const { graph, nodeDependencies } = constructGraphs(nodes, edges)
@@ -1282,7 +1282,7 @@ export const executeAgentFlow = async ({
     let availableVariablesTask: Promise<Variable[]> | undefined
     // Each caller gets copies: getGlobalVariable and getVars rewrite the variables they are given
     const getAvailableVariables = async (): Promise<Variable[]> => {
-        availableVariablesTask ??= appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId))
+        availableVariablesTask ??= getVariables(appDataSource, workspaceId)
         return (await availableVariablesTask).map((variable) => ({ ...variable }))
     }
     /*

@@ -8,6 +8,7 @@ import { MODE, Platform } from './Interface'
 import { getNodeModulesPackagePath, getEncryptionKey } from './utils'
 import logger, { expressRequestLogger } from './utils/logger'
 import { getDataSource } from './DataSource'
+import { startConfigCache, stopConfigCache } from './utils/configCache'
 import { NodesPool } from './NodesPool'
 import { ChatFlow } from './database/entities/ChatFlow'
 import { CachePool } from './CachePool'
@@ -105,6 +106,8 @@ export class App {
             // Initialize encryption key
             await getEncryptionKey()
             logger.info('🔑 [server]: Encryption key initialized successfully')
+
+            await startConfigCache(this.AppDataSource)
 
             // Initialize Rate Limit
             this.rateLimiterManager = RateLimiterManager.getInstance()
@@ -355,6 +358,7 @@ export class App {
 
     async stopApp() {
         try {
+            stopConfigCache()
             const removePromises: any[] = []
             removePromises.push(this.telemetry.flush())
             if (this.queueManager) {

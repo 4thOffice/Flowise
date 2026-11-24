@@ -8,6 +8,7 @@ import { CachePool } from '../CachePool'
 import { QueueEvents, QueueEventsListener } from 'bullmq'
 import { AbortControllerPool } from '../AbortControllerPool'
 import { UsageCacheManager } from '../UsageCacheManager'
+import { startConfigCache } from '../utils/configCache'
 
 interface CustomListener extends QueueEventsListener {
     abort: (args: { id: string }, id: string) => void
@@ -60,6 +61,7 @@ export default class Worker extends BaseCommand {
         const appDataSource = getDataSource()
         await appDataSource.initialize()
         await appDataSource.runMigrations({ transaction: 'each' })
+        await startConfigCache(appDataSource)
 
         // Initialize abortcontroller pool
         const abortControllerPool = new AbortControllerPool()

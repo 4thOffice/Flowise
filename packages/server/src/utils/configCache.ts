@@ -1,0 +1,228 @@
+import { DataSource, EntitySubscriberInterface, InsertEvent, QueryRunner, RemoveEvent, TransactionCommitEvent, UpdateEvent } from 'typeorm'
+import { ChatFlow } from '../database/entities/ChatFlow'
+import { Credential } from '../database/entities/Credential'
+import { Variable } from '../database/entities/Variable'
+import { Organization } from '../enterprise/database/entities/organization.entity'
+import { Workspace } from '../enterprise/database/entities/workspace.entity'
+import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
+import { IReactFlowObject } from '../Interface'
+import { getErrorMessage } from '../errors/utils'
+import logger from './logger'
+
+/*
+ * The configuration a prediction reads is served from memory unless DISABLE_CONFIG_CACHE=true. Writes through TypeORM in this
+ * process reload the written kind after commit; writes made by other instances only arrive with the periodic reload
+ * (CONFIG_CACHE_REFRESH_SECONDS, default 30, 0 = never).
+ */
+
+type Kind = 'chatflows' | 'workspaces' | 'variables' | 'credentials'
+
+interface ChatflowEntry {
+    row: ChatFlow
+    parsed?: IReactFlowObject
+}
+
+interface Snapshot {
+    chatflows: Map<string, ChatflowEntry>
+    workspaces: Map<string, Workspace>
+    variables: Map<string, Variable[]>
+    credentials: Map<string, Credential>
+}
+
+const KIND_BY_ENTITY = new Map<Function, Kind>([
+    [ChatFlow, 'chatflows'],
+    [Workspace, 'workspaces'],
+    [Organization, 'workspaces'],
+    [Variable, 'variables'],
+    [Credential, 'credentials']
+])
+
+export const isConfigCacheEnabled = () => process.env.DISABLE_CONFIG_CACHE !== 'true'
+
+const refreshSeconds = () => {
+    const value = Number(process.env.CONFIG_CACHE_REFRESH_SECONDS ?? 30)
+    return Number.isFinite(value) && value > 0 ? value : 0
+}
+
+// The one place that decides what is served from memory; per-flow or per-kind rules go here
+const cachePolicy = (_kind: Kind, _id?: string): boolean => isConfigCacheEnabled()
+
+let snapshot: Partial<Snapshot> = {}
+let dataSource: DataSource | undefined
+let refreshTimer: NodeJS.Timeout | undefined
+const inFlight = new Map<Kind, Promise<void>>()
+const reloadAgain = new Set<Kind>()
+const pendingByQueryRunner = new WeakMap<QueryRunner, Set<Kind>>()
+
+const loaders: { [K in Kind]: (ds: DataSource) => Promise<Snapshot[K]> } = {
+    chatflows: async (ds) => {
+        const previous = snapshot.chatflows
+        const rows = await ds.getRepository(ChatFlow).find()
+        return new Map(
+            rows.map((row) => {
+                const kept = previous?.get(row.id)
+                return [row.id, { row, parsed: kept?.row.flowData === row.flowData ? kept.parsed : undefined }]
+            })
+        )
+    },
+    workspaces: async (ds) => {
+        const rows = await ds.getRepository(Workspace).find({ relations: { organization: true } })
+        return new Map(rows.map((row) => [row.id, row]))
+    },
+    variables: async (ds) => {
+        const byWorkspace = new Map<string, Variable[]>()
+        for (const row of await ds.getRepository(Variable).find()) {
+            const list = byWorkspace.get(row.workspaceId) ?? []
+            list.push(row)
+            byWorkspace.set(row.workspaceId, list)
+        }
+        return byWorkspace
+    },
+    credentials: async (ds) => {
+        const rows = await ds.getRepository(Credential).find()
+        return new Map(rows.map((row) => [row.id, row]))
+    }
+}
+
+const reload = (kind: Kind): Promise<void> => {
+    const ds = dataSource
+    if (!ds) return Promise.resolve()
+    const running = inFlight.get(kind)
+    if (running) {
+        // A write committed while this load was reading may be missing from it
+        reloadAgain.add(kind)
+        return running
+    }
+    const task = (async () => {
+        try {
+            ;(snapshot as any)[kind] = await loaders[kind](ds)
+        } catch (error) {
+            logger.warn(`[configCache]: Failed to load ${kind}: ${getErrorMessage(error)}`)
+        } finally {
+            inFlight.delete(kind)
+            if (reloadAgain.delete(kind)) void reload(kind)
+        }
+    })()
+    inFlight.set(kind, task)
+    return task
+}
+
+const reloadAll = () => Promise.all((Object.keys(loaders) as Kind[]).map(reload)).then(() => undefined)
+
+class ConfigCacheSubscriber implements EntitySubscriberInterface {
+    private written({ queryRunner, metadata }: InsertEvent<any> | UpdateEvent<any> | RemoveEvent<any>) {
+        const target = metadata.target
+        const kind = typeof target === 'function' ? KIND_BY_ENTITY.get(target) : undefined
+        if (!kind) return
+        if (queryRunner.isTransactionActive) {
+            const kinds = pendingByQueryRunner.get(queryRunner) ?? new Set<Kind>()
+            kinds.add(kind)
+            pendingByQueryRunner.set(queryRunner, kinds)
+        } else {
+            void reload(kind)
+        }
+    }
+    afterInsert = this.written
+    afterUpdate = this.written
+    afterRemove = this.written
+    afterSoftRemove = this.written
+    afterTransactionCommit(event: TransactionCommitEvent) {
+        const kinds = pendingByQueryRunner.get(event.queryRunner)
+        if (!kinds) return
+        pendingByQueryRunner.delete(event.queryRunner)
+        kinds.forEach((kind) => void reload(kind))
+    }
+    afterTransactionRollback(event: TransactionCommitEvent) {
+        pendingByQueryRunner.delete(event.queryRunner)
+    }
+}
+
+/** Loads everything and starts keeping it current; a no-op when DISABLE_CONFIG_CACHE=true. */
+export const startConfigCache = async (appDataSource: DataSource): Promise<void> => {
+    if (!isConfigCacheEnabled() || dataSource) return
+    dataSource = appDataSource
+    appDataSource.subscribers.push(new ConfigCacheSubscriber())
+    await reloadAll()
+    const seconds = refreshSeconds()
+    if (seconds) {
+        refreshTimer = setInterval(() => void reloadAll(), seconds * 1000)
+        refreshTimer.unref()
+    }
+    logger.info(
+        `🗂️ [server]: Config cache loaded (${snapshot.chatflows?.size ?? 0} chatflows), ` +
+            (seconds ? `refreshing every ${seconds}s` : 'periodic refresh off')
+    )
+}
+
+export const stopConfigCache = () => {
+    if (refreshTimer) clearInterval(refreshTimer)
+    refreshTimer = undefined
+    if (dataSource) {
+        const index = dataSource.subscribers.findIndex((subscriber) => subscriber instanceof ConfigCacheSubscriber)
+        if (index >= 0) dataSource.subscribers.splice(index, 1)
+    }
+    dataSource = undefined
+    snapshot = {}
+}
+
+/** Waits for reloads already triggered by writes; for tests. */
+export const settleConfigCache = async () => {
+    while (inFlight.size) await Promise.all(inFlight.values())
+}
+
+const served = <K extends Kind>(kind: K, id?: string): Snapshot[K] | undefined => (cachePolicy(kind, id) ? snapshot[kind] : undefined)
+
+// Callers get copies so a change they make to a row (an evaluation run sets chatflow.analytic) stays in their request
+const copy = <T extends object>(Entity: new () => T, row: T): T => Object.assign(new Entity(), row)
+
+export const getChatflow = async (appDataSource: DataSource, id: string, workspaceId?: string): Promise<ChatFlow | null> => {
+    const chatflows = served('chatflows', id)
+    if (!chatflows) {
+        return appDataSource.getRepository(ChatFlow).findOneBy({ id, ...(workspaceId ? { workspaceId } : {}) })
+    }
+    const entry = chatflows.get(id)
+    if (!entry || (workspaceId && entry.row.workspaceId !== workspaceId)) return null
+    return copy(ChatFlow, entry.row)
+}
+
+export const getWorkspaceWithOrganization = async (appDataSource: DataSource, id: string): Promise<Workspace | null> => {
+    const workspaces = served('workspaces', id)
+    if (!workspaces) {
+        return appDataSource.getRepository(Workspace).findOne({ where: { id }, relations: { organization: true } })
+    }
+    const row = workspaces.get(id)
+    if (!row) return null
+    return Object.assign(copy(Workspace, row), { organization: row.organization && copy(Organization, row.organization) })
+}
+
+export const getVariables = async (appDataSource: DataSource, workspaceId?: string): Promise<Variable[]> => {
+    const where = getWorkspaceSearchOptions(workspaceId)
+    const variables = served('variables', workspaceId)
+    if (!variables) return appDataSource.getRepository(Variable).findBy(where)
+    return (variables.get(workspaceId!) ?? []).map((row) => copy(Variable, row))
+}
+
+export const getCredential = async (appDataSource: DataSource, id: string): Promise<Credential | null> => {
+    const credentials = served('credentials', id)
+    if (!credentials) return appDataSource.getRepository(Credential).findOneBy({ id })
+    const row = credentials.get(id)
+    return row ? copy(Credential, row) : null
+}
+
+const deepFreeze = <T>(value: T): T => {
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+        Object.freeze(value)
+        for (const child of Object.values(value)) deepFreeze(child)
+    }
+    return value
+}
+
+/**
+ * The chatflow's parsed flowData. For a chatflow served from the cache it is parsed once and shared by every request,
+ * so it is frozen: copy before changing any part of it.
+ */
+export const getParsedFlow = (chatflow: ChatFlow): IReactFlowObject => {
+    const entry = served('chatflows', chatflow.id)?.get(chatflow.id)
+    if (!entry || entry.row.flowData !== chatflow.flowData) return JSON.parse(chatflow.flowData)
+    return (entry.parsed ??= deepFreeze(JSON.parse(entry.row.flowData)))
+}

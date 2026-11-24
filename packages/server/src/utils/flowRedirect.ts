@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm'
 import { IReactFlowNode } from '../Interface'
 import { ChatFlow, EnumChatflowType } from '../database/entities/ChatFlow'
 import { InternalFlowiseError } from '../errors/internalFlowiseError'
+import { getChatflow } from './configCache'
 
 export const REDIRECT_FLOW_NODE_NAME = 'redirectFlowAgentflow'
 const REDIRECT_FLOW_TARGET_INPUT = 'redirectFlowSelectedFlow'
@@ -53,7 +54,7 @@ export const resolveFlowRedirect = async (chatflow: ChatFlow, appDataSource: Dat
         throw new InternalFlowiseError(StatusCodes.BAD_REQUEST, 'Redirect to Flow cannot target its own flow')
     }
 
-    const target = await appDataSource.getRepository(ChatFlow).findOneBy({ id: targetId })
+    const target = await getChatflow(appDataSource, targetId)
     if (!target) {
         throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Redirect target flow ${targetId} not found`)
     }

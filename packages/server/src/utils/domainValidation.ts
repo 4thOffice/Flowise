@@ -1,5 +1,6 @@
 import { isValidUUID } from 'flowise-components'
-import chatflowsService from '../services/chatflows'
+import { getChatflow } from './configCache'
+import { getRunningExpressApp } from './getRunningExpressApp'
 import logger from './logger'
 
 /**
@@ -15,9 +16,10 @@ async function validateChatflowDomain(chatflowId: string, origin: string, worksp
             throw new Error('Invalid chatflowId format - must be a valid UUID')
         }
 
-        const chatflow = workspaceId
-            ? await chatflowsService.getChatflowById(chatflowId, workspaceId)
-            : await chatflowsService.getChatflowById(chatflowId)
+        const chatflow = await getChatflow(getRunningExpressApp().AppDataSource, chatflowId, workspaceId)
+        if (!chatflow) {
+            throw new Error(`Chatflow ${chatflowId} not found`)
+        }
 
         if (!chatflow?.chatbotConfig) {
             return true
@@ -90,9 +92,10 @@ function isPredictionRequest(url: string): boolean {
  */
 async function getUnauthorizedOriginError(chatflowId: string, workspaceId?: string): Promise<string> {
     try {
-        const chatflow = workspaceId
-            ? await chatflowsService.getChatflowById(chatflowId, workspaceId)
-            : await chatflowsService.getChatflowById(chatflowId)
+        const chatflow = await getChatflow(getRunningExpressApp().AppDataSource, chatflowId, workspaceId)
+        if (!chatflow) {
+            throw new Error(`Chatflow ${chatflowId} not found`)
+        }
 
         if (chatflow?.chatbotConfig) {
             const config = JSON.parse(chatflow.chatbotConfig)

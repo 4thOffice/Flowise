@@ -69,8 +69,8 @@ import { FLOWISE_METRIC_COUNTERS, FLOWISE_COUNTER_STATUS, IMetricsProvider } fro
 import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
 import { OMIT_QUEUE_JOB_DATA } from './constants'
 import { executeAgentFlow } from './buildAgentflow'
+import { getChatflow, getWorkspaceWithOrganization } from './configCache'
 import { resolveFlowRedirect } from './flowRedirect'
-import { Workspace } from '../enterprise/database/entities/workspace.entity'
 
 const shouldAutoPlayTTS = (textToSpeechConfig: string | undefined | null): boolean => {
     if (!textToSpeechConfig) return false
@@ -986,11 +986,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
 
     const chatflowid = req.params.id
 
-    const requestedChatflow =
-        preloaded?.requested ??
-        (await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
-            id: chatflowid
-        }))
+    const requestedChatflow = preloaded?.requested ?? (await getChatflow(appServer.AppDataSource, chatflowid))
     if (!requestedChatflow) {
         throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowid} not found`)
     }
@@ -1034,10 +1030,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
 
         // This can be public API, so we can only get orgId from the chatflow
         const chatflowWorkspaceId = chatflow.workspaceId
-        const workspace = await appServer.AppDataSource.getRepository(Workspace).findOne({
-            where: { id: chatflowWorkspaceId },
-            relations: { organization: true }
-        })
+        const workspace = await getWorkspaceWithOrganization(appServer.AppDataSource, chatflowWorkspaceId)
         if (!workspace) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Workspace ${chatflowWorkspaceId} not found`)
         }

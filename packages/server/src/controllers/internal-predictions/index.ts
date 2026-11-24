@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { InternalFlowiseError } from '../../errors/internalFlowiseError'
 import { getErrorMessage } from '../../errors/utils'
 import { MODE } from '../../Interface'
-import chatflowService from '../../services/chatflows'
+import { getChatflow } from '../../utils/configCache'
 import { utilBuildChatflow } from '../../utils/buildChatflow'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 
@@ -12,7 +12,7 @@ const createInternalPrediction = async (req: Request, res: Response, next: NextF
     try {
         const workspaceId = req.user?.activeWorkspaceId
 
-        const chatflow = await chatflowService.getChatflowById(req.params.id, workspaceId)
+        const chatflow = await getChatflow(getRunningExpressApp().AppDataSource, req.params.id, workspaceId)
         if (!chatflow) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${req.params.id} not found`)
         }

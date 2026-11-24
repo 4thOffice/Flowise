@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { getErrorMessage } from '../../errors/utils'
 import { MODE } from '../../Interface'
 import { resolveFlowRedirect } from '../../utils/flowRedirect'
+import { getChatflow } from '../../utils/configCache'
 
 // Send input message and get prediction result (External)
 const createPrediction = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +29,7 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
         }
         const workspaceId = req.user?.activeWorkspaceId
 
-        const requestedChatflow = await chatflowsService.getChatflowById(req.params.id, workspaceId)
+        const requestedChatflow = await getChatflow(getRunningExpressApp().AppDataSource, req.params.id, workspaceId)
         if (!requestedChatflow) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${req.params.id} not found`)
         }

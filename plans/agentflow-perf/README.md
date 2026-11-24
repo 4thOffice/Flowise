@@ -82,7 +82,25 @@ Tests:
 -   New tests in `test/utils/buildAgentflow/variables.test.ts`: no query without `$vars`, one query for several nodes, copies per node, and Custom Function without its own query.
 -   All 13 `test/utils/buildAgentflow` suites pass, including the trusted-state characterization; the rest of the server suite and the components suite also pass.
 
-### Not done (bigger or riskier)
+## In-memory config cache (on by default)
+
+The config cache (on unless `DISABLE_CONFIG_CACHE=true`) serves chatflows (with their parsed `flowData`), workspaces with their organization, variables and credentials to predictions from memory (`src/utils/configCache.ts`).
+
+-   **Updates:** everything is loaded at startup. A TypeORM subscriber reloads the written kind after any local write commits.
+-   **Refresh:** `CONFIG_CACHE_REFRESH_SECONDS` (default 30, `0` = off) reloads everything periodically. That is how edits made on other instances, and by the server process for a queue-mode worker, arrive.
+-   **Policy:** `cachePolicy(kind, id)` is the one place that decides what comes from memory. Today it is the toggle; per-flow rules go there.
+-   **Safety:** callers get copies of rows. A cached chatflow's parsed flow is shared and frozen. All 458 Agentflow V2 tests pass with every parsed flow frozen.
+
+Results with the cache on (`results/cache-*.json`, client p50 t1 / t2):
+
+| Flow          | Mode  | after (cache off) |    cache on |
+| :------------ | :---- | ----------------: | ----------: |
+| direct        | token |         2.1 / 2.3 |   1.6 / 1.9 |
+| skip150       | token |         5.3 / 5.5 |   2.4 / 2.7 |
+| conditions150 | token |       19.9 / 20.0 | 22.2 / 21.3 |
+| chain150      | token |         163 / 166 |   165 / 162 |
+
+Token mode now makes no DB queries per request. Before: ChatFlow, Workspace and organization, Variable, plus one Credential read per model, HTTP or credentialed Function node. Flow size no longer costs anything (`skip150` ≈ `direct`). On SQLite the gain per request is small; on a busy or remote database it removes every read round trip.
 
 -   **`new NodeVM` per Custom Function execution** is about 80% of a Function node's cost. In the CPU profile, `createContext` and the nodevm bridge and builtin setup dominate. A fresh sandbox per execution is the isolation boundary, so reusing one is not a safe tweak. Changing this means designing a different sandbox, such as pooled contexts or isolated-vm.
 -   **The remaining `cloneDeep` work**: the node-data clone in `resolveVariables` (about 6 ms in `conditions150`) copies `inputParams` along with `inputs`. Cloning only `inputs` would need every node checked for writes to the rest of `nodeData`.
