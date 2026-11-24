@@ -1,4 +1,13 @@
-import { DataSource, EntitySubscriberInterface, InsertEvent, QueryRunner, RemoveEvent, TransactionCommitEvent, UpdateEvent } from 'typeorm'
+import {
+    DataSource,
+    EntitySubscriberInterface,
+    InsertEvent,
+    QueryRunner,
+    RemoveEvent,
+    TransactionCommitEvent,
+    TransactionRollbackEvent,
+    UpdateEvent
+} from 'typeorm'
 import { ChatFlow } from '../database/entities/ChatFlow'
 import { Credential } from '../database/entities/Credential'
 import { Variable } from '../database/entities/Variable'
@@ -11,7 +20,7 @@ import logger from './logger'
 
 /*
  * The configuration a prediction reads is served from memory unless DISABLE_CONFIG_CACHE=true. Writes through TypeORM in this
- * process reload the written kind before the write resolves. A row another instance created is read from the database on
+ * process reload the written kind, and predictions wait for that reload. A row another instance created is read from the database on
  * the first miss; its other changes only arrive with the periodic reload (CONFIG_CACHE_REFRESH_SECONDS, default 30, 0 = never).
  */
 
@@ -52,6 +61,7 @@ let dataSource: DataSource | undefined
 let refreshTimer: NodeJS.Timeout | undefined
 const inFlight = new Map<Kind, Promise<void>>()
 const queued = new Map<Kind, Promise<void>>()
+const afterLocalWrite = new Map<Kind, Promise<void>>()
 const pendingByQueryRunner = new WeakMap<QueryRunner, Set<Kind>>()
 
 const loaders: { [K in Kind]: (ds: DataSource) => Promise<Snapshot[K]> } = {
@@ -115,9 +125,17 @@ const reload = (kind: Kind): Promise<void> => {
     return task
 }
 
+// Registered during the commit, so a prediction sent after the save resolves waits for it; the save itself does not wait
+const reloadAfterWrite = (kind: Kind) => {
+    const task = reload(kind)
+    afterLocalWrite.set(kind, task)
+    void task.then(() => {
+        if (afterLocalWrite.get(kind) === task) afterLocalWrite.delete(kind)
+    })
+}
+
 const reloadAll = () => Promise.all((Object.keys(loaders) as Kind[]).map(reload)).then(() => undefined)
 
-// TypeORM awaits the promises these return, so a save resolves only once this process serves what it wrote
 class ConfigCacheSubscriber implements EntitySubscriberInterface {
     private written({ queryRunner, metadata }: InsertEvent<any> | UpdateEvent<any> | RemoveEvent<any>) {
         const target = metadata.target
@@ -128,22 +146,26 @@ class ConfigCacheSubscriber implements EntitySubscriberInterface {
             kinds.add(kind)
             pendingByQueryRunner.set(queryRunner, kinds)
         } else {
-            return reload(kind)
+            reloadAfterWrite(kind)
         }
     }
     afterInsert = this.written
     afterUpdate = this.written
     afterRemove = this.written
     afterSoftRemove = this.written
-    afterTransactionCommit(event: TransactionCommitEvent) {
-        const kinds = pendingByQueryRunner.get(event.queryRunner)
+    afterRecover = this.written
+    private transactionEnded({ queryRunner }: TransactionCommitEvent | TransactionRollbackEvent) {
+        // A nested transaction is not durable until the outermost one commits. On SQLite every request shares one
+        // connection, so a save made while another request's transaction is open is nested in it.
+        if (queryRunner.isTransactionActive) return
+        const kinds = pendingByQueryRunner.get(queryRunner)
         if (!kinds) return
-        pendingByQueryRunner.delete(event.queryRunner)
-        return Promise.all([...kinds].map(reload))
+        pendingByQueryRunner.delete(queryRunner)
+        // Also after a rollback: a load on that same connection may have read the rows it rolled back
+        kinds.forEach(reloadAfterWrite)
     }
-    afterTransactionRollback(event: TransactionCommitEvent) {
-        pendingByQueryRunner.delete(event.queryRunner)
-    }
+    afterTransactionCommit = this.transactionEnded
+    afterTransactionRollback = this.transactionEnded
 }
 
 /** Loads everything and starts keeping it current; a no-op when DISABLE_CONFIG_CACHE=true. */
@@ -179,7 +201,13 @@ export const settleConfigCache = async () => {
     while (inFlight.size || queued.size) await Promise.all([...inFlight.values(), ...queued.values()])
 }
 
-const served = <K extends Kind>(kind: K, id?: string): Snapshot[K] | undefined => (cachePolicy(kind, id) ? snapshot[kind] : undefined)
+const servedNow = <K extends Kind>(kind: K, id?: string): Snapshot[K] | undefined => (cachePolicy(kind, id) ? snapshot[kind] : undefined)
+
+const served = async <K extends Kind>(kind: K, id?: string): Promise<Snapshot[K] | undefined> => {
+    const pending = afterLocalWrite.get(kind)
+    if (pending) await pending
+    return servedNow(kind, id)
+}
 
 // A miss may be a row another instance or a queue worker's server wrote since the last load
 const readMissed = async <T>(kind: Kind, read: () => Promise<T | null>): Promise<T | null> => {
@@ -193,7 +221,7 @@ const copy = <T extends object>(Entity: new () => T, row: T): T => Object.assign
 
 export const getChatflow = async (appDataSource: DataSource, id: string, workspaceId?: string): Promise<ChatFlow | null> => {
     const read = () => appDataSource.getRepository(ChatFlow).findOneBy({ id, ...(workspaceId ? { workspaceId } : {}) })
-    const chatflows = served('chatflows', id)
+    const chatflows = await served('chatflows', id)
     if (!chatflows) return read()
     const entry = chatflows.get(id)
     if (!entry) return readMissed('chatflows', read)
@@ -203,7 +231,7 @@ export const getChatflow = async (appDataSource: DataSource, id: string, workspa
 
 export const getWorkspaceWithOrganization = async (appDataSource: DataSource, id: string): Promise<Workspace | null> => {
     const read = () => appDataSource.getRepository(Workspace).findOne({ where: { id }, relations: { organization: true } })
-    const workspaces = served('workspaces', id)
+    const workspaces = await served('workspaces', id)
     if (!workspaces) return read()
     const row = workspaces.get(id)
     if (!row) return readMissed('workspaces', read)
@@ -212,14 +240,14 @@ export const getWorkspaceWithOrganization = async (appDataSource: DataSource, id
 
 export const getVariables = async (appDataSource: DataSource, workspaceId?: string): Promise<Variable[]> => {
     const where = getWorkspaceSearchOptions(workspaceId)
-    const variables = served('variables', workspaceId)
+    const variables = await served('variables', workspaceId)
     if (!variables) return appDataSource.getRepository(Variable).findBy(where)
     return (variables.get(workspaceId!) ?? []).map((row) => copy(Variable, row))
 }
 
 export const getCredential = async (appDataSource: DataSource, id: string): Promise<Credential | null> => {
     const read = () => appDataSource.getRepository(Credential).findOneBy({ id })
-    const credentials = served('credentials', id)
+    const credentials = await served('credentials', id)
     if (!credentials) return read()
     const row = credentials.get(id)
     return row ? copy(Credential, row) : readMissed('credentials', read)
@@ -238,7 +266,7 @@ const deepFreeze = <T>(value: T): T => {
  * so it is frozen: copy before changing any part of it.
  */
 export const getParsedFlow = (chatflow: ChatFlow): IReactFlowObject => {
-    const entry = served('chatflows', chatflow.id)?.get(chatflow.id)
+    const entry = servedNow('chatflows', chatflow.id)?.get(chatflow.id)
     if (!entry || entry.row.flowData !== chatflow.flowData) return JSON.parse(chatflow.flowData)
     return (entry.parsed ??= deepFreeze(JSON.parse(entry.row.flowData)))
 }

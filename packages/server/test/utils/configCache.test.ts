@@ -1,4 +1,7 @@
 import 'reflect-metadata'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 import { DataSource } from 'typeorm'
 import { entities } from '../../src/database/entities'
 import { ChatFlow } from '../../src/database/entities/ChatFlow'
@@ -44,10 +47,15 @@ describe('configCache', () => {
     let ds: DataSource
     const env = { ...process.env }
 
+    const open = async (database = ':memory:') => {
+        const opened = new DataSource({ type: 'better-sqlite3', database, entities: Object.values(entities), synchronize: true })
+        await opened.initialize()
+        await opened.query('PRAGMA foreign_keys = OFF')
+        return opened
+    }
+
     beforeEach(async () => {
-        ds = new DataSource({ type: 'better-sqlite3', database: ':memory:', entities: Object.values(entities), synchronize: true })
-        await ds.initialize()
-        await ds.query('PRAGMA foreign_keys = OFF')
+        ds = await open()
         await seed(ds)
     })
 
@@ -193,5 +201,57 @@ describe('configCache', () => {
         await ds.getRepository(ChatFlow).update({ id: FLOW }, { flowData: flowData('v2') })
         await settleConfigCache()
         expect(getParsedFlow((await getChatflow(ds, FLOW))!).nodes[0].data.label).toBe('v2')
+    })
+
+    it('writes saves to the database, so they survive a restart', async () => {
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'config-cache-'))
+        const file = path.join(dir, 'database.sqlite')
+        await ds.destroy()
+        ds = await open(file)
+        await seed(ds)
+        await start()
+
+        const flow = await ds
+            .getRepository(ChatFlow)
+            .save({ name: 'Saved', flowData: flowData('saved'), type: 'AGENTFLOW', workspaceId: WS })
+        const credential = await ds
+            .getRepository(Credential)
+            .save({ name: 'Saved key', credentialName: 'openAIApi', encryptedData: 'enc-saved', workspaceId: WS })
+        await settleConfigCache()
+
+        // Restart: a new process opens the same database file
+        stopConfigCache()
+        await ds.destroy()
+        ds = await open(file)
+        await start()
+
+        try {
+            expect(await ds.query('SELECT name FROM chat_flow WHERE id = ?', [flow.id])).toEqual([{ name: 'Saved' }])
+            expect(await ds.query('SELECT name FROM credential WHERE id = ?', [credential.id])).toEqual([{ name: 'Saved key' }])
+            expect(labelOf(await getChatflow(ds, flow.id, WS))).toBe('saved')
+            expect((await getCredential(ds, credential.id))?.encryptedData).toBe('enc-saved')
+        } finally {
+            fs.rmSync(dir, { recursive: true, force: true })
+        }
+    })
+
+    it('does not serve a save that an enclosing transaction rolled back', async () => {
+        await start()
+        const NEW = '99999999-9999-4999-8999-999999999999'
+
+        // On SQLite every request shares one connection, so this save is nested in the open transaction
+        const outer = ds.createQueryRunner()
+        await outer.startTransaction()
+        await ds.transaction((manager) =>
+            manager
+                .getRepository(ChatFlow)
+                .save({ id: NEW, name: 'Nested', flowData: flowData('nested'), type: 'AGENTFLOW', workspaceId: WS })
+        )
+        await settleConfigCache()
+        await outer.rollbackTransaction()
+        await settleConfigCache()
+
+        expect(await ds.getRepository(ChatFlow).findOneBy({ id: NEW })).toBeNull()
+        expect(await getChatflow(ds, NEW)).toBeNull()
     })
 })

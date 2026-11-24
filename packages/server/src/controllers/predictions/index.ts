@@ -56,7 +56,8 @@ const createPrediction = async (req: Request, res: Response, next: NextFunction)
             }
         }
         if (isDomainAllowed) {
-            const chatflow = await resolveFlowRedirect(requestedChatflow, getRunningExpressApp().AppDataSource)
+            const appDataSource = getRunningExpressApp().AppDataSource
+            const chatflow = await resolveFlowRedirect(requestedChatflow, appDataSource, (id) => getChatflow(appDataSource, id))
             const preloaded = { requested: requestedChatflow, resolved: chatflow }
             const streamable = chatflowsService.getStreamingSupport(chatflow)
             const isStreamingRequested = req.body.streaming === 'true' || req.body.streaming === true

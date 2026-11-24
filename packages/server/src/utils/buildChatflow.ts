@@ -1013,7 +1013,9 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             }
         }
 
-        chatflow = preloaded?.resolved ?? (await resolveFlowRedirect(chatflow, appServer.AppDataSource))
+        chatflow =
+            preloaded?.resolved ??
+            (await resolveFlowRedirect(chatflow, appServer.AppDataSource, (id) => getChatflow(appServer.AppDataSource, id)))
         const isAgentFlow = chatflow.type === 'MULTIAGENT'
         const abortControllerId = `${chatflow.id}_${chatId}`
         if (isEvaluation && chatflow.type !== 'AGENTFLOW' && req.body.evaluationRunId) {
