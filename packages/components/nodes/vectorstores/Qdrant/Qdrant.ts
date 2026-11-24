@@ -15,6 +15,18 @@ type QdrantAddDocumentOptions = {
     customPayload?: Record<string, any>[]
     ids?: string[]
 }
+type QdrantSearchArgs = { vector: number[] } & Omit<Parameters<QdrantClient['query']>[1], 'query'>
+
+// @langchain/qdrant 0.0.x still calls client.search, which Qdrant removed (client 1.19, server 1.20) in favour of the Query API.
+// The version probe is off because a client is built per request and the probe would add a round trip to each one.
+const createQdrantClient = (url: string, apiKey: string | undefined, port: number): QdrantClient => {
+    const client = new QdrantClient({ url, apiKey, port, checkCompatibility: false })
+    Object.assign(client, {
+        search: async (collectionName: string, { vector, ...args }: QdrantSearchArgs) =>
+            (await client.query(collectionName, { ...args, query: vector })).points
+    })
+    return client
+}
 
 class Qdrant_VectorStores implements INode {
     label: string
@@ -210,11 +222,7 @@ class Qdrant_VectorStores implements INode {
 
             const port = Qdrant_VectorStores.determinePortByUrl(qdrantServerUrl)
 
-            const client = new QdrantClient({
-                url: qdrantServerUrl,
-                apiKey: qdrantApiKey,
-                port: port
-            })
+            const client = createQdrantClient(qdrantServerUrl, qdrantApiKey, port)
 
             const flattenDocs = docs && docs.length ? flatten(docs) : []
             const finalDocs = []
@@ -346,11 +354,7 @@ class Qdrant_VectorStores implements INode {
 
             const port = Qdrant_VectorStores.determinePortByUrl(qdrantServerUrl)
 
-            const client = new QdrantClient({
-                url: qdrantServerUrl,
-                apiKey: qdrantApiKey,
-                port: port
-            })
+            const client = createQdrantClient(qdrantServerUrl, qdrantApiKey, port)
 
             const dbConfig: QdrantLibArgs = {
                 client,
@@ -423,11 +427,7 @@ class Qdrant_VectorStores implements INode {
 
         const port = Qdrant_VectorStores.determinePortByUrl(qdrantServerUrl)
 
-        const client = new QdrantClient({
-            url: qdrantServerUrl,
-            apiKey: qdrantApiKey,
-            port: port
-        })
+        const client = createQdrantClient(qdrantServerUrl, qdrantApiKey, port)
 
         const dbConfig: QdrantLibArgs = {
             client,
