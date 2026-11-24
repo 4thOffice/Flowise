@@ -21,6 +21,26 @@ const COMPLETION = {
     usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 }
 }
 
+const withServer = async (run: (basepath: string, connections: () => number) => Promise<void>) => {
+    let connections = 0
+    const server = http.createServer((req, res) => {
+        req.resume()
+        req.on('end', () => {
+            res.setHeader('content-type', 'application/json')
+            res.setHeader('connection', 'keep-alive')
+            res.end(JSON.stringify(COMPLETION))
+        })
+    })
+    server.on('connection', () => connections++)
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+    try {
+        await run(`http://127.0.0.1:${(server.address() as AddressInfo).port}/v1`, () => connections)
+    } finally {
+        server.closeAllConnections()
+        await new Promise((resolve) => server.close(resolve))
+    }
+}
+
 const init = (NodeClass: any, inputs: Record<string, any> = {}, credential: Record<string, any> = {}) => {
     ;(getCredentialData as jest.Mock).mockResolvedValue({ openAIApiKey: 'test-key', ...credential })
     return new NodeClass().init(
@@ -74,43 +94,39 @@ describe.each([
     ['ChatOpenAI', ChatOpenAI_ChatModels],
     ['ChatOpenAI Custom', ChatOpenAICustom_ChatModels]
 ])('%s connection pool', (_, NodeClass) => {
-    it('gives every run the same keep-alive agent', async () => {
+    it('gives every run the same keep-alive agents, picked by the request protocol', async () => {
         const first = await init(NodeClass)
-        const second = await init(NodeClass, { basepath: 'https://node.example.test/v1' })
-        expect(first.clientConfig.httpAgent).toBe(second.clientConfig.httpAgent)
-        expect(first.clientConfig.httpAgent.keepAlive).toBe(true)
-        expect(first.clientConfig.httpAgent).toBeInstanceOf(https.Agent)
-    })
-
-    it('uses a plain http agent for an http base path', async () => {
-        const model = await init(NodeClass, { basepath: 'http://localhost:1234/v1' })
-        expect(model.clientConfig.httpAgent).not.toBeInstanceOf(https.Agent)
-        expect(model.clientConfig.httpAgent.keepAlive).toBe(true)
+        const second = await init(NodeClass, { basepath: 'http://localhost:1234/v1' })
+        const agentFor = first.clientConfig.httpAgent
+        expect(second.clientConfig.httpAgent).toBe(agentFor)
+        expect(agentFor(new URL('https://api.openai.com/v1'))).toBeInstanceOf(https.Agent)
+        expect(agentFor(new URL('http://localhost:1234/v1'))).not.toBeInstanceOf(https.Agent)
+        expect(agentFor(new URL('http://localhost:1234/v1')).keepAlive).toBe(true)
     })
 
     it('reuses one connection across runs', async () => {
-        let connections = 0
-        const server = http.createServer((req, res) => {
-            req.resume()
-            req.on('end', () => {
-                res.setHeader('content-type', 'application/json')
-                res.setHeader('connection', 'keep-alive')
-                res.end(JSON.stringify(COMPLETION))
-            })
-        })
-        server.on('connection', () => connections++)
-        await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
-        const basepath = `http://127.0.0.1:${(server.address() as AddressInfo).port}/v1`
-        try {
+        await withServer(async (basepath, connections) => {
             for (let run = 0; run < 3; run++) {
                 const model = await init(NodeClass, { basepath, streaming: false })
                 await model.invoke('hi')
             }
-            expect(connections).toBe(1)
-        } finally {
-            server.closeAllConnections()
-            await new Promise((resolve) => server.close(resolve))
-        }
+            expect(connections()).toBe(1)
+        })
+    })
+
+    it('works with an http base URL taken from OPENAI_BASE_URL', async () => {
+        await withServer(async (basepath, connections) => {
+            process.env.OPENAI_BASE_URL = basepath
+            try {
+                for (let run = 0; run < 2; run++) {
+                    const model = await init(NodeClass, { basepath: '', streaming: false })
+                    expect((await model.invoke('hi')).content).toBe('hello')
+                }
+            } finally {
+                delete process.env.OPENAI_BASE_URL
+            }
+            expect(connections()).toBe(1)
+        })
     })
 })
 

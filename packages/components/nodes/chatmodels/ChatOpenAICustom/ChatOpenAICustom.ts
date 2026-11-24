@@ -166,7 +166,7 @@ class ChatOpenAICustom_ChatModels implements INode {
             }
         }
 
-        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent(basePath) }
+        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent() }
 
         const model = new ChatOpenAI(obj)
         return model

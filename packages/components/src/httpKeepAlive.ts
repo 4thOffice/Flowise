@@ -30,11 +30,17 @@ let sharedHttpAgent: http.Agent | undefined
 let sharedHttpsAgent: http.Agent | undefined
 const proxyAgents = new Map<string, http.Agent>()
 
-/** Process-wide pool for SDKs that send through http.request, such as the OpenAI SDK. The agent must match the URL's protocol. */
-export const getKeepAliveAgent = (url?: string): http.Agent => {
-    if (url && /^http:/i.test(url)) return (sharedHttpAgent ??= new IdleCappedHttpAgent({ keepAlive: true, scheduling: 'lifo' }))
-    return (sharedHttpsAgent ??= new IdleCappedHttpsAgent({ keepAlive: true, scheduling: 'lifo' }))
-}
+const agentForUrl = (url: URL): http.Agent =>
+    url.protocol === 'http:'
+        ? (sharedHttpAgent ??= new IdleCappedHttpAgent({ keepAlive: true, scheduling: 'lifo' }))
+        : (sharedHttpsAgent ??= new IdleCappedHttpsAgent({ keepAlive: true, scheduling: 'lifo' }))
+
+/**
+ * Process-wide pool for the OpenAI SDK. The SDK hands httpAgent to node-fetch, which also accepts a function of the
+ * request URL, so the agent matches the protocol however the base URL was set (node input, OPENAI_BASE_URL,
+ * AZURE_OPENAI_BASE_PATH or AZURE_OPENAI_ENDPOINT).
+ */
+export const getKeepAliveAgent = (): http.Agent => agentForUrl as unknown as http.Agent
 
 export const getKeepAliveProxyAgent = (proxyUrl: string): http.Agent => {
     let agent = proxyAgents.get(proxyUrl)

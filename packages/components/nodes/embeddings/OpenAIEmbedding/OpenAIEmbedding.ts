@@ -114,7 +114,7 @@ class OpenAIEmbedding_Embeddings implements INode {
             }
         }
 
-        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent(basePath) }
+        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent() }
 
         const model = new OpenAIEmbeddings(obj)
         return model

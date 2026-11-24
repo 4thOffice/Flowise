@@ -342,7 +342,7 @@ class ChatOpenAI_ChatModels implements INode {
 
         obj.configuration = {
             ...obj.configuration,
-            httpAgent: proxyUrl ? getKeepAliveProxyAgent(proxyUrl) : getKeepAliveAgent(basePath)
+            httpAgent: proxyUrl ? getKeepAliveProxyAgent(proxyUrl) : getKeepAliveAgent()
         }
 
         const multiModalOption: IMultiModalOption = {
