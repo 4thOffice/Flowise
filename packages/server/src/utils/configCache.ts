@@ -95,7 +95,9 @@ const reload = (kind: Kind): Promise<void> => {
     }
     const task = (async () => {
         try {
-            ;(snapshot as any)[kind] = await loaders[kind](ds)
+            const loaded = await loaders[kind](ds)
+            // Stopped while loading
+            if (dataSource === ds) (snapshot as any)[kind] = loaded
         } catch (error) {
             logger.warn(`[configCache]: Failed to load ${kind}: ${getErrorMessage(error)}`)
         } finally {
