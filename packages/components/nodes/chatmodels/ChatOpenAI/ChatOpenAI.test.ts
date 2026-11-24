@@ -1,3 +1,6 @@
+import http from 'node:http'
+import https from 'node:https'
+import type { AddressInfo } from 'node:net'
 import { getCredentialData } from '../../../src/utils'
 const { nodeClass: ChatOpenAI_ChatModels } = require('./ChatOpenAI')
 const { nodeClass: ChatOpenAICustom_ChatModels } = require('../ChatOpenAICustom/ChatOpenAICustom')
@@ -8,6 +11,15 @@ jest.mock('../../../src/utils', () => ({
 }))
 
 const DEPLOYMENT_URL = 'https://llm.example.test/v1'
+
+const COMPLETION = {
+    id: 'c',
+    object: 'chat.completion',
+    created: 1,
+    model: 'my-deployment',
+    choices: [{ index: 0, message: { role: 'assistant', content: 'hello' }, finish_reason: 'stop' }],
+    usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 }
+}
 
 const init = (NodeClass: any, inputs: Record<string, any> = {}, credential: Record<string, any> = {}) => {
     ;(getCredentialData as jest.Mock).mockResolvedValue({ openAIApiKey: 'test-key', ...credential })
@@ -55,5 +67,60 @@ describe('ChatOpenAI with a custom model name', () => {
         const model = await init(ChatOpenAI_ChatModels)
         expect(model.reasoning).toBeUndefined()
         expect(model.temperature).toBe(0.9)
+    })
+})
+
+describe.each([
+    ['ChatOpenAI', ChatOpenAI_ChatModels],
+    ['ChatOpenAI Custom', ChatOpenAICustom_ChatModels]
+])('%s connection pool', (_, NodeClass) => {
+    it('gives every run the same keep-alive agent', async () => {
+        const first = await init(NodeClass)
+        const second = await init(NodeClass, { basepath: 'https://node.example.test/v1' })
+        expect(first.clientConfig.httpAgent).toBe(second.clientConfig.httpAgent)
+        expect(first.clientConfig.httpAgent.keepAlive).toBe(true)
+        expect(first.clientConfig.httpAgent).toBeInstanceOf(https.Agent)
+    })
+
+    it('uses a plain http agent for an http base path', async () => {
+        const model = await init(NodeClass, { basepath: 'http://localhost:1234/v1' })
+        expect(model.clientConfig.httpAgent).not.toBeInstanceOf(https.Agent)
+        expect(model.clientConfig.httpAgent.keepAlive).toBe(true)
+    })
+
+    it('reuses one connection across runs', async () => {
+        let connections = 0
+        const server = http.createServer((req, res) => {
+            req.resume()
+            req.on('end', () => {
+                res.setHeader('content-type', 'application/json')
+                res.setHeader('connection', 'keep-alive')
+                res.end(JSON.stringify(COMPLETION))
+            })
+        })
+        server.on('connection', () => connections++)
+        await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+        const basepath = `http://127.0.0.1:${(server.address() as AddressInfo).port}/v1`
+        try {
+            for (let run = 0; run < 3; run++) {
+                const model = await init(NodeClass, { basepath, streaming: false })
+                await model.invoke('hi')
+            }
+            expect(connections).toBe(1)
+        } finally {
+            server.closeAllConnections()
+            await new Promise((resolve) => server.close(resolve))
+        }
+    })
+})
+
+describe('ChatOpenAI proxy', () => {
+    it('keeps one agent per proxy URL', async () => {
+        const first = await init(ChatOpenAI_ChatModels, { proxyUrl: 'http://proxy-a.example.test:3128' })
+        const again = await init(ChatOpenAI_ChatModels, { proxyUrl: 'http://proxy-a.example.test:3128' })
+        const other = await init(ChatOpenAI_ChatModels, { proxyUrl: 'http://proxy-b.example.test:3128' })
+        expect(first.clientConfig.httpAgent).toBe(again.clientConfig.httpAgent)
+        expect(first.clientConfig.httpAgent).not.toBe(other.clientConfig.httpAgent)
+        expect(first.clientConfig.httpAgent.keepAlive).toBe(true)
     })
 })

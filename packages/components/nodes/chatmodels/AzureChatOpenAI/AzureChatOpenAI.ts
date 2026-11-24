@@ -5,6 +5,7 @@ import { getBaseClasses, getCredentialData, getCredentialParam } from '../../../
 import { getModels, MODEL_TYPE } from '../../../src/modelLoader'
 import { AzureChatOpenAI } from './FlowiseAzureChatOpenAI'
 import { OpenAI as OpenAIClient } from 'openai'
+import { getKeepAliveAgent } from '../../../src/httpKeepAlive'
 
 const serverCredentialsExists =
     !!process.env.AZURE_OPENAI_API_KEY &&
@@ -273,6 +274,7 @@ class AzureChatOpenAI_ChatModels implements INode {
                 console.error('Error parsing base options', exception)
             }
         }
+        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent(basePath) }
         if (modelName.includes('o1') || modelName.includes('o3') || modelName.includes('gpt-5')) {
             delete obj.temperature
             delete obj.stop

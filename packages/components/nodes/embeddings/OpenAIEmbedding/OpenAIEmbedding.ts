@@ -1,6 +1,7 @@
 import { ClientOptions, OpenAIEmbeddings, OpenAIEmbeddingsParams } from '@langchain/openai'
 import { ICommonObject, INode, INodeData, INodeOptionsValue, INodeParams } from '../../../src/Interface'
 import { getBaseClasses, getCredentialData, getCredentialParam } from '../../../src/utils'
+import { getKeepAliveAgent } from '../../../src/httpKeepAlive'
 import { MODEL_TYPE, getModels } from '../../../src/modelLoader'
 
 class OpenAIEmbedding_Embeddings implements INode {
@@ -112,6 +113,8 @@ class OpenAIEmbedding_Embeddings implements INode {
                 baseURL: basePath
             }
         }
+
+        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent(basePath) }
 
         const model = new OpenAIEmbeddings(obj)
         return model

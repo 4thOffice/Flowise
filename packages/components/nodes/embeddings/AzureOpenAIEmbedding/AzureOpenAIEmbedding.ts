@@ -1,6 +1,7 @@
 import { AzureOpenAIInput, ClientOptions, AzureOpenAIEmbeddings, OpenAIEmbeddingsParams } from '@langchain/openai'
 import { ICommonObject, INode, INodeData, INodeParams } from '../../../src/Interface'
 import { getBaseClasses, getCredentialData, getCredentialParam } from '../../../src/utils'
+import { getKeepAliveAgent } from '../../../src/httpKeepAlive'
 
 const serverCredentialsExists =
     !!process.env.AZURE_OPENAI_API_KEY &&
@@ -101,6 +102,8 @@ class AzureOpenAIEmbedding_Embeddings implements INode {
                 console.error('Error parsing base options', exception)
             }
         }
+
+        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent(basePath) }
 
         const model = new AzureOpenAIEmbeddings(obj)
         return model

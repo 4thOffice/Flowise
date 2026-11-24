@@ -4,7 +4,7 @@ import { ICommonObject, IMultiModalOption, INode, INodeData, INodeOptionsValue, 
 import { getBaseClasses, getCredentialData, getCredentialParam } from '../../../src/utils'
 import { ChatOpenAI } from './FlowiseChatOpenAI'
 import { getModels, MODEL_TYPE } from '../../../src/modelLoader'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { getKeepAliveAgent, getKeepAliveProxyAgent } from '../../../src/httpKeepAlive'
 import { OpenAI as OpenAIClient } from 'openai'
 
 class ChatOpenAI_ChatModels implements INode {
@@ -340,11 +340,9 @@ class ChatOpenAI_ChatModels implements INode {
             }
         }
 
-        if (proxyUrl) {
-            obj.configuration = {
-                ...obj?.configuration,
-                httpAgent: new HttpsProxyAgent(proxyUrl)
-            }
+        obj.configuration = {
+            ...obj.configuration,
+            httpAgent: proxyUrl ? getKeepAliveProxyAgent(proxyUrl) : getKeepAliveAgent(basePath)
         }
 
         const multiModalOption: IMultiModalOption = {

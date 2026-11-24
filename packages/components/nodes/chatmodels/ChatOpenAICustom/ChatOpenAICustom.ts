@@ -2,6 +2,7 @@ import { ChatOpenAI, ChatOpenAIFields } from '@langchain/openai'
 import { BaseCache } from '@langchain/core/caches'
 import { ICommonObject, INode, INodeData, INodeParams } from '../../../src/Interface'
 import { getBaseClasses, getCredentialData, getCredentialParam } from '../../../src/utils'
+import { getKeepAliveAgent } from '../../../src/httpKeepAlive'
 
 class ChatOpenAICustom_ChatModels implements INode {
     label: string
@@ -164,6 +165,8 @@ class ChatOpenAICustom_ChatModels implements INode {
                 defaultHeaders: parsedBaseOptions
             }
         }
+
+        obj.configuration = { ...obj.configuration, httpAgent: getKeepAliveAgent(basePath) }
 
         const model = new ChatOpenAI(obj)
         return model

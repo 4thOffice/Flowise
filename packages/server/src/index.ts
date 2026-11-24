@@ -29,7 +29,8 @@ import { Prometheus } from './metrics/Prometheus'
 import { OpenTelemetry } from './metrics/OpenTelemetry'
 import { QueueManager } from './queue/QueueManager'
 import { RedisEventSubscriber } from './queue/RedisEventSubscriber'
-import 'global-agent/bootstrap'
+import { bootstrapGlobalAgentForProxy } from './utils/outboundHttp'
+import { configureFetchKeepAlive } from 'flowise-components'
 import { UsageCacheManager } from './UsageCacheManager'
 import { Workspace } from './enterprise/database/entities/workspace.entity'
 import { Organization } from './enterprise/database/entities/organization.entity'
@@ -374,6 +375,8 @@ export class App {
 let serverApp: App | undefined
 
 export async function start(): Promise<void> {
+    bootstrapGlobalAgentForProxy()
+    configureFetchKeepAlive()
     serverApp = new App()
 
     const host = process.env.HOST

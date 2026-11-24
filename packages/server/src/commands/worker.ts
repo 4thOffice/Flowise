@@ -9,6 +9,7 @@ import { QueueEvents, QueueEventsListener } from 'bullmq'
 import { AbortControllerPool } from '../AbortControllerPool'
 import { UsageCacheManager } from '../UsageCacheManager'
 import { startConfigCache } from '../utils/configCache'
+import { configureFetchKeepAlive } from 'flowise-components'
 
 interface CustomListener extends QueueEventsListener {
     abort: (args: { id: string }, id: string) => void
@@ -20,6 +21,7 @@ export default class Worker extends BaseCommand {
 
     async run(): Promise<void> {
         logger.info('Starting Flowise Worker...')
+        configureFetchKeepAlive()
 
         const { appDataSource, telemetry, componentNodes, cachePool, abortControllerPool, usageCacheManager } = await this.prepareData()
 
