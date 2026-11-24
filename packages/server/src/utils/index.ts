@@ -1854,10 +1854,14 @@ export const getTelemetryFlowObj = (nodes: IReactFlowNode[], edges: IReactFlowEd
     return { nodes: nodeData, edges: edgeData }
 }
 
+let appVersion: Promise<string> | undefined
+
 /**
  * Get app current version
  */
-export const getAppVersion = async () => {
+export const getAppVersion = (): Promise<string> => (appVersion ??= readAppVersion())
+
+const readAppVersion = async (): Promise<string> => {
     const getPackageJsonPath = (): string => {
         const checkPaths = [
             path.join(__dirname, '..', 'package.json'),

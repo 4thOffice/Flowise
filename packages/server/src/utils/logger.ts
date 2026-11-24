@@ -167,6 +167,14 @@ const logger = createLogger({
     ]
 })
 
+// winston runs the whole format chain before the transports drop a level none of them logs
+for (const level of Object.keys(logger.levels)) {
+    const log = (logger as any)[level]
+    ;(logger as any)[level] = function (this: unknown, ...args: unknown[]) {
+        return logger.isLevelEnabled(level) ? log.apply(this, args) : this || logger
+    }
+}
+
 requestLogger = createLogger({
     format: combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), format.json(), errors({ stack: true })),
     defaultMeta: {

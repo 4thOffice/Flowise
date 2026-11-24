@@ -229,12 +229,35 @@ const readRecordedRun = async (
     return JSON.parse(json || '[]')
 }
 
+const turndownService = new TurndownService()
+const MARKDOWN_CACHE_MAX_CHARS = 8_000_000
+const markdownCache = new Map<string, string>()
+let markdownCacheChars = 0
+
+// The inputs converted are almost all the flow's own configuration, so every turn converts the same strings again
+const toMarkdown = (html: string): string => {
+    const cached = markdownCache.get(html)
+    if (cached !== undefined) return cached
+    const markdown = turndownService.turndown(html)
+    const size = html.length + markdown.length
+    if (size <= MARKDOWN_CACHE_MAX_CHARS / 100) {
+        for (const [key, value] of markdownCache) {
+            if (markdownCacheChars + size <= MARKDOWN_CACHE_MAX_CHARS) break
+            markdownCache.delete(key)
+            markdownCacheChars -= key.length + value.length
+        }
+        markdownCache.set(html, markdown)
+        markdownCacheChars += size
+    }
+    return markdown
+}
+
 export const resolveVariables = async (
     reactFlowNodeData: INodeData,
     question: string,
     form: Record<string, any>,
     flowConfig: IFlowConfig | undefined,
-    availableVariables: Variable[],
+    availableVariables: Variable[] | (() => Promise<Variable[]>),
     variableOverrides: IVariableOverride[],
     uploadedFilesContent: string,
     chatHistory: IMessage[],
@@ -264,8 +287,7 @@ export const resolveVariables = async (
         // If value is not a string, return as is
         if (typeof value !== 'string') return value
 
-        const turndownService = new TurndownService()
-        value = turndownService.turndown(value)
+        value = toMarkdown(value)
         // After conversion, replace any escaped underscores with regular underscores
         value = value.replace(/\\_/g, '_')
 
@@ -348,7 +370,8 @@ export const resolveVariables = async (
             }
 
             if (variableFullPath.startsWith('$vars.')) {
-                const vars = await getGlobalVariable(flowConfig, availableVariables, variableOverrides)
+                const variables = typeof availableVariables === 'function' ? await availableVariables() : availableVariables
+                const vars = await getGlobalVariable(flowConfig, variables, variableOverrides)
                 const variableValue = get(vars, variableFullPath.replace('$vars.', ''))
                 if (variableValue != null) {
                     // For arrays and objects, stringify them to prevent toString() conversion issues
@@ -689,16 +712,11 @@ const executeNode = async ({
             newNodeInstance = new nodeModule.nodeClass()
         }
 
-        // Prepare node data
-        let flowNodeData = cloneDeep(reactFlowNode.data)
-
-        // Apply config overrides if needed
-        if (overrideConfig && apiOverrideStatus) {
-            flowNodeData = replaceInputsWithConfig(flowNodeData, overrideConfig, nodeOverrides, variableOverrides)
-        }
-
-        // Get available variables and resolve them
-        const availableVariables = await getAvailableVariables()
+        // resolveVariables works on a copy; replaceInputsWithConfig rewrites the data it is given
+        const flowNodeData =
+            overrideConfig && apiOverrideStatus
+                ? replaceInputsWithConfig(cloneDeep(reactFlowNode.data), overrideConfig, nodeOverrides, variableOverrides)
+                : reactFlowNode.data
 
         // Snapshot read-only view of prior execution data and track incremental deltas to commit by caller
         const executedDataSnapshot = [...agentFlowExecutedData]
@@ -739,7 +757,7 @@ const executeNode = async ({
             incomingInput.question ?? '',
             agentflowRuntime.form ?? {},
             flowConfig,
-            availableVariables,
+            getAvailableVariables,
             variableOverrides,
             uploadedFilesContent,
             chatHistory,
@@ -823,7 +841,8 @@ const executeNode = async ({
             iterationContext: iterationContext ? cloneDeep(iterationContext) : undefined,
             evaluationRunId,
             overrideConfig,
-            childFlowToken: turnInput.childFlowTokens[nodeId]
+            childFlowToken: turnInput.childFlowTokens[nodeId],
+            getAvailableVariables
         }
 
         // Execute node
@@ -1261,8 +1280,11 @@ export const executeAgentFlow = async ({
     const isResume = Boolean(humanInput) && !isRecursive
     let writtenToken: { token: string; historyLength: number; pending: boolean } | undefined
     let availableVariablesTask: Promise<Variable[]> | undefined
-    const getAvailableVariables = () =>
-        (availableVariablesTask ??= appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId)))
+    // Each caller gets copies: getGlobalVariable and getVars rewrite the variables they are given
+    const getAvailableVariables = async (): Promise<Variable[]> => {
+        availableVariablesTask ??= appDataSource.getRepository(Variable).findBy(getWorkspaceSearchOptions(workspaceId))
+        return (await availableVariablesTask).map((variable) => ({ ...variable }))
+    }
     /*
     graph {
         startAgentflow_0: [ 'conditionAgentflow_0' ],
@@ -1605,7 +1627,7 @@ export const executeAgentFlow = async ({
                         evaluationRunId,
                         parentExecutionId,
                         isInternal,
-                        pastChatHistory: cloneDeep(pastChatHistory),
+                        pastChatHistory,
                         appDataSource,
                         usageCacheManager,
                         telemetry,
