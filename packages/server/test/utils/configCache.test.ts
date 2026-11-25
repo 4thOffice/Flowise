@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { EventEmitter } from 'events'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
@@ -15,6 +16,7 @@ import {
     getParsedFlow,
     getVariables,
     getWorkspaceWithOrganization,
+    PeerChannel,
     settleConfigCache,
     startConfigCache,
     stopConfigCache
@@ -65,10 +67,19 @@ describe('configCache', () => {
         await ds.destroy()
     })
 
-    const start = async (refreshSeconds = '0') => {
+    const start = async (refreshSeconds = '0', peers?: PeerChannel) => {
         delete process.env.DISABLE_CONFIG_CACHE
         process.env.CONFIG_CACHE_REFRESH_SECONDS = refreshSeconds
-        await startConfigCache(ds)
+        await startConfigCache(ds, peers)
+    }
+
+    const reopenOnFile = async () => {
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'config-cache-'))
+        const file = path.join(dir, 'database.sqlite')
+        await ds.destroy()
+        ds = await open(file)
+        await seed(ds)
+        return { dir, file }
     }
 
     it('reads the database on every call when it is off', async () => {
@@ -204,11 +215,7 @@ describe('configCache', () => {
     })
 
     it('writes saves to the database, so they survive a restart', async () => {
-        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'config-cache-'))
-        const file = path.join(dir, 'database.sqlite')
-        await ds.destroy()
-        ds = await open(file)
-        await seed(ds)
+        const { dir, file } = await reopenOnFile()
         await start()
 
         const flow = await ds
@@ -253,5 +260,74 @@ describe('configCache', () => {
 
         expect(await ds.getRepository(ChatFlow).findOneBy({ id: NEW })).toBeNull()
         expect(await getChatflow(ds, NEW)).toBeNull()
+    })
+
+    describe('with the other workers of flowise multi', () => {
+        // Another worker: its own copy of the module and its own connection to the same database file
+        const startWorker = async (file: string, peers: PeerChannel) => {
+            let worker!: { entities: typeof entities; cache: typeof import('../../src/utils/configCache') }
+            jest.isolateModules(() => {
+                worker = { entities: require('../../src/database/entities').entities, cache: require('../../src/utils/configCache') }
+            })
+            const workerDs = new DataSource({ type: 'better-sqlite3', database: file, entities: Object.values(worker.entities) })
+            await workerDs.initialize()
+            await worker.cache.startConfigCache(workerDs, peers)
+            return { ...worker, ds: workerDs }
+        }
+
+        // Passes a message on to the other worker, then answers the sender, as relayConfigCacheReloads does
+        const bus = new EventEmitter()
+        const sent: unknown[] = []
+        const throughPrimary = (self: string, other: string): PeerChannel => ({
+            send: (message) => {
+                sent.push(message)
+                setImmediate(() => {
+                    bus.emit(other, message)
+                    bus.emit(self, { type: 'flowise:configCache:relayed', id: message.id })
+                })
+            },
+            subscribe: (listener) => {
+                bus.on(self, listener)
+                return () => void bus.off(self, listener)
+            }
+        })
+
+        it('has every worker serve a save as soon as the save returns', async () => {
+            const { dir, file } = await reopenOnFile()
+            await start('0', throughPrimary('a', 'b'))
+            const other = await startWorker(file, throughPrimary('b', 'a'))
+
+            try {
+                const repo = ds.getRepository(ChatFlow)
+                await repo.save({ ...(await repo.findOneByOrFail({ id: FLOW })), flowData: flowData('v2') })
+                await ds.getRepository(Credential).update({ id: CRED }, { encryptedData: 'enc-2' })
+                expect(labelOf(await other.cache.getChatflow(other.ds, FLOW))).toBe('v2')
+                expect((await other.cache.getCredential(other.ds, CRED))?.encryptedData).toBe('enc-2')
+
+                await other.ds.getRepository(other.entities.Variable).update({ name: 'greeting' }, { value: 'from b' })
+                expect((await getVariables(ds, WS)).map((v) => v.value)).toEqual(['from b'])
+
+                const before = sent.length
+                await ds
+                    .transaction(async (manager) => {
+                        await manager.getRepository(ChatFlow).update({ id: FLOW }, { flowData: flowData('rolled back') })
+                        throw new Error('rollback')
+                    })
+                    .catch(() => undefined)
+                expect(sent.length).toBe(before)
+            } finally {
+                other.cache.stopConfigCache()
+                await other.ds.destroy()
+                fs.rmSync(dir, { recursive: true, force: true })
+            }
+        })
+
+        it('does not hold a save up when the primary never answers', async () => {
+            await start('0', { send: () => undefined, subscribe: () => () => undefined })
+            const repo = ds.getRepository(ChatFlow)
+
+            await repo.save({ ...(await repo.findOneByOrFail({ id: FLOW })), flowData: flowData('v2') })
+            expect(labelOf(await getChatflow(ds, FLOW))).toBe('v2')
+        })
     })
 })

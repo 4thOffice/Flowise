@@ -1,6 +1,7 @@
 import * as Server from '../index'
 import * as DataSource from '../DataSource'
 import logger from '../utils/logger'
+import { relayConfigCacheReloads } from '../utils/configCache'
 import { BaseCommand } from './base'
 import cluster from 'node:cluster'
 import os from 'node:os'
@@ -25,6 +26,7 @@ export default class Start extends BaseCommand {
             const desiredWorkerCount = Number.parseInt(process.env.MULTI_NODES || '0') || Math.ceil(os.cpus().length / 2)
             const numWorkers = Math.min(Math.max(1, desiredWorkerCount), os.cpus().length)
             logger.info(`Forking ${numWorkers} workers...`)
+            relayConfigCacheReloads()
 
             for (let i = 0; i < numWorkers; i++) {
                 cluster.fork()

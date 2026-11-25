@@ -87,6 +87,7 @@ Tests:
 The config cache (on unless `DISABLE_CONFIG_CACHE=true`) serves chatflows (with their parsed `flowData`), workspaces with their organization, variables and credentials to predictions from memory (`src/utils/configCache.ts`).
 
 -   **Updates:** everything is loaded at startup. A TypeORM subscriber reloads the written kind after any local write commits.
+-   **`flowise multi`:** a worker also tells the primary, which passes the reload on to the other workers. The save returns once the primary has done so (or after 1 s if it never answers). With round-robin scheduling (the default except on Windows), the primary hands new connections to a worker over the same channel, so a request sent after the save returns finds the reload queued. Checked with 2 workers: 240 predictions sent right after flow and variable saves, none stale (79 without the relay). Saves took 7 ms at p50.
 -   **Refresh:** `CONFIG_CACHE_REFRESH_SECONDS` (default 30, `0` = off) reloads everything periodically. That is how edits made on other instances, and by the server process for a queue-mode worker, arrive.
 -   **Policy:** `cachePolicy(kind, id)` is the one place that decides what comes from memory. Today it is the toggle; per-flow rules go there.
 -   **Safety:** callers get copies of rows. A cached chatflow's parsed flow is shared and frozen. All 458 Agentflow V2 tests pass with every parsed flow frozen.

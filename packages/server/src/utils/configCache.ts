@@ -1,3 +1,4 @@
+import cluster from 'node:cluster'
 import {
     DataSource,
     EntitySubscriberInterface,
@@ -20,8 +21,9 @@ import logger from './logger'
 
 /*
  * The configuration a prediction reads is served from memory unless DISABLE_CONFIG_CACHE=true. Writes through TypeORM in this
- * process reload the written kind, and predictions wait for that reload. A row another instance created is read from the database on
- * the first miss; its other changes only arrive with the periodic reload (CONFIG_CACHE_REFRESH_SECONDS, default 30, 0 = never).
+ * process, or in another worker of `flowise multi`, reload the written kind, and predictions wait for that reload. A row another
+ * instance or a queue worker's server created is read from the database on the first miss; its other changes only arrive with the
+ * periodic reload (CONFIG_CACHE_REFRESH_SECONDS, default 30, 0 = never).
  */
 
 type Kind = 'chatflows' | 'workspaces' | 'variables' | 'credentials'
@@ -56,6 +58,36 @@ const refreshSeconds = () => {
 // The one place that decides what is served from memory; per-flow or per-kind rules go here
 const cachePolicy = (_kind: Kind, _id?: string): boolean => isConfigCacheEnabled()
 
+const RELOAD = 'flowise:configCache:reload'
+const RELAYED = 'flowise:configCache:relayed'
+
+interface ReloadMessage {
+    type: typeof RELOAD
+    id: number
+    kinds: Kind[]
+}
+
+/** How this process reaches the other processes serving the same database. */
+export interface PeerChannel {
+    send: (message: ReloadMessage) => void
+    subscribe: (listener: (message: any) => void) => () => void
+}
+
+// The workers of `flowise multi`, through the primary (relayConfigCacheReloads)
+const clusterPeers = (): PeerChannel | undefined =>
+    cluster.isWorker
+        ? {
+              send: (message) => process.send?.(message),
+              subscribe: (listener) => {
+                  process.on('message', listener)
+                  return () => void process.off('message', listener)
+              }
+          }
+        : undefined
+
+// A primary that never answers must not hold up saves
+const RELAY_TIMEOUT_MS = 1000
+
 let snapshot: Partial<Snapshot> = {}
 let dataSource: DataSource | undefined
 let refreshTimer: NodeJS.Timeout | undefined
@@ -63,6 +95,10 @@ const inFlight = new Map<Kind, Promise<void>>()
 const queued = new Map<Kind, Promise<void>>()
 const afterLocalWrite = new Map<Kind, Promise<void>>()
 const pendingByQueryRunner = new WeakMap<QueryRunner, Set<Kind>>()
+let peers: PeerChannel | undefined
+let unsubscribe: (() => void) | undefined
+let lastMessageId = 0
+const awaitingRelay = new Map<number, () => void>()
 
 const loaders: { [K in Kind]: (ds: DataSource) => Promise<Snapshot[K]> } = {
     chatflows: async (ds) => {
@@ -134,45 +170,94 @@ const reloadAfterWrite = (kind: Kind) => {
     })
 }
 
-const reloadAll = () => Promise.all((Object.keys(loaders) as Kind[]).map(reload)).then(() => undefined)
+const KINDS = Object.keys(loaders) as Kind[]
+
+const reloadAll = () => Promise.all(KINDS.map(reload)).then(() => undefined)
+
+// Resolves once the primary has passed the reload on. With round-robin scheduling (the default except on Windows) it hands new
+// connections to a worker over the same channel, so a request sent after the save returns reaches the worker after the reload.
+const tellPeers = (kinds: Kind[]): Promise<void> | void => {
+    const channel = peers
+    if (!channel) return
+    return new Promise((resolve) => {
+        const id = ++lastMessageId
+        const done = () => {
+            clearTimeout(timer)
+            awaitingRelay.delete(id)
+            resolve()
+        }
+        const timer = setTimeout(done, RELAY_TIMEOUT_MS)
+        awaitingRelay.set(id, done)
+        try {
+            channel.send({ type: RELOAD, id, kinds })
+        } catch (error) {
+            logger.warn(`[configCache]: Failed to tell the other processes about a write: ${getErrorMessage(error)}`)
+            done()
+        }
+    })
+}
+
+const committed = (kinds: Kind[]) => {
+    kinds.forEach(reloadAfterWrite)
+    return tellPeers(kinds)
+}
+
+const onPeerMessage = (message: any) => {
+    if (message?.type === RELAYED) awaitingRelay.get(message.id)?.()
+    else if (message?.type === RELOAD) (message.kinds as Kind[]).filter((kind) => KINDS.includes(kind)).forEach(reloadAfterWrite)
+}
+
+/** Runs in the `flowise multi` primary: passes each worker's reloads on to the other workers, then answers the sender. */
+export const relayConfigCacheReloads = () => {
+    // A worker that is going away misses the message; its replacement loads everything when it starts
+    const ignoreGone = () => undefined
+    cluster.on('message', (sender, message) => {
+        if (message?.type !== RELOAD) return
+        for (const worker of Object.values(cluster.workers ?? {})) {
+            if (worker && worker !== sender && worker.isConnected()) worker.send(message, undefined, ignoreGone)
+        }
+        if (sender.isConnected()) sender.send({ type: RELAYED, id: message.id }, undefined, ignoreGone)
+    })
+}
 
 class ConfigCacheSubscriber implements EntitySubscriberInterface {
     private written({ queryRunner, metadata }: InsertEvent<any> | UpdateEvent<any> | RemoveEvent<any>) {
         const target = metadata.target
         const kind = typeof target === 'function' ? KIND_BY_ENTITY.get(target) : undefined
         if (!kind) return
-        if (queryRunner.isTransactionActive) {
-            const kinds = pendingByQueryRunner.get(queryRunner) ?? new Set<Kind>()
-            kinds.add(kind)
-            pendingByQueryRunner.set(queryRunner, kinds)
-        } else {
-            reloadAfterWrite(kind)
-        }
+        if (!queryRunner.isTransactionActive) return committed([kind])
+        const kinds = pendingByQueryRunner.get(queryRunner) ?? new Set<Kind>()
+        kinds.add(kind)
+        pendingByQueryRunner.set(queryRunner, kinds)
     }
     afterInsert = this.written
     afterUpdate = this.written
     afterRemove = this.written
     afterSoftRemove = this.written
     afterRecover = this.written
-    private transactionEnded({ queryRunner }: TransactionCommitEvent | TransactionRollbackEvent) {
+    private ended({ queryRunner }: TransactionCommitEvent | TransactionRollbackEvent): Kind[] | undefined {
         // A nested transaction is not durable until the outermost one commits. On SQLite every request shares one
         // connection, so a save made while another request's transaction is open is nested in it.
         if (queryRunner.isTransactionActive) return
         const kinds = pendingByQueryRunner.get(queryRunner)
-        if (!kinds) return
         pendingByQueryRunner.delete(queryRunner)
-        // Also after a rollback: a load on that same connection may have read the rows it rolled back
-        kinds.forEach(reloadAfterWrite)
+        return kinds && [...kinds]
     }
-    afterTransactionCommit = this.transactionEnded
-    afterTransactionRollback = this.transactionEnded
+    afterTransactionCommit = (event: TransactionCommitEvent) => {
+        const kinds = this.ended(event)
+        if (kinds) return committed(kinds)
+    }
+    // A load on that same connection may have read the rows it rolled back; other processes never saw them
+    afterTransactionRollback = (event: TransactionRollbackEvent) => this.ended(event)?.forEach(reloadAfterWrite)
 }
 
 /** Loads everything and starts keeping it current; a no-op when DISABLE_CONFIG_CACHE=true. */
-export const startConfigCache = async (appDataSource: DataSource): Promise<void> => {
+export const startConfigCache = async (appDataSource: DataSource, channel: PeerChannel | undefined = clusterPeers()): Promise<void> => {
     if (!isConfigCacheEnabled() || dataSource) return
     dataSource = appDataSource
     appDataSource.subscribers.push(new ConfigCacheSubscriber())
+    peers = channel
+    unsubscribe = channel?.subscribe(onPeerMessage)
     await reloadAll()
     const seconds = refreshSeconds()
     if (seconds) {
@@ -181,13 +266,18 @@ export const startConfigCache = async (appDataSource: DataSource): Promise<void>
     }
     logger.info(
         `🗂️ [server]: Config cache loaded (${snapshot.chatflows?.size ?? 0} chatflows), ` +
-            (seconds ? `refreshing every ${seconds}s` : 'periodic refresh off')
+            (seconds ? `refreshing every ${seconds}s` : 'periodic refresh off') +
+            (channel ? ', reloading on writes in the other workers' : '')
     )
 }
 
 export const stopConfigCache = () => {
     if (refreshTimer) clearInterval(refreshTimer)
     refreshTimer = undefined
+    unsubscribe?.()
+    unsubscribe = undefined
+    peers = undefined
+    ;[...awaitingRelay.values()].forEach((done) => done())
     if (dataSource) {
         const index = dataSource.subscribers.findIndex((subscriber) => subscriber instanceof ConfigCacheSubscriber)
         if (index >= 0) dataSource.subscribers.splice(index, 1)
