@@ -28,6 +28,27 @@ const createQdrantClient = (url: string, apiKey: string | undefined, port: numbe
     return client
 }
 
+// @langchain/qdrant 0.0.x drops the point id. Only the scored search adds it, so retriever results, which can reach model input, stay without ids.
+class QdrantVectorStoreWithIds extends QdrantVectorStore {
+    async similaritySearchWithScore(query: string, k = 4, filter?: this['FilterType']): Promise<[Document, number][]> {
+        const { points } = await this.client.query(this.collectionName, {
+            query: await this.embeddings.embedQuery(query),
+            limit: k,
+            filter,
+            with_payload: [this.metadataPayloadKey, this.contentPayloadKey],
+            with_vector: false
+        })
+        return points.map((point) => [
+            new Document({
+                id: String(point.id),
+                pageContent: point.payload?.[this.contentPayloadKey] as string,
+                metadata: point.payload?.[this.metadataPayloadKey] as Record<string, any>
+            }),
+            point.score
+        ])
+    }
+}
+
 class Qdrant_VectorStores implements INode {
     label: string
     name: string
@@ -478,7 +499,7 @@ class Qdrant_VectorStores implements INode {
             )
         }
 
-        const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, dbConfig)
+        const vectorStore = await QdrantVectorStoreWithIds.fromExistingCollection(embeddings, dbConfig)
 
         if (output === 'retriever') {
             const retriever = vectorStore.asRetriever(retrieverConfig)

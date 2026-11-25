@@ -105,12 +105,14 @@ class DocStore_VectorStores implements INode {
         // Prepare Vector Store Node Data
         const vStoreNodeData = _createVectorStoreNodeData(options.componentNodes, data, embeddingObj)
         if (nodeData.inputs?.weaviateMetadataFilterOverride) {
-            const weaviateFilter = (
-                typeof nodeData.inputs?.weaviateMetadataFilterOverride === "object"
-                ? nodeData.inputs?.weaviateMetadataFilterOverride
-                : JSON.parse(nodeData.inputs?.weaviateMetadataFilterOverride)
-            )
+            const weaviateFilter =
+                typeof nodeData.inputs?.weaviateMetadataFilterOverride === 'object'
+                    ? nodeData.inputs?.weaviateMetadataFilterOverride
+                    : JSON.parse(nodeData.inputs?.weaviateMetadataFilterOverride)
             vStoreNodeData.inputs = { ...vStoreNodeData.inputs, weaviateFilter }
+        }
+        if (nodeData.inputs?.topKOverride) {
+            vStoreNodeData.inputs = { ...vStoreNodeData.inputs, topK: nodeData.inputs.topKOverride }
         }
 
         // Finally create the Vector Store or Retriever object (data.output)

@@ -11,10 +11,29 @@ import { updateFlowState } from '../utils'
 import { processTemplateVariables } from '../../../src/utils'
 import { DataSource } from 'typeorm'
 import { BaseRetriever } from '@langchain/core/retrievers'
-import { Document } from '@langchain/core/documents'
+import { Document, DocumentInterface } from '@langchain/core/documents'
+import { VectorStoreRetriever } from '@langchain/core/vectorstores'
 
 interface IKnowledgeBase {
     documentStore: string
+}
+
+interface IRetrieverHit {
+    id: string | null
+    score: number | null
+    pageContent: string
+    metadata: Record<string, any>
+}
+
+// MMR re-ranks for diversity and gives no scores; a scored similarity search would return other documents.
+const isSimilarityRetriever = (retriever: BaseRetriever): retriever is VectorStoreRetriever =>
+    'vectorStore' in retriever && (retriever as VectorStoreRetriever).searchType !== 'mmr'
+
+const searchHits = async (retriever: BaseRetriever, query: string, signal?: AbortSignal): Promise<IRetrieverHit[]> => {
+    const results: [DocumentInterface, number | null][] = isSimilarityRetriever(retriever)
+        ? await retriever.vectorStore.similaritySearchWithScore(query, retriever.k, retriever.filter)
+        : (await retriever.invoke(query, { signal })).map((doc): [DocumentInterface, null] => [doc, null])
+    return results.map(([doc, score]) => ({ id: doc.id ?? null, score, pageContent: doc.pageContent, metadata: doc.metadata }))
 }
 
 class Retriever_Agentflow implements INode {
@@ -36,7 +55,7 @@ class Retriever_Agentflow implements INode {
     constructor() {
         this.label = 'Retriever'
         this.name = 'retrieverAgentflow'
-        this.version = 1.1
+        this.version = 1.2
         this.type = 'Retriever'
         this.category = 'Agent Flows'
         this.description = 'Retrieve information from vector database'
@@ -66,12 +85,20 @@ class Retriever_Agentflow implements INode {
                 acceptVariable: true
             },
             {
+                label: 'Top K',
+                name: 'retrieverTopK',
+                description: "Number of results to fetch from each document store. Defaults to the store's own Top K",
+                type: 'number',
+                optional: true
+            },
+            {
                 label: 'Output Format',
                 name: 'outputFormat',
                 type: 'options',
                 options: [
                     { label: 'Text', name: 'text' },
-                    { label: 'Text with Metadata', name: 'textWithMetadata' }
+                    { label: 'Text with Metadata', name: 'textWithMetadata' },
+                    { label: 'JSON Hits', name: 'jsonHits', description: 'JSON array of {id, score, pageContent, metadata}' }
                 ],
                 default: 'text'
             },
@@ -144,6 +171,7 @@ class Retriever_Agentflow implements INode {
 
     async run(nodeData: INodeData, input: string, options: ICommonObject): Promise<any> {
         const retrieverQuery = nodeData.inputs?.retrieverQuery as string
+        const retrieverTopK = nodeData.inputs?.retrieverTopK
         const outputFormat = nodeData.inputs?.outputFormat as string
         const _retrieverUpdateState = nodeData.inputs?.retrieverUpdateState
 
@@ -153,9 +181,11 @@ class Retriever_Agentflow implements INode {
         const isStreamable = isLastNode && options.sseStreamer !== undefined
 
         const abortController = options.abortController as AbortController
+        const query = retrieverQuery || input
 
         // Extract knowledge
         let docs: Document[] = []
+        const hits: IRetrieverHit[] = []
         const knowledgeBases = nodeData.inputs?.retrieverKnowledgeDocumentStores as IKnowledgeBase[]
         if (knowledgeBases && knowledgeBases.length > 0) {
             for (const knowledgeBase of knowledgeBases) {
@@ -169,7 +199,8 @@ class Retriever_Agentflow implements INode {
                         ...nodeData,
                         inputs: {
                             ...nodeData.inputs,
-                            selectedStore: storeId
+                            selectedStore: storeId,
+                            topKOverride: retrieverTopK
                         },
                         outputs: {
                             output: 'retriever'
@@ -179,9 +210,11 @@ class Retriever_Agentflow implements INode {
                     options
                 )) as BaseRetriever
 
-                docs.push(...(
-                    await docStoreVectorInstance.invoke(retrieverQuery || input, { signal: abortController?.signal })
-                ));
+                if (outputFormat === 'jsonHits') {
+                    hits.push(...(await searchHits(docStoreVectorInstance, query, abortController?.signal)))
+                } else {
+                    docs.push(...(await docStoreVectorInstance.invoke(query, { signal: abortController?.signal })))
+                }
             }
         }
 
@@ -199,6 +232,8 @@ class Retriever_Agentflow implements INode {
                 finalOutput = docsText
             } else if (outputFormat === 'textWithMetadata') {
                 finalOutput = JSON.stringify(docs, null, 2)
+            } else if (outputFormat === 'jsonHits') {
+                finalOutput = JSON.stringify(hits, null, 2)
             }
 
             if (isStreamable) {
@@ -212,7 +247,7 @@ class Retriever_Agentflow implements INode {
                 id: nodeData.id,
                 name: this.name,
                 input: {
-                    question: retrieverQuery || input
+                    question: query
                 },
                 output: {
                     content: finalOutput
