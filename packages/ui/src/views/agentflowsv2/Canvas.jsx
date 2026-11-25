@@ -71,6 +71,7 @@ import { usePrompt } from '@/utils/usePrompt'
 import { FLOWISE_CREDENTIAL_ID, AGENTFLOW_ICONS } from '@/store/constant'
 
 const EXECUTION_ORDER_STORAGE_KEY = 'flowise_agentflow_show_execution_order'
+const EXECUTION_ORDER_HIDDEN = { showExecutionOrder: false, waveMap: {} }
 
 const nodeTypes = { agentFlow: CanvasNode, stickyNote: StickyNote, iteration: IterationNode }
 const edgeTypes = { agentFlow: AgentFlowEdge }
@@ -660,15 +661,16 @@ const AgentflowCanvas = () => {
 
     const [chatPopupOpen, setChatPopupOpen] = useState(false)
 
-    const executionOrderContextValue = useMemo(() => {
-        if (!showExecutionOrder) {
-            return { showExecutionOrder: false, waveMap: {} }
-        }
-        return {
-            showExecutionOrder: true,
-            waveMap: computeExecutionWaveMap(nodes || [], edges || [])
-        }
-    }, [showExecutionOrder, nodes, edges])
+    // Every node reads this context, so it gets a new value only when a badge changes, not on each
+    // `nodes` update (dimensions, selection, dragging), which would re-render every node each time.
+    const executionWaveMapJson = useMemo(
+        () => (showExecutionOrder ? JSON.stringify(computeExecutionWaveMap(nodes || [], edges || [])) : ''),
+        [showExecutionOrder, nodes, edges]
+    )
+    const executionOrderContextValue = useMemo(
+        () => (executionWaveMapJson ? { showExecutionOrder: true, waveMap: JSON.parse(executionWaveMapJson) } : EXECUTION_ORDER_HIDDEN),
+        [executionWaveMapJson]
+    )
 
     useEffect(() => {
         if (!chatflowId && !localStorage.getItem('duplicatedFlowData') && getNodesApi.data && nodes.length === 0) {

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { useContext, memo, useRef, useState, useEffect } from 'react'
+import { useContext, memo, useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { Handle, Position, useUpdateNodeInternals, NodeToolbar } from 'reactflow'
 
@@ -59,10 +59,7 @@ const AgentFlowNode = ({ id, data }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const canvas = useSelector((state) => state.canvas)
-    const ref = useRef(null)
     const updateNodeInternals = useUpdateNodeInternals()
-    // eslint-disable-next-line
-    const [position, setPosition] = useState(0)
     const [isHovered, setIsHovered] = useState(false)
     const [warningMessage, setWarningMessage] = useState('')
     const { deleteNode, duplicateNode } = useContext(flowContext)
@@ -85,18 +82,9 @@ const AgentFlowNode = ({ id, data }) => {
         return data.outputAnchors ?? []
     }
 
-    const getAnchorPosition = (index) => {
-        const currentHeight = ref.current?.clientHeight || 0
-        const spacing = currentHeight / (getOutputAnchors().length + 1)
-        const position = spacing * (index + 1)
-
-        // Update node internals when we get a non-zero position
-        if (position > 0) {
-            updateNodeInternals(data.id)
-        }
-
-        return position
-    }
+    // Percent of the node's height, so nothing is measured in render. Don't call `updateNodeInternals` from render:
+    // it always reports new dimensions, which replaces `nodes` and re-renders the canvas.
+    const getAnchorPosition = (index) => `${((index + 1) * 100) / (getOutputAnchors().length + 1)}%`
 
     const getMinimumHeight = () => {
         const outputCount = getOutputAnchors().length
@@ -172,13 +160,8 @@ const AgentFlowNode = ({ id, data }) => {
     }
 
     useEffect(() => {
-        if (ref.current) {
-            setTimeout(() => {
-                setPosition(ref.current?.offsetTop + ref.current?.clientHeight / 2)
-                updateNodeInternals(data.id)
-            }, 10)
-        }
-    }, [data, ref, updateNodeInternals, waveInfo?.label])
+        updateNodeInternals(data.id)
+    }, [data, updateNodeInternals])
 
     useEffect(() => {
         const nodeOutdatedMessage = (oldVersion, newVersion) =>
@@ -205,7 +188,7 @@ const AgentFlowNode = ({ id, data }) => {
     }, [canvas.componentNodes, data.name, data.version])
 
     return (
-        <div ref={ref} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <StyledNodeToolbar>
                 <ButtonGroup sx={{ gap: 1 }} variant='outlined' aria-label='Basic button group'>
                     {data.name !== 'startAgentflow' && (
